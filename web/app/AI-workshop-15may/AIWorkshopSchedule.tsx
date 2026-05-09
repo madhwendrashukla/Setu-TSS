@@ -1,4 +1,4 @@
-'use client';
+
 
 export function AIWorkshopSchedule() {
     const schedule = [

@@ -3,11 +3,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { AIWorkshopHero } from './AIWorkshopHero';
+import { AIWorkshopStoryline } from './AIWorkshopStoryline';
+import { AIWorkshopOutcomes } from './AIWorkshopOutcomes';
+import { AIWorkshopMentors } from './AIWorkshopMentors';
 
-const AIWorkshopStoryline = dynamic(() => import('./AIWorkshopStoryline').then(m => m.AIWorkshopStoryline));
-const AIWorkshopMentors = dynamic(() => import('./AIWorkshopMentors').then(m => m.AIWorkshopMentors));
 const AIWorkshopCurriculum = dynamic(() => import('./AIWorkshopCurriculum').then(m => m.AIWorkshopCurriculum));
-const AIWorkshopOutcomes = dynamic(() => import('./AIWorkshopOutcomes').then(m => m.AIWorkshopOutcomes));
 const AIWorkshopTestimonials = dynamic(() => import('./AIWorkshopTestimonials').then(m => m.AIWorkshopTestimonials));
 const AIWorkshopPricing = dynamic(() => import('./AIWorkshopPricing').then(m => m.AIWorkshopPricing));
 const AIWorkshopSchedule = dynamic(() => import('./AIWorkshopSchedule').then(m => m.AIWorkshopSchedule));
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         type: 'website',
         images: [
             {
-                url: 'https://thestartupschool.in/ai-workshop-banner.png',
+                url: 'https://thestartupschool.in/ai-workshop-banner.webp',
                 width: 1200,
                 height: 630,
                 alt: 'AI Startup Launchpad – May 15–17, 2026 | The Startup School',

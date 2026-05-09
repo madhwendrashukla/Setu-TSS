@@ -1,4 +1,4 @@
-'use client';
+
 
 const deliverables = [
     { icon: 'fa-check-double', title: 'Validated Business Idea', desc: '12 proven ideation methods applied, market-tested concept ready to build', color: '#8b5cf6' },

@@ -81,22 +81,14 @@ export default function RootLayout({
           `}
         </Script>
         {/* End Google Tag Manager */}
-        {/* Font Awesome — preload then swap to avoid TBT */}
+        {/* Font Awesome — Use standard link for better reliability */}
         <link
-          rel="preload"
+          rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          as="style"
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
           crossOrigin="anonymous"
-          // @ts-expect-error onload is valid here
-          onLoad="this.onload=null;this.rel='stylesheet'"
+          referrerPolicy="no-referrer"
         />
-        <noscript>
-          <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-            crossOrigin="anonymous"
-          />
-        </noscript>
       </head>
       <body
         className={`${inter.variable} ${merriweather.variable} antialiased bg-bg-main text-text-primary selection:bg-accent-blue selection:text-white overflow-x-hidden`}

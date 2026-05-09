@@ -1,5 +1,4 @@
-'use client';
-
+import Image from 'next/image';
 
 const mentors = [
     {
@@ -19,7 +18,7 @@ const mentors = [
         ],
         color: '#8b5cf6',
         initials: 'GB',
-        image: '/gaurav.jpg',
+        image: '/gaurav.webp',
         imagePosition: '50% 25%',
     },
     {
@@ -39,7 +38,7 @@ const mentors = [
         ],
         color: '#d946ef',
         initials: 'AP',
-        image: '/atul_pandey.jpeg',
+        image: '/atul_pandey.webp',
         imagePosition: '50% 15%',
     },
     {
@@ -59,7 +58,7 @@ const mentors = [
         ],
         color: '#8b5cf6',
         initials: 'AA',
-        image: '/amey_Astuti.jpeg',
+        image: '/amey_Astuti.webp',
         imagePosition: '50% 20%',
     },
 ];
@@ -83,18 +82,24 @@ export function AIWorkshopMentors() {
                             {/* Card body */}
                             <div className="p-6 md:p-8 flex flex-col flex-1">
 
-                            {/* Initials avatar */}
+                            {/* Photo avatar */}
                             <div
-                                className="w-20 h-20 rounded-2xl flex items-center justify-center text-xl font-black text-white mb-4"
+                                className="w-20 h-20 rounded-2xl overflow-hidden mb-4 relative"
                                 style={{
-                                    background: `linear-gradient(135deg, ${mentor.color}99, ${mentor.color})`,
                                     boxShadow: `0 4px 20px ${mentor.color}55`,
                                     border: `3px solid ${mentor.color}`,
                                     outline: `3px solid ${mentor.color}44`,
                                     outlineOffset: '3px',
                                 }}
                             >
-                                {mentor.initials}
+                                <Image
+                                    src={mentor.image}
+                                    alt={mentor.name}
+                                    fill
+                                    className="object-cover"
+                                    sizes="80px"
+                                    style={{ objectPosition: mentor.imagePosition }}
+                                />
                             </div>
 
                             {/* Badge */}

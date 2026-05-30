@@ -5,11 +5,10 @@ import Link from 'next/link';
 import { 
   ArrowLeft, Search, Filter, RefreshCw, CheckCircle2, AlertCircle, 
   ExternalLink, Building2, HelpCircle, FileText, CheckSquare, 
-  Award, Heart, ShieldAlert, Sparkles, BookOpen, Layers
+  Award, Heart, ShieldAlert, Sparkles, BookOpen, Layers, MapPin
 } from 'lucide-react';
 import { grantsData, Grant } from '@/lib/data/grants';
 
-// Type definition for language dictionary keys
 type LanguageKey = 'en' | 'hi' | 'kn' | 'ta' | 'te' | 'mr';
 
 // Translations Dictionary
@@ -74,10 +73,10 @@ const translations: Record<LanguageKey, {
         stageLabel: "Stage",
         criteria: "Eligibility Criteria",
         wizardTitle: "Smart Match Engine",
-        wizardDesc: "Answer 4 quick questions to see which grants you are eligible for.",
+        wizardDesc: "Answer 4 quick questions to find matching grants for your startup.",
         next: "Next",
         prev: "Back",
-        getMatches: "Find Match",
+        getMatches: "Find Matches",
         resetWizard: "Reset Matcher",
         backToTools: "Back to Tools",
         statsTotal: "Total Programs",
@@ -133,14 +132,14 @@ const translations: Record<LanguageKey, {
     kn: {
         title: "ಅನುದಾನಗಳು ಮತ್ತು ಯೋಜನೆಗಳ ಶೋಧನೆ",
         subtitle: "ಸರ್ಕಾರಿ ಬೆಂಬಲಿತ ಹಬ್‌ಗಳು, ಇನ್‌ಕ್ಯುಬೇಶನ್ ಅನುದಾನಗಳು ಮತ್ತು 0% ಇಕ್ವಿಟಿ ಕೇಳುವ ಯೋಜನೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.",
-        searchPlaceholder: "ಅನುದಾನದ ಹೆಸರು, ಪೂರೈಕೆದಾರರು, वಲಯದ ಮೂಲಕ ಹುಡುಕಿ...",
+        searchPlaceholder: "ಅನುದಾನದ ಹೆಸರು, ಪೂರೈಕೆದಾರರು, ವಲಯದ ಮೂಲಕ ಹುಡುಕಿ...",
         region: "ಪ್ರದೇಶ / ರಾಜ್ಯ",
         stage: "ಸ್ಟಾರ್ಟ್‌ಅಪ್ ಹಂತ",
         sector: "ಮುಖ್ಯ ವಲಯ",
         founderProfile: "ಸ್ಥಾಪಕರ ಪ್ರೊಫೈಲ್",
         clearFilters: "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ",
         resultsFound: "ಲಭ್ಯವಿರುವ ಯೋಜನೆಗಳು",
-        liveNow: "ಸಕ್ರಿಯ",
+        liveNow: "ಸಕ್ರिय",
         applyLink: "ಈಗಲೇ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
         howToApply: "ಅರ್ಜಿ ಸಲ್ಲಿಸುವುದು ಹೇಗೆ",
         docsNeeded: "ಅಗತ್ಯ ದಾಖಲೆಗಳು",
@@ -150,16 +149,16 @@ const translations: Record<LanguageKey, {
         funding: "ಹಣಕาสು ನೆರವು / ಪ್ರಯೋಜನಗಳು",
         provider: "ಪೂರೈಕೆದಾರರು",
         stageLabel: "ಹಂತ",
-        criteria: "ಅರ್ಹತಾ ಮಾನದंडಗಳು",
+        criteria: "ಅರ್ಹತಾ ಮಾನದಂಡಗಳು",
         wizardTitle: "ಸ್ಮಾರ್ಟ್ ಮ್ಯಾಚ್ ಇಂಜಿನ್",
         wizardDesc: "ನೀವು ಯಾವ ಅನುದಾನಕ್ಕೆ ಅರ್ಹರು ಎಂದು ತಿಳಿಯಲು 4 ತ್ವರಿತ ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರಿಸಿ.",
         next: "ಮುಂದೆ",
         prev: "ಹಿಂದೆ",
         getMatches: "ಮ್ಯಾಚ್ ಹುಡುಕಿ",
         resetWizard: "ರೀಸೆಟ್ ಮಾಡಿ",
-        backToTools: "ಪರಿಕರಗಳಿಗೆ ಹಿಂತಿರುगी",
+        backToTools: "ಪರಿಕರಗಳಿಗೆ ಹಿಂತಿರುಗಿ",
         statsTotal: "ಒಟ್ಟು ಕಾರ್ಯಕ್ರಮಗಳು",
-        statsFunding: "ಇಕ್ವಿटी-ಮುಕ್ತ ನಿಧಿ",
+        statsFunding: "ಇಕ್ವಿಟಿ-ಮುಕ್ತ ನಿಧಿ",
         statsDeadlines: "ಸಕ್ರಿಯ ಮತ್ತು ಚಾಲ್ತಿ",
         checklistTitle: "ಅರ್ಜಿ ಪರಿಶೀಲನಾ ಪಟ್ಟಿ",
         step1: "DPIIT / ಸ್ಟಾರ್ಟ್‌ಅಪ್ ಇಂಡಿಯಾ ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ಸ್ಟಾರ್ಟ್‌ಅಪ್ ನೋಂದಾಯಿಸಿ (ಅಗತ್ಯವಿದ್ದರೆ)",
@@ -313,128 +312,148 @@ export default function GrantsDiscoveryPage() {
   // Modal / Detail drawer state
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
 
-  // Static options based on data mapping
+  // Constants for filters
   const regions = ['All', 'Pan India', 'Delhi NCR', 'Karnataka', 'Maharashtra', 'Tamil Nadu', 'Telangana', 'Kerala', 'Gujarat', 'Rajasthan', 'Madhya Pradesh', 'Uttar Pradesh', 'West Bengal', 'Goa', 'Punjab', 'Haryana', 'Odisha', 'Assam'];
   const stages = ['All', 'Idea', 'MVP', 'MVP, Revenue, Scaling', 'Revenue, Scaling'];
   const sectors = ['All', 'DeepTech, AI/ML, SaaS', 'BioTech, HealthTech, MedTech', 'AgriTech, FoodTech', 'Defence, Aerospace, SpaceTech', 'JewelryTech, Innovation', 'All Sectors'];
   const profiles = ['All', 'Student / Youth', 'Woman Entrepreneur', 'SC/ST', 'General'];
   const types = ['All', 'Grant', 'Debt/Equity-free Loan', 'Seed Equity', 'Incubation Support'];
 
-  const handleLangChange = (newLang: LanguageKey) => {
-    setLang(newLang);
-  };
+  // Wizard option constants
+  const wizardStages = ['Idea', 'MVP', 'MVP, Revenue, Scaling', 'Revenue, Scaling'];
+  const wizardRegions = ['Pan India', 'Karnataka', 'Delhi NCR', 'Maharashtra', 'Tamil Nadu', 'Telangana', 'Other States'];
+  const wizardProfiles = ['General', 'Student / Youth', 'Woman Entrepreneur', 'SC/ST'];
+  const wizardSectors = ['Tech, AI & SaaS', 'BioTech & HealthTech', 'AgriTech & FoodTech', 'Defence & Aerospace', 'JewelryTech', 'General / All Sectors'];
 
-  // Run Wizard Filtering & Scoring
+  // Match Calculation Logic
   const scoredData = useMemo(() => {
     return grantsData.map(grant => {
       let score = 100;
-      let reasons: string[] = [];
+      let matchDetails: string[] = [];
 
       if (wizardActive) {
-        score = 0;
-        const totalChecks = 4;
-        let passed = 0;
+        let matchedCriteria = 0;
+        const totalCriteria = 4;
 
-        // Stage Check
+        // 1. Stage Check
         if (wizardAnswers.stage) {
-          const grantStage = grant.idealStage.toLowerCase();
-          const selectedStage = wizardAnswers.stage.toLowerCase();
-          if (grantStage.includes(selectedStage) || selectedStage.includes(grantStage) || grantStage.includes("all")) {
-            passed++;
+          const selected = wizardAnswers.stage.toLowerCase();
+          const actual = grant.idealStage.toLowerCase();
+          if (actual.includes(selected) || selected.includes(actual) || actual.includes("all")) {
+            matchedCriteria++;
+            matchDetails.push("Stage");
           }
         } else {
-          passed++;
+          matchedCriteria++;
         }
 
-        // Region Check
-        if (wizardAnswers.region && wizardAnswers.region !== 'All') {
-          const grantLoc = grant.location.toLowerCase();
-          const selectedLoc = wizardAnswers.region.toLowerCase();
-          if (grantLoc.includes(selectedLoc) || selectedLoc.includes(grantLoc) || grantLoc.includes("pan india")) {
-            passed++;
+        // 2. Region Check
+        if (wizardAnswers.region) {
+          const selected = wizardAnswers.region.toLowerCase();
+          const actual = grant.location.toLowerCase();
+          if (selected === 'pan india' || actual.includes('pan india') || actual.includes(selected) || selected.includes(actual)) {
+            matchedCriteria++;
+            matchDetails.push("Region");
           }
         } else {
-          passed++;
+          matchedCriteria++;
         }
 
-        // Profile Check
-        if (wizardAnswers.profile && wizardAnswers.profile !== 'All') {
-          const grantCrit = grant.criteria.toLowerCase();
-          const selectedProf = wizardAnswers.profile.toLowerCase();
-          if (selectedProf === 'student / youth') {
-            if (grantCrit.includes('student') || grantCrit.includes('youth') || grantCrit.includes('young') || grantCrit.includes('grad') || grantCrit.includes('age')) {
-              passed++;
-            }
-          } else if (selectedProf === 'woman entrepreneur') {
-            if (grantCrit.includes('women') || grantCrit.includes('woman') || grantCrit.includes('female')) {
-              passed++;
-            }
-          } else if (selectedProf === 'sc/st') {
-            if (grantCrit.includes('sc') || grantCrit.includes('st') || grantCrit.includes('tribal') || grantCrit.includes('caste')) {
-              passed++;
-            }
-          } else {
-            passed++; // General
-          }
-        } else {
-          passed++;
-        }
-
-        // Sector Check
-        if (wizardAnswers.sector && wizardAnswers.sector !== 'All') {
-          const grantSect = grant.focusSector.toLowerCase();
-          const selectedSect = wizardAnswers.sector.toLowerCase();
+        // 3. Profile Check
+        if (wizardAnswers.profile) {
+          const selected = wizardAnswers.profile.toLowerCase();
+          const criteriaLower = grant.criteria.toLowerCase();
           
-          if (selectedSect.includes("tech") && (grantSect.includes("tech") || grantSect.includes("software") || grantSect.includes("ai") || grantSect.includes("saas"))) {
-            passed++;
-          } else if (selectedSect.includes("agri") && (grantSect.includes("agri") || grantSect.includes("food"))) {
-            passed++;
-          } else if (selectedSect.includes("biotech") && (grantSect.includes("biotech") || grantSect.includes("health") || grantSect.includes("med"))) {
-            passed++;
-          } else if (selectedSect.includes("defence") && (grantSect.includes("def") || grantSect.includes("space") || grantSect.includes("aero"))) {
-            passed++;
-          } else if (grantSect.includes("all") || grantSect.includes("agnostic")) {
-            passed++;
+          if (selected === 'student / youth') {
+            if (criteriaLower.includes('student') || criteriaLower.includes('youth') || criteriaLower.includes('young') || criteriaLower.includes('grad') || criteriaLower.includes('no company')) {
+              matchedCriteria++;
+              matchDetails.push("Profile");
+            }
+          } else if (selected === 'woman entrepreneur') {
+            if (criteriaLower.includes('women') || criteriaLower.includes('woman') || criteriaLower.includes('female')) {
+              matchedCriteria++;
+              matchDetails.push("Profile");
+            }
+          } else if (selected === 'sc/st') {
+            if (criteriaLower.includes('sc') || criteriaLower.includes('st') || criteriaLower.includes('caste') || criteriaLower.includes('tribal')) {
+              matchedCriteria++;
+              matchDetails.push("Profile");
+            }
+          } else { // General / anyone
+            matchedCriteria++;
+            matchDetails.push("Profile");
           }
         } else {
-          passed++;
+          matchedCriteria++;
         }
 
-        score = Math.round((passed / totalChecks) * 100);
+        // 4. Sector Check
+        if (wizardAnswers.sector) {
+          const selected = wizardAnswers.sector.toLowerCase();
+          const sectorLower = grant.focusSector.toLowerCase();
+          const criteriaLower = grant.criteria.toLowerCase();
+          const nameLower = grant.name.toLowerCase();
+
+          if (selected.includes("tech") && (sectorLower.includes("tech") || sectorLower.includes("saas") || sectorLower.includes("ai") || sectorLower.includes("software") || sectorLower.includes("digital"))) {
+            matchedCriteria++;
+            matchDetails.push("Sector");
+          } else if (selected.includes("biotech") && (sectorLower.includes("biotech") || sectorLower.includes("health") || sectorLower.includes("med") || nameLower.includes("solve"))) {
+            matchedCriteria++;
+            matchDetails.push("Sector");
+          } else if (selected.includes("agri") && (sectorLower.includes("agri") || sectorLower.includes("farm") || sectorLower.includes("food"))) {
+            matchedCriteria++;
+            matchDetails.push("Sector");
+          } else if (selected.includes("defence") && (sectorLower.includes("def") || sectorLower.includes("space") || sectorLower.includes("aero") || nameLower.includes("defence"))) {
+            matchedCriteria++;
+            matchDetails.push("Sector");
+          } else if (selected.includes("jewelry") && (sectorLower.includes("jewel") || criteriaLower.includes("jewelry"))) {
+            matchedCriteria++;
+            matchDetails.push("Sector");
+          } else if (selected.includes("general") || sectorLower.includes("all") || sectorLower.includes("agnostic")) {
+            matchedCriteria++;
+            matchDetails.push("Sector");
+          }
+        } else {
+          matchedCriteria++;
+        }
+
+        score = Math.round((matchedCriteria / totalCriteria) * 100);
       }
 
-      return { ...grant, matchScore: score };
+      return { 
+        ...grant, 
+        matchScore: score, 
+        matchReasonList: matchDetails 
+      };
     });
   }, [wizardActive, wizardAnswers]);
 
-  // Main Filter Logic
+  // Combined Search & Filters logic
   const filteredData = useMemo(() => {
     return scoredData.filter(item => {
-      // Text Search
-      const matchesSearch = 
-        item.name.toLowerCase().includes(search.toLowerCase()) ||
-        item.provider.toLowerCase().includes(search.toLowerCase()) ||
-        item.focusSector.toLowerCase().includes(search.toLowerCase()) ||
-        item.criteria.toLowerCase().includes(search.toLowerCase());
+      // 1. Text Search - tokens match
+      const searchTokens = search.toLowerCase().split(/\s+/).filter(Boolean);
+      const grantText = `${item.name} ${item.provider} ${item.focusSector} ${item.criteria} ${item.location} ${item.fundingSupport}`.toLowerCase();
+      const matchesSearch = searchTokens.every(token => grantText.includes(token));
 
-      // Region Filter
+      // 2. Region Dropdown
       const matchesRegion = regionFilter === 'All' || item.location.toLowerCase().includes(regionFilter.toLowerCase()) || item.location.toLowerCase() === 'pan india';
 
-      // Stage Filter
+      // 3. Stage Dropdown
       const matchesStage = stageFilter === 'All' || item.idealStage.toLowerCase().includes(stageFilter.toLowerCase());
 
-      // Sector Filter
+      // 4. Sector Dropdown
       const matchesSector = sectorFilter === 'All' || item.focusSector.toLowerCase().includes(sectorFilter.toLowerCase());
 
-      // Type Filter
+      // 5. Type Dropdown
       const matchesType = typeFilter === 'All' || item.type.toLowerCase().includes(typeFilter.toLowerCase());
 
-      // Profile Filter (Heuristic matching on criteria field)
+      // 6. Profile Dropdown
       let matchesProfile = true;
       if (profileFilter !== 'All') {
         const criteriaLower = item.criteria.toLowerCase();
         if (profileFilter === 'Student / Youth') {
-          matchesProfile = criteriaLower.includes('student') || criteriaLower.includes('youth') || criteriaLower.includes('young') || criteriaLower.includes('grad');
+          matchesProfile = criteriaLower.includes('student') || criteriaLower.includes('youth') || criteriaLower.includes('young') || criteriaLower.includes('grad') || criteriaLower.includes('no company');
         } else if (profileFilter === 'Woman Entrepreneur') {
           matchesProfile = criteriaLower.includes('women') || criteriaLower.includes('woman') || criteriaLower.includes('female');
         } else if (profileFilter === 'SC/ST') {
@@ -442,8 +461,8 @@ export default function GrantsDiscoveryPage() {
         }
       }
 
-      // If Wizard is active, we show entries with a score > 0
-      const matchesWizard = !wizardActive || item.matchScore > 25;
+      // If Wizard is active, require at least 50% match
+      const matchesWizard = !wizardActive || item.matchScore >= 50;
 
       return matchesSearch && matchesRegion && matchesStage && matchesSector && matchesType && matchesProfile && matchesWizard;
     }).sort((a, b) => b.matchScore - a.matchScore);
@@ -461,11 +480,10 @@ export default function GrantsDiscoveryPage() {
     setWizardAnswers({ stage: '', region: '', profile: '', sector: '' });
   };
 
-  const handleWizardSubmit = () => {
-    setWizardActive(true);
+  const selectWizardOption = (key: string, value: string) => {
+    setWizardAnswers(prev => ({ ...prev, [key]: value }));
   };
 
-  // Document checklist builder helper based on metadata
   const getDocumentChecklist = (grant: Grant) => {
     const list = [
       t.step1,
@@ -473,46 +491,48 @@ export default function GrantsDiscoveryPage() {
       t.step3,
       t.step4
     ];
-    if (grant.criteria.toLowerCase().includes('dpiit')) {
+    const crit = grant.criteria.toLowerCase();
+    if (crit.includes('dpiit')) {
       list.unshift("DPIIT Recognition Certificate (Mandatory)");
     }
-    if (grant.criteria.toLowerCase().includes('student') || grant.criteria.toLowerCase().includes('youth')) {
-      list.push("College ID proof or Graduation Certificate");
+    if (crit.includes('student') || crit.includes('youth') || crit.includes('young')) {
+      list.push("College ID proof / Bonafide Certificate");
     }
-    if (grant.criteria.toLowerCase().includes('women') || grant.criteria.toLowerCase().includes('woman')) {
-      list.push("Shareholding proof pattern showing >51% female ownership");
+    if (crit.includes('women') || crit.includes('woman')) {
+      list.push("DPIIT Certificate proving >51% female ownership");
+    }
+    if (crit.includes('trl') || crit.includes('prototype')) {
+      list.push("Proof of Concept (PoC) / Prototype screenshots or video link");
     }
     return list;
   };
 
-  // Quick stats
   const activeRollingCount = useMemo(() => {
     return grantsData.filter(g => g.deadline.toLowerCase().includes('roll') || g.deadline.toLowerCase().includes('ong') || g.deadline.toLowerCase().includes('open')).length;
   }, []);
 
   return (
     <div className="pt-32 pb-20 min-h-screen bg-bg-main relative">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-accent-blue/5 via-accent-violet/5 to-transparent pointer-events-none z-0"></div>
+      {/* Glow header overlay */}
+      <div className="absolute top-0 left-0 w-full h-[550px] bg-gradient-to-b from-accent-blue/10 via-accent-violet/5 to-transparent pointer-events-none z-0"></div>
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
-        {/* Navigation & Language Select */}
+        {/* Navigation & Languages */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <Link href="/tools" className="inline-flex items-center text-text-secondary hover:text-white transition-colors text-sm group">
             <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
             {t.backToTools}
           </Link>
 
-          {/* Language Selector */}
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full p-1 self-end md:self-auto">
+          <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full p-1 self-end md:self-auto">
             {(['en', 'hi', 'kn', 'ta', 'te', 'mr'] as LanguageKey[]).map((l) => (
               <button
                 key={l}
-                onClick={() => handleLangChange(l)}
+                onClick={() => setLang(l)}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all uppercase ${
                   lang === l 
-                    ? 'bg-gradient-to-r from-accent-blue to-accent-violet text-white shadow-md' 
+                    ? 'bg-gradient-to-r from-accent-blue to-accent-violet text-white shadow-lg shadow-accent-blue/20' 
                     : 'text-text-secondary hover:text-white'
                 }`}
               >
@@ -522,23 +542,23 @@ export default function GrantsDiscoveryPage() {
           </div>
         </div>
 
-        {/* Title Header */}
+        {/* Title */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">
-            <span className="bg-accent-violet/20 text-accent-violet text-[10px] font-bold px-3 py-1 rounded-full border border-accent-violet/30 uppercase tracking-widest">
-              AI & Rule Augmented Engine
+            <span className="bg-accent-blue/20 text-accent-blue text-[10px] font-bold px-3 py-1.5 rounded-full border border-accent-blue/30 uppercase tracking-widest flex items-center gap-1.5">
+              <Sparkles size={12} className="animate-pulse" /> Verified Live Schemes Only
             </span>
             <div className="h-px bg-white/10 w-24"></div>
           </div>
           <h1 className="text-5xl md:text-6xl font-black text-white tracking-[-0.04em] mb-4">
             {t.title}
           </h1>
-          <p className="text-xl text-text-secondary font-light max-w-3xl leading-relaxed">
+          <p className="text-lg text-text-secondary font-light max-w-3xl leading-relaxed">
             {t.subtitle}
           </p>
         </div>
 
-        {/* Stat Bar Cards */}
+        {/* Live Counters */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="glass-card p-6 rounded-2xl border border-white/5 bg-bg-surface/10 hover-glow flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-accent-blue/10 flex items-center justify-center text-accent-blue border border-accent-blue/20">
@@ -546,7 +566,7 @@ export default function GrantsDiscoveryPage() {
             </div>
             <div>
               <p className="text-xs text-text-secondary font-bold uppercase tracking-wider">{t.statsTotal}</p>
-              <strong className="text-2xl text-white font-black">{grantsData.length} Schemes</strong>
+              <strong className="text-2xl text-white font-black">{grantsData.length} Live Schemes</strong>
             </div>
           </div>
 
@@ -571,34 +591,38 @@ export default function GrantsDiscoveryPage() {
           </div>
         </div>
 
-        {/* Wizard and Filters Layout */}
+        {/* Wizard Panel & Manual Filters */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           
-          {/* Smart Match wizard */}
+          {/* Smart Match Wizard Card */}
           <div className="lg:col-span-1">
-            <div className="glass-card p-6 md:p-8 rounded-3xl border border-white/10 bg-bg-surface/20 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-5">
-                <Sparkles size={120} className="text-accent-blue animate-pulse" />
-              </div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles size={16} className="text-accent-violet animate-spin" />
-                  <h3 className="text-lg font-bold text-white uppercase tracking-wider">{t.wizardTitle}</h3>
+            <div className="glass-card p-6 md:p-8 rounded-3xl border border-white/10 bg-bg-surface/20 relative overflow-hidden flex flex-col justify-between h-full min-h-[420px]">
+              
+              <div>
+                <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={18} className="text-accent-violet animate-pulse" />
+                    <h3 className="text-md font-bold text-white uppercase tracking-wider">{t.wizardTitle}</h3>
+                  </div>
+                  <span className="text-[10px] bg-white/10 text-white px-2 py-1 rounded-full font-bold">
+                    Step {wizardStep + 1} of 4
+                  </span>
                 </div>
-                <p className="text-sm text-text-secondary font-light mb-6">{t.wizardDesc}</p>
+                
+                <p className="text-xs text-text-secondary font-light mb-6">{t.wizardDesc}</p>
 
                 {/* Step 1: Stage */}
                 {wizardStep === 0 && (
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold uppercase tracking-widest text-text-tertiary">{t.stage}</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-accent-blue block mb-1">{t.stage}</label>
                     <div className="grid grid-cols-1 gap-2">
-                      {stages.filter(s => s !== 'All').map(s => (
+                      {wizardStages.map(s => (
                         <button
                           key={s}
-                          onClick={() => setWizardAnswers({...wizardAnswers, stage: s})}
-                          className={`p-3 text-left rounded-xl text-xs font-medium border transition-all ${
+                          onClick={() => selectWizardOption('stage', s)}
+                          className={`p-3 text-left rounded-2xl text-xs font-semibold border transition-all ${
                             wizardAnswers.stage === s 
-                              ? 'bg-accent-blue/20 border-accent-blue text-white' 
+                              ? 'bg-gradient-to-r from-accent-blue/20 to-accent-violet/20 border-accent-blue text-white shadow-lg' 
                               : 'bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:text-white'
                           }`}
                         >
@@ -611,31 +635,38 @@ export default function GrantsDiscoveryPage() {
 
                 {/* Step 2: Region */}
                 {wizardStep === 1 && (
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold uppercase tracking-widest text-text-tertiary">{t.region}</label>
-                    <select
-                      value={wizardAnswers.region}
-                      onChange={(e) => setWizardAnswers({...wizardAnswers, region: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-xs text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
-                    >
-                      <option value="" disabled className="bg-bg-surface">Select State</option>
-                      {regions.map(r => <option key={r} value={r} className="bg-bg-surface">{r}</option>)}
-                    </select>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-accent-blue block mb-1">{t.region}</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {wizardRegions.map(r => (
+                        <button
+                          key={r}
+                          onClick={() => selectWizardOption('region', r)}
+                          className={`p-3 text-left rounded-2xl text-xs font-semibold border transition-all ${
+                            wizardAnswers.region === r 
+                              ? 'bg-gradient-to-r from-accent-blue/20 to-accent-violet/20 border-accent-blue text-white shadow-lg' 
+                              : 'bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:text-white'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 
                 {/* Step 3: Profile */}
                 {wizardStep === 2 && (
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold uppercase tracking-widest text-text-tertiary">{t.founderProfile}</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-accent-blue block mb-1">{t.founderProfile}</label>
                     <div className="grid grid-cols-1 gap-2">
-                      {profiles.filter(p => p !== 'All').map(p => (
+                      {wizardProfiles.map(p => (
                         <button
                           key={p}
-                          onClick={() => setWizardAnswers({...wizardAnswers, profile: p})}
-                          className={`p-3 text-left rounded-xl text-xs font-medium border transition-all ${
+                          onClick={() => selectWizardOption('profile', p)}
+                          className={`p-3 text-left rounded-2xl text-xs font-semibold border transition-all ${
                             wizardAnswers.profile === p 
-                              ? 'bg-accent-blue/20 border-accent-blue text-white' 
+                              ? 'bg-gradient-to-r from-accent-blue/20 to-accent-violet/20 border-accent-blue text-white shadow-lg' 
                               : 'bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:text-white'
                           }`}
                         >
@@ -648,21 +679,30 @@ export default function GrantsDiscoveryPage() {
 
                 {/* Step 4: Sector */}
                 {wizardStep === 3 && (
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold uppercase tracking-widest text-text-tertiary">{t.sector}</label>
-                    <select
-                      value={wizardAnswers.sector}
-                      onChange={(e) => setWizardAnswers({...wizardAnswers, sector: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-xs text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
-                    >
-                      <option value="" disabled className="bg-bg-surface">Select Focus Sector</option>
-                      {sectors.map(s => <option key={s} value={s} className="bg-bg-surface">{s}</option>)}
-                    </select>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-accent-blue block mb-1">{t.sector}</label>
+                    <div className="grid grid-cols-1 gap-2 max-h-[220px] overflow-y-auto pr-1 no-scrollbar">
+                      {wizardSectors.map(s => (
+                        <button
+                          key={s}
+                          onClick={() => selectWizardOption('sector', s)}
+                          className={`p-3 text-left rounded-2xl text-xs font-semibold border transition-all ${
+                            wizardAnswers.sector === s 
+                              ? 'bg-gradient-to-r from-accent-blue/20 to-accent-violet/20 border-accent-blue text-white shadow-lg' 
+                              : 'bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:text-white'
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
+              </div>
 
-                {/* Wizard Controls */}
-                <div className="flex justify-between items-center mt-8 pt-4 border-t border-white/10">
+              {/* Wizard Control Buttons */}
+              <div className="mt-8">
+                <div className="flex justify-between items-center pt-4 border-t border-white/5">
                   {wizardStep > 0 ? (
                     <button
                       onClick={() => setWizardStep(wizardStep - 1)}
@@ -677,112 +717,115 @@ export default function GrantsDiscoveryPage() {
                   {wizardStep < 3 ? (
                     <button
                       onClick={() => setWizardStep(wizardStep + 1)}
-                      className="bg-white/10 text-white hover:bg-white/20 px-4 py-2 rounded-lg text-xs font-bold transition-all"
+                      className="bg-white/10 text-white hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-bold transition-all"
                     >
                       {t.next}
                     </button>
                   ) : (
                     <button
                       onClick={handleWizardSubmit}
-                      className="bg-gradient-to-r from-accent-blue to-accent-violet hover:opacity-90 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-md"
+                      className="bg-gradient-to-r from-accent-blue to-accent-violet hover:opacity-90 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-accent-blue/30"
                     >
                       {t.getMatches}
                     </button>
                   )}
                 </div>
 
-                {/* Reset button if wizard active */}
                 {wizardActive && (
                   <button
                     onClick={resetFilters}
-                    className="w-full mt-4 flex items-center justify-center gap-2 border border-white/10 text-text-secondary hover:text-white py-2 rounded-xl text-xs font-bold transition-colors"
+                    className="w-full mt-4 flex items-center justify-center gap-2 border border-white/10 text-text-secondary hover:text-white py-2.5 rounded-2xl text-xs font-bold transition-colors"
                   >
                     <RefreshCw size={12} /> {t.resetWizard}
                   </button>
                 )}
               </div>
+
             </div>
           </div>
 
-          {/* Unified Filter & Search Bar */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="glass-card p-6 md:p-8 rounded-3xl border border-white/10 bg-bg-surface/20">
-              <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
-                <Filter size={18} className="text-accent-blue" />
-                <h3 className="text-lg font-bold text-white uppercase tracking-wider">Search Filters</h3>
-              </div>
+          {/* Search Keywords & Dropdowns */}
+          <div className="lg:col-span-2">
+            <div className="glass-card p-6 md:p-8 rounded-3xl border border-white/10 bg-bg-surface/20 h-full flex flex-col justify-between">
+              
+              <div>
+                <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
+                  <Filter size={18} className="text-accent-blue" />
+                  <h3 className="text-md font-bold text-white uppercase tracking-wider">Refine Discovery</h3>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Search Text */}
-                <div className="relative group md:col-span-2">
-                  <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest group-focus-within:text-accent-blue transition-colors">
-                    Search Keyword
-                  </label>
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary">
-                    <Search size={18} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  {/* Keyword Input */}
+                  <div className="relative group md:col-span-2">
+                    <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest group-focus-within:text-accent-blue transition-colors">
+                      Smart Search
+                    </label>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary group-focus-within:text-accent-blue transition-colors">
+                      <Search size={18} />
+                    </div>
+                    <input
+                      type="text"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder={t.searchPlaceholder}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue/50 transition-all"
+                    />
                   </div>
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder={t.searchPlaceholder}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue/50 transition-all"
-                  />
-                </div>
 
-                {/* State/Region filter */}
-                <div className="relative group">
-                  <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t.region}</label>
-                  <select
-                    value={regionFilter}
-                    onChange={(e) => setRegionFilter(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
-                  >
-                    {regions.map(r => <option key={r} value={r} className="bg-bg-surface">{r === 'All' ? t.all : r}</option>)}
-                  </select>
-                </div>
+                  {/* Region Select */}
+                  <div className="relative group">
+                    <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t.region}</label>
+                    <select
+                      value={regionFilter}
+                      onChange={(e) => setRegionFilter(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
+                    >
+                      {regions.map(r => <option key={r} value={r} className="bg-bg-surface">{r === 'All' ? t.all : r}</option>)}
+                    </select>
+                  </div>
 
-                {/* Stage filter */}
-                <div className="relative group">
-                  <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t.stage}</label>
-                  <select
-                    value={stageFilter}
-                    onChange={(e) => setStageFilter(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
-                  >
-                    {stages.map(s => <option key={s} value={s} className="bg-bg-surface">{s === 'All' ? t.all : s}</option>)}
-                  </select>
-                </div>
+                  {/* Stage Select */}
+                  <div className="relative group">
+                    <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t.stage}</label>
+                    <select
+                      value={stageFilter}
+                      onChange={(e) => setStageFilter(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
+                    >
+                      {stages.map(s => <option key={s} value={s} className="bg-bg-surface">{s === 'All' ? t.all : s}</option>)}
+                    </select>
+                  </div>
 
-                {/* Sector filter */}
-                <div className="relative group">
-                  <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t.sector}</label>
-                  <select
-                    value={sectorFilter}
-                    onChange={(e) => setSectorFilter(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
-                  >
-                    {sectors.map(s => <option key={s} value={s} className="bg-bg-surface">{s === 'All' ? t.all : s}</option>)}
-                  </select>
-                </div>
+                  {/* Sector Select */}
+                  <div className="relative group">
+                    <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t.sector}</label>
+                    <select
+                      value={sectorFilter}
+                      onChange={(e) => setSectorFilter(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
+                    >
+                      {sectors.map(s => <option key={s} value={s} className="bg-bg-surface">{s === 'All' ? t.all : s}</option>)}
+                    </select>
+                  </div>
 
-                {/* Type filter */}
-                <div className="relative group">
-                  <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest">Type</label>
-                  <select
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
-                  >
-                    {types.map(ty => <option key={ty} value={ty} className="bg-bg-surface">{ty === 'All' ? t.all : ty}</option>)}
-                  </select>
-                </div>
+                  {/* Type Select */}
+                  <div className="relative group">
+                    <label className="absolute left-4 -top-2.5 px-2 bg-[#0F172A] text-[10px] font-bold text-text-secondary uppercase tracking-widest">Funding Type</label>
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer"
+                    >
+                      {types.map(ty => <option key={ty} value={ty} className="bg-bg-surface">{ty === 'All' ? t.all : ty}</option>)}
+                    </select>
+                  </div>
 
+                </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
+              {/* Action row footer */}
+              <div className="flex justify-between items-center mt-8 pt-4 border-t border-white/5">
                 <button
                   onClick={resetFilters}
                   className="text-xs font-bold text-text-secondary hover:text-white transition-colors flex items-center gap-1.5"
@@ -807,28 +850,33 @@ export default function GrantsDiscoveryPage() {
               key={item.id || index}
               className="glass-card hover-glow p-6 md:p-8 rounded-3xl border border-white/5 flex flex-col relative group transition-all duration-300 bg-bg-surface/10"
             >
-              {/* Card Ribbon / Badges */}
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex flex-wrap gap-2">
+              
+              {/* Badges and Score details */}
+              <div className="flex justify-between items-start mb-6 gap-2">
+                <div className="flex flex-wrap gap-1.5 max-w-[70%]">
                   <span className="bg-white/10 text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                     {item.type}
                   </span>
-                  {item.deadline.toLowerCase().includes('roll') && (
+                  {item.deadline.toLowerCase().includes('roll') || item.deadline.toLowerCase().includes('ong') || item.deadline.toLowerCase().includes('open') ? (
                     <span className="bg-green-500/10 border border-green-500/20 text-green-400 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-                      <CheckCircle2 size={10} /> Rolling
+                      <CheckCircle2 size={10} /> Open
+                    </span>
+                  ) : (
+                    <span className="bg-accent-violet/10 border border-accent-violet/20 text-accent-violet text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                      <AlertCircle size={10} /> Active
                     </span>
                   )}
                 </div>
 
-                {/* Score badge in Wizard mode */}
+                {/* Match percentage display */}
                 {wizardActive && (
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-end shrink-0">
                     <span className="text-[8px] uppercase tracking-widest text-text-secondary font-bold mb-1">{t.scoreLabel}</span>
                     <span className={`w-8 h-8 rounded-full border flex items-center justify-center text-xs font-bold shrink-0 ${
                       item.matchScore >= 75 
-                        ? 'text-green-400 border-green-500/30 bg-green-500/10' 
+                        ? 'text-green-400 border-green-500/30 bg-green-500/10 shadow-[0_0_10px_rgba(34,197,94,0.15)]' 
                         : item.matchScore >= 50 
-                        ? 'text-accent-blue border-accent-blue/30 bg-accent-blue/10' 
+                        ? 'text-accent-blue border-accent-blue/30 bg-accent-blue/10 shadow-[0_0_10px_rgba(139,92,246,0.15)]' 
                         : 'text-text-secondary border-white/10'
                     }`}>
                       {item.matchScore}%
@@ -837,9 +885,9 @@ export default function GrantsDiscoveryPage() {
                 )}
               </div>
 
-              {/* Title & Organization Info */}
+              {/* Title & Organization */}
               <div className="mb-4">
-                <h3 className="text-xl font-bold text-white mb-2 tracking-tight group-hover:text-accent-blue transition-colors line-clamp-2 leading-tight">
+                <h3 className="text-lg font-bold text-white mb-2 tracking-tight group-hover:text-accent-blue transition-colors line-clamp-2 leading-tight">
                   {item.name}
                 </h3>
                 <p className="text-xs text-text-secondary font-light flex items-center gap-1">
@@ -848,19 +896,19 @@ export default function GrantsDiscoveryPage() {
                 </p>
               </div>
 
-              {/* Parameter Table details */}
+              {/* Details table grid */}
               <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-white/5 border border-white/5 rounded-2xl text-xs">
                 <div>
                   <span className="text-[9px] text-text-secondary uppercase tracking-wider font-bold block mb-1">
                     {t.funding}
                   </span>
-                  <span className="text-white font-medium line-clamp-1">{item.fundingSupport}</span>
+                  <span className="text-white font-medium line-clamp-2 leading-tight">{item.fundingSupport}</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-text-secondary uppercase tracking-wider font-bold block mb-1">
                     {t.deadline}
                   </span>
-                  <span className="text-white font-medium line-clamp-1">{item.deadline}</span>
+                  <span className="text-white font-medium line-clamp-2 leading-tight">{item.deadline}</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-text-secondary uppercase tracking-wider font-bold block mb-1">
@@ -870,13 +918,28 @@ export default function GrantsDiscoveryPage() {
                 </div>
                 <div>
                   <span className="text-[9px] text-text-secondary uppercase tracking-wider font-bold block mb-1">
-                    {t.region}
+                    Location
                   </span>
-                  <span className="text-white font-medium line-clamp-1">{item.location}</span>
+                  <span className="text-white font-medium line-clamp-1 flex items-center gap-1">
+                    <MapPin size={10} className="text-accent-violet shrink-0" /> {item.location}
+                  </span>
                 </div>
               </div>
 
-              {/* Footer action keys */}
+              {/* Match reasons explanation tag */}
+              {wizardActive && item.matchReasonList && item.matchReasonList.length > 0 && (
+                <div className="mb-4 px-3 py-1.5 bg-white/5 border border-white/5 rounded-xl text-[10px] text-text-secondary flex items-center gap-1.5 flex-wrap">
+                  <Sparkles size={10} className="text-accent-blue" />
+                  <span>Matches:</span>
+                  {item.matchReasonList.map(reason => (
+                    <span key={reason} className="bg-accent-blue/10 text-accent-blue px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider">
+                      {reason}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Actions Footer */}
               <div className="mt-auto pt-4 border-t border-white/5 flex gap-2">
                 <button
                   onClick={() => setSelectedGrant(item)}
@@ -898,7 +961,7 @@ export default function GrantsDiscoveryPage() {
           ))}
         </div>
 
-        {/* Empty state details */}
+        {/* Empty state container */}
         {filteredData.length === 0 && (
           <div className="glass-card p-16 rounded-3xl border border-dashed border-white/10 text-center flex flex-col items-center justify-center min-h-[350px]">
             <AlertCircle size={40} className="text-text-secondary mb-4" />
@@ -912,7 +975,7 @@ export default function GrantsDiscoveryPage() {
 
       </div>
 
-      {/* Interactive Detail Drawer Modal */}
+      {/* Slide-in Detail Drawer Modal */}
       {selectedGrant && (
         <div className="fixed inset-0 bg-black/80 backdrop-filter backdrop-blur-md flex items-center justify-center z-50 p-4">
           <div className="glass-card max-w-2xl w-full rounded-[2rem] border border-white/10 bg-bg-surface overflow-hidden relative">
@@ -927,7 +990,6 @@ export default function GrantsDiscoveryPage() {
 
             <div className="p-8 md:p-10 max-h-[85vh] overflow-y-auto">
               
-              {/* Header inside modal */}
               <div className="mb-6">
                 <span className="bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-3 inline-block">
                   {selectedGrant.type}
@@ -941,25 +1003,25 @@ export default function GrantsDiscoveryPage() {
                 </p>
               </div>
 
-              {/* Verified badge or Affiliation */}
-              <div className="flex flex-wrap gap-4 mb-8 bg-white/5 border border-white/5 rounded-2xl p-4">
+              {/* Metadata strip info */}
+              <div className="flex flex-wrap gap-4 mb-8 bg-white/5 border border-white/5 rounded-2xl p-4 text-xs">
                 {selectedGrant.governmentAffiliation && (
                   <div>
                     <span className="text-[10px] text-text-secondary uppercase tracking-wider block font-bold mb-0.5">{t.affiliation}</span>
-                    <span className="text-white text-xs font-semibold">{selectedGrant.governmentAffiliation}</span>
+                    <span className="text-white font-semibold">{selectedGrant.governmentAffiliation}</span>
                   </div>
                 )}
                 {selectedGrant.sourceVerified && (
                   <div>
                     <span className="text-[10px] text-text-secondary uppercase tracking-wider block font-bold mb-0.5">{t.verified}</span>
-                    <span className="text-green-400 text-xs font-semibold flex items-center gap-1">
+                    <span className="text-green-400 font-semibold flex items-center gap-1">
                       <CheckCircle2 size={12} /> {selectedGrant.sourceVerified}
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* Criteria details */}
+              {/* Interactive guidelines */}
               <div className="space-y-6">
                 
                 <div>
@@ -972,7 +1034,7 @@ export default function GrantsDiscoveryPage() {
                   </p>
                 </div>
 
-                {/* Checklist Document simulation */}
+                {/* Documents checklist */}
                 <div>
                   <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2 flex items-center gap-2">
                     <CheckSquare size={14} className="text-accent-blue" />
@@ -988,22 +1050,22 @@ export default function GrantsDiscoveryPage() {
                   </ul>
                 </div>
 
-                {/* Guide description */}
+                {/* step-by-step applying guide */}
                 <div>
                   <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2 flex items-center gap-2">
                     <HelpCircle size={14} className="text-accent-violet" />
                     {t.howToApply}
                   </h4>
                   <div className="text-sm text-text-secondary font-light space-y-2">
-                    <p>1. Verify eligibility based on criteria listed above.</p>
-                    <p>2. Prepare necessary documentation including checklist items.</p>
-                    <p>3. Submit the digital form at the official application portal.</p>
+                    <p>1. Verify eligibility parameters matching your startup details.</p>
+                    <p>2. Prepare necessary documentation including checklist items listed above.</p>
+                    <p>3. Submit the digital form at the official application portal using the link below.</p>
                   </div>
                 </div>
 
               </div>
 
-              {/* Action Buttons */}
+              {/* Close and apply buttons */}
               <div className="mt-8 pt-6 border-t border-white/10 flex gap-4">
                 <button
                   onClick={() => setSelectedGrant(null)}
@@ -1015,7 +1077,7 @@ export default function GrantsDiscoveryPage() {
                   href={selectedGrant.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 bg-gradient-to-r from-accent-blue to-accent-violet text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2"
+                  className="flex-1 bg-gradient-to-r from-accent-blue to-accent-violet text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-accent-blue/20"
                 >
                   {t.applyLink} <ExternalLink size={14} />
                 </a>

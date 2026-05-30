@@ -47,13 +47,13 @@ export default function ToolsPage() {
                         </div>
                     </div>
 
-                    {/* Coming Soon: Grants & Schemes */}
-                    <div className="glass-card p-8 md:p-10 rounded-3xl border border-dashed border-white/10 bg-[#020202] relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%,transparent_100%)] bg-[length:4px_4px]"></div>
-                        <span className="bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest mb-6 inline-block shadow-[0_0_15px_rgba(34,197,94,0.2)]">Coming Soon</span>
-                        <h3 className="text-2xl md:text-3xl font-bold text-gray-400 mb-4 tracking-tight">Grants & Schemes</h3>
-                        <p className="text-gray-500 leading-relaxed font-light mb-8 relative z-10">Explore government-backed hubs, universities, and pure grants asking for 0% equity.</p>
-                    </div>
+                    {/* Active Tool 3: Grants & Schemes */}
+                    <Link href="/tools/grants" className="glass-card p-8 md:p-10 rounded-3xl border border-white/10 hover:border-accent-blue/50 transition-colors group relative overflow-hidden bg-[#050505]">
+                        <span className="bg-accent-blue/10 text-accent-blue text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest mb-6 inline-block border border-accent-blue/20">Live Now</span>
+                        <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 tracking-tight group-hover:text-accent-blue transition-colors">Grants & Schemes</h3>
+                        <p className="text-text-secondary leading-relaxed font-light mb-8">Explore government-backed hubs, incubation grants, and pure schemes asking for 0% equity.</p>
+                        <span className="text-accent-blue font-bold text-sm tracking-widest uppercase flex items-center gap-2 group-hover:translate-x-2 transition-transform">Access Tool <span className="text-lg">&rarr;</span></span>
+                    </Link>
 
                     {/* Coming Soon: Investors Match */}
                     <div className="glass-card p-8 md:p-10 rounded-3xl border border-dashed border-white/10 bg-[#020202] relative overflow-hidden group">

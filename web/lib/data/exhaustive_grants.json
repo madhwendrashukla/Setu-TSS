@@ -1,0 +1,632 @@
+[
+  {
+    "Incubator/Organization Name": "AIC IIT Delhi",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "AIM/NITI Aayog + IIT Delhi",
+    "Scheme/Grant/Program Name": "AIC IIT Delhi Pre-Incubation Program",
+    "Funding Amount / Benefits": "₹3 Lakh prototype support + pathway to ₹10 Lakh",
+    "Eligibility Criteria": "TRL 0-3 founders, no company needed",
+    "Application Deadline": "May 31, 2026",
+    "Official Link / URL": "https://www.aic-iitd.in/",
+    "Source Verified From": "AIC IIT Delhi Official Portal"
+  },
+  {
+    "Incubator/Organization Name": "SINE IITB + GJEPC",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Commerce",
+    "Scheme/Grant/Program Name": "JewelStart Innovation Challenge",
+    "Funding Amount / Benefits": "Industry mentorship + pilots",
+    "Eligibility Criteria": "Jewelry tech and innovation startups",
+    "Application Deadline": "June 18, 2026",
+    "Official Link / URL": "https://jewelstart.org/",
+    "Source Verified From": "SINE IITB Portal"
+  },
+  {
+    "Incubator/Organization Name": "FITT IIT Delhi",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Education",
+    "Scheme/Grant/Program Name": "Samsung Solve for Tomorrow 2026",
+    "Funding Amount / Benefits": "Up to ₹2 Crore (top 4 teams)",
+    "Eligibility Criteria": "Youth aged 14-22 with innovative ideas",
+    "Application Deadline": "July 3, 2026",
+    "Official Link / URL": "https://fitt-iitd.in/",
+    "Source Verified From": "FITT IIT Delhi Portal"
+  },
+  {
+    "Incubator/Organization Name": "Govt. of Karnataka",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Dept of Electronics, IT, BT & S&T",
+    "Scheme/Grant/Program Name": "Karnataka ELEVATE Program - 25th Call",
+    "Funding Amount / Benefits": "Up to ₹50 Lakh non-dilutive grant",
+    "Eligibility Criteria": "Startups incorporated in Karnataka within 10 years",
+    "Application Deadline": "June 25, 2026",
+    "Official Link / URL": "https://eitbt.karnataka.gov.in",
+    "Source Verified From": "Karnataka Startup Portal"
+  },
+  {
+    "Incubator/Organization Name": "WE Hub",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Telangana",
+    "Scheme/Grant/Program Name": "WE Hub Rural Women Initiative",
+    "Funding Amount / Benefits": "₹21.40 Crore total initiative (grants + soft loans)",
+    "Eligibility Criteria": "Rural women entrepreneurs in Telangana",
+    "Application Deadline": "Rolling / Open",
+    "Official Link / URL": "https://wehub.telangana.gov.in/",
+    "Source Verified From": "WE Hub Portal"
+  },
+  {
+    "Incubator/Organization Name": "Startup India",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DPIIT, Central Govt",
+    "Scheme/Grant/Program Name": "Startup India Seed Fund Scheme (SISFS)",
+    "Funding Amount / Benefits": "Up to ₹20L grant + up to ₹50L debt/debentures",
+    "Eligibility Criteria": "DPIIT-recognized, <2 yrs old, tech-based, >51% Indian promoters",
+    "Application Deadline": "May 31, 2026 (Extended to June 30)",
+    "Official Link / URL": "https://seedfund.startupindia.gov.in/",
+    "Source Verified From": "Startup India Portal"
+  },
+  {
+    "Incubator/Organization Name": "IITM Incubation Cell",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DST / Ministry of Education",
+    "Scheme/Grant/Program Name": "IITM Incubation Cell",
+    "Funding Amount / Benefits": "Seed funding + investor access",
+    "Eligibility Criteria": "Deep-tech startups, IITM affiliates, external tech entrepreneurs",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://incubation.iitm.ac.in/",
+    "Source Verified From": "IITMIC Portal"
+  },
+  {
+    "Incubator/Organization Name": "SINE IIT Bombay",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DST TBI / Ministry of Education",
+    "Scheme/Grant/Program Name": "SINE Incubation",
+    "Funding Amount / Benefits": "Equity/loan/seed + Y-Point VC (₹250 cr fund)",
+    "Eligibility Criteria": "Tech startups",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://sineiitb.org/",
+    "Source Verified From": "SINE IITB Portal"
+  },
+  {
+    "Incubator/Organization Name": "NSRCEL IIM Bangalore",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Education",
+    "Scheme/Grant/Program Name": "Campus Founders Programme",
+    "Funding Amount / Benefits": "Incubation support",
+    "Eligibility Criteria": "Any Indian student/recent grad",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://nsrcel.org/",
+    "Source Verified From": "NSRCEL Portal"
+  },
+  {
+    "Incubator/Organization Name": "Villgro",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DPIIT / SISFS Partner",
+    "Scheme/Grant/Program Name": "Villgro India Incubation",
+    "Funding Amount / Benefits": "Seed funding",
+    "Eligibility Criteria": "Healthcare, Climate-Smart Agri, Climate Action, Gender Inclusion",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.villgro.org/",
+    "Source Verified From": "Villgro Portal"
+  },
+  {
+    "Incubator/Organization Name": "Govt. of Gujarat",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Gujarat",
+    "Scheme/Grant/Program Name": "Gujarat SSIP 2.0",
+    "Funding Amount / Benefits": "Schools: ₹20K, Higher Ed: ₹2.5L, 100% IPR reimbursement",
+    "Eligibility Criteria": "Students of Gujarat institutions",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.ssipgujarat.in/",
+    "Source Verified From": "SSIP Gujarat Portal"
+  },
+  {
+    "Incubator/Organization Name": "ANRF",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Science & Technology",
+    "Scheme/Grant/Program Name": "Advanced Research Grant (ARG)",
+    "Funding Amount / Benefits": "Multi-year R&D funding",
+    "Eligibility Criteria": "Researchers/scientists/faculty with regular positions in Indian institutions",
+    "Application Deadline": "June 10, 2026",
+    "Official Link / URL": "https://anrfonline.in",
+    "Source Verified From": "ANRF Portal"
+  },
+  {
+    "Incubator/Organization Name": "DST / NSTEDB",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DST, Govt. of India",
+    "Scheme/Grant/Program Name": "NIDHI PRAYAS 2.0 - Call for Incubators",
+    "Funding Amount / Benefits": "Capacity grants up to ₹40L per project",
+    "Eligibility Criteria": "Established TBI/incubator",
+    "Application Deadline": "June 19, 2026",
+    "Official Link / URL": "https://nidhi-prayas.org",
+    "Source Verified From": "DST Portal"
+  },
+  {
+    "Incubator/Organization Name": "BIRAC",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DBT, Govt. of India",
+    "Scheme/Grant/Program Name": "Biotechnology Industry Partnership Programme (BIPP)",
+    "Funding Amount / Benefits": "Viability gap funding for high-risk R&D",
+    "Eligibility Criteria": "Indian companies (Pvt Ltd/LLP), >51% Indian shareholding",
+    "Application Deadline": "June 30, 2026",
+    "Official Link / URL": "https://birac.nic.in",
+    "Source Verified From": "BIRAC Portal"
+  },
+  {
+    "Incubator/Organization Name": "BIRAC + DBT",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DBT, Govt. of India",
+    "Scheme/Grant/Program Name": "Bio-AI Joint Call (BioE3 Policy)",
+    "Funding Amount / Benefits": "Up to ₹25 Crore for consortia/multi-institutional projects",
+    "Eligibility Criteria": "Interdisciplinary teams from Indian academia and industry",
+    "Application Deadline": "June 30, 2026",
+    "Official Link / URL": "https://birac.nic.in",
+    "Source Verified From": "BIRAC Portal"
+  },
+  {
+    "Incubator/Organization Name": "BIRAC + Grand Challenges India",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DBT / BIRAC",
+    "Scheme/Grant/Program Name": "GCI-BIRAC: Screening & Diagnosis",
+    "Funding Amount / Benefits": "Exploratory: up to ₹50L; Solution: up to ₹2 Cr",
+    "Eligibility Criteria": "Indian academic/research institutions, startups, NGOs",
+    "Application Deadline": "July 1, 2026",
+    "Official Link / URL": "https://birac.nic.in",
+    "Source Verified From": "BIRAC Portal"
+  },
+  {
+    "Incubator/Organization Name": "BIRAC",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DBT, Govt. of India",
+    "Scheme/Grant/Program Name": "BIRAC BIG (Biotechnology Ignition Grant)",
+    "Funding Amount / Benefits": "Up to ₹50 Lakhs non-dilutive grant",
+    "Eligibility Criteria": "Indian company/LLP <=5 years, >51% Indian shareholding",
+    "Application Deadline": "July 1, 2026",
+    "Official Link / URL": "https://birac.nic.in/big.php",
+    "Source Verified From": "BIRAC Portal"
+  },
+  {
+    "Incubator/Organization Name": "Technology Development Board (TDB)",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DST, Govt. of India",
+    "Scheme/Grant/Program Name": "India-Finland Joint Innovation Call 2026",
+    "Funding Amount / Benefits": "Up to ₹2.5 Crore per Indian project",
+    "Eligibility Criteria": "Indian companies with Finnish partner",
+    "Application Deadline": "August 28, 2026",
+    "Official Link / URL": "https://www.tdb.gov.in",
+    "Source Verified From": "TDB Portal"
+  },
+  {
+    "Incubator/Organization Name": "DBT + BIRAC",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DBT, Govt. of India",
+    "Scheme/Grant/Program Name": "D.E.S.I.G.N. for BioE3 Challenge",
+    "Funding Amount / Benefits": "Round 1: ₹1 Lakh cash grant; Round 2: up to ₹25 Lakhs RDI grant",
+    "Eligibility Criteria": "Students, researchers, young startups",
+    "Application Deadline": "October 31, 2026 (Rolling monthly)",
+    "Official Link / URL": "https://birac.nic.in",
+    "Source Verified From": "BIRAC Portal"
+  },
+  {
+    "Incubator/Organization Name": "BIRAC",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DBT, Govt. of India",
+    "Scheme/Grant/Program Name": "PCP Fund",
+    "Funding Amount / Benefits": "Milestone-based repayable contribution",
+    "Eligibility Criteria": "Indian startup <=10 years, >51% Indian shareholding, TRL 7+",
+    "Application Deadline": "December 31, 2026",
+    "Official Link / URL": "https://birac.nic.in",
+    "Source Verified From": "BIRAC Portal"
+  },
+  {
+    "Incubator/Organization Name": "Technology Development Board (TDB)",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DST, Govt. of India",
+    "Scheme/Grant/Program Name": "Commercialization of Indigenous Innovative Technologies",
+    "Funding Amount / Benefits": "Soft loans up to 50% project cost, Equity up to 25%",
+    "Eligibility Criteria": "Private limited companies, >51% Indian ownership, TRL 6+",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.tdb.gov.in",
+    "Source Verified From": "TDB Portal"
+  },
+  {
+    "Incubator/Organization Name": "DST / NSTEDB",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DST, Govt. of India",
+    "Scheme/Grant/Program Name": "NIDHI-SSP (Seed Support Program)",
+    "Funding Amount / Benefits": "Up to ₹50-100 Lakhs per startup",
+    "Eligibility Criteria": "Registered Pvt Ltd, >51% Indian promoters, DPIIT-recognized, TBI incubatee",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://dst.gov.in",
+    "Source Verified From": "DST Portal"
+  },
+  {
+    "Incubator/Organization Name": "DST / NSTEDB",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DST, Govt. of India",
+    "Scheme/Grant/Program Name": "NIDHI-EIR (Entrepreneur-in-Residence)",
+    "Funding Amount / Benefits": "₹10,000-₹30,000/month for up to 12 months",
+    "Eligibility Criteria": "Indian citizen, first-gen entrepreneur, full-time commitment",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.nidhi-eir.in",
+    "Source Verified From": "NIDHI EIR Portal"
+  },
+  {
+    "Incubator/Organization Name": "Ministry of Agriculture",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of India",
+    "Scheme/Grant/Program Name": "RKVY-RAFTAAR Agri Startup Grant",
+    "Funding Amount / Benefits": "Pre-Seed: Up to ₹5L; Seed: Up to ₹25L",
+    "Eligibility Criteria": "AgriTech/food processing/supply chain startups",
+    "Application Deadline": "May 31, 2026",
+    "Official Link / URL": "https://agristartup.gov.in",
+    "Source Verified From": "AgriStartup Portal"
+  },
+  {
+    "Incubator/Organization Name": "Ministry of Defence / DIO",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of India",
+    "Scheme/Grant/Program Name": "iDEX Open Challenge",
+    "Funding Amount / Benefits": "Up to ₹1.5 Crore",
+    "Eligibility Criteria": "DPIIT startups, MSMEs, individual innovators; defense tech",
+    "Application Deadline": "June 30, 2026",
+    "Official Link / URL": "https://idex.gov.in",
+    "Source Verified From": "iDEX Portal"
+  },
+  {
+    "Incubator/Organization Name": "MeitY Startup Hub",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "MeitY",
+    "Scheme/Grant/Program Name": "SAMRIDH Scheme",
+    "Funding Amount / Benefits": "Matching equity funding up to ₹40 Lakhs",
+    "Eligibility Criteria": "DPIIT startup, MVP ready, >51% Indian ownership",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://meitystartuphub.in",
+    "Source Verified From": "MeitY Portal"
+  },
+  {
+    "Incubator/Organization Name": "MeitY Startup Hub",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "MeitY",
+    "Scheme/Grant/Program Name": "MeitY GENESIS Program",
+    "Funding Amount / Benefits": "EiR: ₹10L; Pilot: ₹40L; Matching: ₹50L",
+    "Eligibility Criteria": "Tier-2/3 city tech startups, DPIIT-recognized",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://msh.meity.gov.in",
+    "Source Verified From": "MeitY Portal"
+  },
+  {
+    "Incubator/Organization Name": "MeitY Startup Hub",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "MeitY",
+    "Scheme/Grant/Program Name": "MeitY TIDE 2.0",
+    "Funding Amount / Benefits": "EiR: ₹4L; Startup Grant: ₹7L",
+    "Eligibility Criteria": "Indian startup/individual, emerging tech (IoT, AI, etc.)",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://msh.meity.gov.in",
+    "Source Verified From": "MeitY Portal"
+  },
+  {
+    "Incubator/Organization Name": "AIM / NITI Aayog",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "NITI Aayog",
+    "Scheme/Grant/Program Name": "Atal New India Challenge (ANIC)",
+    "Funding Amount / Benefits": "Milestone grants up to ₹1 Crore",
+    "Eligibility Criteria": "Startups, MSMEs, R&D orgs",
+    "Application Deadline": "Periodic",
+    "Official Link / URL": "https://aim.gov.in",
+    "Source Verified From": "AIM Portal"
+  },
+  {
+    "Incubator/Organization Name": "AIM / NITI Aayog",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "NITI Aayog",
+    "Scheme/Grant/Program Name": "ATL J&K Frontier Region Programme",
+    "Funding Amount / Benefits": "Up to ₹20 Lakhs per school",
+    "Eligibility Criteria": "Schools in J&K",
+    "Application Deadline": "Applications opened May 20, 2026",
+    "Official Link / URL": "https://aim.gov.in",
+    "Source Verified From": "AIM Portal"
+  },
+  {
+    "Incubator/Organization Name": "DPIIT / SIDBI",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DPIIT",
+    "Scheme/Grant/Program Name": "Fund of Funds for Startups 2.0 (FoF 2.0)",
+    "Funding Amount / Benefits": "₹10,000 Crore corpus (via AIFs)",
+    "Eligibility Criteria": "DPIIT-recognized startups (via SEBI-registered AIFs)",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.sidbi.in",
+    "Source Verified From": "SIDBI Portal"
+  },
+  {
+    "Incubator/Organization Name": "NCGTC / DPIIT",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of India",
+    "Scheme/Grant/Program Name": "Credit Guarantee Scheme for Startups (CGSS)",
+    "Funding Amount / Benefits": "Up to ₹20 Crore guarantee",
+    "Eligibility Criteria": "DPIIT-recognized startup",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://ncgtc.in",
+    "Source Verified From": "NCGTC Portal"
+  },
+  {
+    "Incubator/Organization Name": "Govt. of Kerala",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Kerala",
+    "Scheme/Grant/Program Name": "KSUM Grants",
+    "Funding Amount / Benefits": "Idea: ₹3L, Seed: ₹15L, Scale-Up: ₹15L",
+    "Eligibility Criteria": "Startup registered with KSUM",
+    "Application Deadline": "Rolling / Periodic",
+    "Official Link / URL": "https://startupmission.kerala.gov.in/",
+    "Source Verified From": "KSUM Portal"
+  },
+  {
+    "Incubator/Organization Name": "MSInS",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Maharashtra",
+    "Scheme/Grant/Program Name": "MSInS Seed Fund",
+    "Funding Amount / Benefits": "Up to ₹10 Lakh per startup",
+    "Eligibility Criteria": "DPIIT-recognized, incubated at MSInS partner",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.msins.in",
+    "Source Verified From": "MSInS Portal"
+  },
+  {
+    "Incubator/Organization Name": "Govt. of Rajasthan",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Rajasthan",
+    "Scheme/Grant/Program Name": "iStart Rajasthan",
+    "Funding Amount / Benefits": "Ideation: ₹2.4L; Viability: ₹10-60L",
+    "Eligibility Criteria": "Startup in Rajasthan",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://istart.rajasthan.gov.in/",
+    "Source Verified From": "iStart Portal"
+  },
+  {
+    "Incubator/Organization Name": "Ministry of MSME",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of India",
+    "Scheme/Grant/Program Name": "CGTMSE",
+    "Funding Amount / Benefits": "Guarantee cover up to ₹10 Crore",
+    "Eligibility Criteria": "MSMEs with Udyam Registration",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.cgtmse.in/",
+    "Source Verified From": "CGTMSE Portal"
+  },
+  {
+    "Incubator/Organization Name": "DSIR",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Science & Technology",
+    "Scheme/Grant/Program Name": "DSIR PRISM",
+    "Funding Amount / Benefits": "Up to ₹50L",
+    "Eligibility Criteria": "Individual innovators, startups, MSMEs",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://dsir.gov.in",
+    "Source Verified From": "DSIR Portal"
+  },
+  {
+    "Incubator/Organization Name": "Ministry of MSME",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of India",
+    "Scheme/Grant/Program Name": "MSME Innovative Scheme",
+    "Funding Amount / Benefits": "Incubation: ₹15L; Design: ₹40L; IPR: ₹5L",
+    "Eligibility Criteria": "MSMEs with Udyam Registration",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://innovative.msme.gov.in",
+    "Source Verified From": "MSME Portal"
+  },
+  {
+    "Incubator/Organization Name": "STPI",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "MeitY",
+    "Scheme/Grant/Program Name": "STPI NGIS",
+    "Funding Amount / Benefits": "Seed funding up to ₹25L + pre-incubation stipend",
+    "Eligibility Criteria": "Software product startups in Tier-II cities",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://stpinext.in",
+    "Source Verified From": "STPI Portal"
+  },
+  {
+    "Incubator/Organization Name": "ICAR",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Agriculture",
+    "Scheme/Grant/Program Name": "NUZEN Program (NaaViC)",
+    "Funding Amount / Benefits": "Up to ₹4 Lakh non-dilutive grant",
+    "Eligibility Criteria": "Student entrepreneurs in agri-innovation",
+    "Application Deadline": "June 30, 2026",
+    "Official Link / URL": "https://naavic.org",
+    "Source Verified From": "NaaViC Portal"
+  },
+  {
+    "Incubator/Organization Name": "Govt. of UP",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of UP",
+    "Scheme/Grant/Program Name": "StartinUP",
+    "Funding Amount / Benefits": "Sustenance: ₹17,500/m; Prototype: ₹5L; Seed: ₹7.5L",
+    "Eligibility Criteria": "DPIIT-recognized, registered in UP",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.startinup.in/",
+    "Source Verified From": "StartinUP Portal"
+  },
+  {
+    "Incubator/Organization Name": "Govt. of Odisha",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Odisha",
+    "Scheme/Grant/Program Name": "Startup Odisha",
+    "Funding Amount / Benefits": "Sustenance: ₹20k/m; Product Dev: up to ₹15L",
+    "Eligibility Criteria": "Recognized by Startup Odisha",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://startupodisha.gov.in",
+    "Source Verified From": "Startup Odisha Portal"
+  },
+  {
+    "Incubator/Organization Name": "STPI",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "MeitY",
+    "Scheme/Grant/Program Name": "STPI Leap Ahead",
+    "Funding Amount / Benefits": "Up to ₹1 Crore + mentorship",
+    "Eligibility Criteria": "Growth stage startups, Min revenue ₹10 Lakhs",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://stpi.in",
+    "Source Verified From": "STPI Portal"
+  },
+  {
+    "Incubator/Organization Name": "MeitY-NASSCOM",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "MeitY + NASSCOM",
+    "Scheme/Grant/Program Name": "Centre of Excellence for IoT & AI",
+    "Funding Amount / Benefits": "Incubation space, labs, market access",
+    "Eligibility Criteria": "IoT & AI startups",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.nasscom.in",
+    "Source Verified From": "NASSCOM Portal"
+  },
+  {
+    "Incubator/Organization Name": "ANRF",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "DST",
+    "Scheme/Grant/Program Name": "RDI Scheme",
+    "Funding Amount / Benefits": "Low-interest loans + equity",
+    "Eligibility Criteria": "Deep tech startups, TRL 4+",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://anrf.gov.in",
+    "Source Verified From": "ANRF Portal"
+  },
+  {
+    "Incubator/Organization Name": "ONGC",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Central PSU (Ministry of Petroleum)",
+    "Scheme/Grant/Program Name": "ONGC Startup Fund 2026",
+    "Funding Amount / Benefits": "₹200 Crore total fund (Equity/AIF)",
+    "Eligibility Criteria": "Early-stage energy, AI/ML ventures",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://startup.ongc.co.in/",
+    "Source Verified From": "ONGC Portal"
+  },
+  {
+    "Incubator/Organization Name": "GAIL (India) Limited",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Central PSU (Ministry of Petroleum)",
+    "Scheme/Grant/Program Name": "PANKH Initiative",
+    "Funding Amount / Benefits": "₹500 Crore total fund (up to 20% equity)",
+    "Eligibility Criteria": "Clean energy, renewables, EV, digital",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://gailonline.com",
+    "Source Verified From": "GAIL Portal"
+  },
+  {
+    "Incubator/Organization Name": "HPCL",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Central PSU (Ministry of Petroleum)",
+    "Scheme/Grant/Program Name": "HP Udgam",
+    "Funding Amount / Benefits": "Up to ₹2.5 Crore (Equity/CCPS)",
+    "Eligibility Criteria": "Energy transition, sustainability, deeptech",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://startup.hpcl.co.in/",
+    "Source Verified From": "HPCL Portal"
+  },
+  {
+    "Incubator/Organization Name": "IN-SPACe",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Department of Space",
+    "Scheme/Grant/Program Name": "AI INSPIRED Programme",
+    "Funding Amount / Benefits": "Up to ₹1 Crore grant",
+    "Eligibility Criteria": "Space-tech startups using AI",
+    "Application Deadline": "Closed (March 20, 2026); Next TBA",
+    "Official Link / URL": "https://www.inspace.gov.in",
+    "Source Verified From": "IN-SPACe Portal"
+  },
+  {
+    "Incubator/Organization Name": "IN-SPACe",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Department of Space",
+    "Scheme/Grant/Program Name": "IN-SPACe Seed Fund Scheme",
+    "Funding Amount / Benefits": "Up to ₹1 Crore grant-in-aid",
+    "Eligibility Criteria": "Early-stage space startups, MSMEs",
+    "Application Deadline": "Periodic (Sector-specific AoOs)",
+    "Official Link / URL": "https://www.inspace.gov.in",
+    "Source Verified From": "IN-SPACe Portal"
+  },
+  {
+    "Incubator/Organization Name": "MoHUA + IIT Kanpur",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Housing and Urban Affairs",
+    "Scheme/Grant/Program Name": "Swachhata Startup Challenge",
+    "Funding Amount / Benefits": "Mentorship, pilot access, grants",
+    "Eligibility Criteria": "Clean-tech, waste management",
+    "Application Deadline": "Cohort 2 ongoing in 2026",
+    "Official Link / URL": "https://sbmurban.org/",
+    "Source Verified From": "SBM Portal"
+  },
+  {
+    "Incubator/Organization Name": "IFCI Venture Capital",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Social Justice & Empowerment",
+    "Scheme/Grant/Program Name": "Venture Capital Fund for SC (VCF-SC)",
+    "Funding Amount / Benefits": "₹10 Lakh to ₹15 Crore (4% interest/equity)",
+    "Eligibility Criteria": "Private/Public Ltd, >=51% SC shareholding",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://vcfsc.in/",
+    "Source Verified From": "VCFSC Portal"
+  },
+  {
+    "Incubator/Organization Name": "IFCI Venture Capital",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of Social Justice & Empowerment",
+    "Scheme/Grant/Program Name": "Ambedkar Social Innovation (ASIIM)",
+    "Funding Amount / Benefits": "Equity funding for early stage",
+    "Eligibility Criteria": "SC students and entrepreneurs in TBIs",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://vcfsc.in/",
+    "Source Verified From": "VCFSC Portal"
+  },
+  {
+    "Incubator/Organization Name": "Startup Bihar",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Bihar",
+    "Scheme/Grant/Program Name": "Bihar Seed Funding",
+    "Funding Amount / Benefits": "Up to ₹25 Lakhs in phases",
+    "Eligibility Criteria": "Registered in Bihar, innovative model",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://startup.bihar.gov.in/",
+    "Source Verified From": "Startup Bihar"
+  },
+  {
+    "Incubator/Organization Name": "Startup Bihar",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Bihar",
+    "Scheme/Grant/Program Name": "Bihar Post-seed Support",
+    "Funding Amount / Benefits": "Up to ₹15 Lakhs + matching grants up to ₹50L",
+    "Eligibility Criteria": "Registered in Bihar, revenue stage",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://startup.bihar.gov.in/",
+    "Source Verified From": "Startup Bihar"
+  },
+  {
+    "Incubator/Organization Name": "Startup Assam",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Assam",
+    "Scheme/Grant/Program Name": "Idea2POC Grant",
+    "Funding Amount / Benefits": "Up to ₹5 Lakh grant",
+    "Eligibility Criteria": "MASI recognized startups",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://startup.assam.gov.in/",
+    "Source Verified From": "Startup Assam"
+  },
+  {
+    "Incubator/Organization Name": "Startup Assam",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Assam",
+    "Scheme/Grant/Program Name": "Scale-Up Grant",
+    "Funding Amount / Benefits": "Up to ₹50 Lakh grant",
+    "Eligibility Criteria": "MASI recognized startups",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://startup.assam.gov.in/",
+    "Source Verified From": "Startup Assam"
+  },
+  {
+    "Incubator/Organization Name": "NEDFi / SIDBI / MDoNER",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Ministry of DoNER",
+    "Scheme/Grant/Program Name": "North East Venture Fund (NEVCF)",
+    "Funding Amount / Benefits": "Equity investment",
+    "Eligibility Criteria": "Innovative ventures in North East Region",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://www.nedfi.com/",
+    "Source Verified From": "NEDFi Portal"
+  },
+  {
+    "Incubator/Organization Name": "Invest Punjab",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Punjab",
+    "Scheme/Grant/Program Name": "Punjab Seed Grant",
+    "Funding Amount / Benefits": "Up to ₹3 Lakhs seed grant",
+    "Eligibility Criteria": "DPIIT recognized, operations in Punjab",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://pbindustries.gov.in/startup/",
+    "Source Verified From": "Invest Punjab"
+  },
+  {
+    "Incubator/Organization Name": "Invest Punjab",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "Govt. of Punjab",
+    "Scheme/Grant/Program Name": "Punjab Subsidy Schemes",
+    "Funding Amount / Benefits": "Interest (8%), Lease (25%) subsidies",
+    "Eligibility Criteria": "DPIIT recognized, operations in Punjab",
+    "Application Deadline": "Rolling",
+    "Official Link / URL": "https://pbindustries.gov.in/startup/",
+    "Source Verified From": "Invest Punjab"
+  },
+  {
+    "Incubator/Organization Name": "Ministry of Defence",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "iDEX / DIO",
+    "Scheme/Grant/Program Name": "ADITI 4.0",
+    "Funding Amount / Benefits": "Up to ₹25 Crore",
+    "Eligibility Criteria": "Deep-tech defense problem statements",
+    "Application Deadline": "Closed May 4, 2026; Next TBA",
+    "Official Link / URL": "https://idex.gov.in",
+    "Source Verified From": "iDEX Portal"
+  },
+  {
+    "Incubator/Organization Name": "Ministry of Defence",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "iDEX / DIO",
+    "Scheme/Grant/Program Name": "DISC 14",
+    "Funding Amount / Benefits": "Up to ₹1.5 Crore",
+    "Eligibility Criteria": "Defense problem statements",
+    "Application Deadline": "Closed May 4, 2026; Next TBA",
+    "Official Link / URL": "https://idex.gov.in",
+    "Source Verified From": "iDEX Portal"
+  },
+  {
+    "Incubator/Organization Name": "MeitY",
+    "Government Affiliation (AIC/AIM/MeitY/etc.)": "MeitY / IndiaAI",
+    "Scheme/Grant/Program Name": "IndiaAI Startups Global Acceleration",
+    "Funding Amount / Benefits": "International scaling support",
+    "Eligibility Criteria": "Indian AI startups scaling globally",
+    "Application Deadline": "Cohort 3 TBA",
+    "Official Link / URL": "https://indiaai.gov.in",
+    "Source Verified From": "IndiaAI Portal"
+  }
+]

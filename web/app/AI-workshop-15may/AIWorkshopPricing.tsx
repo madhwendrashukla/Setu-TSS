@@ -149,35 +149,28 @@ export function AIWorkshopPricing() {
                             {/* CTA Button - direct, no reveal */}
                             <div className="mt-auto w-full">
                                 {plan.isFeatured ? (
-                                    <div className="relative group w-full">
-                                        <div className="absolute -inset-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300" />
-                                        <a
-                                             href={plan.razorpayLink}
-                                             target="_blank"
-                                             rel="noopener noreferrer"
-                                             className="relative w-full block text-center px-4 py-4 rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white font-bold transition-all transform group-hover:-translate-y-1 text-base shadow-[0_0_20px_rgba(139,92,246,0.4)]"
+                                    <div className="relative w-full">
+                                        <span
+                                             className="relative w-full block text-center px-4 py-4 rounded-xl bg-[#1e293b] border border-white/10 text-white/50 font-bold transition-all text-base cursor-not-allowed"
                                          >
-                                             Book Now
-                                         </a>
+                                             Sold Out
+                                         </span>
                                     </div>
                                 ) : (
-                                    <a
-                                        href={plan.razorpayLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-full block text-center px-4 py-3.5 rounded-xl text-white font-bold transition-all text-sm border border-white/10 hover:border-white/30 bg-slate-800 hover:bg-slate-700"
+                                    <span
+                                        className="w-full block text-center px-4 py-3.5 rounded-xl text-white/50 font-bold transition-all text-sm border border-white/10 bg-[#1e293b] cursor-not-allowed"
                                     >
-                                        Book Now
-                                    </a>
+                                        Sold Out
+                                    </span>
                                 )}
-                                <p className="text-[10px] text-slate-500 mt-2 text-center">Secure checkout via Razorpay</p>
+                                <p className="text-[10px] text-slate-500 mt-2 text-center">Registrations Closed</p>
                             </div>
                         </div>
                     ))}
                 </div>
 
                 <div className="text-center mt-8 text-xs md:text-sm text-slate-500 font-medium">
-                    <i className="fa-solid fa-shield-halved text-[#8b5cf6]" /> Secure checkout via Razorpay
+                    <i className="fa-solid fa-ban text-[#8b5cf6]" /> Registrations are now closed
                 </div>
             </div>
         </section>

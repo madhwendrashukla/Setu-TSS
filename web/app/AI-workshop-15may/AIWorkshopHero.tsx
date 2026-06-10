@@ -57,13 +57,10 @@ export function AIWorkshopHero() {
                     </div>
                 </div>
 
-                {/* CTA */}
                 <div className="relative group inline-block w-full sm:w-auto">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-xl blur-lg opacity-60 group-hover:opacity-100 transition duration-300" />
-                    <a href="#pricing" className="relative w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 text-base md:text-lg font-bold rounded-xl text-white bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] flex items-center justify-center transform group-hover:-translate-y-1 transition-all duration-300">
-                        Secure Your Seat
-                        <i className="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform" />
-                    </a>
+                    <span className="relative w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 text-base md:text-lg font-bold rounded-xl text-white/50 bg-[#1e293b] flex items-center justify-center cursor-not-allowed border border-white/10">
+                        Registrations Closed
+                    </span>
                 </div>
 
             </div>

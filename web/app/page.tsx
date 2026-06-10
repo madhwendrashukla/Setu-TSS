@@ -10,7 +10,6 @@ const FounderManifesto = dynamic(() => import("@/components/sections/FounderMani
 const Programs = dynamic(() => import("@/components/sections/Programs").then(mod => mod.Programs), { ssr: true });
 const Gallery = dynamic(() => import("@/components/sections/Gallery").then(mod => mod.Gallery), { ssr: true });
 const Contact = dynamic(() => import("@/components/sections/Contact").then(mod => mod.Contact), { ssr: true });
-const WorkshopPopup = dynamic(() => import("@/components/sections/WorkshopPopup").then(mod => mod.WorkshopPopup));
 
 export default function Home() {
   return (
@@ -34,8 +33,6 @@ export default function Home() {
         <Contact />
       </main>
 
-      {/* Fundraising Workshop Promotion Popup */}
-      <WorkshopPopup />
     </>
   );
 }

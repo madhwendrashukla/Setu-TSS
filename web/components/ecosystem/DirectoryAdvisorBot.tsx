@@ -5,7 +5,6 @@ import { X, MessageSquare, Bot, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const WHATSAPP_LINK = 'https://chat.whatsapp.com/BJ5RIXujFJG7ceB06nVqa4';
-const WORKSHOP_LINK = '/AI-workshop-15may'; // AI Startup Bootcamp May 15–17
 
 import { BookOpen, CalendarDays } from 'lucide-react';
 
@@ -37,25 +36,7 @@ function IdleNotifications({ onDismiss }: { onDismiss: (id: string) => void }) {
                     <X size={14} />
                 </button>
             </div>
-            {/* Workshop notification */}
-            <div 
-                onClick={() => { onDismiss('workshop'); window.location.href = WORKSHOP_LINK; }}
-                className="flex items-center gap-3 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl px-5 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-w-[280px] animate-in slide-in-from-right-8 fade-in duration-700 delay-150 cursor-pointer hover:bg-white/[0.06] hover:border-accent-violet/30 transition-all group"
-            >
-                <div className="w-10 h-10 rounded-full bg-accent-violet/10 flex items-center justify-center shrink-0 border border-accent-violet/20">
-                    <span className="text-lg">🎤</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-bold truncate group-hover:text-accent-violet transition-colors tracking-tight">AI Startup Bootcamp</p>
-                    <p className="text-accent-violet text-[11px] font-medium opacity-80 truncate">May 15–17 · Register Now</p>
-                </div>
-                <button
-                    onClick={(e) => { e.stopPropagation(); onDismiss('workshop'); }}
-                    className="p-1.5 rounded-full hover:bg-white/10 text-white/30 hover:text-white transition-all shrink-0"
-                >
-                    <X size={14} />
-                </button>
-            </div>
+
         </div>
     );
 }
@@ -166,10 +147,10 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
     };
 
     const notifCount = (showIdle && !isOpen)
-        ? [!dismissed.has('whatsapp'), !dismissed.has('workshop')].filter(Boolean).length
+        ? [!dismissed.has('whatsapp')].filter(Boolean).length
         : 0;
 
-    const anyIdleVisible = showIdle && !isOpen && (!dismissed.has('whatsapp') || !dismissed.has('workshop'));
+    const anyIdleVisible = showIdle && !isOpen && (!dismissed.has('whatsapp'));
 
     return (
         <div className="fixed bottom-8 right-8 z-[999] flex flex-col items-end">
@@ -180,7 +161,6 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                     <IdleNotifications onDismiss={(id) => {
                         dismissNotif(id);
                         if (id === 'whatsapp') window.open(WHATSAPP_LINK, '_blank');
-                        if (id === 'workshop') router.push(WORKSHOP_LINK);
                     }} />
                 </div>
             )}
@@ -261,20 +241,7 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                             </a>
                         </div>
 
-                        {/* Workshop strip */}
-                        <div className="pl-8">
-                            <button
-                                onClick={() => { window.location.href = WORKSHOP_LINK; setIsOpen(false); }}
-                                className="flex items-center gap-3 w-full bg-accent-violet/10 border border-accent-violet/30 hover:border-accent-violet/60 hover:bg-accent-violet/15 rounded-xl px-4 py-3 transition-all group text-left"
-                            >
-                                <span className="text-xl shrink-0">🚀</span>
-                                <div>
-                                    <p className="text-accent-violet text-sm font-bold leading-tight">AI Startup Bootcamp</p>
-                                    <p className="text-text-tertiary text-[10px]">May 15–17 · Register Now</p>
-                                </div>
-                                <ExternalLink size={13} className="ml-auto text-accent-violet/50 group-hover:text-accent-violet" />
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             )}

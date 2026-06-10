@@ -33,9 +33,9 @@ export function AIWorkshopFinal() {
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-24">
             {/* Secure Your Seat CTA — above FAQ */}
             <div className="flex justify-center">
-                <a href="#pricing" className="inline-flex items-center gap-3 px-12 py-5 rounded-xl font-extrabold text-white text-lg bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] hover:opacity-90 transition-all hover:-translate-y-0.5 shadow-[0_0_30px_rgba(139,92,246,0.4)]">
-                    Secure Your Seat <i className="fa-solid fa-arrow-right" />
-                </a>
+                <span className="inline-flex items-center gap-3 px-12 py-5 rounded-xl font-extrabold text-white/50 text-lg bg-[#1e293b] border border-white/10 cursor-not-allowed">
+                    Registrations Closed
+                </span>
             </div>
 
                 {/* FAQs */}
@@ -175,16 +175,11 @@ export function AIWorkshopFinal() {
 
                                 {/* CTA — refined, not loud */}
                                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                    <a
-                                        href="#pricing"
-                                        className="relative group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-10 py-4 md:px-12 md:py-5 rounded-2xl font-bold text-base md:text-lg text-white overflow-hidden transition-all duration-300 hover:-translate-y-0.5"
-                                        style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #d946ef 100%)' }}
+                                    <span
+                                        className="relative group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-10 py-4 md:px-12 md:py-5 rounded-2xl font-bold text-base md:text-lg text-white/50 bg-[#1e293b] border border-white/10 cursor-not-allowed"
                                     >
-                                        {/* Shine sweep on hover */}
-                                        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-                                        <span className="relative">Secure Your Seat</span>
-                                        <i className="fa-solid fa-arrow-right relative text-sm group-hover:translate-x-1 transition-transform duration-200" />
-                                    </a>
+                                        <span className="relative">Registrations Closed</span>
+                                    </span>
                                     <a
                                         href="https://chat.whatsapp.com/JzVfrG7FXhIHHIFXtQCj2C?mode=gi_t"
                                         target="_blank"

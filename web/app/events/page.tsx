@@ -26,35 +26,9 @@ export default function EventsPage() {
                 <section className="mb-32">
                     <h2 className="text-2xl font-bold text-white mb-10 tracking-tight pb-4 border-b border-white/10">Upcoming Workshops</h2>
 
-                    <div className="grid lg:grid-cols-2 gap-8">
-                        {/* Upcoming Workshop Card */}
-                        <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-white/5 relative group h-full flex flex-col">
-                            <div className="flex justify-between items-start mb-8">
-                                <div className="bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                                    Registration Open
-                                </div>
-                            </div>
-
-                            <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300 uppercase">AI Startup Launchpad</h3>
-                            <p className="text-text-secondary text-lg leading-relaxed mb-10 flex-grow">Build, Validate & Launch Your Startup in 3 Days. Master ideation methods, build AI-powered MVPs, and create marketing films — live with top mentors.</p>
-
-                            <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/5">
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-text-primary font-medium tracking-wide">
-                                        <i className="far fa-calendar text-accent-blue w-6"></i> May 15th - 17th
-                                    </div>
-                                    <div className="flex items-center text-text-primary font-medium tracking-wide">
-                                        <i className="fas fa-map-marker-alt text-accent-blue w-6"></i> Live Cohort (Online)
-                                    </div>
-                                </div>
-                                <Link href="/AI-workshop-15may" className="w-full sm:w-auto bg-white hover:bg-gray-200 text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">
-                                    RSVP Now
-                                </Link>
-                            </div>
-                        </div>
-
+                    <div className="grid lg:grid-cols-1 gap-8">
                         {/* Empty State */}
-                        <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-dashed border-white/10 flex flex-col items-center justify-center text-center h-full min-h-[300px]">
+                        <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-dashed border-white/10 flex flex-col items-center justify-center text-center h-full min-h-[300px] lg:w-1/2 lg:mx-auto">
                             <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary mb-6">
                                 <i className="fas fa-bullhorn text-2xl"></i>
                             </div>
@@ -166,6 +140,32 @@ export default function EventsPage() {
                                     </div>
                                 </div>
                                 <Link href="/fundraising-workshop-15apr" className="w-full sm:w-auto bg-white/10 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">
+                                    View Details
+                                </Link>
+                            </div>
+                        </div>
+                        {/* Past Event Card 3 */}
+                        <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-white/5 relative group h-full flex flex-col bg-bg-surface">
+                            <div className="flex justify-between items-start mb-8">
+                                <div className="bg-white/10 border border-white/20 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                                    Concluded
+                                </div>
+                                <div className="text-accent-blue font-bold text-sm tracking-widest uppercase flex items-center gap-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-8px] transition-all">View Details &rarr;</div>
+                            </div>
+
+                            <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300 uppercase">AI Startup Launchpad</h3>
+                            <p className="text-text-secondary text-lg leading-relaxed mb-10 flex-grow">Build, Validate & Launch Your Startup in 3 Days. Master ideation methods, build AI-powered MVPs, and create marketing films — live with top mentors.</p>
+
+                            <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/5">
+                                <div className="space-y-2">
+                                    <div className="flex items-center text-text-secondary font-medium tracking-wide">
+                                        <i className="far fa-calendar text-white/50 w-6"></i> May 15th - 17th (Past)
+                                    </div>
+                                    <div className="flex items-center text-text-secondary font-medium tracking-wide">
+                                        <i className="fas fa-map-marker-alt text-white/50 w-6"></i> Live Cohort (Online)
+                                    </div>
+                                </div>
+                                <Link href="/AI-workshop-15may" className="w-full sm:w-auto bg-white/10 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">
                                     View Details
                                 </Link>
                             </div>

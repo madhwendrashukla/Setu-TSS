@@ -1,11 +1,11 @@
-# Technical Ecosystem Report: The Startup School (TSS)
+# Technical Ecosystem Report: Setu - TheStartupSchool (TSS)
 
-This report outlines the current state and future technical direction of **The Startup School (TSS)** ecosystem. It is intended for technical stakeholders as the project transitions from a frontend-heavy architecture to an integrated **Full-Stack (Backend + Frontend)** mode.
+This report outlines the current state and future technical direction of **Setu - TheStartupSchool (TSS)** ecosystem. It is intended for technical stakeholders as the project transitions from a frontend-heavy architecture to an integrated **Full-Stack (Backend + Frontend)** mode.
 
 ---
 
 ## 1. Project Vision
-**The Startup School** is an "Alternate B-School" designed for aspiring founders. It aims to bridge gaps in:
+**Setu - TheStartupSchool** is an "Alternate B-School" designed for aspiring founders. It aims to bridge gaps in:
 - **Learning**: Pragmatic, workshop-based education (e.g., AI and Fundraising bootcamps).
 - **Access**: Curated directories of capital (Investors, Grants, Incubators).
 - **Mentoring**: A network of industry-specific mentors.

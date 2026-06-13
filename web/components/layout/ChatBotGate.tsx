@@ -9,7 +9,7 @@ const EXCLUDED_PATHS = ['/fundraising-workshop-15apr', '/AI-workshop-15may', '/O
 export default function ChatBotGate() {
   const pathname = usePathname();
 
-  if (EXCLUDED_PATHS.includes(pathname) || pathname.startsWith('/tools')) return null;
+  if (EXCLUDED_PATHS.includes(pathname) || pathname.startsWith('/tools') || pathname.startsWith('/admin')) return null;
 
   return <DirectoryAdvisorBot isHome={pathname === '/'} />;
 }

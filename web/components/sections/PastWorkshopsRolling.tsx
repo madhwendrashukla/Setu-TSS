@@ -1,15 +1,54 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-export const PastWorkshopsRolling = () => {
-    // In a real scenario, you'd pass data down from the page component
-    // We are mocking the data here for visual demonstration.
-    const pastEvents = [
-        { id: 1, title: 'Founders Dating', city: 'Mumbai', date: '14th Feb 2026', banner: '/gallery/IMG_0845.JPG' },
-        { id: 2, title: 'AI Startup Launchpad', city: 'Online', date: '15th May 2026', banner: '/gallery/IMG_1280.JPG' },
-        { id: 3, title: 'Fundraising Masterclass', city: 'Delhi', date: '10th Mar 2026', banner: '/gallery/IMG_1318.JPG' },
-        { id: 4, title: 'Growth Hacks', city: 'Bangalore', date: '22nd Jan 2026', banner: '/gallery/IMG_1380.JPG' },
-    ];
+async function getPastEvents() {
+    try {
+        const res = await fetch('http://localhost:5000/api/events/past-rolling', { cache: 'no-store' });
+        if (!res.ok) return [];
+        return res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+export const PastWorkshopsRolling = async () => {
+    const pastEvents = await getPastEvents();
+
+    if (!pastEvents || pastEvents.length === 0) {
+        return null; // Don't render section if there are no past events
+    }
+
+    const renderCard = (event: any, keySuffix: string) => {
+        const start = new Date(event.start_date);
+        const dateStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
+        return (
+            <div key={event.id + keySuffix} className="inline-block w-[300px] md:w-[400px] glass-card rounded-2xl overflow-hidden border border-white/5 group flex-shrink-0">
+                <div className="relative h-48 w-full overflow-hidden bg-black/20">
+                    {event.banner_url && (
+                        <Image 
+                            src={encodeURI(event.banner_url)} 
+                            alt={event.title} 
+                            fill 
+                            className="object-cover group-hover:scale-105 transition duration-500" 
+                            unoptimized={true}
+                        />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4">
+                        <span className="bg-white/20 backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded-md mb-2 inline-block">Concluded</span>
+                        <h3 className="text-white font-bold text-lg whitespace-normal leading-tight">{event.title}</h3>
+                    </div>
+                </div>
+                <div className="p-4 bg-bg-surface flex justify-between items-center">
+                    <div className="text-text-secondary text-sm flex gap-3">
+                        <span>📍 {event.city}</span>
+                        <span>📅 {dateStr}</span>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <section className="mb-32 overflow-hidden w-full bg-bg-main py-10 border-y border-white/5">
@@ -19,44 +58,10 @@ export const PastWorkshopsRolling = () => {
             </div>
             
             <div className="relative flex overflow-x-hidden">
-                <div className="animate-marquee flex whitespace-nowrap space-x-6 px-4">
-                    {pastEvents.map((event) => (
-                        <div key={event.id} className="inline-block w-[300px] md:w-[400px] glass-card rounded-2xl overflow-hidden border border-white/5 group flex-shrink-0">
-                            <div className="relative h-48 w-full overflow-hidden bg-black/20">
-                                <Image src={event.banner} alt={event.title} fill className="object-cover group-hover:scale-105 transition duration-500" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                                <div className="absolute bottom-4 left-4">
-                                    <span className="bg-white/20 backdrop-blur-md text-white text-xs px-2 py-1 rounded-md mb-2 inline-block">Concluded</span>
-                                    <h3 className="text-white font-bold text-lg">{event.title}</h3>
-                                </div>
-                            </div>
-                            <div className="p-4 bg-bg-surface flex justify-between items-center">
-                                <div className="text-text-secondary text-sm flex gap-3">
-                                    <span>📍 {event.city}</span>
-                                    <span>📅 {event.date}</span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                <div className="animate-marquee flex whitespace-nowrap space-x-6 px-4 hover:![animation-play-state:paused]">
+                    {pastEvents.map((event: any) => renderCard(event, ''))}
                     {/* Duplicate for infinite loop effect */}
-                    {pastEvents.map((event) => (
-                        <div key={event.id + 'dup'} className="inline-block w-[300px] md:w-[400px] glass-card rounded-2xl overflow-hidden border border-white/5 group flex-shrink-0">
-                            <div className="relative h-48 w-full overflow-hidden bg-black/20">
-                                <Image src={event.banner} alt={event.title} fill className="object-cover group-hover:scale-105 transition duration-500" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                                <div className="absolute bottom-4 left-4">
-                                    <span className="bg-white/20 backdrop-blur-md text-white text-xs px-2 py-1 rounded-md mb-2 inline-block">Concluded</span>
-                                    <h3 className="text-white font-bold text-lg">{event.title}</h3>
-                                </div>
-                            </div>
-                            <div className="p-4 bg-bg-surface flex justify-between items-center">
-                                <div className="text-text-secondary text-sm flex gap-3">
-                                    <span>📍 {event.city}</span>
-                                    <span>📅 {event.date}</span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                    {pastEvents.map((event: any) => renderCard(event, 'dup'))}
                 </div>
             </div>
             
@@ -67,9 +72,6 @@ export const PastWorkshopsRolling = () => {
                 }
                 .animate-marquee {
                     animation: marquee 30s linear infinite;
-                }
-                .animate-marquee:hover {
-                    animation-play-state: paused;
                 }
             `}} />
         </section>

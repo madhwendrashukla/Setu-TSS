@@ -24,7 +24,7 @@ export function Contact() {
     const handleFormSubmit = (event: React.FormEvent) => {
         event.preventDefault();
 
-        const subject = "Inquiry for The Startup School";
+        const subject = "Inquiry for Setu - TheStartupSchool";
         const body = `Name: ${formData.name}%0D%0ACity: ${formData.city}%0D%0AEmail: ${formData.email}%0D%0AContact Number: ${formData.phone}`;
 
         window.location.href = `mailto:info@thestartupschool.in?subject=${subject}&body=${body}`;

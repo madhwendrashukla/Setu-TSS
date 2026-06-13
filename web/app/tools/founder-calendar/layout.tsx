@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: 'Founder Events Calendar | The Startup School',
+    title: 'Founder Events Calendar | Setu - TheStartupSchool',
     description: 'Never miss a crucial opportunity. B2B events, exhibitions, and networking hubs curated for founders.',
 };
 

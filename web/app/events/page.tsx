@@ -3,8 +3,8 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: 'Events & Workshops | The Startup School',
-    description: 'Upcoming and past events, workshops, and startup testimonials at The Startup School.',
+    title: 'Events & Workshops | Setu - TheStartupSchool',
+    description: 'Upcoming and past events, workshops, and startup testimonials at Setu - TheStartupSchool.',
 };
 
 async function getEvents() {

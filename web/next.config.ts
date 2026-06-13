@@ -24,13 +24,23 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ui-avatars.com",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5000",
+      },
+      {
+        protocol: "http",
+        hostname: "192.168.31.194",
+        port: "5000",
+      },
     ],
   },
   // Compression
   compress: true,
   // Power-user optimizations
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
     optimizePackageImports: ["lucide-react", "next/font"],
   },
   // Cache headers for static assets

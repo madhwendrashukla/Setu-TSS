@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: 'Startup Grants & Schemes | The Startup School',
+    title: 'Startup Grants & Schemes | Setu - TheStartupSchool',
     description: 'Find non-dilutive capital, government grants, and startup schemes available for founders.',
 };
 

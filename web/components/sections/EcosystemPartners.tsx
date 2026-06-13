@@ -27,7 +27,7 @@ export const EcosystemPartners = ({ data }: { data?: any[] }) => {
                             <div className="relative w-32 h-16 md:w-40 md:h-20 filter grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition duration-300">
                                 {/* If image comes from S3, might need next.config.js whitelisting. Use unoptimized img tag or standard Next Image. */}
                                 <img 
-                                    src={partner.logo_url} 
+                                    src={encodeURI(partner.logo_url)} 
                                     alt={partner.name} 
                                     className="object-contain w-full h-full"
                                 />

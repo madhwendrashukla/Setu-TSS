@@ -1,11 +1,11 @@
 "use client";
 
-import { mentorsData, MentorProfile } from '@/lib/mentors';
-
+import { mentorsData } from '@/lib/mentors';
 import { useState } from 'react';
+import Image from 'next/image';
 
 // 3D Flip Card Component
-const MentorCard = ({ mentor }: { mentor: MentorProfile }) => {
+const MentorCard = ({ mentor }: { mentor: any }) => {
     const [isFlipped, setIsFlipped] = useState(false);
 
     return (
@@ -18,12 +18,17 @@ const MentorCard = ({ mentor }: { mentor: MentorProfile }) => {
 
                     {/* Massive Portrait */}
                     <div className="absolute inset-0 z-0">
-                        <img
-                            src={mentor.image}
-                            alt={mentor.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
-                            onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(mentor.name)}&background=1E293B&color=8B5CF6&size=400&font-size=0.33`; }}
-                        />
+                        {mentor.photo_url || mentor.image ? (
+                            <Image
+                                src={encodeURI(mentor.photo_url || mentor.image)}
+                                alt={mentor.name}
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                className="object-cover group-hover:scale-105 transition-all duration-700"
+                                onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(mentor.name)}&background=1E293B&color=8B5CF6&size=400&font-size=0.33`; }}
+                                unoptimized={true}
+                            />
+                        ) : null}
                     </div>
 
                     {/* Content Overlay */}
@@ -58,12 +63,12 @@ const MentorCard = ({ mentor }: { mentor: MentorProfile }) => {
                     </div>
 
                     <p className="text-text-primary text-sm leading-relaxed mb-8 flex-grow overflow-y-auto font-light no-scrollbar text-white/90 pointer-events-none md:pointer-events-auto">
-                        {mentor.credentials.join(" ")}
+                        {mentor.bio || (Array.isArray(mentor.credentials) ? mentor.credentials.join(" ") : mentor.credentials)}
                     </p>
 
-                    {mentor.linkedinUrl && (
+                    {(mentor.linkedin_url || mentor.linkedinUrl) && (
                         <a
-                            href={mentor.linkedinUrl}
+                            href={mentor.linkedin_url || mentor.linkedinUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full py-3 rounded-full bg-white text-black font-bold uppercase tracking-wider text-xs hover:bg-accent-blue hover:text-white transition-colors duration-300 flex justify-center items-center gap-2 relative z-50 pointer-events-auto"
@@ -78,7 +83,9 @@ const MentorCard = ({ mentor }: { mentor: MentorProfile }) => {
     );
 };
 
-export function Mentors() {
+export function Mentors({ data }: { data?: any[] }) {
+    const displayMentors = data && data.length > 0 ? data : mentorsData;
+
     return (
         <section id="mentors" className="py-20 bg-bg-main relative w-full border-t border-white/5">
             {/* Background Glow */}
@@ -96,7 +103,7 @@ export function Mentors() {
             {/* Grid Layout */}
             <div className="max-w-[1400px] mx-auto px-6 w-full relative z-20">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-                    {mentorsData.map((mentor, idx) => (
+                    {displayMentors.map((mentor, idx) => (
                         <MentorCard key={`mentor-${idx}`} mentor={mentor} />
                     ))}
                 </div>

@@ -224,7 +224,7 @@ function SuccessContent() {
                             >
                                 <img
                                     src="/logo.png"
-                                    alt="The Startup School"
+                                    alt="Setu - TheStartupSchool"
                                     className="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.5)] object-cover"
                                     onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=SS&background=8b5cf6&color=fff&rounded=true'; }}
                                 />
@@ -346,7 +346,7 @@ function SuccessContent() {
                                     onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in'); }}
                                     className="text-xs sm:text-sm text-slate-500 hover:text-slate-300 transition-colors underline underline-offset-2"
                                 >
-                                    Return to The Startup School Homepage
+                                    Return to Setu - TheStartupSchool Homepage
                                 </a>
                             </div>
 
@@ -354,7 +354,7 @@ function SuccessContent() {
 
                         {/* Footer note */}
                         <p className="text-center text-[11px] text-slate-600 mt-6">
-                            Powered by <span className="text-slate-400 font-semibold">The Startup School</span> · Ramsetu Alternate Education Solutions Pvt Ltd
+                            Powered by <span className="text-slate-400 font-semibold">Setu - TheStartupSchool</span> · Ramsetu Alternate Education Solutions Pvt Ltd
                         </p>
                     </div>
                 </main>

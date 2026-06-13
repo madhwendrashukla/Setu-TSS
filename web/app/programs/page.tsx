@@ -1,7 +1,7 @@
 import { Programs as ProgramsSection } from "@/components/sections/Programs";
 
 export const metadata = {
-    title: 'Programs | The Startup School',
+    title: 'Programs | Setu - TheStartupSchool',
     description: 'Explore our immersive cohorts and workshops designed for founders.',
 };
 

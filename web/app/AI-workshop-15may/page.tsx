@@ -15,7 +15,7 @@ const AIWorkshopFinal = dynamic(() => import('./AIWorkshopFinal').then(m => m.AI
 import { BottomSheetCTA } from './BottomSheetCTA';
 
 export const metadata: Metadata = {
-    title: 'AI Entrepreneurship Workshop Series – May 15–17, 2026 | The Startup School',
+    title: 'AI Entrepreneurship Workshop Series – May 15–17, 2026 | Setu - TheStartupSchool',
     description: 'Build, Validate & Launch Your Startup in 3 Days. Master 12 ideation methods, build AI-powered MVPs with Claude Pro, and create marketing films — live on Zoom with India\'s top mentors.',
     keywords: 'AI workshop, startup workshop, entrepreneurship, Claude Pro, MVP, startup ideation, AI filmmaking, Gaurav Bansal, Atul Pandey, Amey Asuti',
     openGraph: {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
                 url: 'https://thestartupschool.in/ai-workshop-banner.webp',
                 width: 1200,
                 height: 630,
-                alt: 'AI Startup Launchpad – May 15–17, 2026 | The Startup School',
+                alt: 'AI Startup Launchpad – May 15–17, 2026 | Setu - TheStartupSchool',
             },
         ],
     },
@@ -47,7 +47,7 @@ export default function AIWorkshopPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16 md:h-20">
                         <Link href="/" className="flex-shrink-0 font-extrabold text-lg md:text-2xl tracking-tight flex items-center gap-2 md:gap-3 hover:opacity-90 transition-opacity">
-                            <Image src="/logo.png" alt="The Startup School" width={40} height={40} className="w-7 h-7 md:w-10 md:h-10 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.5)] object-cover" priority />
+                            <Image src="/logo.png" alt="Setu - TheStartupSchool" width={40} height={40} className="w-7 h-7 md:w-10 md:h-10 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.5)] object-cover" priority />
                             <span className="text-base md:text-2xl">The <span className="bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">Startup</span> School</span>
                         </Link>
                         <div>
@@ -79,7 +79,7 @@ export default function AIWorkshopPage() {
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex flex-col items-center md:items-start gap-0.5">
                             <Link href="/" className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition-opacity">
-                                <Image src="/logo.png" alt="The Startup School" width={32} height={32} className="w-8 h-8 rounded-lg object-cover" />
+                                <Image src="/logo.png" alt="Setu - TheStartupSchool" width={32} height={32} className="w-8 h-8 rounded-lg object-cover" />
                                 <span>The <span className="bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">Startup</span> School</span>
                             </Link>
                             <p className="text-[9px] text-white tracking-wide uppercase pl-10">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>
@@ -89,7 +89,7 @@ export default function AIWorkshopPage() {
                             <Link href="/terms-of-use" className="hover:text-slate-300 transition-colors">Terms of Use</Link>
                             <a href="mailto:info@thestartupschool.in" className="hover:text-slate-300 transition-colors">info@thestartupschool.in</a>
                         </div>
-                        <p className="text-xs text-slate-600">© 2026 The Startup School. All rights reserved.</p>
+                        <p className="text-xs text-slate-600">© 2026 Setu - TheStartupSchool. All rights reserved.</p>
                     </div>
                 </div>
             </footer>

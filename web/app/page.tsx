@@ -50,7 +50,7 @@ export default async function Home() {
         <WorkshopPreview />
         
         {/* 3. Mentors (Carousel) */}
-        <MentorsPreview />
+        <MentorsPreview data={data?.mentors || []} />
         
         {/* 4. Tools & Resources Preview */}
         <ToolsShowcase />

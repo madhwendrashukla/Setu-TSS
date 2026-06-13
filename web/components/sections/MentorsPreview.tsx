@@ -1,25 +1,34 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { mentorsData, MentorProfile } from '@/lib/mentors';
+
+export interface MentorProfile {
+    id: string;
+    name: string;
+    title: string;
+    bio: string;
+    photo_url: string;
+    linkedin_url: string;
+}
 
 const MentorCard = ({ mentor }: { mentor: MentorProfile }) => (
     <div className="flex-shrink-0 w-[85vw] sm:w-[260px] md:w-[280px] mx-2 md:mx-3 glass-card rounded-3xl p-6 flex flex-col items-center text-center group bg-bg-main/60 border border-white/5 hover:border-accent-blue hover:shadow-[0_0_20px_rgba(45,212,191,0.2)] hover:scale-[1.05] hover:-translate-y-3 transition-all duration-500 ease-out">
         <div className="w-20 h-20 relative rounded-full overflow-hidden mb-5 border-2 border-white/10 group-hover:border-accent-blue/50 transition-colors duration-500 p-1">
             <Image
-                src={mentor.image}
+                src={encodeURI(mentor.photo_url)}
                 alt={mentor.name}
                 fill
                 sizes="80px"
                 loading="lazy"
                 className="w-full h-full rounded-full object-cover group-hover:scale-110 group-hover:brightness-110 transition duration-700"
+                unoptimized={true}
             />
         </div>
         <h4 className="text-base font-bold text-white mb-1 tracking-tight">{mentor.name}</h4>
         <p className="text-accent-blue font-semibold text-[10px] tracking-widest uppercase mb-3 leading-tight group-hover:text-white transition-colors">{mentor.title}</p>
-        <p className="text-text-secondary text-xs leading-relaxed line-clamp-3 mb-4">{mentor.credentials.join(" ")}</p>
-        {mentor.linkedinUrl && (
+        <p className="text-text-secondary text-xs leading-relaxed line-clamp-3 mb-4">{mentor.bio}</p>
+        {mentor.linkedin_url && (
             <a
-                href={mentor.linkedinUrl}
+                href={mentor.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-auto w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary hover:bg-white hover:text-black hover:border-white transition-all duration-300 text-xs"
@@ -30,9 +39,9 @@ const MentorCard = ({ mentor }: { mentor: MentorProfile }) => (
     </div>
 );
 
-export function MentorsPreview() {
+export function MentorsPreview({ data = [] }: { data?: MentorProfile[] }) {
     // Duplicate for seamless infinite loop
-    const track = [...mentorsData, ...mentorsData];
+    const track = [...data, ...data];
 
     return (
         <section id="mentors-preview" className="py-16 md:py-32 bg-bg-main relative overflow-hidden w-full border-t border-white/5">

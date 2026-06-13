@@ -132,7 +132,7 @@ export default function PaymentSuccessAv() {
                             >
                                 <img 
                                     src="logo.png" 
-                                    alt="The Startup School" 
+                                    alt="Setu - TheStartupSchool" 
                                     className="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.5)] object-cover" 
                                     onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=SS&background=8b5cf6&color=fff&rounded=true' }} 
                                 />

@@ -16,12 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!deck) {
         return {
-            title: 'Pitch Deck Not Found | The Startup School',
+            title: 'Pitch Deck Not Found | Setu - TheStartupSchool',
         };
     }
 
     return {
-        title: `${deck.company} Pitch Deck - ${deck.round} (${deck.year}) | The Startup School`,
+        title: `${deck.company} Pitch Deck - ${deck.round} (${deck.year}) | Setu - TheStartupSchool`,
         description: deck.tagline,
     };
 }

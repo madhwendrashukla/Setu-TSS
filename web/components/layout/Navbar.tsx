@@ -17,7 +17,7 @@ export function Navbar() {
 
     const isActive = (path: string) => pathname === path;
 
-    if (EXCLUDED_NAV_PATHS.includes(pathname)) return null;
+    if (EXCLUDED_NAV_PATHS.includes(pathname) || pathname.startsWith('/admin')) return null;
 
     return (
         <>

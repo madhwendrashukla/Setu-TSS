@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: 'Incubator Search | The Startup School',
+    title: 'Incubator Search | Setu - TheStartupSchool',
     description: 'Explore the definitive list of tools and resources for the startup ecosystem.',
 };
 

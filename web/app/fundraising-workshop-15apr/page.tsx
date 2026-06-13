@@ -17,7 +17,7 @@ const WorkshopGuestMentors = dynamic(() => import('./WorkshopGuestMentors').then
 const BottomSheetCTA = dynamic(() => import('./BottomSheetCTA').then((mod) => mod.BottomSheetCTA));
 
 export const metadata: Metadata = {
-    title: 'Fundraising Workshop 15 Apr | The Startup School',
+    title: 'Fundraising Workshop 15 Apr | Setu - TheStartupSchool',
     description: 'Stop guessing what investors want. Join the live, cohort-based program that transforms passionate builders into investable founders.',
 };
 
@@ -35,7 +35,7 @@ export default function WorkshopPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16 md:h-20">
                         <Link href="/" className="flex-shrink-0 font-extrabold text-lg md:text-2xl tracking-tight flex items-center gap-2 md:gap-3 hover:opacity-90 transition-opacity">
-                            <Image src="/logo.png" alt="The Startup School" width={40} height={40} className="w-7 h-7 md:w-10 md:h-10 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.5)] object-cover" priority />
+                            <Image src="/logo.png" alt="Setu - TheStartupSchool" width={40} height={40} className="w-7 h-7 md:w-10 md:h-10 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.5)] object-cover" priority />
                             <span className="text-base md:text-2xl">The <span className="bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">Startup</span> School</span>
                         </Link>
                         <div>

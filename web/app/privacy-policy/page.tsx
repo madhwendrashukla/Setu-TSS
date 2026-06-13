@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Privacy Policy | The Startup School',
-    description: 'Privacy Policy for The Startup School (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD)',
+    title: 'Privacy Policy | Setu - TheStartupSchool',
+    description: 'Privacy Policy for Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD)',
 };
 
 export default function PrivacyPolicyPage() {
@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
                 <div className="glass-card rounded-[2rem] p-8 md:p-12 space-y-10 text-gray-300 border border-white/10 bg-white/5 backdrop-blur-xl leading-relaxed font-light">
                     <section>
                         <p>
-                            This Privacy Policy describes how The Startup School (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD) ("The Startup School", "we", "us", or "our") collects, uses, and discloses your information when you use our website located at <a href="https://www.thestartupschool.in/" className="text-accent-blue hover:underline">https://www.thestartupschool.in/</a> and <a href="https://thestartupschool.org.in" className="text-accent-blue hover:underline">thestartupschool.org.in</a> (hereinafter referred as the "Website").
+                            This Privacy Policy describes how Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD) ("Setu - TheStartupSchool", "we", "us", or "our") collects, uses, and discloses your information when you use our website located at <a href="https://www.thestartupschool.in/" className="text-accent-blue hover:underline">https://www.thestartupschool.in/</a> and <a href="https://thestartupschool.org.in" className="text-accent-blue hover:underline">setu-tss.org.in</a> (hereinafter referred as the "Website").
                         </p>
                     </section>
 

@@ -26,7 +26,7 @@ function HeroApplyForm() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const body = `Name: ${form.name}%0ACity: ${form.city}%0AEmail: ${form.email}%0APhone: ${form.phone}`;
-        window.open(`mailto:info@thestartupschool.in?subject=Apply Now - The Startup School&body=${body}`, '_blank');
+        window.open(`mailto:info@thestartupschool.in?subject=Apply Now - Setu - TheStartupSchool&body=${body}`, '_blank');
         setSubmitted(true);
         setTimeout(() => setSubmitted(false), 4000);
     };
@@ -77,7 +77,9 @@ function HeroApplyForm() {
     );
 }
 
-export function AutomatedVideoPromo() {
+export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any[] }) {
+    const heroImages = slides && slides.length > 0 ? slides.map(s => encodeURI(s.image_url)) : HERO_IMAGES;
+    const heroRotationMs = (data?.hero_rotation_seconds || 4) * 1000;
     const [currentScene, setCurrentScene] = useState(0);
     const [isFadingOut, setIsFadingOut] = useState(false);
     const totalScenes = 4;
@@ -87,8 +89,8 @@ export function AutomatedVideoPromo() {
 
     useEffect(() => {
         const bgInterval = setInterval(() => {
-            setCurrentBg((prev) => (prev + 1) % HERO_IMAGES.length);
-        }, 4000);
+            setCurrentBg((prev) => (prev + 1) % heroImages.length);
+        }, heroRotationMs);
 
         const sceneInterval = setInterval(() => {
             setIsFadingOut(true);
@@ -102,14 +104,14 @@ export function AutomatedVideoPromo() {
             clearInterval(bgInterval);
             clearInterval(sceneInterval);
         };
-    }, []);
+    }, [heroImages.length, heroRotationMs]);
 
     return (
         <section className="relative w-full min-h-[100svh] flex flex-col justify-center overflow-hidden bg-[#0A0F1C]">
             {/* Background Images Slider - Pre-fetching Transition Logic */}
-            {HERO_IMAGES.map((src, index) => {
+            {heroImages.map((src, index) => {
                 const isCurrent = index === currentBg;
-                const isNext = index === (currentBg + 1) % HERO_IMAGES.length;
+                const isNext = index === (currentBg + 1) % heroImages.length;
                 
                 // Only keep the current and next images to minimize DOM weight
                 if (!isCurrent && !isNext) return null;
@@ -128,6 +130,7 @@ export function AutomatedVideoPromo() {
                             fetchPriority={index === 0 ? "high" : "auto"}
                             quality={50}
                             sizes="100vw"
+                            unoptimized={true}
                         />
                     </div>
                 );
@@ -149,12 +152,11 @@ export function AutomatedVideoPromo() {
                     {/* Scene 1: The Hook */}
                     {currentScene === 0 && (
                         <div className="flex flex-col items-center animate-in fade-in zoom-in duration-700">
-                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-[-0.04em] text-white leading-[1.1] md:leading-[0.9] mb-4 md:mb-8">
-                                Stop <span className="text-white/40">Ideating.</span><br />
-                                Start <span className="gradient-text">Building.</span>
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-[-0.04em] text-white leading-[1.1] md:leading-[0.9] mb-4 md:mb-8 whitespace-pre-line">
+                                {data?.hero_heading ? data.hero_heading : <>Stop <span className="text-white/40">Ideating.</span><br />Start <span className="gradient-text">Building.</span></>}
                             </h1>
-                            <p className="text-xl md:text-3xl font-light text-text-secondary max-w-3xl mx-auto tracking-tight leading-relaxed">
-                                Join the alternate B-school for Aspiring Founders.
+                            <p className="text-xl md:text-3xl font-light text-text-secondary max-w-3xl mx-auto tracking-tight leading-relaxed whitespace-pre-line">
+                                {data?.hero_tagline || "Join the alternate B-school for Aspiring Founders."}
                             </p>
                         </div>
                     )}

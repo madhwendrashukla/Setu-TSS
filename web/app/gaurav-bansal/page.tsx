@@ -18,7 +18,7 @@ export default function GauravBansalProfile() {
         const vcard = "BEGIN:VCARD\n" +
             "VERSION:3.0\n" +
             "FN:Gaurav Bansal\n" +
-            "ORG:The Startup School\n" +
+            "ORG:Setu - TheStartupSchool\n" +
             "TITLE:Founder\n" +
             "TEL;TYPE=CELL:+919289121121\n" +
             "EMAIL:Gauravbansal@thestartupschool.in\n" +
@@ -206,7 +206,7 @@ export default function GauravBansalProfile() {
                                     <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-2xl md:text-3xl">
                                         <i className="fab fa-linkedin"></i>
                                     </div>
-                                    <span className="font-bold text-slate-200 md:text-2xl">The Startup School LinkedIn</span>
+                                    <span className="font-bold text-slate-200 md:text-2xl">Setu - TheStartupSchool LinkedIn</span>
                                 </div>
                                 <i className="fas fa-chevron-right text-slate-700 group-hover:text-white transition-all mr-3"></i>
                             </a>

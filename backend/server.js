@@ -80,16 +80,17 @@ app.get('/api/mentors/:id', async (req, res) => {
 
 app.get('/api/homepage', async (req, res) => {
   try {
-    const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings] = await Promise.all([
+    const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors] = await Promise.all([
       prisma.heroSlide.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.homepageContent.findFirst(),
       prisma.program.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.galleryItem.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.testimonial.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.communityPartner.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
-      prisma.siteSetting.findFirst()
+      prisma.siteSetting.findFirst(),
+      prisma.mentor.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
     ]);
-    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings });
+    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors });
   } catch (error) { res.status(500).json({ error: 'Failed to fetch homepage data' }); }
 });
 
@@ -136,6 +137,7 @@ app.post('/api/admin/gallery', upload.single('media'), compressImage, async (req
   try {
     const data = { ...req.body };
     if (req.file) data.media_url = req.file.url;
+    data.display_order = parseInt(data.display_order) || 0;
 
     // Enforce limits
     const activeImages = await prisma.galleryItem.count({ where: { type: 'image', is_active: true } });
@@ -156,11 +158,22 @@ app.post('/api/admin/gallery', upload.single('media'), compressImage, async (req
   } catch (error) { res.status(500).json({ error: 'Failed to create gallery item' }); }
 });
 
+app.delete('/api/admin/gallery/:id', async (req, res) => {
+  try {
+    await prisma.galleryItem.update({ where: { id: req.params.id }, data: { is_active: false } });
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to delete gallery item' }); }
+});
+
 // TESTIMONIALS
 app.post('/api/admin/testimonials', upload.single('photo'), compressImage, async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) data.photo_url = req.file.url;
+    data.display_order = parseInt(data.display_order) || 0;
+    if (data.show_description !== undefined) {
+      data.show_description = data.show_description === 'true';
+    }
 
     if (data.type === 'video') {
       const activeVideos = await prisma.testimonial.count({ where: { type: 'video', is_active: true } });
@@ -173,14 +186,63 @@ app.post('/api/admin/testimonials', upload.single('photo'), compressImage, async
   } catch (error) { res.status(500).json({ error: 'Failed to create testimonial' }); }
 });
 
+app.put('/api/admin/testimonials/:id', upload.single('photo'), compressImage, async (req, res) => {
+  try {
+    const data = { ...req.body };
+    if (req.file) data.photo_url = req.file.url;
+    if (data.display_order) data.display_order = parseInt(data.display_order);
+    if (data.show_description !== undefined) {
+      data.show_description = data.show_description === 'true';
+    }
+    const updated = await prisma.testimonial.update({ where: { id: req.params.id }, data });
+    res.json(updated);
+  } catch (error) { res.status(500).json({ error: 'Failed to update testimonial' }); }
+});
+
+app.delete('/api/admin/testimonials/:id', async (req, res) => {
+  try {
+    await prisma.testimonial.update({ where: { id: req.params.id }, data: { is_active: false } });
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to delete testimonial' }); }
+});
+
 // MENTORS
 app.post('/api/admin/mentors', upload.single('photo'), compressImage, async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) data.photo_url = req.file.url;
+    
+    // Automatically assign display_order if not provided
+    if (!data.display_order) {
+      const count = await prisma.mentor.count();
+      data.display_order = count + 1;
+    } else {
+      data.display_order = parseInt(data.display_order);
+    }
+
     const newMentor = await prisma.mentor.create({ data });
     res.json(newMentor);
-  } catch (error) { res.status(500).json({ error: 'Failed to create mentor' }); }
+  } catch (error) { 
+    console.error("Error creating mentor:", error);
+    res.status(500).json({ error: 'Failed to create mentor' }); 
+  }
+});
+
+app.put('/api/admin/mentors/:id', upload.single('photo'), compressImage, async (req, res) => {
+  try {
+    const data = { ...req.body };
+    if (req.file) data.photo_url = req.file.url;
+    if (data.display_order) data.display_order = parseInt(data.display_order);
+    const updated = await prisma.mentor.update({ where: { id: req.params.id }, data });
+    res.json(updated);
+  } catch (error) { res.status(500).json({ error: 'Failed to update mentor' }); }
+});
+
+app.delete('/api/admin/mentors/:id', async (req, res) => {
+  try {
+    await prisma.mentor.update({ where: { id: req.params.id }, data: { is_active: false } });
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to delete mentor' }); }
 });
 
 

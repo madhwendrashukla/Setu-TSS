@@ -1,8 +1,8 @@
 import { FounderManifesto } from "@/components/sections/FounderManifesto";
 
 export const metadata = {
-    title: 'About | The Startup School',
-    description: 'The philosophy and the foundation behind The Startup School.',
+    title: 'About | Setu - TheStartupSchool',
+    description: 'The philosophy and the foundation behind Setu - TheStartupSchool.',
 };
 
 export default function AboutPage() {

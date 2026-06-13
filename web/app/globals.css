@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme inline {
+@theme {
   --color-bg-main: #0F172A;
   --color-bg-surface: #1E293B;
   /* Slightly lighter shade of bg for surfaces */

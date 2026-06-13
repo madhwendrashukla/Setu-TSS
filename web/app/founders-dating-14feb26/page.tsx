@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Gallery } from '@/components/sections/Gallery';
 
 export const metadata: Metadata = {
-    title: "Founder's Dating | The Startup School",
+    title: "Founder's Dating | Setu - TheStartupSchool",
     description: "A curated offline meetup for founders & builders looking to co-build. Hosted on 14th Feb.",
 };
 

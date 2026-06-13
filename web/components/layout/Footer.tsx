@@ -52,7 +52,19 @@ const LEGAL_LINKS = [
     { label: 'Terms of Use', href: '/terms-of-use' },
 ];
 
-export function Footer() {
+export function Footer({ siteSettings }: { siteSettings?: any }) {
+    let certs: any[] = [];
+    if (siteSettings?.certifications) {
+        try {
+            certs = typeof siteSettings.certifications === 'string' 
+                ? JSON.parse(siteSettings.certifications) 
+                : siteSettings.certifications;
+            if (!Array.isArray(certs)) certs = [];
+        } catch(e) {
+            certs = [];
+        }
+    }
+
     return (
         <footer className="bg-[#0a0d1a] border-t border-white/5 text-white py-14">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
@@ -64,6 +76,22 @@ export function Footer() {
                         </Link>
                         <p className="text-white/40 text-sm font-light">An Alternate B-School for Aspiring Founders</p>
                         <p className="text-white text-xs md:text-sm font-medium mt-1.5 tracking-widest uppercase">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>
+                        {siteSettings?.address && (
+                            <p className="text-white/40 text-xs mt-2 max-w-sm whitespace-pre-line">{siteSettings.address}</p>
+                        )}
+                        {(siteSettings?.contact_email || siteSettings?.contact_phone) && (
+                            <p className="text-white/40 text-xs mt-1">
+                                {siteSettings.contact_email && <a href={`mailto:${siteSettings.contact_email}`} className="hover:text-white mr-3">{siteSettings.contact_email}</a>}
+                                {siteSettings.contact_phone && <a href={`tel:${siteSettings.contact_phone}`} className="hover:text-white">{siteSettings.contact_phone}</a>}
+                            </p>
+                        )}
+                        {certs.length > 0 && (
+                            <div className="flex gap-2 mt-4">
+                                {certs.map((cert: any, i: number) => (
+                                    <img key={i} src={encodeURI(cert.image_url)} alt={cert.label} title={cert.label} className="h-10 object-contain bg-white rounded px-1" />
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Social Icons */}

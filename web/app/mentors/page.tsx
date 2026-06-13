@@ -1,7 +1,7 @@
 import { Mentors } from "@/components/sections/Mentors";
 
 export const metadata = {
-    title: 'Learn from Masters. | The Startup School',
+    title: 'Learn from Masters. | Setu - TheStartupSchool',
     description: 'Get mentored by industry titans',
 };
 

@@ -21,7 +21,7 @@ export function WorkshopMentor() {
                     <div className="z-10">
                         <div className="inline-block px-4 py-1.5 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white font-bold rounded-lg text-sm mb-6 shadow-lg shadow-[#d946ef]/30 uppercase tracking-widest">Lead Mentor</div>
                         <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-2">Gaurav Bansal</h3>
-                        <p className="text-lg md:text-xl font-bold mb-8 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">Founder – The Startup School</p>
+                        <p className="text-lg md:text-xl font-bold mb-8 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">Founder – Setu - TheStartupSchool</p>
                         <p className="text-base md:text-lg text-slate-300 font-light leading-relaxed mb-10 max-w-2xl mx-auto">
                             To master fundraising, you must speak three languages: <strong className="text-white">The Narrative, The Numbers, and The Law.</strong> Gaurav will guide you through the exact execution strategies needed to build an investable company and secure your funding rounds with clarity.
                         </p>

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import FinancialModeler from '@/components/tools/FinancialModeler';
 
 export const metadata: Metadata = {
-    title: 'Financial Modeler & Runway Calculator | The Startup School',
+    title: 'Financial Modeler & Runway Calculator | Setu - TheStartupSchool',
     description: 'Interactive dashboard to calculate your startup runway, burn rate, and default alive status.',
 };
 

@@ -3,9 +3,9 @@ import Image from 'next/image';
 const mentors = [
     {
         name: 'Gaurav Bansal',
-        role: 'Founder – The Startup School',
+        role: 'Founder – Setu - TheStartupSchool',
         workshop: 'Workshop 1: Startup Ideation & Validation',
-        bio: 'Gaurav Bansal is the founder of The Startup School, an alternate B-school for aspiring entrepreneurs. With extensive experience mentoring at premier institutions, Gaurav has guided hundreds of founders from ideation to execution.',
+        bio: 'Gaurav Bansal is the founder of Setu - TheStartupSchool, an alternate B-school for aspiring entrepreneurs. With extensive experience mentoring at premier institutions, Gaurav has guided hundreds of founders from ideation to execution.',
         quote: '"To master fundraising, you must speak three languages: The Narrative, The Numbers, and The Law."',
         credentials: [
             { icon: 'fa-graduation-cap', text: 'Mentor at e-cell IIT Madras' },

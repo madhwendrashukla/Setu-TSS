@@ -1,6 +1,6 @@
 # TSS Technical Deep-Dive: Data Architecture & Update Lifecycle
 
-This report provides a granular examination of the current technical implementation of **The Startup School (TSS)**. It focuses on the "Static-Data-as-a-Service" pattern currently in use and the automation scripts that manage it.
+This report provides a granular examination of the current technical implementation of **Setu - TheStartupSchool (TSS)**. It focuses on the "Static-Data-as-a-Service" pattern currently in use and the automation scripts that manage it.
 
 ---
 

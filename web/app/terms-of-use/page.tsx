@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Terms of Use | The Startup School',
-    description: 'Terms of Use for The Startup School (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD)',
+    title: 'Terms of Use | Setu - TheStartupSchool',
+    description: 'Terms of Use for Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD)',
 };
 
 export default function TermsOfUsePage() {
@@ -21,7 +21,7 @@ export default function TermsOfUsePage() {
                 <div className="glass-card rounded-[2rem] p-8 md:p-12 space-y-10 text-gray-300 border border-white/10 bg-white/5 backdrop-blur-xl leading-relaxed font-light">
                     <section>
                         <p>
-                            Welcome to RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD (the "The Startup School"). These Terms of Use ("Terms") govern your use of our website <a href="https://www.thestartupschool.in" className="text-accent-violet hover:underline">https://www.thestartupschool.in</a> and <a href="https://thestartupschool.org.in" className="text-accent-violet hover:underline">thestartupschool.org.in</a> (hereinafter referred as the "Site") and the services provided by The Startup School ("we," "our," or "us"). By accessing or using the Site, you agree to comply with and be bound by these Terms.
+                            Welcome to RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD (the "Setu - TheStartupSchool"). These Terms of Use ("Terms") govern your use of our website <a href="https://www.thestartupschool.in" className="text-accent-violet hover:underline">https://www.thestartupschool.in</a> and <a href="https://thestartupschool.org.in" className="text-accent-violet hover:underline">setu-tss.org.in</a> (hereinafter referred as the "Site") and the services provided by Setu - TheStartupSchool ("we," "our," or "us"). By accessing or using the Site, you agree to comply with and be bound by these Terms.
                         </p>
                     </section>
 
@@ -50,18 +50,18 @@ export default function TermsOfUsePage() {
 
                     <section>
                         <h2 className="text-xl font-bold text-white mb-4">3. Services</h2>
-                        <p>The Startup School provides educational services, business consultancy services, training services, mentoring services in online and offline training mode. The terms and conditions specific to these services will be provided separately upon request and must be agreed to before using those services.</p>
+                        <p>Setu - TheStartupSchool provides educational services, business consultancy services, training services, mentoring services in online and offline training mode. The terms and conditions specific to these services will be provided separately upon request and must be agreed to before using those services.</p>
                     </section>
 
                     <section>
                         <h2 className="text-xl font-bold text-white mb-4">4. Intellectual Property</h2>
-                        <p>The Site and its entire contents, features, and functionality (including but not limited to all information, software, text, displays, images, video, and audio, and the design, selection, and arrangement thereof) are owned by The Startup School, its licensors, or other providers of such material.</p>
+                        <p>The Site and its entire contents, features, and functionality (including but not limited to all information, software, text, displays, images, video, and audio, and the design, selection, and arrangement thereof) are owned by Setu - TheStartupSchool, its licensors, or other providers of such material.</p>
                     </section>
 
                     <section>
                         <h2 className="text-xl font-bold text-white mb-4">5. Limitation of Liability</h2>
                         <p>
-                            To the fullest extent permitted by law, The Startup School shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses, resulting from (a) your use or inability to use the Site; (b) any unauthorized access to or use of our servers and/or any personal information stored therein; (c) any interruption or cessation of transmission to or from the Site; (d) any bugs, viruses, trojan horses, or the like that may be transmitted to or through our Site by any third party; (e) any errors or omissions in any content or for any loss or damage incurred as a result of the use of any content posted, emailed, transmitted, or otherwise made available through the Site; and/or (f) the defamatory, offensive, or illegal conduct of any third party.
+                            To the fullest extent permitted by law, Setu - TheStartupSchool shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses, resulting from (a) your use or inability to use the Site; (b) any unauthorized access to or use of our servers and/or any personal information stored therein; (c) any interruption or cessation of transmission to or from the Site; (d) any bugs, viruses, trojan horses, or the like that may be transmitted to or through our Site by any third party; (e) any errors or omissions in any content or for any loss or damage incurred as a result of the use of any content posted, emailed, transmitted, or otherwise made available through the Site; and/or (f) the defamatory, offensive, or illegal conduct of any third party.
                         </p>
                     </section>
 
@@ -75,7 +75,7 @@ export default function TermsOfUsePage() {
                     <section>
                         <h2 className="text-xl font-bold text-white mb-4">7. Changes to Terms</h2>
                         <p>
-                            The Startup School reserves the right to revise these Terms at any time. You are advised to review these Terms periodically for any changes. Your continued use of the Site following the posting of the revised Terms means that you accept and agree to the changes.
+                            Setu - TheStartupSchool reserves the right to revise these Terms at any time. You are advised to review these Terms periodically for any changes. Your continued use of the Site following the posting of the revised Terms means that you accept and agree to the changes.
                         </p>
                     </section>
 
@@ -83,7 +83,7 @@ export default function TermsOfUsePage() {
                         <h2 className="text-xl font-bold text-white mb-4">8. Contact Us</h2>
                         <p className="mb-2">If you have any questions about these Terms, please contact us at:</p>
                         <p className="font-medium text-white">
-                            The Startup School (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD.) <br />
+                            Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD.) <br />
                             <a href="mailto:info@thestartupschool.in" className="text-accent-violet hover:underline">info@thestartupschool.in</a>
                         </p>
                     </section>

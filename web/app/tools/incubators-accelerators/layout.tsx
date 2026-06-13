@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: 'Incubators & Accelerators | The Startup School',
+    title: 'Incubators & Accelerators | Setu - TheStartupSchool',
     description: 'Discover the best incubators and accelerators to help grow your startup from early stage to scale.',
 };
 

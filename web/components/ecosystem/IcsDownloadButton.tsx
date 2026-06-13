@@ -19,7 +19,7 @@ export function IcsDownloadButton({ event }: { event: FounderEvent }) {
 
         const icsData = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//The Startup School//Founder Calendar//EN
+PRODID:-//Setu - TheStartupSchool//Founder Calendar//EN
 BEGIN:VEVENT
 UID:${Math.random().toString(36).substring(2, 10)}@thestartupschool.in
 DTSTAMP:${now}

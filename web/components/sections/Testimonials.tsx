@@ -57,7 +57,7 @@ export const Testimonials = ({ data }: { data?: any[] }) => {
                                 <p className="text-white text-lg mb-6 whitespace-normal italic">"{text.quote}"</p>
                                 <div className="flex items-center gap-4">
                                     {text.photo_url ? (
-                                        <img src={text.photo_url} alt={text.name} className="w-12 h-12 rounded-full object-cover" />
+                                        <img src={encodeURI(text.photo_url)} alt={text.name} className="w-12 h-12 rounded-full object-cover" />
                                     ) : (
                                         <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xl">
                                             {text.name.charAt(0)}
@@ -77,7 +77,7 @@ export const Testimonials = ({ data }: { data?: any[] }) => {
                                 <p className="text-white text-lg mb-6 whitespace-normal italic">"{text.quote}"</p>
                                 <div className="flex items-center gap-4">
                                     {text.photo_url ? (
-                                        <img src={text.photo_url} alt={text.name} className="w-12 h-12 rounded-full object-cover" />
+                                        <img src={encodeURI(text.photo_url)} alt={text.name} className="w-12 h-12 rounded-full object-cover" />
                                     ) : (
                                         <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xl">
                                             {text.name.charAt(0)}

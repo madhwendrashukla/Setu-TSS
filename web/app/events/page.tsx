@@ -7,7 +7,23 @@ export const metadata: Metadata = {
     description: 'Upcoming and past events, workshops, and startup testimonials at The Startup School.',
 };
 
-export default function EventsPage() {
+async function getEvents() {
+    try {
+        const upcomingRes = await fetch('http://localhost:5000/api/events?upcoming=true', { next: { revalidate: 60 } });
+        const pastRes = await fetch('http://localhost:5000/api/events?past=true', { next: { revalidate: 60 } });
+        
+        const upcoming = upcomingRes.ok ? await upcomingRes.json() : [];
+        const past = pastRes.ok ? await pastRes.json() : [];
+        
+        return { upcoming, past };
+    } catch (e) {
+        return { upcoming: [], past: [] };
+    }
+}
+
+export default async function EventsPage() {
+    const { upcoming, past } = await getEvents();
+
     return (
         <div className="pt-32 pb-20 min-h-screen bg-bg-main">
             <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -22,225 +38,71 @@ export default function EventsPage() {
                     </p>
                 </div>
 
-                {/* Upcoming Workshops */}
+                {/* Upcoming Workshops Tab */}
                 <section className="mb-32">
                     <h2 className="text-2xl font-bold text-white mb-10 tracking-tight pb-4 border-b border-white/10">Upcoming Workshops</h2>
 
-                    <div className="grid lg:grid-cols-1 gap-8">
-                        {/* Empty State */}
-                        <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-dashed border-white/10 flex flex-col items-center justify-center text-center h-full min-h-[300px] lg:w-1/2 lg:mx-auto">
-                            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary mb-6">
-                                <i className="fas fa-bullhorn text-2xl"></i>
+                    <div className="grid lg:grid-cols-2 gap-8">
+                        {upcoming.length === 0 ? (
+                            <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-dashed border-white/10 flex flex-col items-center justify-center text-center h-full min-h-[300px] lg:col-span-2">
+                                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary mb-6">
+                                    <i className="fas fa-bullhorn text-2xl"></i>
+                                </div>
+                                <p className="text-white font-bold text-xl mb-2 tracking-tight">More events being scheduled.</p>
+                                <p className="text-text-secondary text-lg">Stay tuned for updates.</p>
                             </div>
-                            <p className="text-white font-bold text-xl mb-2 tracking-tight">More events being scheduled.</p>
-                            <p className="text-text-secondary text-lg">Stay tuned for updates.</p>
-                        </div>
+                        ) : (
+                            upcoming.map((event: any) => (
+                                <div key={event.id} className="glass-card rounded-3xl p-8 border border-white/5 bg-bg-surface">
+                                    <h3 className="text-2xl font-bold text-white mb-4">{event.title}</h3>
+                                    <p className="text-text-secondary mb-6">{event.description}</p>
+                                    <div className="flex gap-4 text-sm text-text-secondary mb-6">
+                                        <span>📍 {event.city} - {event.venue}</span>
+                                        <span>📅 {new Date(event.start_date).toLocaleDateString()}</span>
+                                    </div>
+                                    <Link href={`/events/${event.slug}`} className="text-accent-blue font-bold uppercase text-sm">View Details &rarr;</Link>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </section>
 
-                {/* B2B & Industry Events */}
-                <section className="mb-32">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 pb-4 border-b border-white/10 gap-4">
-                        <div>
-                            <h2 className="text-2xl font-bold text-white tracking-tight mb-2">B2B & Industry Events</h2>
-                            <p className="text-text-secondary">Comprehensive database of trade shows, exhibitions, and networking hubs.</p>
-                        </div>
-                        <Link href="/tools/founder-calendar" className="text-accent-blue font-bold text-sm tracking-widest uppercase hover:text-white transition-colors flex items-center gap-2">
-                            Open Full Calendar &rarr;
-                        </Link>
-                    </div>
-
-                    <div className="grid lg:grid-cols-3 gap-6">
-                        <div className="glass-card p-8 rounded-3xl border border-white/5 bg-bg-surface/50 backdrop-blur-sm">
-                            <div className="w-12 h-12 rounded-2xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center text-accent-blue mb-6">
-                                <i className="fas fa-calendar-check"></i>
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-3 tracking-tight">650+ Hand-picked Events</h3>
-                            <p className="text-text-secondary text-sm leading-relaxed mb-6">We've mapped out the highest-leverage B2B exhibitions and networking hubs for Founders.</p>
-                            <Link href="/tools/founder-calendar" className="text-white/60 hover:text-white text-xs font-bold uppercase tracking-widest border-b border-white/10 hover:border-white transition-all pb-1">
-                                Explore Database
-                            </Link>
-                        </div>
-
-                        <div className="glass-card p-8 rounded-3xl border border-white/5 bg-bg-surface/50 backdrop-blur-sm">
-                            <div className="w-12 h-12 rounded-2xl bg-accent-violet/10 border border-accent-violet/20 flex items-center justify-center text-accent-violet mb-6">
-                                <i className="fas fa-filter"></i>
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Smart Filters</h3>
-                            <p className="text-text-secondary text-sm leading-relaxed mb-6">Filter by Sector (Tech, Manufacturing, Retail), City, or Month to find exactly where you need to be.</p>
-                            <Link href="/tools/founder-calendar" className="text-white/60 hover:text-white text-xs font-bold uppercase tracking-widest border-b border-white/10 hover:border-white transition-all pb-1">
-                                View Categories
-                            </Link>
-                        </div>
-
-                        <div className="glass-card p-8 rounded-3xl border border-white/5 bg-bg-surface/50 backdrop-blur-sm">
-                            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mb-6">
-                                <i className="fas fa-star"></i>
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Must Attend List</h3>
-                            <p className="text-text-secondary text-sm leading-relaxed mb-6">Shortlisted priority events that are absolutely crucial for founders looking to build momentum.</p>
-                            <Link href="/tools/founder-calendar" className="text-white/60 hover:text-white text-xs font-bold uppercase tracking-widest border-b border-white/10 hover:border-white transition-all pb-1">
-                                See Priority List
-                            </Link>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Past Events */}
+                {/* Past Events Tab */}
                 <section className="mb-32">
                     <h2 className="text-2xl font-bold text-white mb-10 tracking-tight pb-4 border-b border-white/10">Past Events</h2>
 
                     <div className="grid lg:grid-cols-2 gap-8">
-                        {/* Past Event Card */}
-                        <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-white/5 relative group h-full flex flex-col bg-bg-surface">
-                            <div className="flex justify-between items-start mb-8">
-                                <div className="bg-white/10 border border-white/20 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                                    Concluded
-                                </div>
-                                <div className="text-accent-blue font-bold text-sm tracking-widest uppercase flex items-center gap-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-8px] transition-all">View Details &rarr;</div>
-                            </div>
-
-                            <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300">Founder's Dating</h3>
-                            <p className="text-text-secondary text-lg leading-relaxed mb-10 flex-grow">A curated offline meetup for founders & builders. We skipped the awkward small talk, facilitated expert matchmaking, and ran rigorous breakout sessions to help builders find their exact business soulmates.</p>
-
-                            <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/5">
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                        <i className="far fa-calendar text-white/50 w-6"></i> 14th February (Past)
-                                    </div>
-                                    <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                        <i className="fas fa-map-marker-alt text-white/50 w-6"></i> DevX, Andheri East
+                        {past.map((event: any) => (
+                            <div key={event.id} className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-white/5 relative group h-full flex flex-col bg-bg-surface">
+                                <div className="flex justify-between items-start mb-8">
+                                    <div className="bg-white/10 border border-white/20 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                                        Concluded
                                     </div>
                                 </div>
-                                <Link href="/founders-dating-14feb26" className="w-full sm:w-auto bg-white/10 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">
-                                    Read Highlights
-                                </Link>
-                            </div>
-                        </div>
 
-                        {/* Past Event Card 2 */}
-                        <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-white/5 relative group h-full flex flex-col bg-bg-surface">
-                            <div className="flex justify-between items-start mb-8">
-                                <div className="bg-white/10 border border-white/20 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                                    Concluded
-                                </div>
-                                <div className="text-accent-blue font-bold text-sm tracking-widest uppercase flex items-center gap-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-8px] transition-all">View Details &rarr;</div>
-                            </div>
+                                <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300">{event.title}</h3>
+                                <p className="text-text-secondary text-lg leading-relaxed mb-10 flex-grow">{event.description}</p>
 
-                            <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300">Capital / Fund-Raising Workshop</h3>
-                            <p className="text-text-secondary text-lg leading-relaxed mb-10 flex-grow">Stop guessing what investors want. A live, cohort-based program that transformed passionate builders into investable founders.</p>
-
-                            <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/5">
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                        <i className="far fa-calendar text-white/50 w-6"></i> 15th April (Past)
+                                <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/5">
+                                    <div className="space-y-2">
+                                        <div className="flex items-center text-text-secondary font-medium tracking-wide">
+                                            <i className="far fa-calendar text-white/50 w-6"></i> {new Date(event.start_date).toLocaleDateString()} (Past)
+                                        </div>
+                                        <div className="flex items-center text-text-secondary font-medium tracking-wide">
+                                            <i className="fas fa-map-marker-alt text-white/50 w-6"></i> {event.venue}, {event.city}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                        <i className="fas fa-map-marker-alt text-white/50 w-6"></i> Live Cohort (Online)
-                                    </div>
+                                    <Link href={`/events/${event.slug}`} className="w-full sm:w-auto bg-white/10 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">
+                                        View Details
+                                    </Link>
                                 </div>
-                                <Link href="/fundraising-workshop-15apr" className="w-full sm:w-auto bg-white/10 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">
-                                    View Details
-                                </Link>
                             </div>
-                        </div>
-                        {/* Past Event Card 3 */}
-                        <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-white/5 relative group h-full flex flex-col bg-bg-surface">
-                            <div className="flex justify-between items-start mb-8">
-                                <div className="bg-white/10 border border-white/20 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                                    Concluded
-                                </div>
-                                <div className="text-accent-blue font-bold text-sm tracking-widest uppercase flex items-center gap-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-8px] transition-all">View Details &rarr;</div>
-                            </div>
-
-                            <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300 uppercase">AI Startup Launchpad</h3>
-                            <p className="text-text-secondary text-lg leading-relaxed mb-10 flex-grow">Build, Validate & Launch Your Startup in 3 Days. Master ideation methods, build AI-powered MVPs, and create marketing films — live with top mentors.</p>
-
-                            <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/5">
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                        <i className="far fa-calendar text-white/50 w-6"></i> May 15th - 17th (Past)
-                                    </div>
-                                    <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                        <i className="fas fa-map-marker-alt text-white/50 w-6"></i> Live Cohort (Online)
-                                    </div>
-                                </div>
-                                <Link href="/AI-workshop-15may" className="w-full sm:w-auto bg-white/10 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">
-                                    View Details
-                                </Link>
-                            </div>
-                        </div>
+                        ))}
+                        {past.length === 0 && (
+                            <p className="text-text-secondary">No past events found.</p>
+                        )}
                     </div>
                 </section>
-
-                {/* Past Events Gallery */}
-                <section className="mb-32 selection:bg-accent-blue/30">
-                    <div className="flex justify-between items-end mb-10 pb-4 border-b border-white/10">
-                        <div>
-                            <h2 className="text-4xl font-bold text-white tracking-tight">The Gallery.</h2>
-                            <p className="text-text-secondary mt-2">Moments from our recent gatherings and extensive networking sessions.</p>
-                        </div>
-                    </div>
-
-                    {/* Masonry-Style Bento Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] md:auto-rows-[250px] gap-4 md:gap-6">
-                        {/* Video 1 - Large Feature */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 row-span-2 bg-bg-surface flex items-center justify-center h-full">
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                            <video src="/founder-dating.mp4" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" autoPlay muted loop playsInline></video>
-                            <div className="absolute bottom-6 left-6 z-20 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 pointer-events-none">
-                                <span className="bg-accent-blue text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-bg-main animate-pulse"></div> Live View</span>
-                            </div>
-                        </div>
-
-                        {/* Photo 1 */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 md:col-span-1 row-span-1 border-t-accent-blue/30">
-                            <Image src="/gallery/IMG_0845.JPG" alt="Event" fill className="object-cover group-hover:scale-110 transition-transform duration-700" sizes="(max-width: 768px) 50vw, 25vw" quality={75} />
-                            <div className="absolute inset-0 bg-accent-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 backdrop-blur-[2px] pointer-events-none"></div>
-                        </div>
-
-                        {/* Photo 2 */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 md:col-span-1 row-span-1">
-                            <Image src="/gallery/IMG_1280.JPG" alt="Event" fill className="object-cover group-hover:scale-110 transition-transform duration-700" sizes="(max-width: 768px) 50vw, 25vw" quality={75} />
-                            <div className="absolute inset-0 bg-accent-violet/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 backdrop-blur-[2px] pointer-events-none"></div>
-                        </div>
-
-                        {/* Photo 3 */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 row-span-1">
-                            <Image src="/gallery/IMG_1318.JPG" alt="Event" fill className="object-cover group-hover:scale-110 transition-transform duration-700" sizes="(max-width: 768px) 100vw, 50vw" quality={75} />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                        </div>
-
-                        {/* Photo 8 - Replacing Video 2 to avoid duplications */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 md:col-span-1 row-span-2 bg-bg-surface border-b-accent-blue/30">
-                            <Image src="/gallery/IMG_1380.JPG" alt="Event" fill className="object-cover group-hover:scale-110 transition-transform duration-700" sizes="(max-width: 768px) 50vw, 25vw" quality={75} />
-                            <div className="absolute inset-0 bg-bg-main/40 group-hover:bg-transparent transition-colors duration-500 pointer-events-none"></div>
-                        </div>
-
-                        {/* Photo 4 */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 md:col-span-1 row-span-1">
-                            <Image src="/gallery/IMG_1319.JPG" alt="Event" fill className="object-cover group-hover:scale-110 transition-transform duration-700 filter grayscale-[50%] group-hover:grayscale-0" sizes="(max-width: 768px) 50vw, 25vw" quality={75} />
-                        </div>
-
-                        {/* Photo 5 */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 md:col-span-2 row-span-1">
-                            <Image src="/gallery/IMG_1342.JPG" alt="Event" fill className="object-cover hover:scale-110 transition-transform duration-700" sizes="(max-width: 768px) 100vw, 50vw" quality={75} />
-                        </div>
-
-                        {/* Photo 6 */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 md:col-span-1 row-span-1 border-l-accent-violet/20">
-                            <Image src="/gallery/IMG_1371.JPG" alt="Event" fill className="object-cover hover:scale-110 transition-transform duration-700" sizes="(max-width: 768px) 50vw, 25vw" quality={75} />
-                        </div>
-
-                        {/* Photo 7 - Replacing Video 3 */}
-                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative group col-span-2 md:col-span-2 row-span-1 bg-bg-surface">
-                            <Image src="/gallery/IMG_1378.JPG" alt="Event" fill className="object-cover hover:scale-110 transition-transform duration-700 filter brightness-75 hover:brightness-100" sizes="(max-width: 768px) 100vw, 50vw" quality={75} />
-                        </div>
-
-                    </div>
-                </section>
-
-                {/* Previous Testimonials section has been removed */}
             </div>
         </div>
     );

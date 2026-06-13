@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model HeroSlide {
+  id            String   @id @default(uuid()) @db.Uuid
+  image_url     String
+  display_order Int
+  is_active     Boolean  @default(true)
+}
+
+model HomepageContent {
+  id                    String   @id @default(uuid()) @db.Uuid
+  hero_heading          String
+  hero_tagline          String
+  hero_rotation_seconds Int      @default(5)
+  updated_at            DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  slug        String   @unique
+  description String
+  banner_url  String
+  venue       String
+  city        String
+  start_date  DateTime @db.Date
+  end_date    DateTime @db.Date
+  is_past     Boolean  @default(false)
+  is_pinned   Boolean  @default(false)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+}
+
+model Mentor {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  title         String
+  bio           String
+  photo_url     String
+  linkedin_url  String
+  display_order Int
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+}
+
+model Program {
+  id              String   @id @default(uuid()) @db.Uuid
+  title           String
+  subtitle        String
+  description     String
+  duration        String
+  price           String?
+  cta_text        String
+  lead_source_tag String
+  display_order   Int
+  is_active       Boolean  @default(true)
+}
+
+model GalleryItem {
+  id            String   @id @default(uuid()) @db.Uuid
+  type          String   // 'image' | 'video'
+  media_url     String
+  caption       String?
+  display_order Int
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+}
+
+model Testimonial {
+  id               String   @id @default(uuid()) @db.Uuid
+  type             String   // 'video' | 'text'
+  name             String
+  city             String?
+  photo_url        String?
+  quote            String?
+  youtube_url      String?
+  video_heading    String?
+  video_description String?
+  show_description Boolean  @default(true)
+  event_tag        String?
+  display_order    Int
+  is_active        Boolean  @default(true)
+}
+
+model CommunityPartner {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  logo_url      String
+  website_url   String
+  display_order Int
+  is_active     Boolean  @default(true)
+}
+
+model Lead {
+  id         String   @id @default(uuid()) @db.Uuid
+  full_name  String
+  city       String
+  phone      String
+  email      String
+  source     String
+  status     String   @default("new")
+  created_at DateTime @default(now())
+}
+
+model SiteSetting {
+  id             String   @id @default(uuid()) @db.Uuid
+  address        String
+  contact_email  String
+  contact_phone  String
+  certifications Json     // Array of {label, image_url}
+  updated_at     DateTime @updatedAt
+}
+
+model User {
+  id         String   @id @default(uuid()) @db.Uuid
+  email      String   @unique
+  password   String
+  created_at DateTime @default(now())
+}

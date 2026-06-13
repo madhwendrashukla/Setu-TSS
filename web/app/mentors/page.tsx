@@ -5,7 +5,19 @@ export const metadata = {
     description: 'Get mentored by industry titans',
 };
 
-export default function MentorsPage() {
+async function getMentors() {
+    try {
+        const res = await fetch('http://localhost:5000/api/mentors', { next: { revalidate: 60 } });
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        return [];
+    }
+}
+
+export default async function MentorsPage() {
+    const mentors = await getMentors();
+
     return (
         <div className="pt-24 pb-20 min-h-screen bg-bg-main flex flex-col items-center">
             <div className="max-w-4xl mx-auto px-6 mb-12 text-center">
@@ -17,7 +29,7 @@ export default function MentorsPage() {
                 </p>
             </div>
 
-            <Mentors />
+            <Mentors data={mentors} />
         </div>
     );
 }

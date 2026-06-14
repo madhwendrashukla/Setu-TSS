@@ -20,7 +20,7 @@ const Contact = dynamic(() => import("@/components/sections/Contact").then(mod =
 // Fetch data from Express Backend
 async function getHomepageData() {
   try {
-    const res = await fetch('http://localhost:5000/api/homepage', { next: { revalidate: 60 } });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     return res.json();
   } catch (error) {

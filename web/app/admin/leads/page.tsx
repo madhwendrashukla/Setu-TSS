@@ -5,7 +5,7 @@ export default function AdminLeads() {
     const [leads, setLeads] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/admin/leads", {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/leads`, {
             headers: { "Authorization": `Bearer ${localStorage.getItem("adminToken")}` }
         })
             .then(res => res.json())

@@ -9,7 +9,7 @@ export default function AdminMentors() {
     const [file, setFile] = useState<File | null>(null);
 
     const fetchMentors = () => {
-        fetch("http://localhost:5000/api/mentors")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mentors`)
             .then(res => res.json())
             .then(data => setMentors(data))
             .catch(console.error);
@@ -30,8 +30,8 @@ export default function AdminMentors() {
         if (file) data.append("photo", file);
 
         const url = editingMentor 
-            ? `http://localhost:5000/api/admin/mentors/${editingMentor.id}`
-            : "http://localhost:5000/api/admin/mentors";
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors/${editingMentor.id}`
+            : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors`;
         const method = editingMentor ? "PUT" : "POST";
 
         try {
@@ -56,7 +56,7 @@ export default function AdminMentors() {
         if (!confirm("Are you sure you want to delete this mentor?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/mentors/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });

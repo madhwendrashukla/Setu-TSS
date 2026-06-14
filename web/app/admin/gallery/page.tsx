@@ -7,7 +7,7 @@ export default function AdminGallery() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchGallery = () => {
-        fetch("http://localhost:5000/api/homepage")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`)
             .then(res => res.json())
             .then(data => setItems(data.galleryItems || []))
             .catch(console.error);
@@ -28,7 +28,7 @@ export default function AdminGallery() {
         data.append("type", file.type.startsWith("video/") ? "video" : "image");
 
         try {
-            const res = await fetch("http://localhost:5000/api/admin/gallery", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/gallery`, {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${token}` },
                 body: data
@@ -51,7 +51,7 @@ export default function AdminGallery() {
         if (!confirm("Delete this item?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/gallery/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/gallery/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });

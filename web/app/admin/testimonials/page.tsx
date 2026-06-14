@@ -9,7 +9,7 @@ export default function AdminTestimonials() {
     const [file, setFile] = useState<File | null>(null);
 
     const fetchTestimonials = () => {
-        fetch("http://localhost:5000/api/homepage")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`)
             .then(res => res.json())
             .then(data => setTestimonials(data.testimonials || []))
             .catch(console.error);
@@ -37,8 +37,8 @@ export default function AdminTestimonials() {
         }
 
         const url = editingTestimonial 
-            ? `http://localhost:5000/api/admin/testimonials/${editingTestimonial.id}`
-            : "http://localhost:5000/api/admin/testimonials";
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/testimonials/${editingTestimonial.id}`
+            : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/testimonials`;
         const method = editingTestimonial ? "PUT" : "POST";
 
         try {
@@ -66,7 +66,7 @@ export default function AdminTestimonials() {
         if (!confirm("Are you sure?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`http://localhost:5000/api/admin/testimonials/${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/testimonials/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });

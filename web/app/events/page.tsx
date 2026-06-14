@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 async function getEvents() {
     try {
-        const upcomingRes = await fetch('http://localhost:5000/api/events?upcoming=true', { next: { revalidate: 60 } });
-        const pastRes = await fetch('http://localhost:5000/api/events?past=true', { next: { revalidate: 60 } });
+        const upcomingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?upcoming=true`, { next: { revalidate: 60 } });
+        const pastRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?past=true`, { next: { revalidate: 60 } });
         
         const upcoming = upcomingRes.ok ? await upcomingRes.json() : [];
         const past = pastRes.ok ? await pastRes.json() : [];

@@ -1,14 +1,17 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create admin user
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) throw new Error('ADMIN_PASSWORD is required in .env — seed aborted');
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@thestartupschool.in' },
     update: {},
     create: {
       email: 'admin@thestartupschool.in',
-      password: 'password123',
+      password: hashedPassword,
     },
   });
   console.log('Created Admin User:', admin.email);

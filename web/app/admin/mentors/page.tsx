@@ -9,7 +9,10 @@ export default function AdminMentors() {
     const [file, setFile] = useState<File | null>(null);
 
     const fetchMentors = () => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mentors`)
+        const token = localStorage.getItem("adminToken");
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mentors`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
             .then(res => res.json())
             .then(data => setMentors(data))
             .catch(console.error);

@@ -12,7 +12,10 @@ export default function AdminEvents() {
     });
 
     const fetchEvents = () => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`)
+        const token = localStorage.getItem("adminToken");
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
             .then(res => res.json())
             .then(data => setEvents(data))
             .catch(console.error);

@@ -9,9 +9,12 @@ export default function AdminTestimonials() {
     const [file, setFile] = useState<File | null>(null);
 
     const fetchTestimonials = () => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`)
+        const token = localStorage.getItem("adminToken");
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/testimonials`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
             .then(res => res.json())
-            .then(data => setTestimonials(data.testimonials || []))
+            .then(data => setTestimonials(Array.isArray(data) ? data : []))
             .catch(console.error);
     };
 

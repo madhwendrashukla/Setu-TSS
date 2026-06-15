@@ -7,12 +7,13 @@ require('dotenv').config();
 const authMiddleware = require('./middleware/auth');
 const { upload, compressImage } = require('./utils/upload');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
@@ -20,12 +21,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 // --- AUTH API ---
 app.post('/api/admin/login', async (req, res) => {
   const { email, password } = req.body;
-  // Simplified auth for demo; in production use bcrypt
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || user.password !== password) {
+  const isValid = user && await bcrypt.compare(password, user.password);
+  if (!isValid) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'fallback_secret');
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
   res.json({ token });
 });
 
@@ -363,6 +364,56 @@ app.put('/api/admin/site_settings', async (req, res) => {
     }
     res.json(updated);
   } catch (error) { res.status(500).json({ error: 'Failed to update site settings' }); }
+});
+
+// --- MISSING ADMIN GET ROUTES ---
+
+// Dashboard stats
+app.get('/api/admin/dashboard-stats', authMiddleware, async (req, res) => {
+  try {
+    const [leads, mentors, events, programs, partners, gallery] = await Promise.all([
+      prisma.lead.count(),
+      prisma.mentor.count({ where: { is_active: true } }),
+      prisma.event.count({ where: { is_active: true } }),
+      prisma.program.count({ where: { is_active: true } }),
+      prisma.communityPartner.count(),
+      prisma.galleryItem.count({ where: { is_active: true } }),
+    ]);
+    const newLeads = await prisma.lead.count({ where: { status: 'new' } });
+    res.json({ leads, mentors, events, programs, partners, gallery, newLeads });
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch dashboard stats' }); }
+});
+
+// Programs list (admin)
+app.get('/api/admin/programs', authMiddleware, async (req, res) => {
+  try {
+    const programs = await prisma.program.findMany({ orderBy: { display_order: 'asc' } });
+    res.json(programs);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch programs' }); }
+});
+
+// Community partners list (admin)
+app.get('/api/admin/community_partners', authMiddleware, async (req, res) => {
+  try {
+    const partners = await prisma.communityPartner.findMany({ orderBy: { display_order: 'asc' } });
+    res.json(partners);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch partners' }); }
+});
+
+// Site settings get
+app.get('/api/admin/site_settings', authMiddleware, async (req, res) => {
+  try {
+    const settings = await prisma.siteSetting.findFirst();
+    res.json(settings || {});
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch site settings' }); }
+});
+
+// Hero slides list (admin)
+app.get('/api/admin/hero_slides', authMiddleware, async (req, res) => {
+  try {
+    const slides = await prisma.heroSlide.findMany({ orderBy: { display_order: 'asc' } });
+    res.json(slides);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch hero slides' }); }
 });
 
 // Start server

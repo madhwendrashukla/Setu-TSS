@@ -12,6 +12,8 @@ model HeroSlide {
   image_url     String
   display_order Int
   is_active     Boolean  @default(true)
+
+  @@map("hero_slides")
 }
 
 model HomepageContent {
@@ -20,6 +22,8 @@ model HomepageContent {
   hero_tagline          String
   hero_rotation_seconds Int      @default(5)
   updated_at            DateTime @updatedAt
+
+  @@map("homepage_content")
 }
 
 model Event {
@@ -27,95 +31,112 @@ model Event {
   title       String
   slug        String   @unique
   description String
-  banner_url  String
-  venue       String
-  city        String
-  start_date  DateTime @db.Date
-  end_date    DateTime @db.Date
+  banner_url       String?
+  venue            String?
+  city             String?
+  start_date       DateTime? @db.Date
+  end_date         DateTime? @db.Date
+  registration_url String?
   is_past     Boolean  @default(false)
   is_pinned   Boolean  @default(false)
   is_active   Boolean  @default(true)
   created_at  DateTime @default(now())
+
+  @@map("tss_events")
 }
 
 model Mentor {
   id            String   @id @default(uuid()) @db.Uuid
   name          String
   title         String
-  bio           String
-  photo_url     String
-  linkedin_url  String
+  bio           String?
+  photo_url     String?
+  linkedin_url  String?
   display_order Int
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())
+
+  @@map("mentors")
 }
 
 model Program {
   id              String   @id @default(uuid()) @db.Uuid
   title           String
-  subtitle        String
-  description     String
-  duration        String
+  subtitle        String?
+  description     String?
+  duration        String?
   price           String?
-  cta_text        String
-  lead_source_tag String
+  cta_text        String?
+  lead_source_tag String?
   display_order   Int
   is_active       Boolean  @default(true)
+
+  @@map("programs")
 }
 
 model GalleryItem {
   id            String   @id @default(uuid()) @db.Uuid
-  type          String   // 'image' | 'video'
+  type          String
   media_url     String
   caption       String?
   display_order Int
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())
+
+  @@map("gallery_items")
 }
 
 model Testimonial {
-  id               String   @id @default(uuid()) @db.Uuid
-  type             String   // 'video' | 'text'
-  name             String
-  city             String?
-  photo_url        String?
-  quote            String?
-  youtube_url      String?
-  video_heading    String?
+  id                String   @id @default(uuid()) @db.Uuid
+  type              String
+  name              String?
+  city              String?
+  photo_url         String?
+  quote             String?
+  youtube_url       String?
+  video_heading     String?
   video_description String?
-  show_description Boolean  @default(true)
-  event_tag        String?
-  display_order    Int
-  is_active        Boolean  @default(true)
+  show_description  Boolean  @default(true)
+  event_tag         String?
+  display_order     Int
+  is_active         Boolean  @default(true)
+
+  @@map("testimonials")
 }
 
 model CommunityPartner {
   id            String   @id @default(uuid()) @db.Uuid
   name          String
-  logo_url      String
-  website_url   String
+  logo_url      String?
+  website_url   String?
   display_order Int
   is_active     Boolean  @default(true)
+
+  @@map("community_partners")
 }
 
 model Lead {
   id         String   @id @default(uuid()) @db.Uuid
   full_name  String
-  city       String
-  phone      String
+  city       String?
+  phone      String?
   email      String
-  source     String
+  source     String?
   status     String   @default("new")
   created_at DateTime @default(now())
+
+  @@map("leads")
 }
 
 model SiteSetting {
   id             String   @id @default(uuid()) @db.Uuid
-  address        String
-  contact_email  String
-  contact_phone  String
-  certifications Json     // Array of {label, image_url}
+  address        String?
+  contact_email  String?
+  contact_phone  String?
+  certifications String   @default("[]")
   updated_at     DateTime @updatedAt
+
+  @@map("site_settings")
 }
 
 model User {
@@ -123,4 +144,6 @@ model User {
   email      String   @unique
   password   String
   created_at DateTime @default(now())
+
+  @@map("users")
 }

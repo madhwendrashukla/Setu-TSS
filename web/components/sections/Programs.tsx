@@ -1,10 +1,9 @@
 import Link from 'next/link';
 
 export function Programs({ data = [] }: { data?: any[] }) {
-    const programs = data && data.length > 0 ? data : [
-        { id: 1, title: 'The Spark', subtitle: '3-Day Ignition Sprint', description: 'Validate your startup idea over one intense weekend with rigorous teardowns and expert mentorship.\nLocations: Mumbai, Delhi / NCR', cta_text: 'Show your interest', duration: '3 Days' },
-        { id: 2, title: 'The Transformation', subtitle: '30-Days Deep-Dive', description: '100-day acceleration packed into 30 days. Build your MVP, secure early customers, and refine your pitch.\nLocation: Mumbai Exclusive', cta_text: 'Show your interest', duration: '30 Days' }
-    ];
+    const programs = data || [];
+
+    if (programs.length === 0) return null;
 
     return (
         <section id="programs" className="py-32 w-full bg-bg-main border-t border-white/5">

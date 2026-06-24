@@ -32,7 +32,8 @@ export default function AdminPrograms() {
         e.preventDefault();
         const url = editing ? `${API}/api/admin/programs/${editing.id}` : `${API}/api/admin/programs`;
         const method = editing ? "PUT" : "POST";
-        await fetch(url, { method, headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token()}` }, body: JSON.stringify(formData) });
+        const { locations, ...payload } = formData;
+        await fetch(url, { method, headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token()}` }, body: JSON.stringify(payload) });
         setIsModalOpen(false); resetForm(); fetchPrograms();
     };
 

@@ -151,3 +151,15 @@ model User {
 
   @@map("users")
 }
+
+model MentoredStartup {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  logo_url      String?
+  website_url   String?
+  display_order Int
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  @@map("mentored_startups")
+}

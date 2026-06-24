@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 async function getEvents() {
     try {
-        const upcomingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?upcoming=true`, { next: { revalidate: 60 } });
-        const pastRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?past=true`, { next: { revalidate: 60 } });
+        const upcomingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?upcoming=true`, { cache: 'no-store' });
+        const pastRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?past=true`, { cache: 'no-store' });
         
         const upcoming = upcomingRes.ok ? await upcomingRes.json() : [];
         const past = pastRes.ok ? await pastRes.json() : [];
@@ -53,14 +53,23 @@ export default async function EventsPage() {
                             </div>
                         ) : (
                             upcoming.map((event: any) => (
-                                <div key={event.id} className="glass-card rounded-3xl p-8 border border-white/5 bg-bg-surface">
+                                <div key={event.id} className="glass-card rounded-3xl p-8 border border-white/5 bg-bg-surface flex flex-col">
+                                    {event.banner_url ? (
+                                        <div className="w-full h-48 mb-6 rounded-2xl overflow-hidden relative shrink-0">
+                                            <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-full h-48 mb-6 rounded-2xl overflow-hidden relative shrink-0">
+                                            <img src="/ai-workshop-banner.webp" alt="Event Banner" className="w-full h-full object-cover opacity-50" />
+                                        </div>
+                                    )}
                                     <h3 className="text-2xl font-bold text-white mb-4">{event.title}</h3>
-                                    <p className="text-text-secondary mb-6">{event.description}</p>
+                                    <p className="text-text-secondary mb-6 flex-grow">{event.description}</p>
                                     <div className="flex gap-4 text-sm text-text-secondary mb-6">
-                                        <span>📍 {event.venue}</span>
-                                        <span>📅 {new Date(event.start_date).toLocaleDateString()}</span>
+                                        <span><i className="fas fa-map-marker-alt text-white/50 w-4"></i> {event.venue}</span>
+                                        <span><i className="far fa-calendar text-white/50 w-4"></i> {new Date(event.start_date).toLocaleDateString()}</span>
                                     </div>
-                                    <Link href={`/events/${event.slug}`} className="text-accent-blue font-bold uppercase text-sm">View Details &rarr;</Link>
+                                    <Link href={`/events/${event.slug}`} className="text-accent-blue font-bold uppercase text-sm group-hover:text-white transition-colors">View Details &rarr;</Link>
                                 </div>
                             ))
                         )}
@@ -74,7 +83,16 @@ export default async function EventsPage() {
                     <div className="grid lg:grid-cols-2 gap-8">
                         {past.map((event: any) => (
                             <div key={event.id} className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-white/5 relative group h-full flex flex-col bg-bg-surface">
-                                <div className="flex justify-between items-start mb-8">
+                                {event.banner_url ? (
+                                    <div className="w-full h-56 mb-8 rounded-2xl overflow-hidden relative shrink-0">
+                                        <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    </div>
+                                ) : (
+                                    <div className="w-full h-56 mb-8 rounded-2xl overflow-hidden relative shrink-0">
+                                        <img src="/ai-workshop-banner.webp" alt="Past Event" className="w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-500" />
+                                    </div>
+                                )}
+                                <div className="flex justify-between items-start mb-6">
                                     <div className="bg-white/10 border border-white/20 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
                                         Concluded
                                     </div>

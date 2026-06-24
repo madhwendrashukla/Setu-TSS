@@ -74,6 +74,16 @@ app.get('/api/gallery', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to fetch gallery items' }); }
 });
 
+app.get('/api/testimonials', async (req, res) => {
+  try {
+    const testimonials = await prisma.testimonial.findMany({ 
+      where: { is_active: true }, 
+      orderBy: { display_order: 'asc' } 
+    });
+    res.json(testimonials);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch testimonials' }); }
+});
+
 app.get('/api/mentors', async (req, res) => {
   try {
     const mentors = await prisma.mentor.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' } });
@@ -91,7 +101,7 @@ app.get('/api/mentors/:id', async (req, res) => {
 
 app.get('/api/homepage', async (req, res) => {
   try {
-    const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors] = await Promise.all([
+    const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups] = await Promise.all([
       prisma.heroSlide.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.homepageContent.findFirst(),
       prisma.program.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
@@ -99,9 +109,10 @@ app.get('/api/homepage', async (req, res) => {
       prisma.testimonial.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.communityPartner.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.siteSetting.findFirst(),
-      prisma.mentor.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
+      prisma.mentor.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
+      prisma.mentoredStartup.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
     ]);
-    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors });
+    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups });
   } catch (error) { res.status(500).json({ error: 'Failed to fetch homepage data' }); }
 });
 
@@ -163,7 +174,7 @@ app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (
 
 app.delete('/api/admin/events/:id', async (req, res) => {
   try {
-    await prisma.event.update({ where: { id: req.params.id }, data: { is_active: false } });
+    await prisma.event.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete event' }); }
 });
@@ -196,7 +207,7 @@ app.post('/api/admin/gallery', upload.single('media'), compressImage, async (req
 
 app.delete('/api/admin/gallery/:id', async (req, res) => {
   try {
-    await prisma.galleryItem.update({ where: { id: req.params.id }, data: { is_active: false } });
+    await prisma.galleryItem.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete gallery item' }); }
 });
@@ -237,9 +248,39 @@ app.put('/api/admin/testimonials/:id', upload.single('photo'), compressImage, as
 
 app.delete('/api/admin/testimonials/:id', async (req, res) => {
   try {
-    await prisma.testimonial.update({ where: { id: req.params.id }, data: { is_active: false } });
+    await prisma.testimonial.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete testimonial' }); }
+});
+
+// COMMUNITY PARTNERS
+app.post('/api/admin/community_partners', upload.single('logo'), compressImage, async (req, res) => {
+  try {
+    const data = { ...req.body };
+    if (req.file) data.logo_url = req.file.url;
+    data.display_order = parseInt(data.display_order) || 0;
+    data.is_active = data.is_active === 'true' || data.is_active === true;
+    const newPartner = await prisma.communityPartner.create({ data });
+    res.json(newPartner);
+  } catch (error) { res.status(500).json({ error: 'Failed to create partner' }); }
+});
+
+app.put('/api/admin/community_partners/:id', upload.single('logo'), compressImage, async (req, res) => {
+  try {
+    const data = { ...req.body };
+    if (req.file) data.logo_url = req.file.url;
+    if (data.display_order) data.display_order = parseInt(data.display_order);
+    if (data.is_active !== undefined) data.is_active = data.is_active === 'true' || data.is_active === true;
+    const updated = await prisma.communityPartner.update({ where: { id: req.params.id }, data });
+    res.json(updated);
+  } catch (error) { res.status(500).json({ error: 'Failed to update partner' }); }
+});
+
+app.delete('/api/admin/community_partners/:id', async (req, res) => {
+  try {
+    await prisma.communityPartner.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to delete partner' }); }
 });
 
 // MENTORS
@@ -276,7 +317,7 @@ app.put('/api/admin/mentors/:id', upload.single('photo'), compressImage, async (
 
 app.delete('/api/admin/mentors/:id', async (req, res) => {
   try {
-    await prisma.mentor.update({ where: { id: req.params.id }, data: { is_active: false } });
+    await prisma.mentor.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete mentor' }); }
 });
@@ -316,7 +357,7 @@ app.put('/api/admin/hero_slides/:id', upload.single('image'), compressImage, asy
 
 app.delete('/api/admin/hero_slides/:id', async (req, res) => {
   try {
-    await prisma.heroSlide.update({ where: { id: req.params.id }, data: { is_active: false } });
+    await prisma.heroSlide.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete slide' }); }
 });
@@ -352,9 +393,48 @@ app.put('/api/admin/programs/:id', async (req, res) => {
 
 app.delete('/api/admin/programs/:id', async (req, res) => {
   try {
-    await prisma.program.update({ where: { id: req.params.id }, data: { is_active: false } });
+    await prisma.program.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete program' }); }
+});
+
+// MENTORED STARTUPS
+app.get('/api/admin/mentored-startups', async (req, res) => {
+  try {
+    const startups = await prisma.mentoredStartup.findMany({ orderBy: { display_order: 'asc' }});
+    res.json(startups);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch mentored startups' }); }
+});
+
+app.post('/api/admin/mentored-startups', upload.single('logo'), compressImage, async (req, res) => {
+  try {
+    const data = { ...req.body };
+    if (req.file) data.logo_url = req.file.url;
+    if (data.display_order !== undefined) data.display_order = parseInt(data.display_order);
+    if (data.is_active !== undefined) data.is_active = (data.is_active === 'true' || data.is_active === true);
+    
+    const newStartup = await prisma.mentoredStartup.create({ data });
+    res.json(newStartup);
+  } catch (error) { res.status(500).json({ error: 'Failed to create startup' }); }
+});
+
+app.put('/api/admin/mentored-startups/:id', upload.single('logo'), compressImage, async (req, res) => {
+  try {
+    const data = { ...req.body };
+    if (req.file) data.logo_url = req.file.url;
+    if (data.display_order !== undefined) data.display_order = parseInt(data.display_order);
+    if (data.is_active !== undefined) data.is_active = (data.is_active === 'true' || data.is_active === true);
+
+    const updated = await prisma.mentoredStartup.update({ where: { id: req.params.id }, data });
+    res.json(updated);
+  } catch (error) { res.status(500).json({ error: 'Failed to update startup' }); }
+});
+
+app.delete('/api/admin/mentored-startups/:id', async (req, res) => {
+  try {
+    await prisma.mentoredStartup.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to delete startup' }); }
 });
 
 // ECOSYSTEM PARTNERS
@@ -378,7 +458,7 @@ app.put('/api/admin/community_partners/:id', upload.single('logo'), compressImag
 
 app.delete('/api/admin/community_partners/:id', async (req, res) => {
   try {
-    await prisma.communityPartner.update({ where: { id: req.params.id }, data: { is_active: false } });
+    await prisma.communityPartner.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete partner' }); }
 });

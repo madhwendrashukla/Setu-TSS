@@ -84,7 +84,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
 };
 
 export function Mentors({ data }: { data?: any[] }) {
-    const displayMentors = data && data.length > 0 ? data : mentorsData;
+    const displayMentors = data || [];
 
     return (
         <section id="mentors" className="py-20 bg-bg-main relative w-full border-t border-white/5">

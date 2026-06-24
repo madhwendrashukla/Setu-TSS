@@ -13,6 +13,7 @@ const Programs = dynamic(() => import("@/components/sections/Programs").then(mod
 // New Sections for PRD v2
 const PastWorkshopsRolling = dynamic(() => import("@/components/sections/PastWorkshopsRolling").then(mod => mod.PastWorkshopsRolling), { ssr: true });
 const CommunityGallery = dynamic(() => import("@/components/sections/Gallery").then(mod => mod.Gallery), { ssr: true });
+const StartupsMentored = dynamic(() => import("@/components/sections/StartupsMentored").then(mod => mod.StartupsMentored), { ssr: true });
 const Testimonials = dynamic(() => import("@/components/sections/Testimonials").then(mod => mod.Testimonials), { ssr: true });
 const EcosystemPartners = dynamic(() => import("@/components/sections/EcosystemPartners").then(mod => mod.EcosystemPartners), { ssr: true });
 const Contact = dynamic(() => import("@/components/sections/Contact").then(mod => mod.Contact), { ssr: true });
@@ -20,7 +21,7 @@ const Contact = dynamic(() => import("@/components/sections/Contact").then(mod =
 // Fetch data from Express Backend
 async function getHomepageData() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`, { next: { revalidate: 60 } });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`, { cache: 'no-store' });
     if (!res.ok) return null;
     return res.json();
   } catch (error) {
@@ -69,6 +70,9 @@ export default async function Home() {
         
         {/* 9. Community Gallery */}
         <CommunityGallery data={data?.galleryItems} />
+        
+        {/* Startups Mentored */}
+        <StartupsMentored data={data?.mentoredStartups} />
         
         {/* 10. Testimonials */}
         <Testimonials data={data?.testimonials} />

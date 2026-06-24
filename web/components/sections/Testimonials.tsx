@@ -13,7 +13,7 @@ export const Testimonials = ({ data }: { data?: any[] }) => {
     const textTestimonials = testimonials.filter(t => t.type === 'text');
 
     return (
-        <section className="mb-32 w-full bg-bg-main relative">
+        <section className="pt-24 pb-32 w-full bg-bg-main relative">
             <div className="max-w-7xl mx-auto px-6 mb-12">
                 <h2 className="text-4xl font-bold text-white tracking-tight mb-2">What Founders Say</h2>
                 <p className="text-text-secondary">Real stories from our community members.</p>

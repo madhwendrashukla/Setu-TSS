@@ -7,7 +7,10 @@ const NAV_LINKS = [
     { href: "/admin/dashboard", label: "Dashboard", icon: "fas fa-chart-pie" },
     { href: "/admin/hero", label: "Hero & Homepage", icon: "fas fa-home" },
     { href: "/admin/events", label: "Events & Workshops", icon: "fas fa-calendar-alt" },
+    { href: "/admin/programs", label: "Programs", icon: "fas fa-rocket" },
     { href: "/admin/mentors", label: "Mentors", icon: "fas fa-users" },
+    { href: "/admin/partners", label: "Partners", icon: "fas fa-handshake" },
+    { href: "/admin/mentored-startups", label: "Mentored Startups", icon: "fas fa-lightbulb" },
     { href: "/admin/gallery", label: "Gallery", icon: "fas fa-images" },
     { href: "/admin/testimonials", label: "Testimonials", icon: "fas fa-quote-left" },
     { href: "/admin/leads", label: "Leads", icon: "fas fa-envelope-open-text" },
@@ -25,12 +28,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (token) {
             setIsAuthenticated(true);
         } else {
-            if (window.location.pathname !== "/admin") {
+            setIsAuthenticated(false);
+            if (pathname !== "/admin") {
                 router.push("/admin");
             }
         }
         setIsLoading(false);
-    }, [router]);
+    }, [pathname, router]);
 
     if (isLoading) return (
         <div className="min-h-screen flex items-center justify-center bg-[#0A0F1C] text-white">

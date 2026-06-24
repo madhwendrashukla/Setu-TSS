@@ -25,24 +25,22 @@ export const PastWorkshopsRolling = async () => {
         return (
             <div key={event.id + keySuffix} className="inline-block w-[300px] md:w-[400px] glass-card rounded-2xl overflow-hidden border border-white/5 group flex-shrink-0">
                 <div className="relative h-48 w-full overflow-hidden bg-black/20">
-                    {event.banner_url && (
-                        <Image 
-                            src={encodeURI(event.banner_url)} 
-                            alt={event.title} 
-                            fill 
-                            className="object-cover group-hover:scale-105 transition duration-500" 
-                            unoptimized={true}
-                        />
-                    )}
+                    <Image 
+                        src={event.banner_url ? encodeURI(event.banner_url) : "/ai-workshop-banner.webp"} 
+                        alt={event.title} 
+                        fill 
+                        className="object-cover group-hover:scale-105 transition duration-500" 
+                        unoptimized={true}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4">
+                    <div className="absolute bottom-4 left-4 right-4">
                         <span className="bg-white/20 backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded-md mb-2 inline-block">Concluded</span>
-                        <h3 className="text-white font-bold text-lg whitespace-normal leading-tight">{event.title}</h3>
+                        <h3 className="text-white font-bold text-lg whitespace-normal leading-tight line-clamp-2">{event.title}</h3>
                     </div>
                 </div>
                 <div className="p-4 bg-bg-surface flex justify-between items-center">
                     <div className="text-text-secondary text-sm flex gap-3">
-                        <span>📍 {event.venue}</span>
+                        <span>📍 {event.venue || 'TBA'}</span>
                         <span>📅 {dateStr}</span>
                     </div>
                 </div>
@@ -59,9 +57,11 @@ export const PastWorkshopsRolling = async () => {
             
             <div className="relative flex overflow-x-hidden">
                 <div className="animate-marquee flex whitespace-nowrap space-x-6 px-4 hover:![animation-play-state:paused]">
-                    {pastEvents.map((event: any) => renderCard(event, ''))}
-                    {/* Duplicate for infinite loop effect */}
-                    {pastEvents.map((event: any) => renderCard(event, 'dup'))}
+                    {[...Array(6)].map((_, i) => (
+                        <div key={`dup-${i}`} className="flex space-x-6">
+                            {pastEvents.map((event: any) => renderCard(event, `dup-${i}`))}
+                        </div>
+                    ))}
                 </div>
             </div>
             

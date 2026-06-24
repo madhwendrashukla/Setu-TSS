@@ -42,7 +42,7 @@ export const PastWorkshopsRolling = async () => {
                 </div>
                 <div className="p-4 bg-bg-surface flex justify-between items-center">
                     <div className="text-text-secondary text-sm flex gap-3">
-                        <span>📍 {event.city}</span>
+                        <span>📍 {event.venue}</span>
                         <span>📅 {dateStr}</span>
                     </div>
                 </div>

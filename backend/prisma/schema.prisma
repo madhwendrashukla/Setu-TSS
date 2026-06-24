@@ -20,6 +20,10 @@ model HomepageContent {
   id                    String   @id @default(uuid()) @db.Uuid
   hero_heading          String
   hero_tagline          String
+  hero_scene1_heading   String?
+  hero_scene1_tagline   String?
+  hero_scene2_heading   String?
+  hero_scene2_tagline   String?
   hero_rotation_seconds Int      @default(5)
   updated_at            DateTime @updatedAt
 

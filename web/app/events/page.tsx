@@ -57,7 +57,7 @@ export default async function EventsPage() {
                                     <h3 className="text-2xl font-bold text-white mb-4">{event.title}</h3>
                                     <p className="text-text-secondary mb-6">{event.description}</p>
                                     <div className="flex gap-4 text-sm text-text-secondary mb-6">
-                                        <span>📍 {event.city} - {event.venue}</span>
+                                        <span>📍 {event.venue}</span>
                                         <span>📅 {new Date(event.start_date).toLocaleDateString()}</span>
                                     </div>
                                     <Link href={`/events/${event.slug}`} className="text-accent-blue font-bold uppercase text-sm">View Details &rarr;</Link>
@@ -89,7 +89,7 @@ export default async function EventsPage() {
                                             <i className="far fa-calendar text-white/50 w-6"></i> {new Date(event.start_date).toLocaleDateString()} (Past)
                                         </div>
                                         <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                            <i className="fas fa-map-marker-alt text-white/50 w-6"></i> {event.venue}, {event.city}
+                                            <i className="fas fa-map-marker-alt text-white/50 w-6"></i> {event.venue}
                                         </div>
                                     </div>
                                     <Link href={`/events/${event.slug}`} className="w-full sm:w-auto bg-white/10 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">

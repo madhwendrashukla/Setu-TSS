@@ -44,7 +44,8 @@ const compressImage = async (req, res, next) => {
 
     req.file.filename = filename;
     req.file.path = filepath;
-    req.file.url = `http://localhost:5000/uploads/${filename}`; // Local URL
+    const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+    req.file.url = `${baseUrl}/uploads/${filename}`;
     next();
   } catch (error) {
     res.status(500).json({ error: 'Failed to compress and save image.' });

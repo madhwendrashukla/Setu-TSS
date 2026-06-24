@@ -61,7 +61,17 @@ app.get('/api/events/:slug', async (req, res) => {
     const event = await prisma.event.findFirst({ where: { slug: req.params.slug, is_active: true } });
     if (!event) return res.status(404).json({ error: 'Event not found' });
     res.json(event);
-  } catch (error) { res.status(500).json({ error: 'Failed to fetch event details' }); }
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch event' }); }
+});
+
+app.get('/api/gallery', async (req, res) => {
+  try {
+    const galleryItems = await prisma.galleryItem.findMany({ 
+      where: { is_active: true }, 
+      orderBy: { display_order: 'asc' } 
+    });
+    res.json(galleryItems);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch gallery items' }); }
 });
 
 app.get('/api/mentors', async (req, res) => {
@@ -103,27 +113,52 @@ app.post('/api/admin/events', upload.single('banner'), compressImage, async (req
   try {
     const data = { ...req.body };
     if (req.file) data.banner_url = req.file.url;
-    // Handle pinning logic
-    if (data.is_pinned === 'true' || data.is_pinned === true) {
-      await prisma.event.updateMany({ data: { is_pinned: false } }); // Unpin others
-      data.is_pinned = true;
+    
+    data.is_pinned = (data.is_pinned === 'true' || data.is_pinned === true);
+    if (data.is_pinned) {
+      await prisma.event.updateMany({ data: { is_pinned: false } });
     }
+    
+    if (data.is_past !== undefined) {
+      data.is_past = (data.is_past === 'true' || data.is_past === true);
+    }
+    
+    if (data.start_date) data.start_date = new Date(data.start_date);
+    if (data.end_date) data.end_date = new Date(data.end_date);
+
     const newEvent = await prisma.event.create({ data });
     res.json(newEvent);
-  } catch (error) { res.status(500).json({ error: 'Failed to create event' }); }
+  } catch (error) { 
+    console.error(error);
+    res.status(500).json({ error: 'Failed to create event' }); 
+  }
 });
 
 app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) data.banner_url = req.file.url;
-    if (data.is_pinned === 'true' || data.is_pinned === true) {
-      await prisma.event.updateMany({ data: { is_pinned: false } }); // Unpin others
-      data.is_pinned = true;
+    
+    if (data.is_pinned !== undefined) {
+      data.is_pinned = (data.is_pinned === 'true' || data.is_pinned === true);
+      if (data.is_pinned) {
+        await prisma.event.updateMany({ data: { is_pinned: false } });
+      }
     }
+    
+    if (data.is_past !== undefined) {
+      data.is_past = (data.is_past === 'true' || data.is_past === true);
+    }
+    
+    if (data.start_date) data.start_date = new Date(data.start_date);
+    if (data.end_date) data.end_date = new Date(data.end_date);
+
     const updated = await prisma.event.update({ where: { id: req.params.id }, data });
     res.json(updated);
-  } catch (error) { res.status(500).json({ error: 'Failed to update event' }); }
+  } catch (error) { 
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update event' }); 
+  }
 });
 
 app.delete('/api/admin/events/:id', async (req, res) => {
@@ -250,20 +285,33 @@ app.delete('/api/admin/mentors/:id', async (req, res) => {
 // HERO SLIDES
 app.post('/api/admin/hero_slides', upload.single('image'), compressImage, async (req, res) => {
   try {
+    const activeSlides = await prisma.heroSlide.count({ where: { is_active: true } });
+    if (activeSlides >= 5) {
+      return res.status(400).json({ error: 'Maximum limit of 5 hero slides reached. Please delete an existing slide first.' });
+    }
+
     const data = { ...req.body };
+    data.display_order = activeSlides + 1;
     if (req.file) data.image_url = req.file.url;
     const newSlide = await prisma.heroSlide.create({ data });
     res.json(newSlide);
-  } catch (error) { res.status(500).json({ error: 'Failed to create slide' }); }
+  } catch (error) { 
+    console.error('Error creating slide:', error);
+    res.status(500).json({ error: 'Failed to create slide' }); 
+  }
 });
 
 app.put('/api/admin/hero_slides/:id', upload.single('image'), compressImage, async (req, res) => {
   try {
     const data = { ...req.body };
+    if (data.display_order) data.display_order = parseInt(data.display_order, 10);
     if (req.file) data.image_url = req.file.url;
     const updated = await prisma.heroSlide.update({ where: { id: req.params.id }, data });
     res.json(updated);
-  } catch (error) { res.status(500).json({ error: 'Failed to update slide' }); }
+  } catch (error) { 
+    console.error('Error updating slide:', error);
+    res.status(500).json({ error: 'Failed to update slide' }); 
+  }
 });
 
 app.delete('/api/admin/hero_slides/:id', async (req, res) => {

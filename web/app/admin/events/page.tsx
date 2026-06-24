@@ -7,7 +7,7 @@ export default function AdminEvents() {
     const [editingEvent, setEditingEvent] = useState<any>(null);
     const [file, setFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({
-        title: "", slug: "", description: "", venue: "", city: "", 
+        title: "", slug: "", description: "", venue: "", 
         start_date: "", end_date: "", is_past: false, is_pinned: false
     });
 
@@ -72,7 +72,7 @@ export default function AdminEvents() {
     };
 
     const resetForm = () => {
-        setFormData({ title: "", slug: "", description: "", venue: "", city: "", start_date: "", end_date: "", is_past: false, is_pinned: false });
+        setFormData({ title: "", slug: "", description: "", venue: "", start_date: "", end_date: "", is_past: false, is_pinned: false });
         setFile(null);
     };
 
@@ -83,7 +83,6 @@ export default function AdminEvents() {
             slug: event.slug,
             description: event.description,
             venue: event.venue,
-            city: event.city,
             start_date: new Date(event.start_date).toISOString().split('T')[0],
             end_date: new Date(event.end_date).toISOString().split('T')[0],
             is_past: event.is_past,
@@ -146,7 +145,7 @@ export default function AdminEvents() {
                                             </div>
                                             <div className="text-white/40 text-xs flex items-center gap-2">
                                                 <i className="fas fa-map-marker-alt text-xs"></i>
-                                                {event.city} - {event.venue}
+                                                {event.venue}
                                             </div>
                                         </td>
                                         <td className="p-5 text-center">
@@ -205,10 +204,6 @@ export default function AdminEvents() {
                                 <div>
                                     <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Slug</label>
                                     <input placeholder="event-slug-name" value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue outline-none transition-all" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">City</label>
-                                    <input placeholder="City" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue outline-none transition-all" />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Venue</label>

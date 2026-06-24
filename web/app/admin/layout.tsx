@@ -5,6 +5,7 @@ import Link from "next/link";
 
 const NAV_LINKS = [
     { href: "/admin/dashboard", label: "Dashboard", icon: "fas fa-chart-pie" },
+    { href: "/admin/hero", label: "Hero & Homepage", icon: "fas fa-home" },
     { href: "/admin/events", label: "Events & Workshops", icon: "fas fa-calendar-alt" },
     { href: "/admin/mentors", label: "Mentors", icon: "fas fa-users" },
     { href: "/admin/gallery", label: "Gallery", icon: "fas fa-images" },

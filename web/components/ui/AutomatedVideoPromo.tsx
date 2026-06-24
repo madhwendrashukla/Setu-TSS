@@ -88,23 +88,19 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
     const [currentBg, setCurrentBg] = useState(0);
 
     useEffect(() => {
-        const bgInterval = setInterval(() => {
-            setCurrentBg((prev) => (prev + 1) % heroImages.length);
-        }, heroRotationMs);
-
-        const sceneInterval = setInterval(() => {
+        const syncInterval = setInterval(() => {
             setIsFadingOut(true);
             setTimeout(() => {
                 setCurrentScene((prev) => (prev + 1) % totalScenes);
+                setCurrentBg((prev) => (prev + 1) % heroImages.length);
                 setIsFadingOut(false);
             }, 500);
-        }, sceneDurationMs);
+        }, heroRotationMs);
 
         return () => {
-            clearInterval(bgInterval);
-            clearInterval(sceneInterval);
+            clearInterval(syncInterval);
         };
-    }, [heroImages.length, heroRotationMs]);
+    }, [heroImages.length, heroRotationMs, totalScenes]);
 
     return (
         <section className="relative w-full min-h-[100svh] flex flex-col justify-center overflow-hidden bg-[#0A0F1C]">
@@ -165,12 +161,12 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
                     {currentScene === 1 && (
                         <div className="flex flex-col items-center max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
                             <div className="text-accent-blue text-sm font-bold tracking-[0.2em] uppercase mb-4">The Bridge</div>
-                            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-4 md:mb-8 leading-tight text-center">
-                                The 0 &rarr; 1 Bridge <br />
-                                <span className="text-white/40">Where Founders Are Built.</span>
+                            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-4 md:mb-8 leading-tight text-center whitespace-pre-line">
+                                {data?.hero_scene1_heading ? data.hero_scene1_heading : <>The 0 &rarr; 1 Bridge <br />
+                                <span className="text-white/40">Where Founders Are Built.</span></>}
                             </h2>
-                            <p className="text-xl md:text-2xl text-text-secondary font-light text-center">
-                                We close 4 deadly gaps: Learning, Access, Mentoring, Community
+                            <p className="text-xl md:text-2xl text-text-secondary font-light text-center whitespace-pre-line">
+                                {data?.hero_scene1_tagline || "We close 4 deadly gaps: Learning, Access, Mentoring, Community"}
                             </p>
                         </div>
                     )}
@@ -179,13 +175,13 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
                     {currentScene === 2 && (
                         <div className="flex flex-col items-center max-w-4xl mx-auto px-4 w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
                             <div className="text-accent-violet text-xs md:text-sm font-bold tracking-[0.2em] uppercase mb-4 text-center">The Roadmap</div>
-                            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-6 md:mb-10 leading-snug md:leading-tight text-center">
-                                3 days of ignition sprint <br />
+                            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tight mb-6 md:mb-10 leading-snug md:leading-tight text-center whitespace-pre-line">
+                                {data?.hero_scene2_heading ? data.hero_scene2_heading : <>3 days of ignition sprint <br />
                                 <span className="text-white/40 text-lg md:text-3xl block my-2 md:my-5">to</span>
-                                <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))]">100 days of Deep Dive Immersion cohorts</span>
+                                <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))]">100 days of Deep Dive Immersion cohorts</span></>}
                             </h2>
-                            <p className="text-xl md:text-2xl text-text-secondary font-light italic">
-                                Choose the program that fits you the best
+                            <p className="text-xl md:text-2xl text-text-secondary font-light italic whitespace-pre-line">
+                                {data?.hero_scene2_tagline || "Choose the program that fits you the best"}
                             </p>
                         </div>
                     )}

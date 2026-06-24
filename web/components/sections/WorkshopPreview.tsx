@@ -41,7 +41,7 @@ export async function WorkshopPreview() {
                 <div className="text-center mb-10 text-white">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] md:text-xs font-medium mb-6 backdrop-blur-sm">
                         <span className="w-2 h-2 rounded-full bg-[#8b5cf6] animate-pulse"></span>
-                        <span className="text-gray-300">Live Event • {dateStr} • {event.city}</span>
+                        <span className="text-gray-300">Live Event • {dateStr} • {event.venue}</span>
                     </div>
 
                     <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-8 tracking-[-0.02em] leading-tight max-w-4xl mx-auto">

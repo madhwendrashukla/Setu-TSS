@@ -15,8 +15,8 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
 app.use(express.json());
-// Serve uploaded images statically
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+// Serve uploaded images statically (Removed - now using AWS S3)
+// app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // --- AUTH API ---
 app.post('/api/admin/login', async (req, res) => {

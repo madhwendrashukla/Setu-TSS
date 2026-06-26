@@ -163,3 +163,86 @@ model MentoredStartup {
 
   @@map("mentored_startups")
 }
+
+model PitchDeck {
+  id              String   @id @default(uuid()) @db.Uuid
+  company         String
+  tagline         String?
+  sector          String?
+  round           String?
+  year            Int?
+  raisedThisRound String?
+  totalRaised     String?
+  investors       String[]
+  outcome         String?
+  keyLesson       String?
+  sourceUrl       String?
+  deckUrl         String?
+  tags            String[]
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+
+  @@map("pitch_decks")
+}
+
+model Grant {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  amount      String?
+  deadline    String?
+  eligibility String?
+  link        String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+
+  @@map("grants")
+}
+
+model Investor {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  firm       String?
+  type       String?
+  stages     String[]
+  sectors    String[]
+  ticketSize String?
+  about      String?
+  linkedin   String?
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  @@map("investors")
+}
+
+model Incubator {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  location      String?
+  focus         String[]
+  programLength String?
+  equityTaken   String?
+  website       String?
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  @@map("incubators")
+}
+
+model FounderEvent {
+  id               String   @id @default(uuid()) @db.Uuid
+  tag              String?
+  eventName        String
+  exhibitionCentre String?
+  location         String?
+  startDate        String?
+  month            String?
+  weblink          String?
+  priority         String?
+  description      String?
+  is_active        Boolean  @default(true)
+  created_at       DateTime @default(now())
+
+  @@map("founder_events")
+}
+

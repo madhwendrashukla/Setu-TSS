@@ -14,6 +14,7 @@ const NAV_LINKS = [
     { href: "/admin/gallery", label: "Gallery", icon: "fas fa-images" },
     { href: "/admin/testimonials", label: "Testimonials", icon: "fas fa-quote-left" },
     { href: "/admin/leads", label: "Leads", icon: "fas fa-envelope-open-text" },
+    { href: "/admin/tools", label: "Tools & Resources", icon: "fas fa-toolbox" },
     { href: "/admin/settings", label: "Site Settings", icon: "fas fa-cog" },
 ];
 

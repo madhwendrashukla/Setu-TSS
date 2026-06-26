@@ -30,6 +30,19 @@ app.post('/api/admin/login', async (req, res) => {
   res.json({ token });
 });
 
+// --- TOOLS & RESOURCES ROUTES ---
+const pitchDecksRoutes = require('./routes/pitchDecks');
+const grantsRoutes = require('./routes/grants');
+const investorsRoutes = require('./routes/investors');
+const incubatorsRoutes = require('./routes/incubators');
+const founderEventsRoutes = require('./routes/founderEvents');
+
+app.use('/api/tools/pitch-decks', pitchDecksRoutes);
+app.use('/api/tools/grants', grantsRoutes);
+app.use('/api/tools/investors', investorsRoutes);
+app.use('/api/tools/incubators', incubatorsRoutes);
+app.use('/api/tools/founder-events', founderEventsRoutes);
+
 // --- PUBLIC API ENDPOINTS ---
 app.get('/api/events/pinned', async (req, res) => {
   try {

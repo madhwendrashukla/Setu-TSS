@@ -49,7 +49,7 @@ export const PastWorkshopsRolling = async () => {
     };
 
     return (
-        <section className="mb-32 overflow-hidden w-full bg-bg-main py-10 border-y border-white/5">
+        <section className="card-section py-16 md:py-24">
             <div className="max-w-7xl mx-auto px-6 mb-8">
                 <h2 className="text-2xl font-bold text-white tracking-tight">Past Workshops</h2>
                 <p className="text-text-secondary mt-1">Glimpses of our previous sessions</p>

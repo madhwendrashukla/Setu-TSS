@@ -52,15 +52,15 @@ export function WorkshopPopup() {
 
                 <div className="px-5 sm:px-6 pb-10 pt-10 sm:pt-12 flex flex-col items-center text-center relative z-10">
                     {/* NEW TAG */}
-                    <div className="mb-6 bg-[#8b5cf6]/20 px-4 py-2 rounded-full border border-[#8b5cf6]/40 shadow-[0_0_15px_rgba(139,92,246,0.2)]">
+                    <div className="mb-6 bg-[#872DFB]/20 px-4 py-2 rounded-full border border-[#872DFB]/40 shadow-[0_0_15px_rgba(139,92,246,0.2)]">
                         <span className="text-[10px] md:text-xs font-black text-[#a78bfa] uppercase tracking-widest leading-none">
                             Live Workshop • May 15–17, 2026
                         </span>
                     </div>
 
                     {/* ICON */}
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 mb-6 rounded-3xl bg-gradient-to-br from-[#8b5cf6] to-[#d946ef] flex items-center justify-center relative shadow-[0_0_30px_rgba(139,92,246,0.6)] group">
-                        <div className="absolute inset-0 bg-[#8b5cf6] rounded-3xl animate-pulse opacity-20"></div>
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 mb-6 rounded-3xl bg-gradient-to-br from-[#872DFB] to-[#B797EB] flex items-center justify-center relative shadow-[0_0_30px_rgba(139,92,246,0.6)] group">
+                        <div className="absolute inset-0 bg-[#872DFB] rounded-3xl animate-pulse opacity-20"></div>
                         <i className="fa-solid fa-rocket text-white text-3xl sm:text-4xl" />
                     </div>
 

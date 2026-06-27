@@ -1,4 +1,5 @@
 import React from 'react';
+import { Calendar } from 'lucide-react';
 
 async function getPinnedEvent() {
     try {
@@ -11,9 +12,21 @@ async function getPinnedEvent() {
 }
 
 export async function WorkshopPreview() {
-    const event = await getPinnedEvent();
+    // Temporarily bypassing the fetch to show the "Coming Soon" state and remove the dark event banner for now
+    // const event = await getPinnedEvent();
+    const event = null;
     
-    if (!event) return null;
+    if (!event) {
+        return (
+            <div className="w-full max-w-7xl mx-auto rounded-[32px] md:rounded-[48px] border border-black/5 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] mt-10 p-12 md:p-20 flex flex-col items-center justify-center text-center isolate">
+                <div className="w-16 h-16 rounded-2xl bg-accent-violet/10 flex items-center justify-center mb-6 border border-accent-violet/20">
+                    <Calendar className="w-8 h-8 text-accent-violet" />
+                </div>
+                <h3 className="text-3xl md:text-5xl font-black mb-4 text-black tracking-tight">New Events Coming Soon</h3>
+                <p className="text-text-secondary text-lg max-w-2xl font-medium">We are currently curating our next set of exclusive offline meetups and workshops for founders. Stay tuned!</p>
+            </div>
+        );
+    }
 
     const start = new Date(event.start_date);
     const end = new Date(event.end_date);
@@ -24,34 +37,33 @@ export async function WorkshopPreview() {
     return (
         <a 
             href={`/events/${event.slug}`} 
-            className="block w-full max-w-7xl mx-auto rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/5 shadow-[0_0_80px_rgba(139,92,246,0.15)] hover:shadow-[0_0_120px_rgba(168,85,247,0.25)] bg-[#0B0F19] transition-all duration-700 hover:scale-[1.02] cursor-pointer group relative isolate mt-10"
+            className="block w-full max-w-7xl mx-auto rounded-[32px] md:rounded-[48px] overflow-hidden border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.08)] bg-white transition-all duration-700 hover:scale-[1.01] cursor-pointer group relative isolate mt-10"
         >
             <div className="flex flex-col md:flex-row w-full h-full">
                 {/* Text Content Column */}
                 <div className="w-full md:w-1/2 px-8 py-12 md:px-16 md:py-20 flex flex-col justify-center relative z-10 order-2 md:order-1">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] md:text-xs font-medium mb-6 w-fit">
-                        <span className="w-2 h-2 rounded-full bg-[#8b5cf6] animate-pulse"></span>
-                        <span className="text-gray-300">Live Event • {dateStr} • {event.venue}</span>
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 border border-black/5 text-[10px] md:text-xs font-bold mb-6 w-fit text-black uppercase tracking-wider">
+                        <span className="w-2 h-2 rounded-full bg-[#872DFB] animate-pulse"></span>
+                        <span>Live Event • {dateStr} • {event.venue}</span>
                     </div>
 
-                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight leading-tight text-white">
+                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 tracking-tight leading-tight text-black">
                         {event.title}
                     </h3>
                     
-                    <p className="text-gray-400 text-sm md:text-base lg:text-lg font-light mb-10 leading-relaxed">
+                    <p className="text-text-secondary text-sm md:text-base lg:text-lg font-medium mb-10 leading-relaxed">
                         {event.description}
                     </p>
 
-                    <div className="relative inline-block group/btn w-fit">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-lg blur opacity-40 group-hover/btn:opacity-75 transition duration-500"></div>
-                        <div className="relative bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white px-8 py-4 rounded-lg font-bold flex items-center gap-2 shadow-[0_0_40px_rgba(139,92,246,0.4)]">
+                    <div className="relative inline-block w-fit">
+                        <div className="bg-black text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition duration-300 group-hover:bg-[#1e1e1e] group-hover:shadow-lg group-hover:-translate-y-0.5">
                             Secure Your Spot <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </div>
                     </div>
                 </div>
 
                 {/* Image Column */}
-                <div className="w-full md:w-1/2 h-64 md:h-auto relative order-1 md:order-2 shrink-0 bg-[#13112E]">
+                <div className="w-full md:w-1/2 h-64 md:h-auto relative order-1 md:order-2 shrink-0 bg-gray-100">
                     {event.banner_url ? (
                         <img 
                             src={encodeURI(event.banner_url)} 
@@ -62,10 +74,10 @@ export async function WorkshopPreview() {
                         <img 
                             src="/ai-workshop-banner.webp" 
                             alt={event.title} 
-                            className="w-full h-full object-cover opacity-50"
+                            className="w-full h-full object-cover opacity-80 mix-blend-multiply"
                         />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-transparent to-[#0B0F19] pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-white/20 to-transparent pointer-events-none"></div>
                 </div>
             </div>
         </a>

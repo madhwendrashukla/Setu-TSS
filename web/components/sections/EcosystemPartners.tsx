@@ -10,7 +10,7 @@ export const EcosystemPartners = ({ data }: { data?: any[] }) => {
     ];
 
     return (
-        <section className="mb-32 w-full py-16 bg-white">
+        <section className="card-section pt-8 md:pt-12 pb-0">
             <div className="max-w-7xl mx-auto px-6 text-center">
                 <span className="text-gray-500 text-xs font-bold tracking-[0.2em] uppercase mb-4 block">NETWORK</span>
                 <h2 className="text-3xl md:text-4xl font-bold text-black tracking-tight mb-12">Ecosystem Partners</h2>

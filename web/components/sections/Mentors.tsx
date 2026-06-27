@@ -87,7 +87,7 @@ export function Mentors({ data }: { data?: any[] }) {
     const displayMentors = data || [];
 
     return (
-        <section id="mentors" className="py-20 bg-bg-main relative w-full border-t border-white/5">
+        <section id="mentors" className="card-section py-16 md:py-24">
             {/* Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-accent-violet/5 rounded-[100%] blur-[120px] pointer-events-none"></div>
 

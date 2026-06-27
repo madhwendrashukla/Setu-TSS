@@ -31,31 +31,31 @@ export function Contact() {
     };
 
     return (
-        <section id="contact" className="py-32 w-full bg-bg-main border-t border-white/5 relative overflow-hidden">
+        <section id="contact" className="card-section pb-8 md:pb-12 pt-0 relative overflow-hidden">
             {/* Extremely Subtle Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-blue/5 rounded-full blur-[150px] pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-blue/5 rounded-full blur-[150px] pointer-events-none z-0"></div>
 
             <div className="max-w-4xl mx-auto px-6 relative z-10">
                 <div className="text-center mb-12 flex flex-col items-center justify-center">
                     <div className="flex flex-col items-center justify-center gap-1 md:gap-2">
                         <span className="text-2xl md:text-3xl font-black tracking-tighter">
-                            <span className="text-white">HAI</span>
-                            <span className="ml-2 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">KEEDA?</span>
+                            <span className="text-black">HAI</span>
+                            <span className="ml-2 bg-gradient-to-r from-accent-violet to-accent-lavender bg-clip-text text-transparent">KEEDA?</span>
                         </span>
                         <span className="text-2xl md:text-3xl font-black tracking-tighter">
-                            <span className="text-white">HAI</span>
-                            <span className="ml-2 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">HIMMAT?</span>
+                            <span className="text-black">HAI</span>
+                            <span className="ml-2 bg-gradient-to-r from-accent-violet to-accent-lavender bg-clip-text text-transparent">HIMMAT?</span>
                         </span>
                         <span className="text-2xl md:text-3xl font-black tracking-tight pt-2">
-                            <span className="text-white/90">TO KAR</span>
-                            <span className="ml-2 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">STARTUP!</span>
+                            <span className="text-black/90">TO KAR</span>
+                            <span className="ml-2 bg-gradient-to-r from-accent-violet to-accent-lavender bg-clip-text text-transparent">STARTUP!</span>
                         </span>
                     </div>
                 </div>
 
-                <div className="glass-card rounded-[2rem] p-6 sm:p-10 md:p-14 border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="glass-card rounded-[2rem] p-6 sm:p-10 md:p-14 border border-black/5 relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.04)] bg-white/70">
                     <div className="mb-8 text-center">
-                        <h3 className="text-lg md:text-xl font-bold text-white mb-2">To know more about our programs, drop your details below</h3>
+                        <h3 className="text-lg md:text-xl font-bold text-black mb-2">To know more about our programs, drop your details below</h3>
                         <div className="h-1 w-20 bg-accent-blue mx-auto rounded-full"></div>
                     </div>
                     <form id="inquiry-form" onSubmit={handleFormSubmit} className="space-y-8 relative z-10">
@@ -68,7 +68,7 @@ export function Contact() {
                                     required
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-accent-blue focus:bg-white/[0.05] transition duration-300 placeholder-white/20"
+                                    className="w-full bg-gray-50 border border-black/10 rounded-lg px-4 py-3 text-sm text-black focus:outline-none focus:border-accent-blue focus:bg-white transition duration-300 placeholder-gray-400"
                                     placeholder="John Doe"
                                 />
                             </div>
@@ -80,7 +80,7 @@ export function Contact() {
                                     required
                                     value={formData.city}
                                     onChange={handleChange}
-                                    className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-accent-blue focus:bg-white/[0.05] transition duration-300 placeholder-white/20"
+                                    className="w-full bg-gray-50 border border-black/10 rounded-lg px-4 py-3 text-sm text-black focus:outline-none focus:border-accent-blue focus:bg-white transition duration-300 placeholder-gray-400"
                                     placeholder="Mumbai, Bengaluru, etc."
                                 />
                             </div>
@@ -97,7 +97,7 @@ export function Contact() {
                                     title="Please enter a valid 10 digit mobile number"
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-accent-blue focus:bg-white/[0.05] transition duration-300 placeholder-white/20"
+                                    className="w-full bg-gray-50 border border-black/10 rounded-lg px-4 py-3 text-sm text-black focus:outline-none focus:border-accent-blue focus:bg-white transition duration-300 placeholder-gray-400"
                                     placeholder="9876543210"
                                 />
                             </div>
@@ -109,14 +109,14 @@ export function Contact() {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-accent-blue focus:bg-white/[0.05] transition duration-300 placeholder-white/20"
+                                    className="w-full bg-gray-50 border border-black/10 rounded-lg px-4 py-3 text-sm text-black focus:outline-none focus:border-accent-blue focus:bg-white transition duration-300 placeholder-gray-400"
                                     placeholder="john@example.com"
                                 />
                             </div>
                         </div>
 
                         <div className="pt-6 text-center flex justify-center">
-                            <button type="submit" className="group w-full md:w-auto bg-white hover:bg-gray-100 text-black px-8 py-3 rounded-full font-bold text-sm transition-all duration-300 flex items-center justify-center">
+                            <button type="submit" className="group w-full md:w-auto bg-accent-blue hover:bg-accent-violet text-white px-8 py-3 rounded-full font-bold text-sm transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg">
                                 Submit Inquiry
                                 <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
                             </button>

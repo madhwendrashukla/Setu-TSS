@@ -1,20 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-main: #0F172A;
-  --color-bg-surface: #1E293B;
-  /* Slightly lighter shade of bg for surfaces */
-  --color-text-primary: #F5F5F7;
-  --color-text-secondary: #86868B;
-  --color-accent-blue: #8B5CF6;
-  --color-accent-violet: #D946EF;
-  --color-functional-success: #34C759;
-  --color-functional-border: #333336;
+  --color-bg-main: #FDFDFD;
+  --color-bg-surface: #F8FAFC; 
+  --color-text-primary: #13113D;
+  --color-text-secondary: #475569;
+  --color-accent-blue: #6B21FB; /* Primary Purple */
+  --color-accent-violet: #872DFB; /* Bright Violet */
+  --color-accent-royal: #490DEE; /* Deep Royal Purple */
+  --color-accent-lavender: #B797EB; /* Soft Lavender Highlight */
+  --color-functional-success: #10B981;
+  --color-functional-border: #E2E8F0;
 
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Merriweather', serif;
 
-  --background-image-gradient-primary: linear-gradient(135deg, #8B5CF6, #D946EF);
+  --background-image-gradient-primary: linear-gradient(135deg, #7c3aed, #5b21b6); /* 2-stop purple gradient */
 
   --animate-scroll-left: scrollLeft 40s linear infinite;
   --animate-scroll-right: scrollRight 40s linear infinite;
@@ -22,23 +23,13 @@
   --animate-mentors-scroll: mentors-scroll 50s linear infinite;
 
   @keyframes scrollLeft {
-    0% {
-      transform: translateX(0);
-    }
-
-    100% {
-      transform: translateX(-50%);
-    }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 
   @keyframes scrollRight {
-    0% {
-      transform: translateX(-50%);
-    }
-
-    100% {
-      transform: translateX(0);
-    }
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
   }
 
   @keyframes photo-scroll {
@@ -59,17 +50,12 @@ body {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  letter-spacing: -0.02em;
-  /* Tighter tracking for headers (Apple style) */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.03em;
+  font-weight: 700;
 }
 
 .manifesto-font {
@@ -77,7 +63,7 @@ h6 {
 }
 
 .gradient-text {
-  background: linear-gradient(to right, var(--color-accent-blue), var(--color-accent-violet));
+  background: var(--background-image-gradient-primary);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -86,29 +72,30 @@ h6 {
 
 .bg-pattern {
   background-color: var(--color-bg-main);
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image: 
+    radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0, transparent 50%),
+    radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 30px 30px;
 }
 
 .glass-card {
-  background: rgba(20, 20, 20, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  /* Extremely subtle border */
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
 }
 
 /* Subtle Apple-like Hover Glow */
 .hover-glow {
-  transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
-  /* Updated to the new brand gradient start color */
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  border-color: rgba(99, 102, 241, 0.2);
 }
 
 /* 1. Desktop Only: Pause on Hover (Requires a mouse) */
@@ -160,4 +147,14 @@ h6 {
 
 .rotate-y-180 {
   transform: rotateY(180deg);
+}
+
+/* Global Floating Card Section Style */
+.card-section {
+  @apply w-full relative;
+}
+
+.card-section > * {
+  position: relative;
+  z-index: 10;
 }

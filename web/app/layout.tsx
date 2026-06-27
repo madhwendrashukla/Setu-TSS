@@ -23,25 +23,25 @@ const merriweather = Merriweather({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://thestartupschool.in"),
-  title: "Setu - TheStartupSchool | An Alternate B-School for Aspiring Founders",
+  title: "Setu - The startup school !!",
   description: "An alternate B-School for all Aspiring Founders. Bridging the 4 deadly gaps of Learning, Access, Mentoring, and Community.",
-  keywords: ["Startup School India", "Entrepreneurship Program India", "Founder Community", "Startup Mentorship", "B-School for Founders", "Startup Incubator India", "Learn Fundraising", "Angel Investors India", "Startup Education", "Setu - TheStartupSchool", "Aspiring Founders", "Startup Cohort India", "Business School Alternative"],
+  keywords: ["Startup School India", "Entrepreneurship Program India", "Founder Community", "Startup Mentorship", "B-School for Founders", "Startup Incubator India", "Learn Fundraising", "Angel Investors India", "Startup Education", "Setu - The startup school !!", "Aspiring Founders", "Startup Cohort India", "Business School Alternative"],
   authors: [{ name: "Gaurav Bansal" }],
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: "Setu - TheStartupSchool | An Alternate B-School for Aspiring Founders",
+    title: "Setu - The startup school !!",
     description: "An alternate B-School for all Aspiring Founders. Bridging the 4 deadly gaps of Learning, Access, Mentoring, and Community.",
     url: "https://thestartupschool.in",
-    siteName: "Setu - TheStartupSchool",
+    siteName: "Setu - The startup school !!",
     images: [
       {
         url: "/icon.png",
         width: 512,
         height: 512,
-        alt: "Setu - TheStartupSchool Logo",
+        alt: "Setu - The startup school !! Logo",
       },
     ],
     locale: "en_IN",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Setu - TheStartupSchool | An Alternate B-School for Aspiring Founders",
+    title: "Setu - The startup school !!",
     description: "An alternate B-School for all Aspiring Founders.",
     creator: "@TheStartupSchool",
   },

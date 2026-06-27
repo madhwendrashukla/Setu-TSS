@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
         hostname: "ui-avatars.com",
       },
       {
+        protocol: "https",
+        hostname: "bucket-rfbkoj.s3.ap-south-1.amazonaws.com",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "5000",

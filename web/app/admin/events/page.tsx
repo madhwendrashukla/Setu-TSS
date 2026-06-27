@@ -17,7 +17,14 @@ export default function AdminEvents() {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
-            .then(data => setEvents(data))
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setEvents(data);
+                } else {
+                    console.error("Expected array but got:", data);
+                    setEvents([]);
+                }
+            })
             .catch(console.error);
     };
 

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const SOCIAL_LINKS = [
     {
@@ -71,8 +72,14 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                 {/* Top row: Brand + Tagline */}
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left gap-6 md:gap-8 mb-10">
                     <div>
-                        <Link href="/" className="text-xl md:text-2xl font-black tracking-tight block mb-1">
-                            THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#d946ef]">STARTUP</span> SCHOOL
+                        <Link href="/" className="flex items-center gap-3 mb-4">
+                            <Image 
+                                src="/setu-logo-purple.png" 
+                                alt="Setu Logo" 
+                                width={120} 
+                                height={40} 
+                                className="object-contain"
+                            />
                         </Link>
                         <p className="text-white/40 text-sm font-light">An Alternate B-School for Aspiring Founders</p>
                         <p className="text-white text-xs md:text-sm font-medium mt-1.5 tracking-widest uppercase">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>

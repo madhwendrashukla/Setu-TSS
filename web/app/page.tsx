@@ -43,9 +43,14 @@ export default async function Home() {
         strategy="lazyOnload"
       />
 
-      <main className="flex min-h-screen flex-col items-center justify-between">
-        {/* 1. Hero */}
-        <Hero data={data?.homepageContent} slides={data?.heroSlides} />
+      <main className="flex min-h-screen flex-col items-center justify-start bg-bg-surface w-full overflow-x-hidden">
+        {/* 1. Hero - Full Width */}
+        <div className="w-full bg-white">
+          <Hero data={data?.homepageContent} slides={data?.heroSlides} />
+        </div>
+        
+        {/* Main Content Sections */}
+        <div className="w-full flex flex-col items-center justify-start">
         
         {/* 2. Pinned Workshop */}
         <WorkshopPreview />
@@ -82,6 +87,7 @@ export default async function Home() {
         
         {/* 12. Contact Form */}
         <Contact />
+        </div>
       </main>
     </>
   );

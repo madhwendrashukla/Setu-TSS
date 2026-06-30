@@ -12,11 +12,11 @@ const HERO_SLIDES = [
     '/images/hero-bg/slide-7.png',
 ];
 
-export function AutomatedVideoPromo({ data }: { data?: any }) {
+export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any[] }) {
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    const slidesData = data?.heroSlides && data.heroSlides.length > 0 
-        ? data.heroSlides 
+    const slidesData = slides && slides.length > 0 
+        ? slides 
         : [
             { image_url: '/images/hero-bg/slide-2.png' },
             { image_url: '/images/hero-bg/slide-3.png' },
@@ -26,8 +26,8 @@ export function AutomatedVideoPromo({ data }: { data?: any }) {
             { image_url: '/images/hero-bg/slide-7.png' }
         ];
 
-    const rotationTime = data?.homepageContent?.hero_rotation_seconds 
-        ? data.homepageContent.hero_rotation_seconds * 1000 
+    const rotationTime = data?.hero_rotation_seconds 
+        ? data.hero_rotation_seconds * 1000 
         : 4000;
 
     useEffect(() => {
@@ -73,14 +73,14 @@ export function AutomatedVideoPromo({ data }: { data?: any }) {
                     let finalTagline = "";
 
                     if (sceneIndex === 0) {
-                        finalHeading = data?.homepageContent?.hero_heading || "Stop Ideating.<br />Start <span class=\"text-accent-violet\">Building.</span>";
-                        finalTagline = data?.homepageContent?.hero_tagline || "Join the alternate B-school for Aspiring Founders.";
+                        finalHeading = data?.hero_heading || "Stop Ideating.<br />Start <span class=\"text-accent-violet\">Building.</span>";
+                        finalTagline = data?.hero_tagline || "Join the alternate B-school for Aspiring Founders.";
                     } else if (sceneIndex === 1) {
-                        finalHeading = data?.homepageContent?.hero_scene1_heading || "<span class=\"text-xs md:text-sm font-bold tracking-[0.2em] text-accent-violet uppercase mb-4 block\">THE BRIDGE</span>The 0 &rarr; 1 Bridge<br />Where Founders Are Built.";
-                        finalTagline = data?.homepageContent?.hero_scene1_tagline || "We close 4 deadly gaps: Learning, Access, Mentoring, Community";
+                        finalHeading = data?.hero_scene1_heading || "<span class=\"text-xs md:text-sm font-bold tracking-[0.2em] text-accent-violet uppercase mb-4 block\">THE BRIDGE</span>The 0 &rarr; 1 Bridge<br />Where Founders Are Built.";
+                        finalTagline = data?.hero_scene1_tagline || "We close 4 deadly gaps: Learning, Access, Mentoring, Community";
                     } else {
-                        finalHeading = data?.homepageContent?.hero_scene2_heading || "<span class=\"text-xs md:text-sm font-bold tracking-[0.2em] text-accent-violet uppercase mb-4 block\">THE ROADMAP</span>3 days of ignition sprint<br /><span class=\"text-text-secondary text-2xl md:text-3xl block my-2\">to</span><span class=\"text-accent-violet\">100 days of Deep Dive Immersion cohorts</span>";
-                        finalTagline = data?.homepageContent?.hero_scene2_tagline || "<i class=\"font-normal\">Choose the program that fits you the best</i>";
+                        finalHeading = data?.hero_scene2_heading || "<span class=\"text-xs md:text-sm font-bold tracking-[0.2em] text-accent-violet uppercase mb-4 block\">THE ROADMAP</span>3 days of ignition sprint<br /><span class=\"text-text-secondary text-2xl md:text-3xl block my-2\">to</span><span class=\"text-accent-violet\">100 days of Deep Dive Immersion cohorts</span>";
+                        finalTagline = data?.hero_scene2_tagline || "<i class=\"font-normal\">Choose the program that fits you the best</i>";
                     }
 
                     return (

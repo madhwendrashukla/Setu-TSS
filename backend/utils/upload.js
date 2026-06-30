@@ -70,4 +70,45 @@ const compressImage = async (req, res, next) => {
   }
 };
 
-module.exports = { upload, compressImage };
+// Middleware to compress multiple images and upload to S3
+const compressMultipleImages = async (req, res, next) => {
+  if (!req.files || Object.keys(req.files).length === 0) return next();
+
+  try {
+    const bucketName = process.env.AWS_S3_BUCKET_NAME;
+
+    for (const fieldName in req.files) {
+      const fileArray = req.files[fieldName];
+      for (const file of fileArray) {
+        const safeOriginalName = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "-");
+        const filename = `${Date.now()}-${safeOriginalName}.jpg`;
+
+        const compressedBuffer = await sharp(file.buffer)
+          .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
+          .toFormat('jpeg')
+          .jpeg({ quality: 80 })
+          .toBuffer();
+
+        const command = new PutObjectCommand({
+          Bucket: bucketName,
+          Key: filename,
+          Body: compressedBuffer,
+          ContentType: 'image/jpeg',
+        });
+
+        await s3Client.send(command);
+
+        const s3Url = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
+        
+        file.filename = filename;
+        file.url = s3Url;
+      }
+    }
+    next();
+  } catch (error) {
+    console.error("S3 Upload Error:", error);
+    res.status(500).json({ error: 'Failed to compress and upload images to AWS S3.' });
+  }
+};
+
+module.exports = { upload, compressImage, compressMultipleImages };

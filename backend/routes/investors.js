@@ -29,24 +29,46 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+const { upload, compressMultipleImages } = require('../utils/upload');
+
 // Protected Admin Routes
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'pocPhoto', maxCount: 1 }]), compressMultipleImages, async (req, res) => {
   try {
-    const data = await prisma.investor.create({ data: req.body });
-    res.json(data);
+    const data = { ...req.body };
+    if (req.files?.logo) data.logo_url = req.files.logo[0].url;
+    if (req.files?.pocPhoto) data.poc_photo = req.files.pocPhoto[0].url;
+    
+    // Convert arrays if sent as comma-separated strings
+    if (typeof data.stages === 'string') data.stages = data.stages.split(',').map(s => s.trim()).filter(Boolean);
+    if (typeof data.sectors === 'string') data.sectors = data.sectors.split(',').map(s => s.trim()).filter(Boolean);
+    if (typeof data.portfolio_cos === 'string') data.portfolio_cos = data.portfolio_cos.split(',').map(s => s.trim()).filter(Boolean);
+    
+    const newInvestor = await prisma.investor.create({ data });
+    res.json(newInvestor);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Failed to create' });
   }
 });
 
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'pocPhoto', maxCount: 1 }]), compressMultipleImages, async (req, res) => {
   try {
-    const data = await prisma.investor.update({
+    const data = { ...req.body };
+    if (req.files?.logo) data.logo_url = req.files.logo[0].url;
+    if (req.files?.pocPhoto) data.poc_photo = req.files.pocPhoto[0].url;
+    
+    // Convert arrays if sent as comma-separated strings
+    if (typeof data.stages === 'string') data.stages = data.stages.split(',').map(s => s.trim()).filter(Boolean);
+    if (typeof data.sectors === 'string') data.sectors = data.sectors.split(',').map(s => s.trim()).filter(Boolean);
+    if (typeof data.portfolio_cos === 'string') data.portfolio_cos = data.portfolio_cos.split(',').map(s => s.trim()).filter(Boolean);
+
+    const updated = await prisma.investor.update({
       where: { id: req.params.id },
-      data: req.body
+      data
     });
-    res.json(data);
+    res.json(updated);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Failed to update' });
   }
 });

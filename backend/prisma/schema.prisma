@@ -200,17 +200,26 @@ model Grant {
 }
 
 model Investor {
-  id         String   @id @default(uuid()) @db.Uuid
-  name       String
-  firm       String?
-  type       String?
-  stages     String[]
-  sectors    String[]
-  ticketSize String?
-  about      String?
-  linkedin   String?
-  is_active  Boolean  @default(true)
-  created_at DateTime @default(now())
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String
+  firm            String?
+  type            String?
+  stages          String[]
+  sectors         String[]
+  ticketSize      String?
+  about           String?
+  linkedin        String?
+  logo_url        String?
+  poc_name        String?
+  poc_designation String?
+  poc_linkedin    String?
+  poc_photo       String?
+  portfolio_cos   String[]
+  portfolio_logos Json?
+  twitter         String?
+  org_linkedin    String?
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
 
   @@map("investors")
 }

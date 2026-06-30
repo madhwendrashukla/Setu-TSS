@@ -39,10 +39,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }, [pathname, router]);
 
     if (isLoading) return (
-        <div className="min-h-screen flex items-center justify-center bg-[#0A0F1C] text-white">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
             <div className="flex flex-col items-center gap-4 animate-pulse">
-                <div className="w-12 h-12 border-4 border-white/10 border-t-accent-blue rounded-full animate-spin"></div>
-                <p className="text-white/50 tracking-widest text-sm uppercase">Loading Workspace</p>
+                <div className="w-12 h-12 border-4 border-gray-200 border-t-accent-blue rounded-full animate-spin"></div>
+                <p className="text-gray-500 tracking-widest text-sm uppercase font-bold">Loading Workspace</p>
             </div>
         </div>
     );
@@ -52,20 +52,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     return (
-        <div className="min-h-screen bg-[#0A0F1C] text-white flex flex-col md:flex-row relative overflow-hidden">
+        <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col md:flex-row relative overflow-hidden">
             {/* Subtle background ambient glow */}
             <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-accent-blue/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
             {isAuthenticated && (
-                <aside className="w-full md:w-72 bg-[#0A0F1C]/80 backdrop-blur-xl border-r border-white/5 p-6 flex flex-col z-10 sticky top-0 h-screen overflow-y-auto shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
+                <aside className="w-full md:w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200 p-6 flex flex-col z-10 sticky top-0 h-screen overflow-y-auto shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
                     <div className="mb-10">
                         <Link href="/" className="block group">
                             <h2 className="text-xl md:text-2xl font-black tracking-tight mb-1 group-hover:scale-[1.02] transition-transform">
                                 THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#d946ef]">STARTUP</span>
                             </h2>
-                            <h2 className="text-xl md:text-2xl font-black tracking-tight text-white mb-2 group-hover:scale-[1.02] transition-transform">SCHOOL</h2>
+                            <h2 className="text-xl md:text-2xl font-black tracking-tight text-gray-900 mb-2 group-hover:scale-[1.02] transition-transform">SCHOOL</h2>
                         </Link>
-                        <span className="text-[10px] font-bold tracking-[0.2em] uppercase bg-white/10 px-2 py-1 rounded text-white/70 shadow-inner">Admin Panel</span>
+                        <span className="text-[10px] font-bold tracking-[0.2em] uppercase bg-gray-100 px-2 py-1 rounded text-gray-600 shadow-inner">Admin Panel</span>
                     </div>
                     
                     <nav className="flex flex-col gap-2 flex-grow">
@@ -77,21 +77,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     href={link.href} 
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
                                         isActive 
-                                            ? 'bg-gradient-to-r from-accent-blue/20 to-purple-500/10 text-white shadow-[inset_2px_0_0_#8b5cf6] border border-white/5' 
-                                            : 'text-white/50 hover:bg-white/5 hover:text-white hover:translate-x-1'
+                                            ? 'bg-gradient-to-r from-accent-blue/10 to-purple-500/10 text-gray-900 shadow-[inset_2px_0_0_#8b5cf6] border border-gray-200/50' 
+                                            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1'
                                     }`}
                                 >
-                                    <i className={`${link.icon} w-5 text-center ${isActive ? 'text-accent-blue' : 'text-white/30 group-hover:text-white/70 transition-colors'}`}></i>
+                                    <i className={`${link.icon} w-5 text-center ${isActive ? 'text-accent-blue' : 'text-gray-400 group-hover:text-gray-600 transition-colors'}`}></i>
                                     <span className={`font-medium ${isActive ? 'font-bold tracking-tight' : ''}`}>{link.label}</span>
                                 </Link>
                             );
                         })}
                     </nav>
                     
-                    <div className="mt-8 pt-6 border-t border-white/5">
+                    <div className="mt-8 pt-6 border-t border-gray-100">
                         <button 
                             onClick={() => { localStorage.removeItem("adminToken"); window.location.href = "/admin"; }}
-                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-400/70 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300 group"
+                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group"
                         >
                             <i className="fas fa-sign-out-alt w-5 text-center group-hover:-translate-x-1 transition-transform"></i>
                             <span className="font-bold tracking-wide">Log Out</span>

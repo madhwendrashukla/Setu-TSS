@@ -12,9 +12,7 @@ async function getPinnedEvent() {
 }
 
 export async function WorkshopPreview() {
-    // Temporarily bypassing the fetch to show the "Coming Soon" state and remove the dark event banner for now
-    // const event = await getPinnedEvent();
-    const event = null;
+    const event = await getPinnedEvent();
     
     if (!event) {
         return (

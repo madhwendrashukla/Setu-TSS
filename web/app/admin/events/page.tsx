@@ -78,6 +78,40 @@ export default function AdminEvents() {
         }
     };
 
+    const togglePin = async (event: any) => {
+        const token = localStorage.getItem("adminToken");
+        try {
+            const fd = new FormData();
+            fd.append('is_pinned', String(!event.is_pinned));
+            
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${event.id}`, {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}` },
+                body: fd
+            });
+            if (res.ok) fetchEvents();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const toggleStatus = async (event: any) => {
+        const token = localStorage.getItem("adminToken");
+        try {
+            const fd = new FormData();
+            fd.append('is_past', String(!event.is_past));
+            
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${event.id}`, {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}` },
+                body: fd
+            });
+            if (res.ok) fetchEvents();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const resetForm = () => {
         setFormData({ title: "", slug: "", description: "", venue: "", start_date: "", end_date: "", is_past: false, is_pinned: false });
         setFile(null);
@@ -103,8 +137,8 @@ export default function AdminEvents() {
         <div className="animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight mb-1">Manage Events</h1>
-                    <p className="text-white/50 text-sm">Schedule workshops, bootcamps, and events.</p>
+                    <h1 className="text-3xl font-black tracking-tight mb-1 text-gray-900">Manage Events</h1>
+                    <p className="text-gray-500 text-sm">Schedule workshops, bootcamps, and events.</p>
                 </div>
                 <button 
                     onClick={() => { setEditingEvent(null); resetForm(); setIsModalOpen(true); }}
@@ -114,10 +148,10 @@ export default function AdminEvents() {
                 </button>
             </div>
 
-            <div className="glass-card bg-[#0F1322]/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-white/5 border-b border-white/10 text-white/50 text-xs uppercase tracking-wider">
+                        <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
                             <tr>
                                 <th className="p-5 font-bold">Event Details</th>
                                 <th className="p-5 font-bold">Date & Location</th>
@@ -126,10 +160,10 @@ export default function AdminEvents() {
                                 <th className="p-5 font-bold text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5">
+                        <tbody className="divide-y divide-gray-100">
                             {events.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="p-10 text-center text-white/40">
+                                    <td colSpan={5} className="p-10 text-center text-gray-400">
                                         <div className="flex flex-col items-center justify-center gap-3">
                                             <i className="fas fa-calendar-times text-4xl mb-2 opacity-50"></i>
                                             <p>No events scheduled. Create one above.</p>
@@ -138,46 +172,57 @@ export default function AdminEvents() {
                                 </tr>
                             ) : (
                                 events.map(event => (
-                                    <tr key={event.id} className="hover:bg-white/[0.02] transition-colors group">
-                                        <td className="p-5">
-                                            <div className="flex flex-col">
-                                                <span className="font-bold text-white text-base group-hover:text-accent-blue transition-colors">{event.title}</span>
-                                                <span className="text-xs text-white/30 mt-1">/{event.slug}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-5">
-                                            <div className="text-white/80 font-medium flex items-center gap-2 mb-1">
-                                                <i className="fas fa-clock text-xs text-white/40"></i>
-                                                {new Date(event.start_date).toLocaleDateString()}
-                                            </div>
-                                            <div className="text-white/40 text-xs flex items-center gap-2">
-                                                <i className="fas fa-map-marker-alt text-xs"></i>
-                                                {event.venue}
-                                            </div>
+                                <tr key={event.id} className="hover:bg-gray-50 transition-colors group">
+                                    <td className="p-5">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-gray-900 text-base group-hover:text-accent-blue transition-colors">{event.title}</span>
+                                            <span className="text-xs text-gray-400 mt-1">/{event.slug}</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-5">
+                                        <div className="text-gray-700 font-medium flex items-center gap-2 mb-1">
+                                            <i className="fas fa-clock text-xs text-gray-400"></i>
+                                            {new Date(event.start_date).toLocaleDateString()}
+                                        </div>
+                                        <div className="text-gray-500 text-xs flex items-center gap-2">
+                                            <i className="fas fa-map-marker-alt text-xs"></i>
+                                            {event.venue}
+                                        </div>
+                                    </td>
+                                        <td className="p-5 text-center">
+                                            <button 
+                                                onClick={() => toggleStatus(event)}
+                                                className="transition-transform hover:scale-105 active:scale-95 outline-none focus:outline-none"
+                                                title={`Mark as ${event.is_past ? 'Upcoming' : 'Past'}`}
+                                            >
+                                                {event.is_past ? 
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-200 hover:text-gray-700 transition-colors cursor-pointer">Past</span> : 
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider bg-green-50 text-green-600 px-3 py-1 rounded-full border border-green-200 hover:bg-green-100 hover:text-green-700 transition-colors cursor-pointer">Upcoming</span>
+                                                }
+                                            </button>
                                         </td>
                                         <td className="p-5 text-center">
-                                            {event.is_past ? 
-                                                <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-500/20 text-gray-400 px-3 py-1 rounded-full border border-gray-500/30">Past</span> : 
-                                                <span className="text-[10px] font-bold uppercase tracking-wider bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/30">Upcoming</span>
-                                            }
-                                        </td>
-                                        <td className="p-5 text-center">
-                                            {event.is_pinned ? 
-                                                <span className="text-accent-blue text-lg" title="Pinned to Homepage"><i className="fas fa-star"></i></span> : 
-                                                <span className="text-white/10" title="Not Pinned"><i className="far fa-star"></i></span>
-                                            }
+                                            <button 
+                                                onClick={() => togglePin(event)}
+                                                className="transition-transform hover:scale-110 active:scale-95 outline-none focus:outline-none"
+                                            >
+                                                {event.is_pinned ? 
+                                                    <span className="text-accent-blue text-lg" title="Unpin from Homepage"><i className="fas fa-star"></i></span> : 
+                                                    <span className="text-gray-300 hover:text-gray-500 text-lg transition-colors" title="Pin to Homepage"><i className="far fa-star"></i></span>
+                                                }
+                                            </button>
                                         </td>
                                         <td className="p-5 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button 
                                                     onClick={() => openEdit(event)} 
-                                                    className="w-8 h-8 rounded-lg bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center"
+                                                    className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-all flex items-center justify-center"
                                                 >
                                                     <i className="fas fa-edit text-sm"></i>
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(event.id)} 
-                                                    className="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"
+                                                    className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"
                                                 >
                                                     <i className="fas fa-trash-alt text-sm"></i>
                                                 </button>
@@ -194,10 +239,10 @@ export default function AdminEvents() {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-                    <div className="bg-[#121626] border border-white/10 p-8 rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-[0_0_100px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-8 zoom-in-95 duration-300">
+                    <div className="bg-white border border-gray-200 p-8 rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-[0_10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom-8 zoom-in-95 duration-300">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold tracking-tight">{editingEvent ? "Edit Event" : "Create Event"}</h2>
-                            <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white flex items-center justify-center transition-colors">
+                            <h2 className="text-2xl font-bold tracking-tight text-gray-900">{editingEvent ? "Edit Event" : "Create Event"}</h2>
+                            <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 flex items-center justify-center transition-colors">
                                 <i className="fas fa-times"></i>
                             </button>
                         </div>
@@ -205,56 +250,56 @@ export default function AdminEvents() {
                         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Title</label>
-                                    <input placeholder="Event Title" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue outline-none transition-all" />
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Title</label>
+                                    <input placeholder="Event Title" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Slug</label>
-                                    <input placeholder="event-slug-name" value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue outline-none transition-all" />
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Slug</label>
+                                    <input placeholder="event-slug-name" value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Venue</label>
-                                    <input placeholder="Venue" value={formData.venue} onChange={e => setFormData({...formData, venue: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue outline-none transition-all" />
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Venue</label>
+                                    <input placeholder="Venue" value={formData.venue} onChange={e => setFormData({...formData, venue: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Start Date</label>
-                                    <input type="date" value={formData.start_date} onChange={e => setFormData({...formData, start_date: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue outline-none transition-all" />
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Start Date</label>
+                                    <input type="date" value={formData.start_date} onChange={e => setFormData({...formData, start_date: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">End Date</label>
-                                    <input type="date" value={formData.end_date} onChange={e => setFormData({...formData, end_date: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue outline-none transition-all" />
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">End Date</label>
+                                    <input type="date" value={formData.end_date} onChange={e => setFormData({...formData, end_date: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Description</label>
-                                <textarea placeholder="Event details..." value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue outline-none transition-all h-24 resize-none custom-scrollbar" />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                                <textarea placeholder="Event details..." value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all h-24 resize-none custom-scrollbar" />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Banner Image</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Banner Image</label>
                                 <div className="relative w-full">
                                     <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                                    <div className="w-full bg-black/40 border border-white/10 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">
-                                        <i className="fas fa-image text-2xl text-white/30 group-hover:text-accent-blue transition-colors"></i>
-                                        <span className="text-white/50 text-sm">{file ? file.name : (editingEvent && editingEvent.banner_url ? "Click to upload a new banner" : "Upload event banner (1920x1080 recommended)")}</span>
+                                    <div className="w-full bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">
+                                        <i className="fas fa-image text-2xl text-gray-300 group-hover:text-accent-blue transition-colors"></i>
+                                        <span className="text-gray-500 text-sm">{file ? file.name : (editingEvent && editingEvent.banner_url ? "Click to upload a new banner" : "Upload event banner (1920x1080 recommended)")}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex gap-6 mt-2 bg-white/5 p-4 rounded-xl border border-white/5">
+                            <div className="flex gap-6 mt-2 bg-gray-50 p-4 rounded-xl border border-gray-200">
                                 <label className="flex items-center gap-3 cursor-pointer">
                                     <input type="checkbox" checked={formData.is_past} onChange={e => setFormData({...formData, is_past: e.target.checked})} className="w-5 h-5 accent-accent-blue rounded" />
-                                    <span className="text-sm font-medium text-white/80">Mark as Past Event</span>
+                                    <span className="text-sm font-medium text-gray-700">Mark as Past Event</span>
                                 </label>
                                 <label className="flex items-center gap-3 cursor-pointer">
                                     <input type="checkbox" checked={formData.is_pinned} onChange={e => setFormData({...formData, is_pinned: e.target.checked})} className="w-5 h-5 accent-accent-blue rounded" />
-                                    <span className="text-sm font-medium text-white/80">Pin to Homepage</span>
+                                    <span className="text-sm font-medium text-gray-700">Pin to Homepage</span>
                                 </label>
                             </div>
 
-                            <div className="flex gap-3 mt-4 pt-4 border-t border-white/10">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors">Cancel</button>
+                            <div className="flex gap-3 mt-4 pt-4 border-t border-gray-100">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold transition-colors">Cancel</button>
                                 <button type="submit" className="flex-1 py-3 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-bold transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
                                     {editingEvent ? "Update Event" : "Save Event"}
                                 </button>

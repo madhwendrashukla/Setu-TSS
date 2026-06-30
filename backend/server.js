@@ -43,6 +43,11 @@ app.use('/api/tools/investors', investorsRoutes);
 app.use('/api/tools/incubators', incubatorsRoutes);
 app.use('/api/tools/founder-events', founderEventsRoutes);
 
+const chatWidgetsRoutes = require('./routes/chatWidgets');
+const helpdeskRoutes = require('./routes/helpdesk');
+app.use('/api/chat-widgets', chatWidgetsRoutes);
+app.use('/api/helpdesk', helpdeskRoutes);
+
 // --- PUBLIC API ENDPOINTS ---
 app.get('/api/events/pinned', async (req, res) => {
   try {

@@ -246,3 +246,15 @@ model FounderEvent {
   @@map("founder_events")
 }
 
+model ChatWidget {
+  id            String   @id @default(uuid()) @db.Uuid
+  title         String
+  subtitle      String?
+  icon          String?
+  link          String
+  is_active     Boolean  @default(true)
+  display_order Int
+  created_at    DateTime @default(now())
+
+  @@map("chat_widgets")
+}

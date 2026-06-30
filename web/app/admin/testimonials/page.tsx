@@ -107,9 +107,9 @@ export default function AdminTestimonials() {
                 </button>
             </div>
 
-            <div className="bg-zinc-900 border border-white/10 rounded-xl overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left">
-                    <thead className="bg-white/5 border-b border-white/10 text-text-secondary text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm">
                         <tr>
                             <th className="p-4 font-normal">Type</th>
                             <th className="p-4 font-normal">Details</th>
@@ -118,16 +118,16 @@ export default function AdminTestimonials() {
                     </thead>
                     <tbody>
                         {testimonials.length === 0 ? (
-                            <tr><td colSpan={3} className="p-4 text-center text-text-secondary">No testimonials found</td></tr>
+                            <tr><td colSpan={3} className="p-4 text-center text-gray-500">No testimonials found</td></tr>
                         ) : (
                             testimonials.map(t => (
-                                <tr key={t.id} className="border-b border-white/5 hover:bg-white/5">
+                                <tr key={t.id} className="border-b border-gray-100 hover:bg-gray-50">
                                     <td className="p-4 font-bold uppercase text-xs">{t.type}</td>
                                     <td className="p-4">
                                         {t.type === 'text' ? (
                                             <div>
-                                                <div className="font-bold">{t.name} <span className="text-text-secondary font-normal text-sm">({t.city})</span></div>
-                                                <div className="text-sm text-text-secondary mt-1 truncate max-w-md">"{t.quote}"</div>
+                                                <div className="font-bold">{t.name} <span className="text-gray-500 font-normal text-sm">({t.city})</span></div>
+                                                <div className="text-sm text-gray-500 mt-1 truncate max-w-md">"{t.quote}"</div>
                                             </div>
                                         ) : (
                                             <div>
@@ -137,7 +137,7 @@ export default function AdminTestimonials() {
                                         )}
                                     </td>
                                     <td className="p-4 text-right">
-                                        <button onClick={() => openEdit(t)} className="text-text-secondary hover:text-white mr-4">Edit</button>
+                                        <button onClick={() => openEdit(t)} className="text-gray-500 hover:text-gray-900 mr-4">Edit</button>
                                         <button onClick={() => handleDelete(t.id)} className="text-red-500 hover:text-red-400">Delete</button>
                                     </td>
                                 </tr>
@@ -148,14 +148,14 @@ export default function AdminTestimonials() {
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-                    <div className="bg-zinc-900 border border-white/10 p-6 rounded-xl w-full max-w-md">
+                <div className="fixed inset-0 bg-white/80 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white border border-gray-200 p-6 rounded-xl w-full max-w-md">
                         <h2 className="text-xl font-bold mb-4">{editingTestimonial ? "Edit Testimonial" : "Add Testimonial"}</h2>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                             <select 
                                 value={formData.type} 
                                 onChange={e => setFormData({...formData, type: e.target.value})}
-                                className="bg-black border border-white/10 rounded p-2 text-white"
+                                className="bg-white border border-gray-200 rounded p-2 text-gray-900"
                             >
                                 <option value="text">Text Testimonial</option>
                                 <option value="video">Video Testimonial</option>
@@ -163,26 +163,26 @@ export default function AdminTestimonials() {
 
                             {formData.type === 'text' ? (
                                 <>
-                                    <input placeholder="Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="bg-black border border-white/10 rounded p-2 text-white" />
-                                    <input placeholder="City" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} required className="bg-black border border-white/10 rounded p-2 text-white" />
-                                    <textarea placeholder="Quote" value={formData.quote} onChange={e => setFormData({...formData, quote: e.target.value})} required className="bg-black border border-white/10 rounded p-2 text-white h-24" />
-                                    <label className="text-sm text-text-secondary -mb-2">Photo (optional)</label>
-                                    <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} className="bg-black border border-white/10 rounded p-2 text-white" />
+                                    <input placeholder="Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="bg-white border border-gray-200 rounded p-2 text-gray-900" />
+                                    <input placeholder="City" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} required className="bg-white border border-gray-200 rounded p-2 text-gray-900" />
+                                    <textarea placeholder="Quote" value={formData.quote} onChange={e => setFormData({...formData, quote: e.target.value})} required className="bg-white border border-gray-200 rounded p-2 text-gray-900 h-24" />
+                                    <label className="text-sm text-gray-500 -mb-2">Photo (optional)</label>
+                                    <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} className="bg-white border border-gray-200 rounded p-2 text-gray-900" />
                                 </>
                             ) : (
                                 <>
-                                    <input placeholder="YouTube Embed URL" value={formData.youtube_url} onChange={e => setFormData({...formData, youtube_url: e.target.value})} required className="bg-black border border-white/10 rounded p-2 text-white" />
-                                    <input placeholder="Video Heading" value={formData.video_heading} onChange={e => setFormData({...formData, video_heading: e.target.value})} required className="bg-black border border-white/10 rounded p-2 text-white" />
-                                    <textarea placeholder="Video Description" value={formData.video_description} onChange={e => setFormData({...formData, video_description: e.target.value})} className="bg-black border border-white/10 rounded p-2 text-white h-24" />
-                                    <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
-                                        <input type="checkbox" checked={formData.show_description} onChange={e => setFormData({...formData, show_description: e.target.checked})} className="rounded bg-black border-white/10" />
+                                    <input placeholder="YouTube Embed URL" value={formData.youtube_url} onChange={e => setFormData({...formData, youtube_url: e.target.value})} required className="bg-white border border-gray-200 rounded p-2 text-gray-900" />
+                                    <input placeholder="Video Heading" value={formData.video_heading} onChange={e => setFormData({...formData, video_heading: e.target.value})} required className="bg-white border border-gray-200 rounded p-2 text-gray-900" />
+                                    <textarea placeholder="Video Description" value={formData.video_description} onChange={e => setFormData({...formData, video_description: e.target.value})} className="bg-white border border-gray-200 rounded p-2 text-gray-900 h-24" />
+                                    <label className="flex items-center gap-2 text-sm text-gray-900 cursor-pointer">
+                                        <input type="checkbox" checked={formData.show_description} onChange={e => setFormData({...formData, show_description: e.target.checked})} className="rounded bg-white border-gray-200" />
                                         Show Description
                                     </label>
                                 </>
                             )}
                             
                             <div className="flex gap-2 mt-4">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-white font-bold">Cancel</button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-gray-900 font-bold">Cancel</button>
                                 <button type="submit" className="flex-1 py-2 rounded bg-white text-black font-bold hover:bg-gray-200">Save</button>
                             </div>
                         </form>

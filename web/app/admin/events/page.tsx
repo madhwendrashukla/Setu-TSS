@@ -238,7 +238,7 @@ export default function AdminEvents() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+                <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
                     <div className="bg-white border border-gray-200 p-8 rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-[0_10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom-8 zoom-in-95 duration-300">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold tracking-tight text-gray-900">{editingEvent ? "Edit Event" : "Create Event"}</h2>

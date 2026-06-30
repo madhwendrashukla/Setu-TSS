@@ -44,14 +44,14 @@ export default function AdminLogin() {
 
             <div className="relative z-10 w-full max-w-md p-6">
                 <Link href="/" className="flex justify-center mb-8 hover:scale-105 transition-transform duration-300">
-                    <span className="text-2xl md:text-3xl font-black tracking-tight text-white">
+                    <span className="text-2xl md:text-3xl font-black tracking-tight text-gray-900">
                         THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#d946ef]">STARTUP</span> SCHOOL
                     </span>
                 </Link>
 
-                <div className="glass-card rounded-[2rem] p-8 md:p-10 border border-white/10 shadow-[0_0_80px_rgba(139,92,246,0.15)] backdrop-blur-xl bg-[#0F1322]/80">
-                    <h1 className="text-3xl font-bold mb-2 text-white text-center tracking-tight">Admin Portal</h1>
-                    <p className="text-white/40 mb-8 text-center text-sm font-light uppercase tracking-widest">Secure Access Only</p>
+                <div className="shadow-sm rounded-[2rem] p-8 md:p-10 border border-gray-200 shadow-[0_0_80px_rgba(139,92,246,0.15)] backdrop-blur-xl bg-white">
+                    <h1 className="text-3xl font-bold mb-2 text-gray-900 text-center tracking-tight">Admin Portal</h1>
+                    <p className="text-gray-400 mb-8 text-center text-sm font-light uppercase tracking-widest">Secure Access Only</p>
                     
                     {error && (
                         <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl mb-6 text-sm flex items-center gap-3 animate-in fade-in zoom-in duration-300">
@@ -62,7 +62,7 @@ export default function AdminLogin() {
                     
                     <form onSubmit={handleLogin} className="flex flex-col gap-5">
                         <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/30 group-focus-within:text-accent-blue transition-colors">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-accent-blue transition-colors">
                                 <i className="fas fa-envelope"></i>
                             </div>
                             <input 
@@ -71,11 +71,11 @@ export default function AdminLogin() {
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 placeholder="Email Address"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all backdrop-blur-md"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-900 placeholder-white/30 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all backdrop-blur-md"
                             />
                         </div>
                         <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/30 group-focus-within:text-accent-blue transition-colors">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-accent-blue transition-colors">
                                 <i className="fas fa-lock"></i>
                             </div>
                             <input 
@@ -84,13 +84,13 @@ export default function AdminLogin() {
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
                                 placeholder="Password"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all backdrop-blur-md"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3.5 text-gray-900 placeholder-white/30 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all backdrop-blur-md"
                             />
                         </div>
                         <button 
                             type="submit" 
                             disabled={isLoading}
-                            className="mt-4 relative group overflow-hidden rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white font-bold py-3.5 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:scale-[1.02] transition-all duration-300 disabled:opacity-70 disabled:hover:scale-100"
+                            className="mt-4 relative group overflow-hidden rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-gray-900 font-bold py-3.5 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:scale-[1.02] transition-all duration-300 disabled:opacity-70 disabled:hover:scale-100"
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">
                                 {isLoading ? (

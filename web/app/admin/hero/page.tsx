@@ -132,71 +132,71 @@ export default function AdminHero() {
             <h1 className="text-3xl font-black tracking-tight mb-8">Hero & Homepage Settings</h1>
 
             {/* Content Section */}
-            <form onSubmit={handleSaveContent} className="bg-zinc-900 border border-white/10 p-8 rounded-2xl mb-12 shadow-xl">
-                <h2 className="text-xl font-bold border-b border-white/10 pb-4 mb-6">Hero Text</h2>
+            <form onSubmit={handleSaveContent} className="bg-white border border-gray-200 p-8 rounded-2xl mb-12 shadow-xl">
+                <h2 className="text-xl font-bold border-b border-gray-200 pb-4 mb-6">Hero Text</h2>
 
                 <div className="space-y-6">
-                    <div className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-4">
+                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                         <h3 className="font-bold text-accent-blue">Scene 1: The Hook</h3>
                         <div>
-                            <label className="block text-sm text-text-secondary mb-2 uppercase tracking-wide font-bold">Main Heading</label>
+                            <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Main Heading</label>
                             <textarea
                                 value={content.hero_heading}
                                 onChange={e => setContent({...content, hero_heading: e.target.value})}
-                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent-blue transition-colors min-h-[120px]"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue transition-colors min-h-[120px]"
                                 placeholder="Stop Ideating. Start Building."
                             />
                         </div>
                         <div>
-                            <label className="block text-sm text-text-secondary mb-2 uppercase tracking-wide font-bold">Tagline</label>
+                            <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Tagline</label>
                             <textarea
                                 value={content.hero_tagline}
                                 onChange={e => setContent({...content, hero_tagline: e.target.value})}
-                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent-blue transition-colors min-h-[100px]"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue transition-colors min-h-[100px]"
                                 placeholder="Join the alternate B-school for Aspiring Founders."
                             />
                         </div>
                     </div>
 
-                    <div className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-4">
+                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                         <h3 className="font-bold text-accent-blue">Scene 2: The Bridge</h3>
                         <div>
-                            <label className="block text-sm text-text-secondary mb-2 uppercase tracking-wide font-bold">Bridge Heading</label>
+                            <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Bridge Heading</label>
                             <textarea
                                 value={content.hero_scene1_heading}
                                 onChange={e => setContent({...content, hero_scene1_heading: e.target.value})}
-                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent-blue transition-colors min-h-[120px]"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue transition-colors min-h-[120px]"
                                 placeholder="The 0 -> 1 Bridge Where Founders Are Built."
                             />
                         </div>
                         <div>
-                            <label className="block text-sm text-text-secondary mb-2 uppercase tracking-wide font-bold">Bridge Tagline</label>
+                            <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Bridge Tagline</label>
                             <textarea
                                 value={content.hero_scene1_tagline}
                                 onChange={e => setContent({...content, hero_scene1_tagline: e.target.value})}
-                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent-blue transition-colors min-h-[100px]"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue transition-colors min-h-[100px]"
                                 placeholder="We close 4 deadly gaps..."
                             />
                         </div>
                     </div>
 
-                    <div className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-4">
+                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
                         <h3 className="font-bold text-accent-violet">Scene 3: The Roadmap</h3>
                         <div>
-                            <label className="block text-sm text-text-secondary mb-2 uppercase tracking-wide font-bold">Roadmap Heading</label>
+                            <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Roadmap Heading</label>
                             <textarea
                                 value={content.hero_scene2_heading}
                                 onChange={e => setContent({...content, hero_scene2_heading: e.target.value})}
-                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent-violet transition-colors min-h-[120px]"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-violet transition-colors min-h-[120px]"
                                 placeholder="3 days of ignition sprint to 100 days of Deep Dive..."
                             />
                         </div>
                         <div>
-                            <label className="block text-sm text-text-secondary mb-2 uppercase tracking-wide font-bold">Roadmap Tagline</label>
+                            <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Roadmap Tagline</label>
                             <textarea
                                 value={content.hero_scene2_tagline}
                                 onChange={e => setContent({...content, hero_scene2_tagline: e.target.value})}
-                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent-violet transition-colors min-h-[100px]"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-violet transition-colors min-h-[100px]"
                                 placeholder="Choose the program that fits you the best"
                             />
                         </div>
@@ -204,7 +204,7 @@ export default function AdminHero() {
 
                 </div>
 
-                <div className="flex items-center gap-4 mt-8 pt-6 border-t border-white/10">
+                <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200">
                     <button type="submit" disabled={savingContent} className="bg-accent-blue text-white font-bold px-8 py-3 rounded-xl hover:bg-accent-blue/80 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(139,92,246,0.2)] hover:shadow-[0_0_30px_rgba(139,92,246,0.4)]">
                         {savingContent ? 'Saving...' : 'Save Text Settings'}
                     </button>
@@ -213,13 +213,13 @@ export default function AdminHero() {
             </form>
 
             {/* Slides Section */}
-            <div className="bg-zinc-900 border border-white/10 p-8 rounded-2xl shadow-xl">
-                <div className="flex justify-between items-end border-b border-white/10 pb-4 mb-6">
+            <div className="bg-white border border-gray-200 p-8 rounded-2xl shadow-xl">
+                <div className="flex justify-between items-end border-b border-gray-200 pb-4 mb-6">
                     <div>
                         <h2 className="text-xl font-bold">Hero Background Slides & Timing</h2>
-                        <p className="text-text-secondary text-sm mt-1">Maximum 5 active slides. Use the left/right arrows to swap slide order.</p>
+                        <p className="text-gray-500 text-sm mt-1">Maximum 5 active slides. Use the left/right arrows to swap slide order.</p>
                     </div>
-                    <div className="flex items-center gap-3 bg-black/30 px-4 py-2 rounded-lg border border-white/10">
+                    <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
                         <label className="text-sm font-bold text-accent-blue whitespace-nowrap">Time per slide (sec):</label>
                         <input
                             type="number"
@@ -235,27 +235,27 @@ export default function AdminHero() {
                                     body: JSON.stringify({...content, hero_rotation_seconds: val})
                                 });
                             }}
-                            className="w-16 bg-black border border-white/20 rounded px-2 py-1 text-white focus:outline-none focus:border-accent-blue text-center"
+                            className="w-16 bg-white border border-gray-300 rounded px-2 py-1 text-gray-900 focus:outline-none focus:border-accent-blue text-center"
                         />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Add New Slide Form */}
-                    <div className="lg:col-span-1 bg-black/30 p-6 rounded-xl border border-white/5">
-                        <h3 className="font-bold mb-4 text-white/80">Add New Slide</h3>
+                    <div className="lg:col-span-1 bg-gray-50 p-6 rounded-xl border border-gray-100">
+                        <h3 className="font-bold mb-4 text-gray-700">Add New Slide</h3>
                         <form onSubmit={handleAddSlide} className="space-y-4">
                             <div>
-                                <label className="block text-xs text-text-secondary mb-1">Image File (Max 5MB)</label>
+                                <label className="block text-xs text-gray-500 mb-1">Image File (Max 5MB)</label>
                                 <input 
                                     type="file" 
                                     accept="image/*" 
                                     required
                                     onChange={e => setSlideFile(e.target.files?.[0] ?? null)} 
-                                    className="w-full text-white/50 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer" 
+                                    className="w-full text-gray-500 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-900 hover:file:bg-white/20 transition-all cursor-pointer" 
                                 />
                             </div>
-                            <button type="submit" disabled={uploadingSlide || !slideFile} className="w-full bg-white/10 text-white font-bold px-4 py-2 rounded-lg hover:bg-white/20 disabled:opacity-50 transition-colors mt-2 border border-white/10">
+                            <button type="submit" disabled={uploadingSlide || !slideFile} className="w-full bg-gray-100 text-gray-900 font-bold px-4 py-2 rounded-lg hover:bg-white/20 disabled:opacity-50 transition-colors mt-2 border border-gray-200">
                                 {uploadingSlide ? 'Uploading...' : 'Upload Slide'}
                             </button>
                         </form>
@@ -264,27 +264,27 @@ export default function AdminHero() {
                     {/* Current Slides List */}
                     <div className="lg:col-span-2">
                         {slides.length === 0 ? (
-                            <div className="bg-black/20 border border-white/5 rounded-xl p-10 text-center text-white/40 h-full flex items-center justify-center">
+                            <div className="bg-gray-100 border border-gray-100 rounded-xl p-10 text-center text-gray-400 h-full flex items-center justify-center">
                                 No custom slides uploaded. Using default fallback images.
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-4">
                                 {slides.map((slide, index) => (
-                                    <div key={slide.id} className="relative group bg-black/50 border border-white/10 rounded-xl overflow-hidden aspect-video">
+                                    <div key={slide.id} className="relative group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden aspect-video">
                                         <Image src={slide.image_url} alt="Hero Slide" fill className="object-cover transition-transform duration-500 group-hover:scale-110" unoptimized />
-                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                        <div className="absolute inset-0 bg-white/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                                             <button onClick={() => handleDeleteSlide(slide.id)} className="bg-red-500/80 text-white font-bold px-4 py-2 rounded-lg hover:bg-red-500 transition-colors shadow-lg border border-red-400/50">
                                                 <i className="fas fa-trash-alt mr-2"></i>Delete
                                             </button>
                                         </div>
-                                        <div className="absolute top-2 left-2 bg-black/90 px-3 py-1.5 rounded-lg text-xs text-white border border-white/20 shadow-lg flex items-center gap-3">
-                                            <span className="font-bold text-white/50 uppercase tracking-widest text-[10px]">Order: {slide.display_order}</span>
-                                            <div className="flex items-center gap-1 border-l border-white/10 pl-2">
+                                        <div className="absolute top-2 left-2 bg-white/90 px-3 py-1.5 rounded-lg text-xs text-gray-900 border border-gray-300 shadow-lg flex items-center gap-3">
+                                            <span className="font-bold text-gray-500 uppercase tracking-widest text-[10px]">Order: {slide.display_order}</span>
+                                            <div className="flex items-center gap-1 border-l border-gray-200 pl-2">
                                                 <button 
                                                     type="button"
                                                     onClick={() => handleSwapOrder(index, 'up')}
                                                     disabled={index === 0}
-                                                    className="w-6 h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/5 transition-colors"
+                                                    className="w-6 h-6 flex items-center justify-center rounded bg-gray-50 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-gray-50 transition-colors"
                                                     title="Move Earlier"
                                                 >
                                                     <i className="fas fa-chevron-left text-[10px]"></i>
@@ -293,7 +293,7 @@ export default function AdminHero() {
                                                     type="button"
                                                     onClick={() => handleSwapOrder(index, 'down')}
                                                     disabled={index === slides.length - 1}
-                                                    className="w-6 h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-white/5 transition-colors"
+                                                    className="w-6 h-6 flex items-center justify-center rounded bg-gray-50 hover:bg-white/20 disabled:opacity-30 disabled:hover:bg-gray-50 transition-colors"
                                                     title="Move Later"
                                                 >
                                                     <i className="fas fa-chevron-right text-[10px]"></i>

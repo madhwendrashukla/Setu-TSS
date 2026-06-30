@@ -50,8 +50,8 @@ export default function AdminLeads() {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold">Lead Inquiries <span className="text-text-secondary text-lg font-normal">({leads.length})</span></h1>
-                <button onClick={() => exportCsv(leads)} className="border border-white/20 text-white font-bold px-4 py-2 rounded hover:bg-white/10">
+                <h1 className="text-3xl font-bold">Lead Inquiries <span className="text-gray-500 text-lg font-normal">({leads.length})</span></h1>
+                <button onClick={() => exportCsv(leads)} className="border border-gray-300 text-gray-900 font-bold px-4 py-2 rounded hover:bg-gray-100">
                     <i className="fas fa-download mr-2"></i>Export CSV
                 </button>
             </div>
@@ -59,14 +59,14 @@ export default function AdminLeads() {
             {/* Filters */}
             <div className="flex gap-3 mb-6">
                 <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                    className="bg-zinc-900 border border-white/10 text-white rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-blue">
+                    className="bg-white border border-gray-200 text-gray-900 rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-blue">
                     <option value="">All Statuses</option>
                     <option value="new">New</option>
                     <option value="contacted">Contacted</option>
                     <option value="converted">Converted</option>
                 </select>
                 <select value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}
-                    className="bg-zinc-900 border border-white/10 text-white rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-blue">
+                    className="bg-white border border-gray-200 text-gray-900 rounded px-3 py-2 text-sm focus:outline-none focus:border-accent-blue">
                     <option value="">All Sources</option>
                     <option value="contact_section">Contact Section</option>
                     <option value="hero_apply_form">Hero Apply Form</option>
@@ -76,9 +76,9 @@ export default function AdminLeads() {
                 </select>
             </div>
 
-            <div className="bg-zinc-900 border border-white/10 rounded-xl overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left">
-                    <thead className="bg-white/5 border-b border-white/10 text-text-secondary text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm">
                         <tr>
                             <th className="p-4 font-normal">Name</th>
                             <th className="p-4 font-normal">Email</th>
@@ -91,17 +91,17 @@ export default function AdminLeads() {
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan={7} className="p-8 text-center text-text-secondary">Loading...</td></tr>
+                            <tr><td colSpan={7} className="p-8 text-center text-gray-500">Loading...</td></tr>
                         ) : leads.length === 0 ? (
-                            <tr><td colSpan={7} className="p-4 text-center text-text-secondary">No inquiries found</td></tr>
+                            <tr><td colSpan={7} className="p-4 text-center text-gray-500">No inquiries found</td></tr>
                         ) : leads.map(lead => (
-                            <tr key={lead.id} className="border-b border-white/5 hover:bg-white/5">
+                            <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50">
                                 <td className="p-4 font-bold">{lead.full_name}</td>
-                                <td className="p-4 text-text-secondary">{lead.email}</td>
-                                <td className="p-4 text-text-secondary">{lead.phone ?? '—'}</td>
-                                <td className="p-4 text-text-secondary">{lead.city ?? '—'}</td>
-                                <td className="p-4"><span className="bg-white/10 px-2 py-1 rounded text-xs">{lead.source ?? '—'}</span></td>
-                                <td className="p-4 text-text-secondary text-xs">{formatDate(lead.created_at)}</td>
+                                <td className="p-4 text-gray-500">{lead.email}</td>
+                                <td className="p-4 text-gray-500">{lead.phone ?? '—'}</td>
+                                <td className="p-4 text-gray-500">{lead.city ?? '—'}</td>
+                                <td className="p-4"><span className="bg-gray-100 px-2 py-1 rounded text-xs">{lead.source ?? '—'}</span></td>
+                                <td className="p-4 text-gray-500 text-xs">{formatDate(lead.created_at)}</td>
                                 <td className="p-4">
                                     <select value={lead.status} onChange={e => updateStatus(lead.id, e.target.value)}
                                         className={`rounded px-2 py-1 text-xs font-bold border-0 focus:outline-none ${statusColor(lead.status)}`}>

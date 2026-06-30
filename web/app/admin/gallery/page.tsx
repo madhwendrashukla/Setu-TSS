@@ -51,26 +51,26 @@ export default function AdminGallery() {
                 <h1 className="text-3xl font-bold">Gallery</h1>
                 <button onClick={() => setIsModalOpen(true)} className="bg-white text-black font-bold px-4 py-2 rounded hover:bg-gray-200">+ Add Item</button>
             </div>
-            <p className="text-text-secondary text-sm mb-8">Limits: <span className="text-white">20 images</span> · <span className="text-white">10 videos</span> · <span className="text-white">30 total</span> — Current: {images.length} images, {videos.length} videos</p>
+            <p className="text-gray-500 text-sm mb-8">Limits: <span className="text-gray-900">20 images</span> · <span className="text-gray-900">10 videos</span> · <span className="text-gray-900">30 total</span> — Current: {images.length} images, {videos.length} videos</p>
 
             {items.length === 0 ? (
-                <div className="bg-zinc-900 border border-white/10 rounded-xl p-12 text-center text-text-secondary">No gallery items yet</div>
+                <div className="bg-white border border-gray-200 rounded-xl p-12 text-center text-gray-500">No gallery items yet</div>
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {items.map(item => (
-                        <div key={item.id} className="relative group bg-zinc-900 border border-white/10 rounded-xl overflow-hidden">
+                        <div key={item.id} className="relative group bg-white border border-gray-200 rounded-xl overflow-hidden">
                             {item.type === 'image' ? (
                                 <Image src={item.media_url} alt={item.caption ?? ''} width={300} height={200} className="w-full h-40 object-cover" unoptimized />
                             ) : (
-                                <div className="w-full h-40 bg-black/50 flex items-center justify-center">
+                                <div className="w-full h-40 bg-gray-50 flex items-center justify-center">
                                     <i className="fas fa-play-circle text-4xl text-accent-blue"></i>
                                 </div>
                             )}
                             <div className="p-2">
-                                <p className="text-xs text-text-secondary truncate">{item.caption ?? item.type}</p>
+                                <p className="text-xs text-gray-500 truncate">{item.caption ?? item.type}</p>
                             </div>
                             <button onClick={() => handleDelete(item.id)}
-                                className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+                                className="absolute top-2 right-2 bg-red-600 text-gray-900 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
                                 Remove
                             </button>
                         </div>
@@ -79,39 +79,39 @@ export default function AdminGallery() {
             )}
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-zinc-900 border border-white/10 rounded-2xl w-full max-w-lg p-8">
+                <div className="fixed inset-0 bg-white/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-lg p-8">
                         <h2 className="text-2xl font-bold mb-6">Add Gallery Item</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm text-text-secondary mb-1">Type</label>
+                                <label className="block text-sm text-gray-500 mb-1">Type</label>
                                 <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}
-                                    className="w-full bg-black border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-accent-blue">
+                                    className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue">
                                     <option value="image">Image (max 20)</option>
                                     <option value="video">Video (max 10)</option>
                                 </select>
                             </div>
                             {formData.type === 'image' ? (
                                 <div>
-                                    <label className="block text-sm text-text-secondary mb-1">Image File</label>
-                                    <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="w-full text-white text-sm" />
+                                    <label className="block text-sm text-gray-500 mb-1">Image File</label>
+                                    <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="w-full text-gray-900 text-sm" />
                                 </div>
                             ) : (
                                 <div>
-                                    <label className="block text-sm text-text-secondary mb-1">Video URL (YouTube embed)</label>
-                                    <input value={formData.media_url} onChange={e => setFormData({...formData, media_url: e.target.value})} className="w-full bg-black border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-accent-blue" placeholder="https://www.youtube.com/embed/..." />
+                                    <label className="block text-sm text-gray-500 mb-1">Video URL (YouTube embed)</label>
+                                    <input value={formData.media_url} onChange={e => setFormData({...formData, media_url: e.target.value})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" placeholder="https://www.youtube.com/embed/..." />
                                 </div>
                             )}
                             <div>
-                                <label className="block text-sm text-text-secondary mb-1">Caption (optional)</label>
-                                <input value={formData.caption} onChange={e => setFormData({...formData, caption: e.target.value})} className="w-full bg-black border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-accent-blue" />
+                                <label className="block text-sm text-gray-500 mb-1">Caption (optional)</label>
+                                <input value={formData.caption} onChange={e => setFormData({...formData, caption: e.target.value})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" />
                             </div>
                             <div>
-                                <label className="block text-sm text-text-secondary mb-1">Display Order</label>
-                                <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value)})} className="w-full bg-black border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-accent-blue" />
+                                <label className="block text-sm text-gray-500 mb-1">Display Order</label>
+                                <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value)})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" />
                             </div>
                             <div className="flex gap-3 justify-end pt-2">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="border border-white/20 text-white px-4 py-2 rounded hover:bg-white/10">Cancel</button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="border border-gray-300 text-gray-900 px-4 py-2 rounded hover:bg-gray-100">Cancel</button>
                                 <button type="submit" disabled={uploading} className="bg-white text-black font-bold px-6 py-2 rounded hover:bg-gray-200 disabled:opacity-50">
                                     {uploading ? 'Uploading...' : 'Add to Gallery'}
                                 </button>

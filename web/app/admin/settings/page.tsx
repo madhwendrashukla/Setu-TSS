@@ -39,37 +39,37 @@ export default function AdminSettings() {
             <h1 className="text-3xl font-bold mb-8">Site Settings</h1>
 
             <form onSubmit={handleSave}>
-                <div className="bg-zinc-900 border border-white/10 p-8 rounded-xl mb-8 space-y-6">
-                    <h2 className="text-xl font-bold border-b border-white/10 pb-4">Footer Details</h2>
+                <div className="bg-white border border-gray-200 p-8 rounded-xl mb-8 space-y-6">
+                    <h2 className="text-xl font-bold border-b border-gray-200 pb-4">Footer Details</h2>
 
                     <div>
-                        <label className="block text-sm text-text-secondary mb-2">Registered Address</label>
+                        <label className="block text-sm text-gray-500 mb-2">Registered Address</label>
                         <textarea
                             value={formData.address}
                             onChange={e => setFormData({...formData, address: e.target.value})}
-                            className="w-full bg-black border border-white/10 rounded px-4 py-3 text-white focus:outline-none focus:border-accent-blue min-h-[100px]"
+                            className="w-full bg-white border border-gray-200 rounded px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue min-h-[100px]"
                             placeholder="Enter the official address shown in footer"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm text-text-secondary mb-2">Contact Email</label>
+                            <label className="block text-sm text-gray-500 mb-2">Contact Email</label>
                             <input
                                 type="email"
                                 value={formData.contact_email}
                                 onChange={e => setFormData({...formData, contact_email: e.target.value})}
-                                className="w-full bg-black border border-white/10 rounded px-4 py-3 text-white focus:outline-none focus:border-accent-blue"
+                                className="w-full bg-white border border-gray-200 rounded px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue"
                                 placeholder="hello@thestartupschool.in"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm text-text-secondary mb-2">Contact Phone</label>
+                            <label className="block text-sm text-gray-500 mb-2">Contact Phone</label>
                             <input
                                 type="text"
                                 value={formData.contact_phone}
                                 onChange={e => setFormData({...formData, contact_phone: e.target.value})}
-                                className="w-full bg-black border border-white/10 rounded px-4 py-3 text-white focus:outline-none focus:border-accent-blue"
+                                className="w-full bg-white border border-gray-200 rounded px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue"
                             />
                         </div>
                     </div>
@@ -83,10 +83,10 @@ export default function AdminSettings() {
                 </div>
             </form>
 
-            <div className="bg-zinc-900 border border-white/10 p-8 rounded-xl">
+            <div className="bg-white border border-gray-200 p-8 rounded-xl">
                 <h2 className="text-xl font-bold mb-2">Certifications & Badges</h2>
-                <p className="text-text-secondary mb-6 text-sm">Upload ISO or registration badges to display in the footer.</p>
-                <p className="text-text-secondary text-sm italic">Badge upload requires S3 configuration — coming in Phase 2.</p>
+                <p className="text-gray-500 mb-6 text-sm">Upload ISO or registration badges to display in the footer.</p>
+                <p className="text-gray-500 text-sm italic">Badge upload requires S3 configuration — coming in Phase 2.</p>
             </div>
         </div>
     );

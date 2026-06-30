@@ -110,12 +110,12 @@ export default function InvestorsManager() {
             <div className="overflow-x-auto">
                 {isLoading ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="w-10 h-10 border-4 border-white/10 border-t-accent-blue rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-gray-200 border-t-accent-blue rounded-full animate-spin"></div>
                     </div>
                 ) : (
                     <>
                         <table className="w-full text-left border-collapse">
-                            <thead className="bg-white/5 border-b border-white/10 text-white/50 text-xs uppercase tracking-wider">
+                            <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
                                 <tr>
                                     <th className="p-4">Name</th>
                                     <th className="p-4">Firm</th>
@@ -126,38 +126,38 @@ export default function InvestorsManager() {
                             </thead>
                             <tbody className="divide-y divide-white/10">
                                 {paginatedItems.map(item => (
-                                    <tr key={item.id} className="hover:bg-white/5 transition-colors">
+                                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="p-4 font-medium">{item.name}</td>
-                                        <td className="p-4 text-white/70">{item.firm}</td>
-                                        <td className="p-4 text-white/70">{item.type}</td>
-                                        <td className="p-4 text-white/70">{(item.sectors || []).join(", ")}</td>
+                                        <td className="p-4 text-gray-600">{item.firm}</td>
+                                        <td className="p-4 text-gray-600">{item.type}</td>
+                                        <td className="p-4 text-gray-600">{(item.sectors || []).join(", ")}</td>
                                         <td className="p-4 flex gap-2 justify-end">
-                                            <button onClick={() => openEdit(item)} className="p-2 text-white/50 hover:text-accent-blue"><i className="fas fa-edit"></i></button>
-                                            <button onClick={() => handleDelete(item.id)} className="p-2 text-white/50 hover:text-red-400"><i className="fas fa-trash"></i></button>
+                                            <button onClick={() => openEdit(item)} className="p-2 text-gray-500 hover:text-accent-blue"><i className="fas fa-edit"></i></button>
+                                            <button onClick={() => handleDelete(item.id)} className="p-2 text-gray-500 hover:text-red-400"><i className="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 ))}
                                 {items.length === 0 && (
-                                    <tr><td colSpan={5} className="p-8 text-center text-white/50">No investors found.</td></tr>
+                                    <tr><td colSpan={5} className="p-8 text-center text-gray-500">No investors found.</td></tr>
                                 )}
                             </tbody>
                         </table>
                         
                         {totalPages > 1 && (
-                            <div className="flex justify-between items-center p-4 border-t border-white/10 bg-white/5">
-                                <span className="text-white/50 text-sm">Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, items.length)} of {items.length}</span>
+                            <div className="flex justify-between items-center p-4 border-t border-gray-200 bg-gray-50">
+                                <span className="text-gray-500 text-sm">Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, items.length)} of {items.length}</span>
                                 <div className="flex gap-2">
                                     <button 
                                         disabled={currentPage === 1}
                                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                        className="px-3 py-1 rounded bg-[#0F1322] border border-white/10 text-white/70 disabled:opacity-50 hover:bg-white/10"
+                                        className="px-3 py-1 rounded bg-white border border-gray-200 text-gray-600 disabled:opacity-50 hover:bg-gray-100"
                                     >
                                         Prev
                                     </button>
                                     <button 
                                         disabled={currentPage === totalPages}
                                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                        className="px-3 py-1 rounded bg-[#0F1322] border border-white/10 text-white/70 disabled:opacity-50 hover:bg-white/10"
+                                        className="px-3 py-1 rounded bg-white border border-gray-200 text-gray-600 disabled:opacity-50 hover:bg-gray-100"
                                     >
                                         Next
                                     </button>
@@ -169,18 +169,18 @@ export default function InvestorsManager() {
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-[#0F1322] border border-white/10 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar">
                         <h3 className="text-2xl font-bold mb-4">{editingItem ? "Edit Investor" : "Add Investor"}</h3>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                            <input type="text" placeholder="Name" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
-                            <input type="text" placeholder="Firm" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3" value={formData.firm} onChange={e => setFormData({...formData, firm: e.target.value})} />
-                            <input type="text" placeholder="Type (e.g. VC, Angel)" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} />
-                            <input type="text" placeholder="Stages (comma separated)" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3" value={formData.stages} onChange={e => setFormData({...formData, stages: e.target.value})} />
-                            <input type="text" placeholder="Sectors (comma separated)" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3" value={formData.sectors} onChange={e => setFormData({...formData, sectors: e.target.value})} />
-                            <input type="text" placeholder="LinkedIn URL" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3" value={formData.linkedin} onChange={e => setFormData({...formData, linkedin: e.target.value})} />
+                            <input type="text" placeholder="Name" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                            <input type="text" placeholder="Firm" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.firm} onChange={e => setFormData({...formData, firm: e.target.value})} />
+                            <input type="text" placeholder="Type (e.g. VC, Angel)" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} />
+                            <input type="text" placeholder="Stages (comma separated)" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.stages} onChange={e => setFormData({...formData, stages: e.target.value})} />
+                            <input type="text" placeholder="Sectors (comma separated)" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.sectors} onChange={e => setFormData({...formData, sectors: e.target.value})} />
+                            <input type="text" placeholder="LinkedIn URL" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.linkedin} onChange={e => setFormData({...formData, linkedin: e.target.value})} />
                             <div className="flex gap-4 mt-2">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-3 border border-white/10 rounded-xl hover:bg-white/5">Cancel</button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
                                 <button type="submit" className="flex-1 px-4 py-3 bg-accent-blue hover:bg-accent-blue/90 rounded-xl font-bold">Save</button>
                             </div>
                         </form>

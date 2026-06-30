@@ -51,9 +51,9 @@ export default function AdminPartners() {
                 </button>
             </div>
 
-            <div className="bg-zinc-900 border border-white/10 rounded-xl overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                 <table className="w-full text-left">
-                    <thead className="bg-white/5 border-b border-white/10 text-text-secondary text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm">
                         <tr>
                             <th className="p-4 font-normal">Logo</th>
                             <th className="p-4 font-normal">Partner Name</th>
@@ -64,17 +64,17 @@ export default function AdminPartners() {
                     </thead>
                     <tbody>
                         {partners.length === 0 ? (
-                            <tr><td colSpan={5} className="p-8 text-center text-text-secondary">No partners added yet</td></tr>
+                            <tr><td colSpan={5} className="p-8 text-center text-gray-500">No partners added yet</td></tr>
                         ) : partners.map(p => (
-                            <tr key={p.id} className="border-b border-white/5 hover:bg-white/5">
+                            <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
                                 <td className="p-4">
                                     {p.logo_url && <img src={p.logo_url} alt={p.name} className="h-8 w-auto object-contain" />}
                                 </td>
-                                <td className="p-4 font-bold text-white">{p.name}</td>
+                                <td className="p-4 font-bold text-gray-900">{p.name}</td>
                                 <td className="p-4">
-                                    {p.website_url ? <a href={p.website_url} target="_blank" className="text-accent-blue hover:underline text-sm">{p.website_url}</a> : <span className="text-text-secondary">—</span>}
+                                    {p.website_url ? <a href={p.website_url} target="_blank" className="text-accent-blue hover:underline text-sm">{p.website_url}</a> : <span className="text-gray-500">—</span>}
                                 </td>
-                                <td className="p-4"><span className={`text-xs px-2 py-1 rounded ${p.is_active ? 'text-green-400 bg-green-400/10' : 'text-white/40 bg-white/5'}`}>{p.is_active ? 'Active' : 'Hidden'}</span></td>
+                                <td className="p-4"><span className={`text-xs px-2 py-1 rounded ${p.is_active ? 'text-green-400 bg-green-400/10' : 'text-gray-400 bg-gray-50'}`}>{p.is_active ? 'Active' : 'Hidden'}</span></td>
                                 <td className="p-4 text-right flex gap-2 justify-end">
                                     <button onClick={() => openEdit(p)} className="text-accent-blue hover:underline text-sm">Edit</button>
                                     <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:underline text-sm">Delete</button>
@@ -86,33 +86,33 @@ export default function AdminPartners() {
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-zinc-900 border border-white/10 rounded-2xl w-full max-w-lg p-8">
+                <div className="fixed inset-0 bg-white/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-lg p-8">
                         <h2 className="text-2xl font-bold mb-6">{editing ? 'Edit Partner' : 'Add Partner'}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm text-text-secondary mb-1">Partner Name *</label>
-                                <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-accent-blue" />
+                                <label className="block text-sm text-gray-500 mb-1">Partner Name *</label>
+                                <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" />
                             </div>
                             <div>
-                                <label className="block text-sm text-text-secondary mb-1">Website URL</label>
-                                <input value={formData.website_url} onChange={e => setFormData({...formData, website_url: e.target.value})} className="w-full bg-black border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-accent-blue" placeholder="https://partner.com" />
+                                <label className="block text-sm text-gray-500 mb-1">Website URL</label>
+                                <input value={formData.website_url} onChange={e => setFormData({...formData, website_url: e.target.value})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" placeholder="https://partner.com" />
                             </div>
                             <div>
-                                <label className="block text-sm text-text-secondary mb-1">Logo Image</label>
-                                <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="w-full text-white text-sm" />
-                                {editing?.logo_url && <p className="text-xs text-text-secondary mt-1">Current: {editing.logo_url}</p>}
+                                <label className="block text-sm text-gray-500 mb-1">Logo Image</label>
+                                <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="w-full text-gray-900 text-sm" />
+                                {editing?.logo_url && <p className="text-xs text-gray-500 mt-1">Current: {editing.logo_url}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm text-text-secondary mb-1">Display Order</label>
-                                <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value)})} className="w-full bg-black border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-accent-blue" />
+                                <label className="block text-sm text-gray-500 mb-1">Display Order</label>
+                                <input type="number" value={formData.display_order} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value)})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" />
                             </div>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" checked={formData.is_active} onChange={e => setFormData({...formData, is_active: e.target.checked})} className="w-4 h-4" />
-                                <span className="text-sm text-text-secondary">Active (visible on site)</span>
+                                <span className="text-sm text-gray-500">Active (visible on site)</span>
                             </label>
                             <div className="flex gap-3 justify-end pt-2">
-                                <button type="button" onClick={() => { setIsModalOpen(false); resetForm(); }} className="border border-white/20 text-white px-4 py-2 rounded hover:bg-white/10">Cancel</button>
+                                <button type="button" onClick={() => { setIsModalOpen(false); resetForm(); }} className="border border-gray-300 text-gray-900 px-4 py-2 rounded hover:bg-gray-100">Cancel</button>
                                 <button type="submit" className="bg-white text-black font-bold px-6 py-2 rounded hover:bg-gray-200">Save Partner</button>
                             </div>
                         </form>

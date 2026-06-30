@@ -81,7 +81,7 @@ export default function AdminMentors() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-black tracking-tight mb-1">Manage Mentors</h1>
-                    <p className="text-white/50 text-sm">Add, update, or remove mentors from the roster.</p>
+                    <p className="text-gray-500 text-sm">Add, update, or remove mentors from the roster.</p>
                 </div>
                 <button 
                     onClick={() => { setEditingMentor(null); setFormData({ name: "", title: "", bio: "", linkedin_url: "" }); setIsModalOpen(true); }}
@@ -91,10 +91,10 @@ export default function AdminMentors() {
                 </button>
             </div>
 
-            <div className="glass-card bg-[#0F1322]/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            <div className="shadow-sm bg-white backdrop-blur-xl border border-gray-200 rounded-2xl overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-white/5 border-b border-white/10 text-white/50 text-xs uppercase tracking-wider">
+                        <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
                             <tr>
                                 <th className="p-5 font-bold w-1/3">Mentor Profile</th>
                                 <th className="p-5 font-bold w-1/3">Title & Bio</th>
@@ -104,7 +104,7 @@ export default function AdminMentors() {
                         <tbody className="divide-y divide-white/5">
                             {mentors.length === 0 ? (
                                 <tr>
-                                    <td colSpan={3} className="p-10 text-center text-white/40">
+                                    <td colSpan={3} className="p-10 text-center text-gray-400">
                                         <div className="flex flex-col items-center justify-center gap-3">
                                             <i className="fas fa-users-slash text-4xl mb-2 opacity-50"></i>
                                             <p>No mentors found. Add one to get started.</p>
@@ -113,20 +113,20 @@ export default function AdminMentors() {
                                 </tr>
                             ) : (
                                 mentors.map(mentor => (
-                                    <tr key={mentor.id} className="hover:bg-white/[0.02] transition-colors group">
+                                    <tr key={mentor.id} className="hover:bg-gray-50 transition-colors group">
                                         <td className="p-5">
                                             <div className="flex items-center gap-4">
                                                 {mentor.photo_url ? (
-                                                    <img src={mentor.photo_url} alt="" className="w-12 h-12 rounded-full object-cover border border-white/10 shadow-lg" />
+                                                    <img src={mentor.photo_url} alt="" className="w-12 h-12 rounded-full object-cover border border-gray-200 shadow-lg" />
                                                 ) : (
-                                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-800 border border-white/10 flex items-center justify-center shadow-lg">
-                                                        <i className="fas fa-user text-white/50"></i>
+                                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-800 border border-gray-200 flex items-center justify-center shadow-lg">
+                                                        <i className="fas fa-user text-gray-500"></i>
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <div className="font-bold text-white text-base group-hover:text-accent-blue transition-colors">{mentor.name}</div>
+                                                    <div className="font-bold text-gray-900 text-base group-hover:text-accent-blue transition-colors">{mentor.name}</div>
                                                     {mentor.linkedin_url && (
-                                                        <a href={mentor.linkedin_url} target="_blank" className="text-xs text-white/30 hover:text-[#0077b5] transition-colors flex items-center gap-1 mt-0.5">
+                                                        <a href={mentor.linkedin_url} target="_blank" className="text-xs text-gray-400 hover:text-[#0077b5] transition-colors flex items-center gap-1 mt-0.5">
                                                             <i className="fab fa-linkedin"></i> LinkedIn
                                                         </a>
                                                     )}
@@ -134,14 +134,14 @@ export default function AdminMentors() {
                                             </div>
                                         </td>
                                         <td className="p-5">
-                                            <div className="text-white/80 font-medium mb-1">{mentor.title}</div>
-                                            <div className="text-white/40 text-xs line-clamp-1 max-w-xs">{mentor.bio || "No bio provided."}</div>
+                                            <div className="text-gray-700 font-medium mb-1">{mentor.title}</div>
+                                            <div className="text-gray-400 text-xs line-clamp-1 max-w-xs">{mentor.bio || "No bio provided."}</div>
                                         </td>
                                         <td className="p-5 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button 
                                                     onClick={() => openEdit(mentor)} 
-                                                    className="w-8 h-8 rounded-lg bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center"
+                                                    className="w-8 h-8 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all flex items-center justify-center"
                                                     title="Edit Mentor"
                                                 >
                                                     <i className="fas fa-edit text-sm"></i>
@@ -165,45 +165,45 @@ export default function AdminMentors() {
 
             {/* Glassmorphic Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-                    <div className="bg-[#121626] border border-white/10 p-8 rounded-[2rem] w-full max-w-xl shadow-[0_0_100px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-8 zoom-in-95 duration-300">
+                <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white border border-gray-200 p-8 rounded-[2rem] w-full max-w-xl shadow-[0_0_100px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-8 zoom-in-95 duration-300">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold tracking-tight">{editingMentor ? "Edit Mentor" : "Add New Mentor"}</h2>
-                            <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white flex items-center justify-center transition-colors">
+                            <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 rounded-full bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 flex items-center justify-center transition-colors">
                                 <i className="fas fa-times"></i>
                             </button>
                         </div>
                         
                         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Mentor Name</label>
-                                <input placeholder="e.g. Rahul Sharma" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none" />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Mentor Name</label>
+                                <input placeholder="e.g. Rahul Sharma" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Title / Designation</label>
-                                <input placeholder="e.g. Founder at TechCorp" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none" />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Title / Designation</label>
+                                <input placeholder="e.g. Founder at TechCorp" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">LinkedIn URL</label>
-                                <input placeholder="https://linkedin.com/in/..." value={formData.linkedin_url} onChange={e => setFormData({...formData, linkedin_url: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none" />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">LinkedIn URL</label>
+                                <input placeholder="https://linkedin.com/in/..." value={formData.linkedin_url} onChange={e => setFormData({...formData, linkedin_url: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Bio (Optional)</label>
-                                <textarea placeholder="Short description about the mentor..." value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none h-24 resize-none custom-scrollbar" />
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Bio (Optional)</label>
+                                <textarea placeholder="Short description about the mentor..." value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none h-24 resize-none custom-scrollbar" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Profile Photo</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Profile Photo</label>
                                 <div className="relative w-full">
                                     <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                                    <div className="w-full bg-black/40 border border-white/10 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">
-                                        <i className="fas fa-cloud-upload-alt text-2xl text-white/30 group-hover:text-accent-blue transition-colors"></i>
-                                        <span className="text-white/50 text-sm">{file ? file.name : (editingMentor && editingMentor.photo_url ? "Click to upload a new photo" : "Click to upload photo (Max 5MB)")}</span>
+                                    <div className="w-full bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">
+                                        <i className="fas fa-cloud-upload-alt text-2xl text-gray-400 group-hover:text-accent-blue transition-colors"></i>
+                                        <span className="text-gray-500 text-sm">{file ? file.name : (editingMentor && editingMentor.photo_url ? "Click to upload a new photo" : "Click to upload photo (Max 5MB)")}</span>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div className="flex gap-3 mt-4 pt-4 border-t border-white/10">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors">Cancel</button>
+                            <div className="flex gap-3 mt-4 pt-4 border-t border-gray-200">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-900 font-bold transition-colors">Cancel</button>
                                 <button type="submit" className="flex-1 py-3 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-bold transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]">
                                     {editingMentor ? "Update Mentor" : "Save Mentor"}
                                 </button>

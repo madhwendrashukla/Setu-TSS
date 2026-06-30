@@ -21,7 +21,7 @@ export default function AdminToolsPage() {
         <div className="animate-in fade-in duration-500">
             <div className="mb-8">
                 <h1 className="text-3xl font-black tracking-tight mb-2">Tools & Resources</h1>
-                <p className="text-white/50 text-sm">Manage resources for founders including pitch decks, grants, investors, and events.</p>
+                <p className="text-gray-500 text-sm">Manage resources for founders including pitch decks, grants, investors, and events.</p>
             </div>
 
             <div className="flex gap-2 overflow-x-auto custom-scrollbar mb-8 pb-2">
@@ -31,8 +31,8 @@ export default function AdminToolsPage() {
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex items-center gap-2 px-5 py-3 rounded-xl transition-all duration-300 whitespace-nowrap ${
                             activeTab === tab.id 
-                                ? 'bg-gradient-to-r from-accent-blue/20 to-purple-500/10 text-white shadow-[inset_0_2px_0_#8b5cf6] border border-white/10' 
-                                : 'bg-[#0F1322] border border-white/5 text-white/50 hover:bg-white/5 hover:text-white'
+                                ? 'bg-gradient-to-r from-accent-blue/20 to-purple-500/10 text-gray-900 shadow-[inset_0_2px_0_#8b5cf6] border border-gray-200' 
+                                : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                     >
                         <i className={`${tab.icon} ${activeTab === tab.id ? 'text-accent-blue' : ''}`}></i>
@@ -41,7 +41,7 @@ export default function AdminToolsPage() {
                 ))}
             </div>
 
-            <div className="glass-card bg-[#0F1322]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
+            <div className="shadow-sm bg-white backdrop-blur-xl border border-gray-200 rounded-2xl p-6 shadow-2xl">
                 {activeTab === "pitch-decks" && <PitchDecksManager />}
                 {activeTab === "grants" && <GrantsManager />}
                 {activeTab === "investors" && <InvestorsManager />}

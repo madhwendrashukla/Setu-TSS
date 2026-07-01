@@ -8,7 +8,11 @@ export default function GrantsManager() {
     const ITEMS_PER_PAGE = 10;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<any>(null);
-    const [formData, setFormData] = useState({ title: "", description: "", amount: "", deadline: "", eligibility: "", link: "" });
+    const [formData, setFormData] = useState({ 
+        title: "", description: "", amount: "", deadline: "", eligibility: "", link: "",
+        ministry: "", sectors: "", benefits: "", benefitTags: "", tenure: "",
+        howToApply: "", documentsNeeded: "", affiliation: "", verified: false
+    });
 
     const fetchData = () => {
         setIsLoading(true);
@@ -31,6 +35,14 @@ export default function GrantsManager() {
         fetchData();
     }, []);
 
+    const resetForm = () => {
+        setFormData({ 
+            title: "", description: "", amount: "", deadline: "", eligibility: "", link: "",
+            ministry: "", sectors: "", benefits: "", benefitTags: "", tenure: "",
+            howToApply: "", documentsNeeded: "", affiliation: "", verified: false
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const token = localStorage.getItem("adminToken");
@@ -51,7 +63,7 @@ export default function GrantsManager() {
             if (res.ok) {
                 setIsModalOpen(false);
                 setEditingItem(null);
-                setFormData({ title: "", description: "", amount: "", deadline: "", eligibility: "", link: "" });
+                resetForm();
                 fetchData();
             }
         } catch (error) {
@@ -76,12 +88,21 @@ export default function GrantsManager() {
     const openEdit = (item: any) => {
         setEditingItem(item);
         setFormData({ 
-            title: item.title, 
+            title: item.title || "", 
             description: item.description || "", 
             amount: item.amount || "", 
             deadline: item.deadline || "",
             eligibility: item.eligibility || "",
-            link: item.link || ""
+            link: item.link || "",
+            ministry: item.ministry || "",
+            sectors: item.sectors || "",
+            benefits: item.benefits || "",
+            benefitTags: item.benefitTags || "",
+            tenure: item.tenure || "",
+            howToApply: item.howToApply || "",
+            documentsNeeded: item.documentsNeeded || "",
+            affiliation: item.affiliation || "",
+            verified: item.verified || false
         });
         setIsModalOpen(true);
     };
@@ -94,7 +115,7 @@ export default function GrantsManager() {
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold">Grants</h2>
                 <button 
-                    onClick={() => { setEditingItem(null); setFormData({ title: "", description: "", amount: "", deadline: "", eligibility: "", link: "" }); setIsModalOpen(true); }}
+                    onClick={() => { setEditingItem(null); resetForm(); setIsModalOpen(true); }}
                     className="bg-accent-blue hover:bg-accent-blue/90 text-white px-4 py-2 rounded font-bold"
                 >
                     Add Grant
@@ -165,17 +186,37 @@ export default function GrantsManager() {
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md">
+                    <div className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                         <h3 className="text-2xl font-bold mb-4">{editingItem ? "Edit Grant" : "Add Grant"}</h3>
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="text" placeholder="Title" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
-                            <input type="text" placeholder="Amount" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} />
-                            <input type="text" placeholder="Deadline" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.deadline} onChange={e => setFormData({...formData, deadline: e.target.value})} />
-                            <textarea placeholder="Eligibility" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.eligibility} onChange={e => setFormData({...formData, eligibility: e.target.value})} />
                             <input type="text" placeholder="Link URL" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} />
-                            <div className="flex gap-4 mt-2">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
-                                <button type="submit" className="flex-1 px-4 py-3 bg-accent-blue hover:bg-accent-blue/90 rounded-xl font-bold">Save</button>
+                            
+                            <input type="text" placeholder="Amount / Fund Size" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} />
+                            <input type="text" placeholder="Deadline" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.deadline} onChange={e => setFormData({...formData, deadline: e.target.value})} />
+                            
+                            <input type="text" placeholder="Ministry" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.ministry} onChange={e => setFormData({...formData, ministry: e.target.value})} />
+                            <input type="text" placeholder="Sectors" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.sectors} onChange={e => setFormData({...formData, sectors: e.target.value})} />
+                            
+                            <input type="text" placeholder="Affiliation" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.affiliation} onChange={e => setFormData({...formData, affiliation: e.target.value})} />
+                            <input type="text" placeholder="Tenure" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3" value={formData.tenure} onChange={e => setFormData({...formData, tenure: e.target.value})} />
+                            
+                            <input type="text" placeholder="Benefit Tags (Comma separated)" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:col-span-2" value={formData.benefitTags} onChange={e => setFormData({...formData, benefitTags: e.target.value})} />
+                            
+                            <textarea placeholder="Description" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:col-span-2" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
+                            <textarea placeholder="Eligibility" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:col-span-2" value={formData.eligibility} onChange={e => setFormData({...formData, eligibility: e.target.value})} />
+                            <textarea placeholder="Benefits" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:col-span-2" value={formData.benefits} onChange={e => setFormData({...formData, benefits: e.target.value})} />
+                            <textarea placeholder="How to Apply" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:col-span-2 min-h-[100px]" value={formData.howToApply} onChange={e => setFormData({...formData, howToApply: e.target.value})} />
+                            <textarea placeholder="Documents Needed" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 md:col-span-2 min-h-[100px]" value={formData.documentsNeeded} onChange={e => setFormData({...formData, documentsNeeded: e.target.value})} />
+                            
+                            <label className="flex items-center gap-2 px-2 md:col-span-2">
+                                <input type="checkbox" checked={formData.verified} onChange={e => setFormData({...formData, verified: e.target.checked})} className="w-4 h-4" />
+                                <span className="font-medium text-gray-700">Verified</span>
+                            </label>
+
+                            <div className="flex gap-4 mt-4 md:col-span-2">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-700">Cancel</button>
+                                <button type="submit" className="flex-1 px-4 py-3 bg-accent-blue hover:bg-accent-blue/90 text-white rounded-xl font-bold">Save</button>
                             </div>
                         </form>
                     </div>

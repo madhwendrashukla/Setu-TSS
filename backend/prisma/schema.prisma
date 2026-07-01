@@ -189,15 +189,24 @@ model PitchDeck {
 }
 
 model Grant {
-  id          String   @id @default(uuid()) @db.Uuid
-  title       String
-  description String?
-  amount      String?
-  deadline    String?
-  eligibility String?
-  link        String?
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
+  id              String   @id @default(uuid()) @db.Uuid
+  title           String
+  description     String?
+  amount          String?
+  deadline        String?
+  eligibility     String?
+  link            String?
+  ministry        String?
+  sectors         String?
+  benefits        String?
+  benefitTags     String?
+  tenure          String?
+  howToApply      String?
+  documentsNeeded String?
+  affiliation     String?
+  verified        Boolean  @default(false)
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
 
   @@map("grants")
 }

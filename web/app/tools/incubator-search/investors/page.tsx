@@ -183,10 +183,6 @@ export default function InvestorsPage() {
                 </Link>
 
                 <div className="mb-12">
-                    <div className="flex items-center gap-3 mb-4">
-                        <span className="bg-accent-violet/20 text-accent-violet text-[10px] font-bold px-3 py-1 rounded-full border border-accent-violet/30 uppercase tracking-widest">Premium Database</span>
-                        <div className="h-px bg-gray-100 w-20"></div>
-                    </div>
                     <h1 className="text-5xl md:text-5xl font-black text-gray-900 tracking-[-0.04em] mb-6">
                         Investors <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))]">Match.</span>
                     </h1>

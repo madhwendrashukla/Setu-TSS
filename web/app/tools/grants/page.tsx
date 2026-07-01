@@ -263,35 +263,14 @@ export default function GrantsDirectoryPage() {
     setTypeFilter('All');
   };
 
-  const getDocumentChecklist = (grant: Grant) => {
-    const list = [
-      t.step1,
-      t.step2,
-      t.step3,
-      t.step4
-    ];
-    const crit = grant.criteria.toLowerCase();
-    if (crit.includes('dpiit')) {
-      list.unshift("DPIIT Recognition Certificate (Mandatory)");
-    }
-    if (crit.includes('student') || crit.includes('youth') || crit.includes('young')) {
-      list.push("College ID proof / Bonafide Certificate");
-    }
-    if (crit.includes('women') || crit.includes('woman')) {
-      list.push("DPIIT Certificate proving >51% female ownership");
-    }
-    if (crit.includes('trl') || crit.includes('prototype')) {
-      list.push("Proof of Concept (PoC) / Prototype screenshots or video link");
-    }
-    return list;
-  };
+
 
   const activeRollingCount = useMemo(() => {
     return grantsData.filter(g => g.deadline.toLowerCase().includes('roll') || g.deadline.toLowerCase().includes('ong') || g.deadline.toLowerCase().includes('open')).length;
   }, []);
 
   return (
-    <div className="pt-32 pb-20 min-h-screen bg-bg-main relative">
+    <div className="pt-32 pb-20 min-h-screen bg-gray-50 relative">
       {/* Subtle Glow Overlay */}
       <div className="absolute top-0 left-0 w-full h-[400px] bg-gradient-to-b from-accent-blue/5 via-accent-violet/3 to-transparent pointer-events-none z-0"></div>
       
@@ -299,20 +278,20 @@ export default function GrantsDirectoryPage() {
         
         {/* Navigation & Language Dropdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <Link href="/tools" className="inline-flex items-center text-text-secondary hover:text-white transition-colors text-sm group">
+          <Link href="/tools" className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors text-sm group">
             <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
             {t.backToTools}
           </Link>
 
-          <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full p-1 self-end sm:self-auto">
+          <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-full p-1 self-end sm:self-auto">
             {(['en', 'hi', 'kn', 'ta', 'te', 'mr'] as LanguageKey[]).map((l) => (
               <button
                 key={l}
                 onClick={() => setLang(l)}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all uppercase ${
                   lang === l 
-                    ? 'bg-gradient-to-r from-accent-blue to-accent-violet text-white shadow-md' 
-                    : 'text-text-secondary hover:text-white'
+                    ? 'bg-gradient-to-r from-accent-blue to-accent-violet text-gray-900 shadow-md' 
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 {l === 'en' ? 'EN' : l === 'hi' ? 'हिंदी' : l === 'kn' ? 'ಕನ್ನಡ' : l === 'ta' ? 'தமிழ்' : l === 'te' ? 'తెలుగు' : 'मराठी'}
@@ -324,39 +303,39 @@ export default function GrantsDirectoryPage() {
         {/* Minimal Header */}
         <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-[-0.04em] mb-3">
+            <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-[-0.04em] mb-3">
               {t.title}
             </h1>
-            <p className="text-text-secondary font-light max-w-2xl text-base leading-relaxed">
+            <p className="text-gray-600 font-light max-w-2xl text-base leading-relaxed">
               {t.subtitle}
             </p>
           </div>
 
           {/* Minimal Stats Cards */}
           <div className="flex items-center gap-4 shrink-0 w-full md:w-auto">
-            <div className="glass-card px-5 py-3 rounded-2xl border border-white/5 bg-bg-surface/10 flex items-center gap-3">
+            <div className="shadow-sm px-5 py-3 rounded-2xl border border-gray-100 bg-white flex items-center gap-3">
               <Layers size={18} className="text-accent-blue" />
               <div>
-                <p className="text-[10px] text-text-secondary uppercase font-bold tracking-wider">{t.statsTotal}</p>
-                <strong className="text-sm text-white font-bold">{grantsData.length} Live</strong>
+                <p className="text-[10px] text-gray-600 uppercase font-bold tracking-wider">{t.statsTotal}</p>
+                <strong className="text-sm text-gray-900 font-bold">{grantsData.length} Live</strong>
               </div>
             </div>
-            <div className="glass-card px-5 py-3 rounded-2xl border border-white/5 bg-bg-surface/10 flex items-center gap-3">
+            <div className="shadow-sm px-5 py-3 rounded-2xl border border-gray-100 bg-white flex items-center gap-3">
               <RefreshCw size={18} className="text-accent-violet" />
               <div>
-                <p className="text-[10px] text-text-secondary uppercase font-bold tracking-wider">{t.statsDeadlines}</p>
-                <strong className="text-sm text-white font-bold">{activeRollingCount} Programs</strong>
+                <p className="text-[10px] text-gray-600 uppercase font-bold tracking-wider">{t.statsDeadlines}</p>
+                <strong className="text-sm text-gray-900 font-bold">{activeRollingCount} Programs</strong>
               </div>
             </div>
           </div>
         </div>
 
         {/* Streamlined Minimalist Filter Bar */}
-        <div className="glass-card p-4 md:p-6 rounded-[2rem] border border-white/10 bg-bg-surface/20 mb-10 space-y-4">
+        <div className="shadow-sm p-4 md:p-6 rounded-[2rem] border border-gray-200 bg-white mb-10 space-y-4">
           
           {/* Main Keyword Search */}
           <div className="relative group">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary group-focus-within:text-accent-blue transition-colors">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-accent-blue transition-colors">
               <Search size={18} />
             </div>
             <input
@@ -364,7 +343,7 @@ export default function GrantsDirectoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue/50 transition-all"
+              className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-accent-blue/50 transition-all"
             />
           </div>
 
@@ -372,46 +351,46 @@ export default function GrantsDirectoryPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-2">
             
             <div className="relative group">
-              <label className="absolute left-3.5 -top-2 px-1 bg-[#0F172A] text-[9px] font-bold text-text-secondary uppercase tracking-wider">{t.region}</label>
+              <label className="absolute left-3.5 -top-2 px-1 bg-white text-[9px] font-bold text-gray-600 uppercase tracking-wider">{t.region}</label>
               <select
                 value={regionFilter}
                 onChange={(e) => setRegionFilter(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-3.5 text-xs text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer appearance-none"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-3.5 text-xs text-gray-900 focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer appearance-none"
               >
-                {regions.map(r => <option key={r} value={r} className="bg-bg-surface">{r === 'All' ? t.all : r}</option>)}
+                {regions.map(r => <option key={r} value={r} className="bg-white">{r === 'All' ? t.all : r}</option>)}
               </select>
             </div>
 
             <div className="relative group">
-              <label className="absolute left-3.5 -top-2 px-1 bg-[#0F172A] text-[9px] font-bold text-text-secondary uppercase tracking-wider">{t.stage}</label>
+              <label className="absolute left-3.5 -top-2 px-1 bg-white text-[9px] font-bold text-gray-600 uppercase tracking-wider">{t.stage}</label>
               <select
                 value={stageFilter}
                 onChange={(e) => setStageFilter(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-3.5 text-xs text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer appearance-none"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-3.5 text-xs text-gray-900 focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer appearance-none"
               >
-                {stages.map(s => <option key={s} value={s} className="bg-bg-surface">{s === 'All' ? t.all : s}</option>)}
+                {stages.map(s => <option key={s} value={s} className="bg-white">{s === 'All' ? t.all : s}</option>)}
               </select>
             </div>
 
             <div className="relative group">
-              <label className="absolute left-3.5 -top-2 px-1 bg-[#0F172A] text-[9px] font-bold text-text-secondary uppercase tracking-wider">{t.sector}</label>
+              <label className="absolute left-3.5 -top-2 px-1 bg-white text-[9px] font-bold text-gray-600 uppercase tracking-wider">{t.sector}</label>
               <select
                 value={sectorFilter}
                 onChange={(e) => setSectorFilter(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-3.5 text-xs text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer appearance-none"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-3.5 text-xs text-gray-900 focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer appearance-none"
               >
-                {sectors.map(s => <option key={s} value={s} className="bg-bg-surface">{s === 'All' ? t.all : s}</option>)}
+                {sectors.map(s => <option key={s} value={s} className="bg-white">{s === 'All' ? t.all : s}</option>)}
               </select>
             </div>
 
             <div className="relative group">
-              <label className="absolute left-3.5 -top-2 px-1 bg-[#0F172A] text-[9px] font-bold text-text-secondary uppercase tracking-wider">Funding Type</label>
+              <label className="absolute left-3.5 -top-2 px-1 bg-white text-[9px] font-bold text-gray-600 uppercase tracking-wider">Funding Type</label>
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-3.5 text-xs text-white focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer appearance-none"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-3.5 text-xs text-gray-900 focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer appearance-none"
               >
-                {types.map(ty => <option key={ty} value={ty} className="bg-bg-surface">{ty === 'All' ? t.all : ty}</option>)}
+                {types.map(ty => <option key={ty} value={ty} className="bg-white">{ty === 'All' ? t.all : ty}</option>)}
               </select>
             </div>
 
@@ -421,12 +400,12 @@ export default function GrantsDirectoryPage() {
           <div className="flex justify-between items-center pt-2 text-xs">
             <button
               onClick={resetFilters}
-              className="text-text-secondary hover:text-white transition-colors flex items-center gap-1"
+              className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1"
             >
               <RefreshCw size={12} /> {t.clearFilters}
             </button>
-            <p className="text-text-secondary font-bold text-[10px] uppercase tracking-wider">
-              {t.resultsFound}: <span className="text-white ml-1 font-bold">{filteredData.length}</span>
+            <p className="text-gray-600 font-bold text-[10px] uppercase tracking-wider">
+              {t.resultsFound}: <span className="text-gray-900 ml-1 font-bold">{filteredData.length}</span>
             </p>
           </div>
 
@@ -437,12 +416,13 @@ export default function GrantsDirectoryPage() {
           {filteredData.map((item, index) => (
             <div 
               key={item.id || index}
-              className="glass-card hover-glow p-6 md:p-8 rounded-3xl border border-white/5 flex flex-col relative group transition-all duration-300 bg-bg-surface/10"
+              onClick={() => setSelectedGrant(item)}
+              className="shadow-sm hover-glow p-6 md:p-8 rounded-3xl border border-gray-200 flex flex-col relative group transition-all duration-300 bg-gray-100 cursor-pointer"
             >
               
               {/* Type Ribbon Badge */}
               <div className="flex justify-between items-start mb-5">
-                <span className="bg-white/10 text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                <span className="bg-gray-100 text-gray-900 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                   {item.type}
                 </span>
                 {item.deadline.toLowerCase().includes('roll') || item.deadline.toLowerCase().includes('ong') || item.deadline.toLowerCase().includes('open') ? (
@@ -454,50 +434,50 @@ export default function GrantsDirectoryPage() {
 
               {/* Title & Provider */}
               <div className="mb-4">
-                <h3 className="text-lg font-bold text-white mb-2 tracking-tight group-hover:text-accent-blue transition-colors line-clamp-2 leading-tight">
+                <h3 className="text-lg font-bold text-gray-900 mb-2 tracking-tight group-hover:text-accent-blue transition-colors line-clamp-2 leading-tight">
                   {item.name}
                 </h3>
-                <p className="text-xs text-text-secondary font-light flex items-center gap-1">
+                <p className="text-xs text-gray-600 font-light flex items-center gap-1">
                   <Building2 size={12} className="text-accent-blue/70 shrink-0" />
                   <span className="line-clamp-1">{item.provider}</span>
                 </p>
               </div>
 
               {/* Parameter details grid */}
-              <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-white/5 border border-white/5 rounded-2xl text-xs">
+              <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-gray-50 border border-gray-100 rounded-2xl text-xs">
                 <div>
-                  <span className="text-[9px] text-text-secondary uppercase tracking-wider font-bold block mb-1">
+                  <span className="text-[9px] text-gray-600 uppercase tracking-wider font-bold block mb-1">
                     {t.funding}
                   </span>
-                  <span className="text-white font-medium line-clamp-2 leading-tight">{item.fundingSupport}</span>
+                  <span className="text-gray-900 font-medium line-clamp-2 leading-tight">{item.fundingSupport}</span>
                 </div>
                 <div>
-                  <span className="text-[9px] text-text-secondary uppercase tracking-wider font-bold block mb-1">
+                  <span className="text-[9px] text-gray-600 uppercase tracking-wider font-bold block mb-1">
                     {t.deadline}
                   </span>
-                  <span className="text-white font-medium line-clamp-2 leading-tight">{item.deadline}</span>
+                  <span className="text-gray-900 font-medium line-clamp-2 leading-tight">{item.deadline}</span>
                 </div>
                 <div>
-                  <span className="text-[9px] text-text-secondary uppercase tracking-wider font-bold block mb-1">
+                  <span className="text-[9px] text-gray-600 uppercase tracking-wider font-bold block mb-1">
                     {t.stageLabel}
                   </span>
-                  <span className="text-white font-medium line-clamp-1">{item.idealStage}</span>
+                  <span className="text-gray-900 font-medium line-clamp-1">{item.idealStage}</span>
                 </div>
                 <div>
-                  <span className="text-[9px] text-text-secondary uppercase tracking-wider font-bold block mb-1">
+                  <span className="text-[9px] text-gray-600 uppercase tracking-wider font-bold block mb-1">
                     Location
                   </span>
-                  <span className="text-white font-medium line-clamp-1 flex items-center gap-1">
+                  <span className="text-gray-900 font-medium line-clamp-1 flex items-center gap-1">
                     <MapPin size={10} className="text-accent-violet shrink-0" /> {item.location}
                   </span>
                 </div>
               </div>
 
               {/* Action buttons */}
-              <div className="mt-auto pt-4 border-t border-white/5 flex gap-2">
+              <div className="mt-auto pt-4 border-t border-gray-100 flex gap-2">
                 <button
                   onClick={() => setSelectedGrant(item)}
-                  className="flex-1 border border-white/10 hover:border-white/20 text-white py-2.5 rounded-xl font-bold text-xs transition duration-300 flex justify-center items-center gap-1.5"
+                  className="flex-1 border border-gray-200 hover:border-gray-300 text-gray-900 py-2.5 rounded-xl font-bold text-xs transition duration-300 flex justify-center items-center gap-1.5"
                 >
                   <BookOpen size={12} /> {t.howToApply}
                 </button>
@@ -506,6 +486,9 @@ export default function GrantsDirectoryPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white hover:bg-gray-200 text-black px-4 py-2.5 rounded-xl font-bold text-xs transition duration-300 flex items-center justify-center gap-1 shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
                 >
                   Apply <ExternalLink size={12} />
                 </a>
@@ -517,10 +500,10 @@ export default function GrantsDirectoryPage() {
 
         {/* Empty state container */}
         {filteredData.length === 0 && (
-          <div className="glass-card p-16 rounded-3xl border border-dashed border-white/10 text-center flex flex-col items-center justify-center min-h-[350px]">
-            <AlertCircle size={40} className="text-text-secondary mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">No Matches Found</h3>
-            <p className="text-text-secondary mb-8 max-w-md">No grants match this setup. Try adjusting your filter tags or resetting the matcher.</p>
+          <div className="shadow-sm p-16 rounded-3xl border border-dashed border-gray-200 text-center flex flex-col items-center justify-center min-h-[350px]">
+            <AlertCircle size={40} className="text-gray-600 mb-4" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">No Matches Found</h3>
+            <p className="text-gray-600 mb-8 max-w-md">No grants match this setup. Try adjusting your filter tags or resetting the matcher.</p>
             <button className="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition-colors" onClick={resetFilters}>
               {t.clearFilters}
             </button>
@@ -531,12 +514,12 @@ export default function GrantsDirectoryPage() {
 
       {/* Slide-in Detail Drawer Modal */}
       {selectedGrant && (
-        <div className="fixed inset-0 bg-black/80 backdrop-filter backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="glass-card max-w-2xl w-full rounded-[2rem] border border-white/10 bg-bg-surface overflow-hidden relative">
+        <div className="fixed inset-0 bg-white/80 backdrop-filter backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="shadow-sm max-w-2xl w-full rounded-[2rem] border border-gray-200 bg-white overflow-hidden relative">
             <div className="absolute top-0 right-0 p-6">
               <button 
                 onClick={() => setSelectedGrant(null)} 
-                className="text-text-secondary hover:text-white transition-colors text-2xl font-bold"
+                className="text-gray-600 hover:text-gray-900 transition-colors text-2xl font-bold"
               >
                 &times;
               </button>
@@ -548,26 +531,26 @@ export default function GrantsDirectoryPage() {
                 <span className="bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-3 inline-block">
                   {selectedGrant.type}
                 </span>
-                <h2 className="text-2xl md:text-3xl font-black text-white leading-tight mb-2">
+                <h2 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight mb-2">
                   {selectedGrant.name}
                 </h2>
-                <p className="text-sm text-text-secondary flex items-center gap-1.5">
+                <p className="text-sm text-gray-600 flex items-center gap-1.5">
                   <Building2 size={14} className="text-accent-blue" />
                   <span>{selectedGrant.provider}</span>
                 </p>
               </div>
 
               {/* Metadata strip info */}
-              <div className="flex flex-wrap gap-4 mb-8 bg-white/5 border border-white/5 rounded-2xl p-4 text-xs">
+              <div className="flex flex-wrap gap-4 mb-8 bg-gray-50 border border-gray-100 rounded-2xl p-4 text-xs">
                 {selectedGrant.governmentAffiliation && (
                   <div>
-                    <span className="text-[10px] text-text-secondary uppercase tracking-wider block font-bold mb-0.5">{t.affiliation}</span>
-                    <span className="text-white font-semibold">{selectedGrant.governmentAffiliation}</span>
+                    <span className="text-[10px] text-gray-600 uppercase tracking-wider block font-bold mb-0.5">{t.affiliation}</span>
+                    <span className="text-gray-900 font-semibold">{selectedGrant.governmentAffiliation}</span>
                   </div>
                 )}
                 {selectedGrant.sourceVerified && (
                   <div>
-                    <span className="text-[10px] text-text-secondary uppercase tracking-wider block font-bold mb-0.5">{t.verified}</span>
+                    <span className="text-[10px] text-gray-600 uppercase tracking-wider block font-bold mb-0.5">{t.verified}</span>
                     <span className="text-green-400 font-semibold flex items-center gap-1">
                       <CheckCircle2 size={12} /> {selectedGrant.sourceVerified}
                     </span>
@@ -579,51 +562,58 @@ export default function GrantsDirectoryPage() {
               <div className="space-y-6">
                 
                 <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-2 flex items-center gap-2">
                     <Filter size={14} className="text-accent-violet" />
                     {t.criteria}
                   </h4>
-                  <p className="text-sm text-text-secondary font-light bg-white/5 rounded-xl p-4 border border-white/5 leading-relaxed">
+                  <p className="text-sm text-gray-600 font-light bg-gray-50 rounded-xl p-4 border border-gray-100 leading-relaxed">
                     {selectedGrant.criteria}
                   </p>
                 </div>
 
                 {/* Documents checklist */}
                 <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-2 flex items-center gap-2">
                     <CheckSquare size={14} className="text-accent-blue" />
                     {t.docsNeeded}
                   </h4>
                   <ul className="space-y-2.5">
-                    {getDocumentChecklist(selectedGrant).map((doc, i) => (
-                      <li key={i} className="text-sm text-text-secondary flex items-start gap-2.5">
+                    {selectedGrant.documentsNeeded ? selectedGrant.documentsNeeded.split('\n').map((doc: string, i: number) => (
+                      <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
                         <CheckCircle2 size={16} className="text-accent-blue shrink-0 mt-0.5" />
                         <span>{doc}</span>
                       </li>
-                    ))}
+                    )) : (
+                      <li className="text-sm text-gray-600 flex items-start gap-2.5">
+                        <CheckCircle2 size={16} className="text-accent-blue shrink-0 mt-0.5" />
+                        <span>Refer to official website for required documents.</span>
+                      </li>
+                    )}
                   </ul>
                 </div>
 
                 {/* Applying guide instructions */}
                 <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest mb-2 flex items-center gap-2">
                     <HelpCircle size={14} className="text-accent-violet" />
                     {t.howToApply}
                   </h4>
-                  <div className="text-sm text-text-secondary font-light space-y-2">
-                    <p>1. Verify eligibility parameters matching your startup details.</p>
-                    <p>2. Prepare necessary documentation including checklist items listed above.</p>
-                    <p>3. Submit the digital form at the official application portal using the link below.</p>
+                  <div className="text-sm text-gray-600 font-light space-y-2">
+                    {selectedGrant.howToApply ? selectedGrant.howToApply.split('\n').map((step: string, i: number) => (
+                      <p key={i}>{step}</p>
+                    )) : (
+                      <p>Please check the official website for application steps.</p>
+                    )}
                   </div>
                 </div>
 
               </div>
 
               {/* Close and apply buttons */}
-              <div className="mt-8 pt-6 border-t border-white/10 flex gap-4">
+              <div className="mt-8 pt-6 border-t border-gray-200 flex gap-4">
                 <button
                   onClick={() => setSelectedGrant(null)}
-                  className="flex-1 border border-white/10 hover:border-white/20 text-white py-3 rounded-xl font-bold text-sm transition"
+                  className="flex-1 border border-gray-200 hover:border-gray-300 text-gray-900 py-3 rounded-xl font-bold text-sm transition"
                 >
                   Close
                 </button>
@@ -631,7 +621,7 @@ export default function GrantsDirectoryPage() {
                   href={selectedGrant.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 bg-gradient-to-r from-accent-blue to-accent-violet text-white py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-md shadow-accent-blue/20"
+                  className="flex-1 bg-gradient-to-r from-accent-blue to-accent-violet text-gray-900 py-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 shadow-md shadow-accent-blue/20"
                 >
                   {t.applyLink} <ExternalLink size={14} />
                 </a>

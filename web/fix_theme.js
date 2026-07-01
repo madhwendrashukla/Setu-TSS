@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const file = 'd:/setu tss ui ux/web/app/tools/incubator-search/investors/page.tsx';
+const file = 'd:/setu tss ui ux/web/app/tools/grants/page.tsx';
 
 let content = fs.readFileSync(file, 'utf8');
 

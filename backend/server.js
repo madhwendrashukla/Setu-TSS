@@ -74,13 +74,7 @@ app.get('/api/events', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to fetch events' }); }
 });
 
-app.get('/api/events/:slug', async (req, res) => {
-  try {
-    const event = await prisma.event.findFirst({ where: { slug: req.params.slug, is_active: true } });
-    if (!event) return res.status(404).json({ error: 'Event not found' });
-    res.json(event);
-  } catch (error) { res.status(500).json({ error: 'Failed to fetch event' }); }
-});
+
 
 app.get('/api/gallery', async (req, res) => {
   try {
@@ -132,6 +126,29 @@ app.get('/api/homepage', async (req, res) => {
     ]);
     res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups });
   } catch (error) { res.status(500).json({ error: 'Failed to fetch homepage data' }); }
+});
+
+app.post('/api/leads', async (req, res) => {
+  try {
+    const { name, email, phone, message, source } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and Email are required' });
+    }
+    const newLead = await prisma.lead.create({
+      data: {
+        full_name: name,
+        email,
+        phone: phone || null,
+        message: message || null,
+        source: source || 'contact_form',
+        status: 'new'
+      }
+    });
+    res.json({ success: true, id: newLead.id });
+  } catch (error) { 
+    console.error('Failed to create lead:', error);
+    res.status(500).json({ error: 'Failed to submit form' }); 
+  }
 });
 
 // --- ADMIN API ENDPOINTS (Protected) ---
@@ -204,6 +221,22 @@ app.post('/api/admin/gallery', upload.single('media'), compressImage, async (req
     if (req.file) data.media_url = req.file.url;
     data.display_order = parseInt(data.display_order) || 0;
 
+    if (data.display_order === 0) {
+      // Auto order
+      const maxOrder = await prisma.galleryItem.aggregate({
+        _max: { display_order: true }
+      });
+      data.display_order = (maxOrder._max.display_order || 0) + 1;
+    } else {
+      // Order validation
+      const existing = await prisma.galleryItem.findFirst({
+        where: { display_order: data.display_order }
+      });
+      if (existing) {
+        return res.status(400).json({ error: `Display Order ${data.display_order} is already in use.` });
+      }
+    }
+
     // Enforce limits
     const activeImages = await prisma.galleryItem.count({ where: { type: 'image', is_active: true } });
     const activeVideos = await prisma.galleryItem.count({ where: { type: 'video', is_active: true } });
@@ -239,11 +272,25 @@ app.post('/api/admin/testimonials', upload.single('photo'), compressImage, async
     if (data.show_description !== undefined) {
       data.show_description = data.show_description === 'true';
     }
+    if (data.rating === undefined || data.rating === '' || data.rating === 'null') {
+      data.rating = null;
+    } else {
+      data.rating = parseInt(data.rating);
+    }
 
     if (data.type === 'video') {
       const activeVideos = await prisma.testimonial.count({ where: { type: 'video', is_active: true } });
       if (activeVideos >= 4) {
         return res.status(400).json({ error: 'Maximum 4 video testimonials allowed.' });
+      }
+      
+      if (data.display_order > 0) {
+        const existingOrder = await prisma.testimonial.findFirst({
+          where: { type: 'video', display_order: data.display_order, is_active: true }
+        });
+        if (existingOrder) {
+          return res.status(400).json({ error: `Display Order ${data.display_order} is already in use.` });
+        }
       }
     }
     const newTestimonial = await prisma.testimonial.create({ data });
@@ -255,10 +302,25 @@ app.put('/api/admin/testimonials/:id', upload.single('photo'), compressImage, as
   try {
     const data = { ...req.body };
     if (req.file) data.photo_url = req.file.url;
-    if (data.display_order) data.display_order = parseInt(data.display_order);
+    if (data.display_order !== undefined) data.display_order = parseInt(data.display_order);
     if (data.show_description !== undefined) {
       data.show_description = data.show_description === 'true';
     }
+    if (data.rating === undefined || data.rating === '' || data.rating === 'null') {
+      data.rating = null;
+    } else {
+      data.rating = parseInt(data.rating);
+    }
+
+    if (data.type === 'video' || data.display_order > 0) {
+      const existingOrder = await prisma.testimonial.findFirst({
+        where: { type: 'video', display_order: data.display_order, is_active: true, id: { not: req.params.id } }
+      });
+      if (existingOrder) {
+        return res.status(400).json({ error: `Display Order ${data.display_order} is already in use.` });
+      }
+    }
+
     const updated = await prisma.testimonial.update({ where: { id: req.params.id }, data });
     res.json(updated);
   } catch (error) { res.status(500).json({ error: 'Failed to update testimonial' }); }
@@ -345,8 +407,8 @@ app.delete('/api/admin/mentors/:id', async (req, res) => {
 app.post('/api/admin/hero_slides', upload.single('image'), compressImage, async (req, res) => {
   try {
     const activeSlides = await prisma.heroSlide.count({ where: { is_active: true } });
-    if (activeSlides >= 5) {
-      return res.status(400).json({ error: 'Maximum limit of 5 hero slides reached. Please delete an existing slide first.' });
+    if (activeSlides >= 6) {
+      return res.status(400).json({ error: 'Maximum limit of 6 hero slides reached. Please delete an existing slide first.' });
     }
 
     const data = { ...req.body };

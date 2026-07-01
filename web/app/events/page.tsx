@@ -30,8 +30,8 @@ export default async function EventsPage() {
                 {/* Header */}
                 <div className="text-center mb-24 max-w-4xl mx-auto">
                     <span className="text-text-secondary text-xs font-bold tracking-[0.2em] uppercase mb-4 block">THE GATHERINGS</span>
-                    <h1 className="text-5xl md:text-5xl font-black text-white mb-6 tracking-[-0.04em] leading-tight">
-                        Real <span className="text-white/40">Conversations.</span>
+                    <h1 className="text-5xl md:text-5xl font-black text-text-primary mb-6 tracking-[-0.04em] leading-tight">
+                        Real <span className="text-text-primary/40">Conversations.</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-text-secondary font-light">
                         Join our immersive sessions to learn from the best, network with peers, and accelerate your startup journey.
@@ -40,36 +40,38 @@ export default async function EventsPage() {
 
                 {/* Upcoming Workshops Tab */}
                 <section className="mb-32">
-                    <h2 className="text-2xl font-bold text-white mb-10 tracking-tight pb-4 border-b border-white/10">Upcoming Workshops</h2>
+                    <h2 className="text-2xl font-bold text-text-primary mb-10 tracking-tight pb-4 border-b border-black/10">Upcoming Workshops</h2>
 
                     <div className="grid lg:grid-cols-2 gap-8">
                         {upcoming.length === 0 ? (
-                            <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-dashed border-white/10 flex flex-col items-center justify-center text-center h-full min-h-[300px] lg:col-span-2">
-                                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-text-secondary mb-6">
+                            <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-dashed border-black/10 flex flex-col items-center justify-center text-center h-full min-h-[300px] lg:col-span-2">
+                                <div className="w-16 h-16 rounded-full bg-black/5 border border-black/10 flex items-center justify-center text-text-secondary mb-6">
                                     <i className="fas fa-bullhorn text-2xl"></i>
                                 </div>
-                                <p className="text-white font-bold text-xl mb-2 tracking-tight">More events being scheduled.</p>
+                                <p className="text-text-primary font-bold text-xl mb-2 tracking-tight">More events being scheduled.</p>
                                 <p className="text-text-secondary text-lg">Stay tuned for updates.</p>
                             </div>
                         ) : (
                             upcoming.map((event: any) => (
-                                <div key={event.id} className="glass-card rounded-3xl p-8 border border-white/5 bg-bg-surface flex flex-col">
+                                <div key={event.id} className="glass-card rounded-3xl p-8 border border-black/5 bg-bg-surface flex flex-col">
                                     {event.banner_url ? (
-                                        <div className="w-full h-48 mb-6 rounded-2xl overflow-hidden relative shrink-0">
-                                            <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-cover" />
+                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-black/5">
+                                            <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain" />
                                         </div>
                                     ) : (
-                                        <div className="w-full h-48 mb-6 rounded-2xl overflow-hidden relative shrink-0">
-                                            <img src="/ai-workshop-banner.webp" alt="Event Banner" className="w-full h-full object-cover opacity-50" />
+                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-black/5">
+                                            <img src="/ai-workshop-banner.webp" alt="Event Banner" className="w-full h-full object-contain opacity-50" />
                                         </div>
                                     )}
-                                    <h3 className="text-2xl font-bold text-white mb-4">{event.title}</h3>
+                                    <h3 className="text-2xl font-bold text-text-primary mb-4">{event.title}</h3>
                                     <p className="text-text-secondary mb-6 flex-grow">{event.description}</p>
                                     <div className="flex gap-4 text-sm text-text-secondary mb-6">
-                                        <span><i className="fas fa-map-marker-alt text-white/50 w-4"></i> {event.venue}</span>
-                                        <span><i className="far fa-calendar text-white/50 w-4"></i> {new Date(event.start_date).toLocaleDateString()}</span>
+                                        <span><i className="fas fa-map-marker-alt text-text-secondary w-4"></i> {event.venue}</span>
+                                        <span><i className="far fa-calendar text-text-secondary w-4"></i> {new Date(event.start_date).toLocaleDateString()}</span>
                                     </div>
-                                    <Link href={`/events/${event.slug}`} className="text-accent-blue font-bold uppercase text-sm group-hover:text-white transition-colors">View Details &rarr;</Link>
+                                    {event.registration_url && (
+                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-accent-blue font-bold uppercase text-sm group-hover:text-accent-violet transition-colors">Register Now &rarr;</Link>
+                                    )}
                                 </div>
                             ))
                         )}
@@ -78,41 +80,43 @@ export default async function EventsPage() {
 
                 {/* Past Events Tab */}
                 <section className="mb-32">
-                    <h2 className="text-2xl font-bold text-white mb-10 tracking-tight pb-4 border-b border-white/10">Past Events</h2>
+                    <h2 className="text-2xl font-bold text-text-primary mb-10 tracking-tight pb-4 border-b border-black/10">Past Events</h2>
 
                     <div className="grid lg:grid-cols-2 gap-8">
                         {past.map((event: any) => (
-                            <div key={event.id} className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-white/5 relative group h-full flex flex-col bg-bg-surface">
+                            <div key={event.id} className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-black/5 relative group h-full flex flex-col bg-bg-surface">
                                 {event.banner_url ? (
-                                    <div className="w-full h-56 mb-8 rounded-2xl overflow-hidden relative shrink-0">
-                                        <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-black/5">
+                                        <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 ) : (
-                                    <div className="w-full h-56 mb-8 rounded-2xl overflow-hidden relative shrink-0">
-                                        <img src="/ai-workshop-banner.webp" alt="Past Event" className="w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-500" />
+                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-black/5">
+                                        <img src="/ai-workshop-banner.webp" alt="Past Event" className="w-full h-full object-contain opacity-50 group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 )}
                                 <div className="flex justify-between items-start mb-6">
-                                    <div className="bg-white/10 border border-white/20 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                                    <div className="bg-black/5 border border-black/10 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
                                         Concluded
                                     </div>
                                 </div>
 
-                                <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300">{event.title}</h3>
+                                <h3 className="text-3xl font-bold text-text-primary mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300">{event.title}</h3>
                                 <p className="text-text-secondary text-lg leading-relaxed mb-10 flex-grow">{event.description}</p>
 
-                                <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/5">
+                                <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-black/5">
                                     <div className="space-y-2">
                                         <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                            <i className="far fa-calendar text-white/50 w-6"></i> {new Date(event.start_date).toLocaleDateString()} (Past)
+                                            <i className="far fa-calendar text-text-secondary/50 w-6"></i> {new Date(event.start_date).toLocaleDateString()} (Past)
                                         </div>
                                         <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                            <i className="fas fa-map-marker-alt text-white/50 w-6"></i> {event.venue}
+                                            <i className="fas fa-map-marker-alt text-text-secondary/50 w-6"></i> {event.venue}
                                         </div>
                                     </div>
-                                    <Link href={`/events/${event.slug}`} className="w-full sm:w-auto bg-white/10 hover:bg-white text-white hover:text-black px-8 py-3 rounded-full font-bold transition duration-300 text-center">
-                                        View Details
-                                    </Link>
+                                    {event.registration_url && (
+                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-black hover:bg-accent-blue text-white px-8 py-3 rounded-full font-bold transition duration-300 text-center">
+                                            Register for this Event
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
                         ))}

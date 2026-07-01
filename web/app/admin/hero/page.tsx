@@ -217,7 +217,7 @@ export default function AdminHero() {
                 <div className="flex justify-between items-end border-b border-gray-200 pb-4 mb-6">
                     <div>
                         <h2 className="text-xl font-bold">Hero Background Slides & Timing</h2>
-                        <p className="text-gray-500 text-sm mt-1">Maximum 5 active slides. Use the left/right arrows to swap slide order.</p>
+                        <p className="text-gray-500 text-sm mt-1">Maximum 6 active slides. Use the left/right arrows to swap slide order.</p>
                     </div>
                     <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
                         <label className="text-sm font-bold text-accent-blue whitespace-nowrap">Time per slide (sec):</label>

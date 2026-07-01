@@ -34,7 +34,9 @@ export async function WorkshopPreview() {
 
     return (
         <a 
-            href={`/events/${event.slug}`} 
+            href={event.registration_url || "#"} 
+            target={event.registration_url ? "_blank" : "_self"}
+            rel="noopener noreferrer" 
             className="block w-full max-w-7xl mx-auto rounded-[32px] md:rounded-[48px] overflow-hidden border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.08)] bg-white transition-all duration-700 hover:scale-[1.01] cursor-pointer group relative isolate mt-10"
         >
             <div className="flex flex-col md:flex-row w-full h-full">

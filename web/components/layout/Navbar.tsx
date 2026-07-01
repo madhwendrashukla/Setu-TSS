@@ -42,6 +42,7 @@ export function Navbar() {
                         </div>
                         {/* Desktop Menu */}
                         <div className="hidden md:flex items-center space-x-2 md:space-x-4 lg:space-x-8 text-[15px] font-bold tracking-wide">
+                            <Link href="/about" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/about') ? 'bg-[#312e81]/5 text-[#312e81]' : 'text-[#4338ca] hover:bg-[#312e81]/5 hover:text-[#312e81]'}`}>About</Link>
                             <Link href="/mentors" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/mentors') ? 'bg-[#312e81]/5 text-[#312e81]' : 'text-[#4338ca] hover:bg-[#312e81]/5 hover:text-[#312e81]'}`}>Mentors</Link>
                             <Link href="/events" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/events') ? 'bg-[#312e81]/5 text-[#312e81]' : 'text-[#4338ca] hover:bg-[#312e81]/5 hover:text-[#312e81]'}`}>Events</Link>
                             <Link href="/tools" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/tools') || pathname.startsWith('/tools/') ? 'bg-[#312e81]/5 text-[#312e81]' : 'text-[#4338ca] hover:bg-[#312e81]/5 hover:text-[#312e81]'}`}>Tools</Link>
@@ -61,6 +62,7 @@ export function Navbar() {
             {/* Mobile Menu - Full screen overlay style */}
             <div className={`${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} md:hidden fixed inset-0 top-[80px] bg-white z-40 transition-opacity duration-300 overflow-y-auto`}>
                 <div className="px-6 py-8 flex flex-col space-y-6 text-2xl font-bold tracking-tight">
+                    <Link href="/about" onClick={closeMenu} className="text-[#312e81] hover:text-[#4338ca] transition-colors border-b border-black/5 pb-4">About</Link>
                     <Link href="/mentors" onClick={closeMenu} className="text-[#312e81] hover:text-[#4338ca] transition-colors border-b border-black/5 pb-4">Mentors</Link>
                     <Link href="/events" onClick={closeMenu} className="text-[#312e81] hover:text-[#4338ca] transition-colors border-b border-black/5 pb-4">Events</Link>
                     <Link href="/tools" onClick={closeMenu} className="text-[#312e81] hover:text-[#4338ca] transition-colors border-b border-black/5 pb-4">Tools</Link>

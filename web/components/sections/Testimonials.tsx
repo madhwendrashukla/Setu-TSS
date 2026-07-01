@@ -10,33 +10,43 @@ export const Testimonials = ({ data }: { data?: any[] }) => {
     ];
 
     const videoTestimonials = testimonials.filter(t => t.type === 'video').slice(0, 4);
-    const textTestimonials = testimonials.filter(t => t.type === 'text');
+    const textTestimonials = testimonials.filter(t => t.type === 'text')
+        .sort((a, b) => {
+            if (a.created_at && b.created_at) {
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            }
+            return 0;
+        });
 
     return (
         <section className="card-section py-16 md:py-24">
             <div className="max-w-7xl mx-auto px-6 mb-12">
-                <h2 className="text-4xl font-bold text-white tracking-tight mb-2">What Founders Say</h2>
+                <h2 className="text-4xl font-bold text-text-primary tracking-tight mb-2">What Founders Say</h2>
                 <p className="text-text-secondary">Real stories from our community members.</p>
             </div>
 
             {/* Video Testimonials */}
             {videoTestimonials.length > 0 && (
                 <div className="max-w-7xl mx-auto px-6 mb-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {videoTestimonials.map(video => (
-                        <div key={video.id} className="glass-card rounded-2xl overflow-hidden border border-white/5 bg-bg-surface flex flex-col">
+                    {videoTestimonials.map(t => (
+                        <div key={t.id} className={`glass-card rounded-2xl overflow-hidden border border-black/5 bg-bg-surface flex flex-col ${!t.show_description ? 'self-start' : 'h-full'}`}>
                             <div className="relative w-full pt-[56.25%] bg-black">
                                 <iframe 
-                                    src={video.youtube_url} 
-                                    title={video.video_heading || 'Testimonial Video'}
+                                    src={t.youtube_url} 
+                                    title={t.video_heading || 'Testimonial Video'}
                                     className="absolute top-0 left-0 w-full h-full border-0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                     allowFullScreen
                                 ></iframe>
                             </div>
-                            {video.show_description && (
-                                <div className="p-5 flex-grow flex flex-col">
-                                    <h3 className="text-white font-bold text-lg mb-2 leading-tight">{video.video_heading}</h3>
-                                    <p className="text-text-secondary text-sm">{video.video_description}</p>
+                            {t.show_description && (
+                                <div className="p-4 flex flex-col grow">
+                                    {t.rating !== null && t.rating !== undefined && (
+                                        <div className="text-yellow-500 text-sm mb-2">{"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}</div>
+                                    )}
+                                    <h3 className="text-text-primary font-bold text-lg mb-1 leading-tight">{t.video_heading}</h3>
+                                    {t.name && <h4 className="text-text-primary font-semibold text-sm mb-2">{t.name}</h4>}
+                                    <p className="text-text-secondary text-sm">{t.video_description}</p>
                                 </div>
                             )}
                         </div>
@@ -52,40 +62,52 @@ export const Testimonials = ({ data }: { data?: any[] }) => {
                     
                     <div className="animate-marquee-slow flex whitespace-nowrap space-x-6 px-4">
                         {textTestimonials.map(text => (
-                            <div key={text.id} className="inline-block w-[300px] md:w-[450px] p-6 glass-card rounded-2xl border border-white/5 bg-bg-surface flex-shrink-0">
-                                <div className="text-accent-blue text-4xl mb-4 font-serif leading-none">"</div>
-                                <p className="text-white text-lg mb-6 whitespace-normal italic">"{text.quote}"</p>
+                            <div key={text.id} className="inline-block w-[300px] md:w-[450px] p-6 glass-card rounded-2xl border border-black/5 bg-bg-surface flex-shrink-0">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="text-accent-blue text-4xl font-serif leading-none">"</div>
+                                    {text.event_tag && <span className="bg-black/5 text-text-secondary text-xs px-2 py-1 rounded">{text.event_tag}</span>}
+                                </div>
+                                {text.rating !== null && text.rating !== undefined && (
+                                    <div className="text-yellow-500 text-sm mb-2">{"★".repeat(text.rating)}{"☆".repeat(5 - text.rating)}</div>
+                                )}
+                                <p className="text-text-primary text-lg mb-6 whitespace-normal italic">"{text.quote}"</p>
                                 <div className="flex items-center gap-4">
                                     {text.photo_url ? (
                                         <img src={encodeURI(text.photo_url)} alt={text.name} className="w-12 h-12 rounded-full object-cover" />
                                     ) : (
-                                        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xl">
+                                        <div className="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center text-text-primary font-bold text-xl">
                                             {text.name.charAt(0)}
                                         </div>
                                     )}
                                     <div>
-                                        <h4 className="text-white font-bold">{text.name}</h4>
-                                        <p className="text-text-secondary text-sm">{text.city}</p>
+                                        <h4 className="text-text-primary font-bold">{text.name}</h4>
+                                        <p className="text-text-secondary text-sm">{text.designation}{text.designation && text.city ? ', ' : ''}{text.city}</p>
                                     </div>
                                 </div>
                             </div>
                         ))}
                         {/* Duplicate for marquee */}
                         {textTestimonials.map(text => (
-                            <div key={text.id + 'dup'} className="inline-block w-[300px] md:w-[450px] p-6 glass-card rounded-2xl border border-white/5 bg-bg-surface flex-shrink-0">
-                                <div className="text-accent-blue text-4xl mb-4 font-serif leading-none">"</div>
-                                <p className="text-white text-lg mb-6 whitespace-normal italic">"{text.quote}"</p>
+                            <div key={text.id + 'dup'} className="inline-block w-[300px] md:w-[450px] p-6 glass-card rounded-2xl border border-black/5 bg-bg-surface flex-shrink-0">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="text-accent-blue text-4xl font-serif leading-none">"</div>
+                                    {text.event_tag && <span className="bg-black/5 text-text-secondary text-xs px-2 py-1 rounded">{text.event_tag}</span>}
+                                </div>
+                                {text.rating !== null && text.rating !== undefined && (
+                                    <div className="text-yellow-500 text-sm mb-2">{"★".repeat(text.rating)}{"☆".repeat(5 - text.rating)}</div>
+                                )}
+                                <p className="text-text-primary text-lg mb-6 whitespace-normal italic">"{text.quote}"</p>
                                 <div className="flex items-center gap-4">
                                     {text.photo_url ? (
                                         <img src={encodeURI(text.photo_url)} alt={text.name} className="w-12 h-12 rounded-full object-cover" />
                                     ) : (
-                                        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xl">
+                                        <div className="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center text-text-primary font-bold text-xl">
                                             {text.name.charAt(0)}
                                         </div>
                                     )}
                                     <div>
-                                        <h4 className="text-white font-bold">{text.name}</h4>
-                                        <p className="text-text-secondary text-sm">{text.city}</p>
+                                        <h4 className="text-text-primary font-bold">{text.name}</h4>
+                                        <p className="text-text-secondary text-sm">{text.designation}{text.designation && text.city ? ', ' : ''}{text.city}</p>
                                     </div>
                                 </div>
                             </div>

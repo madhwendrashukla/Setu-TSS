@@ -7,7 +7,7 @@ export default function AdminEvents() {
     const [editingEvent, setEditingEvent] = useState<any>(null);
     const [file, setFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({
-        title: "", slug: "", description: "", venue: "", 
+        title: "", registration_url: "", description: "", venue: "", 
         start_date: "", end_date: "", is_past: false, is_pinned: false
     });
 
@@ -113,7 +113,7 @@ export default function AdminEvents() {
     };
 
     const resetForm = () => {
-        setFormData({ title: "", slug: "", description: "", venue: "", start_date: "", end_date: "", is_past: false, is_pinned: false });
+        setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", end_date: "", is_past: false, is_pinned: false });
         setFile(null);
     };
 
@@ -121,7 +121,7 @@ export default function AdminEvents() {
         setEditingEvent(event);
         setFormData({
             title: event.title,
-            slug: event.slug,
+            registration_url: event.registration_url || "",
             description: event.description,
             venue: event.venue,
             start_date: new Date(event.start_date).toISOString().split('T')[0],
@@ -175,8 +175,8 @@ export default function AdminEvents() {
                                 <tr key={event.id} className="hover:bg-gray-50 transition-colors group">
                                     <td className="p-5">
                                         <div className="flex flex-col">
-                                            <span className="font-bold text-gray-900 text-base group-hover:text-accent-blue transition-colors">{event.title}</span>
-                                            <span className="text-xs text-gray-400 mt-1">/{event.slug}</span>
+                                            <h3 className="font-bold text-gray-900">{event.title}</h3>
+                                            {event.registration_url && <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent-blue mt-1 hover:underline">{event.registration_url}</a>}
                                         </div>
                                     </td>
                                     <td className="p-5">
@@ -254,8 +254,8 @@ export default function AdminEvents() {
                                     <input placeholder="Event Title" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Slug</label>
-                                    <input placeholder="event-slug-name" value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Registration URL</label>
+                                    <input placeholder="https://example.com/register" value={formData.registration_url} onChange={e => setFormData({...formData, registration_url: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Venue</label>

@@ -51,18 +51,18 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
                     
                     {/* Close icon for mobile */}
                     <div 
-                        className="absolute top-4 right-4 z-20 w-10 h-10 md:hidden rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 hover:bg-white/20 transition-all cursor-pointer pointer-events-auto"
+                        className="absolute top-4 right-4 z-20 w-10 h-10 md:hidden rounded-full bg-black/5 backdrop-blur-md border border-black/10 flex items-center justify-center text-text-primary hover:bg-black/10 transition-all cursor-pointer pointer-events-auto"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsFlipped(false); }}
                     >
                         <i className="fas fa-times text-sm"></i>
                     </div>
 
                     <div className="mb-6 mt-4 md:mt-0 pointer-events-none">
-                        <h4 className="text-xl font-bold text-white tracking-tight leading-tight">{mentor.name}</h4>
+                        <h4 className="text-xl font-bold text-text-primary tracking-tight leading-tight">{mentor.name}</h4>
                         <span className="text-accent-blue text-xs uppercase tracking-widest font-bold">{mentor.title}</span>
                     </div>
 
-                    <p className="text-text-primary text-sm leading-relaxed mb-8 flex-grow overflow-y-auto font-light no-scrollbar text-white/90 pointer-events-none md:pointer-events-auto">
+                    <p className="text-text-primary text-sm leading-relaxed mb-8 flex-grow overflow-y-auto font-light no-scrollbar pointer-events-none md:pointer-events-auto">
                         {mentor.bio || (Array.isArray(mentor.credentials) ? mentor.credentials.join(" ") : mentor.credentials)}
                     </p>
 
@@ -71,7 +71,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
                             href={mentor.linkedin_url || mentor.linkedinUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full py-3 rounded-full bg-white text-black font-bold uppercase tracking-wider text-xs hover:bg-accent-blue hover:text-white transition-colors duration-300 flex justify-center items-center gap-2 relative z-50 pointer-events-auto"
+                            className="w-full py-3 rounded-full bg-black text-white font-bold uppercase tracking-wider text-xs hover:bg-accent-blue transition-colors duration-300 flex justify-center items-center gap-2 relative z-50 pointer-events-auto"
                             onClick={(e) => e.stopPropagation()} 
                         >
                             Connect on LinkedIn <i className="fab fa-linkedin-in text-sm"></i>
@@ -87,9 +87,9 @@ export function Mentors({ data }: { data?: any[] }) {
     const displayMentors = data || [];
 
     return (
-        <section id="mentors" className="card-section py-16 md:py-24">
+        <section id="mentors" className="card-section pt-4 pb-16 md:pt-8 md:pb-24 w-full">
             {/* Background Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-accent-violet/5 rounded-[100%] blur-[120px] pointer-events-none"></div>
+            <div className="!absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-accent-violet/5 rounded-[100%] blur-[120px] pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10 w-full mb-16 text-center">
                 <p className="text-text-secondary font-light text-sm max-w-2xl mx-auto hidden md:block">

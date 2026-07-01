@@ -33,14 +33,13 @@ model HomepageContent {
 model Event {
   id          String   @id @default(uuid()) @db.Uuid
   title       String
-  slug        String   @unique
   description String
   banner_url       String?
   venue            String?
   city             String?
   start_date       DateTime? @db.Date
   end_date         DateTime? @db.Date
-  registration_url String?
+  registration_url String    @default("")
   is_past     Boolean  @default(false)
   is_pinned   Boolean  @default(false)
   is_active   Boolean  @default(true)
@@ -94,6 +93,7 @@ model Testimonial {
   id                String   @id @default(uuid()) @db.Uuid
   type              String
   name              String?
+  designation       String?
   city              String?
   photo_url         String?
   quote             String?
@@ -104,6 +104,8 @@ model Testimonial {
   event_tag         String?
   display_order     Int
   is_active         Boolean  @default(true)
+  created_at        DateTime @default(now())
+  rating            Int?     @default(5)
 
   @@map("testimonials")
 }
@@ -127,6 +129,7 @@ model Lead {
   email      String
   source     String?
   status     String   @default("new")
+  message    String?
   created_at DateTime @default(now())
 
   @@map("leads")

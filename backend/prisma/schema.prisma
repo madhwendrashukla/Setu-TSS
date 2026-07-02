@@ -279,3 +279,13 @@ model ChatWidget {
 
   @@map("chat_widgets")
 }
+
+model LeadSource {
+  id         String   @id @default(uuid()) @db.Uuid
+  slug       String   @unique
+  label      String
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  @@map("lead_sources")
+}

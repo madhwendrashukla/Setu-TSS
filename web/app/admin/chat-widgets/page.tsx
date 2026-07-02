@@ -11,7 +11,7 @@ export default function AdminChatWidgets() {
     });
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL;
+    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
     const fetchWidgets = () => {
         fetch(`${API}/api/chat-widgets`, { headers: { "Authorization": `Bearer ${token()}` } })

@@ -57,6 +57,42 @@ export default function AboutPage() {
                 </div>
             </div>
 
+            {/* Founder Manifesto Section */}
+            <div className="w-full max-w-6xl mx-auto px-6 mb-24">
+                <div className="bg-white/5 border border-white/10 p-10 md:p-14 rounded-3xl backdrop-blur-md relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-accent-blue/10 blur-[100px] rounded-full -z-10 translate-x-1/2 -translate-y-1/2"></div>
+                    
+                    <div className="flex flex-col md:flex-row gap-12 items-center">
+                        <div className="w-full md:w-1/3 flex justify-center">
+                            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full border-4 border-white/10 overflow-hidden shrink-0 shadow-2xl">
+                                <img 
+                                    src="https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=800" 
+                                    alt="Founder Vision" 
+                                    className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-700"
+                                />
+                            </div>
+                        </div>
+                        <div className="w-full md:w-2/3">
+                            <h2 className="text-3xl md:text-4xl font-black text-white tracking-[-0.04em] mb-6">
+                                The Founder's <span className="text-accent-blue">Manifesto.</span>
+                            </h2>
+                            <div className="space-y-6 text-text-secondary text-lg leading-relaxed">
+                                <p>
+                                    "We started Setu with a simple realization: the gap between a great idea and a successful startup is not just capital, it's the right guidance, community, and execution framework."
+                                </p>
+                                <p>
+                                    "Our manifestation is to democratize access to world-class mentorship for founders everywhere. We believe that talent is universally distributed, but opportunity is not. We are here to bridge that gap and forge a new generation of resilient, visionary entrepreneurs."
+                                </p>
+                                <div className="pt-4 border-t border-white/10 mt-6">
+                                    <p className="font-bold text-white text-xl">The Startup School Founders</p>
+                                    <p className="text-accent-blue text-sm mt-1">Manifesting a boundless ecosystem</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Vision Section */}
             <div className="w-full max-w-5xl mx-auto px-6 mb-24 text-center">
                 <h2 className="text-4xl md:text-5xl font-black text-white tracking-[-0.04em] mb-8">

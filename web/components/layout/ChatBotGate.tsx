@@ -11,5 +11,5 @@ export default function ChatBotGate() {
 
   if (EXCLUDED_PATHS.includes(pathname) || pathname.startsWith('/tools') || pathname.startsWith('/admin')) return null;
 
-  return <DirectoryAdvisorBot isHome={pathname === '/'} />;
+  return <DirectoryAdvisorBot />;
 }

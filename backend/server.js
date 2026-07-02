@@ -543,14 +543,67 @@ app.delete('/api/admin/community_partners/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to delete partner' }); }
 });
 
+// LEAD SOURCES
+app.get('/api/lead-sources', async (req, res) => {
+  try {
+    const sources = await prisma.leadSource.findMany({ where: { is_active: true }, orderBy: { created_at: 'asc' } });
+    res.json(sources.map(s => ({ id: s.slug, label: s.label })));
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch lead sources' });
+  }
+});
+
+app.post('/api/admin/lead-sources', authMiddleware, async (req, res) => {
+  try {
+    const { label } = req.body;
+    const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    const source = await prisma.leadSource.create({
+      data: { label, slug }
+    });
+    res.json(source);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create lead source' });
+  }
+});
+
+app.delete('/api/admin/lead-sources/:id', authMiddleware, async (req, res) => {
+  try {
+    await prisma.leadSource.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete lead source' });
+  }
+});
+
+app.get('/api/admin/lead-sources', authMiddleware, async (req, res) => {
+  try {
+    const sources = await prisma.leadSource.findMany({ orderBy: { created_at: 'asc' } });
+    res.json(sources);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch admin lead sources' });
+  }
+});
+
 // LEADS
 app.get('/api/admin/leads', async (req, res) => {
   try {
-    const { source } = req.query;
-    const whereClause = source ? { source } : {};
+    const { source, status, search } = req.query;
+    const whereClause = {};
+    if (source) whereClause.source = source;
+    if (status) whereClause.status = status;
+    if (search) {
+      whereClause.OR = [
+        { full_name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+      ];
+    }
     const leads = await prisma.lead.findMany({ where: whereClause, orderBy: { created_at: 'desc' } });
     res.json(leads);
-  } catch (error) { res.status(500).json({ error: 'Failed to fetch leads' }); }
+  } catch (error) { 
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch leads' }); 
+  }
 });
 
 app.put('/api/admin/leads/:id', async (req, res) => {

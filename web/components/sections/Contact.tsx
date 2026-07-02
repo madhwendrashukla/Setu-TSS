@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 export function Contact() {
@@ -8,26 +8,59 @@ export function Contact() {
         name: '',
         city: '',
         phone: '',
-        email: ''
+        email: '',
+        source: 'contact_section'
     });
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [sourceOptions, setSourceOptions] = useState<{id: string, label: string}[]>([]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    useEffect(() => {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/lead-sources`)
+            .then(res => res.json())
+            .then(data => setSourceOptions(data))
+            .catch(console.error);
+    }, []);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { id, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [id === 'form-name' ? 'name' :
                 id === 'form-city' ? 'city' :
-                    id === 'form-contact' ? 'phone' : 'email']: value
+                    id === 'form-contact' ? 'phone' :
+                        id === 'form-source' ? 'source' : 'email']: value
         }));
     };
 
-    const handleFormSubmit = (event: React.FormEvent) => {
+    const handleFormSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
+        setStatus('loading');
 
-        const subject = "Inquiry for Setu - TheStartupSchool";
-        const body = `Name: ${formData.name}%0D%0ACity: ${formData.city}%0D%0AEmail: ${formData.email}%0D%0AContact Number: ${formData.phone}`;
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/leads`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    city: formData.city,
+                    phone: formData.phone,
+                    email: formData.email,
+                    source: formData.source
+                }),
+            });
 
-        window.location.href = `mailto:info@thestartupschool.in?subject=${subject}&body=${body}`;
+            if (response.ok) {
+                setStatus('success');
+                setFormData({ name: '', city: '', phone: '', email: '', source: 'contact_section' });
+                setTimeout(() => setStatus('idle'), 5000);
+            } else {
+                setStatus('error');
+            }
+        } catch (error) {
+            setStatus('error');
+        }
     };
 
     return (
@@ -115,11 +148,32 @@ export function Contact() {
                             </div>
                         </div>
 
-                        <div className="pt-6 text-center flex justify-center">
-                            <button type="submit" className="group w-full md:w-auto bg-accent-blue hover:bg-accent-violet text-white px-8 py-3 rounded-full font-bold text-sm transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg">
-                                Submit Inquiry
-                                <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
+                        <div>
+                            <label htmlFor="form-source" className="block text-[10px] font-bold tracking-[0.1em] text-text-secondary uppercase mb-2 ml-1">What are you interested in?</label>
+                            <select
+                                id="form-source"
+                                required
+                                value={formData.source}
+                                onChange={handleChange}
+                                className="w-full bg-gray-50 border border-black/10 rounded-lg px-4 py-3 text-sm text-black focus:outline-none focus:border-accent-blue focus:bg-white transition duration-300"
+                            >
+                                {sourceOptions.length > 0 ? (
+                                    sourceOptions.map(option => (
+                                        <option key={option.id} value={option.id}>{option.label}</option>
+                                    ))
+                                ) : (
+                                    <option value="contact_section">General Inquiry</option>
+                                )}
+                            </select>
+                        </div>
+
+                        <div className="pt-6 text-center flex flex-col items-center justify-center gap-3">
+                            <button type="submit" disabled={status === 'loading'} className="group w-full md:w-auto bg-accent-blue hover:bg-accent-violet text-white px-8 py-3 rounded-full font-bold text-sm transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg disabled:opacity-50">
+                                {status === 'loading' ? 'Submitting...' : 'Submit Inquiry'}
+                                {status !== 'loading' && <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>}
                             </button>
+                            {status === 'success' && <p className="text-green-600 font-bold text-sm">Thank you! We have received your inquiry.</p>}
+                            {status === 'error' && <p className="text-red-600 font-bold text-sm">Something went wrong. Please try again later.</p>}
                         </div>
                     </form>
                 </div>

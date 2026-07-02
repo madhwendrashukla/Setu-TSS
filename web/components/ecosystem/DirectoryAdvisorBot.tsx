@@ -8,28 +8,41 @@ import * as LucideIcons from 'lucide-react';
 const WHATSAPP_LINK = 'https://chat.whatsapp.com/BJ5RIXujFJG7ceB06nVqa4';
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-/* ── Idle notification bubbles shown near FAB when chat is closed ──────────── */
-function IdleNotifications({ onDismiss }: { onDismiss: (id: string) => void }) {
+function IdleNotifications({ widgets, dismissed, onDismiss, renderIcon }: { widgets: any[], dismissed: Set<string>, onDismiss: (id: string) => void, renderIcon: (name: string) => React.ReactNode }) {
+    const visibleWidgets = widgets.filter(w => !dismissed.has(w.id));
+    if (visibleWidgets.length === 0) return null;
+
     return (
         <div className="flex flex-col items-end gap-3 mb-4">
-            <div className="flex items-center gap-3 bg-white border border-gray-100 rounded-3xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,0.1)] max-w-[280px] group animate-in slide-in-from-right-8 fade-in duration-500 cursor-pointer hover:shadow-[0_10px_40px_rgba(0,0,0,0.15)] transition-all">
-                <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center shrink-0 border border-green-100/50">
-                    <span className="text-xl">💬</span>
-                </div>
-                <div 
-                    onClick={() => window.open(WHATSAPP_LINK, '_blank')}
-                    className="flex-1 min-w-0 pr-2"
+            {visibleWidgets.map((w, index) => (
+                <div key={w.id} 
+                    className="flex items-center gap-3 bg-white border border-gray-100 rounded-3xl px-4 py-3 shadow-[0_10px_40px_rgba(0,0,0,0.1)] max-w-[280px] group animate-in fade-in duration-500 cursor-pointer hover:shadow-[0_10px_40px_rgba(0,0,0,0.15)] transition-all"
+                    style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both', animationName: 'slide-in-from-right-8' }}
                 >
-                    <p className="text-gray-900 text-sm font-bold truncate tracking-tight">Join Founder Comm...</p>
-                    <p className="text-green-500 text-xs font-medium truncate">Connect on WhatsApp</p>
+                    <div className="w-10 h-10 rounded-full bg-accent-violet/10 flex items-center justify-center shrink-0 border border-accent-violet/20 text-accent-violet">
+                        {renderIcon(w.icon)}
+                    </div>
+                    <div 
+                        onClick={() => {
+                            if (w.link.startsWith('http')) {
+                                window.open(w.link, '_blank');
+                            } else {
+                                window.location.href = w.link;
+                            }
+                        }}
+                        className="flex-1 min-w-0 pr-2"
+                    >
+                        <p className="text-gray-900 text-sm font-bold truncate tracking-tight">{w.title}</p>
+                        {w.subtitle && <p className="text-accent-violet text-xs font-medium truncate">{w.subtitle}</p>}
+                    </div>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onDismiss(w.id); }}
+                        className="p-1 rounded-full text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+                    >
+                        <X size={16} strokeWidth={2} />
+                    </button>
                 </div>
-                <button
-                    onClick={(e) => { e.stopPropagation(); onDismiss('whatsapp'); }}
-                    className="p-1 rounded-full text-gray-400 hover:text-gray-600 transition-colors shrink-0"
-                >
-                    <X size={16} strokeWidth={2} />
-                </button>
-            </div>
+            ))}
         </div>
     );
 }
@@ -67,12 +80,12 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
     // Removed AudioContext and unlock logic
 
     useEffect(() => {
-        if (isOpen || isHome) { setShowIdle(false); return; }
+        if (isOpen) { setShowIdle(false); return; }
         const t = setTimeout(() => {
             setShowIdle(true);   
         }, 8000);
         return () => clearTimeout(t);
-    }, [isOpen, isHome]);
+    }, [isOpen]);
 
     const handleSendMessage = async () => {
         if (!message.trim()) return;
@@ -111,16 +124,21 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
         return IconComponent ? <IconComponent size={16} /> : <ExternalLink size={16} />;
     };
 
-    const notifCount = (showIdle && !isOpen) ? [!dismissed.has('whatsapp')].filter(Boolean).length : 0;
-    const anyIdleVisible = showIdle && !isOpen && (!dismissed.has('whatsapp'));
+    const notifCount = (showIdle && !isOpen) ? widgets.filter(w => !dismissed.has(w.id)).length : 0;
+    const anyIdleVisible = showIdle && !isOpen && (notifCount > 0);
 
     return (
         <div className="fixed bottom-8 right-8 z-[999] flex flex-col items-end">
             {anyIdleVisible && (
                 <div className="mb-1">
-                    <IdleNotifications onDismiss={(id) => {
-                        setDismissed(prev => new Set(prev).add(id));
-                    }} />
+                    <IdleNotifications 
+                        widgets={widgets}
+                        dismissed={dismissed}
+                        renderIcon={renderIcon}
+                        onDismiss={(id) => {
+                            setDismissed(prev => new Set(prev).add(id));
+                        }} 
+                    />
                 </div>
             )}
 

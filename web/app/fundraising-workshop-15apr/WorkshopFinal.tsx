@@ -15,12 +15,37 @@ const faqs = [
 
 export function WorkshopFinal() {
     const [queryForm, setQueryForm] = useState({ name: '', city: '', email: '', phone: '' });
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-    const handleQuerySubmit = (e: React.FormEvent) => {
+    const handleQuerySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const subject = encodeURIComponent('Query Fundraising Workshop #ON15Apr');
-        const body = encodeURIComponent(`Name: ${queryForm.name}\nCity: ${queryForm.city}\nEmail: ${queryForm.email}\nContact Number: ${queryForm.phone}\n\n`);
-        window.location.href = `mailto:info@thestartupschool.in?subject=${subject}&body=${body}`;
+        setStatus('loading');
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/leads`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: queryForm.name,
+                    city: queryForm.city,
+                    phone: queryForm.phone,
+                    email: queryForm.email,
+                    source: 'fundraising_workshop'
+                }),
+            });
+
+            if (response.ok) {
+                setStatus('success');
+                setQueryForm({ name: '', city: '', email: '', phone: '' });
+                setTimeout(() => setStatus('idle'), 5000);
+            } else {
+                setStatus('error');
+            }
+        } catch (error) {
+            setStatus('error');
+        }
     };
 
     return (
@@ -107,9 +132,11 @@ export function WorkshopFinal() {
                                         <label className="text-xs font-medium text-slate-300">Contact Number</label>
                                         <input type="tel" required placeholder="+91 XXXXXXXXXX" value={queryForm.phone} onChange={e => setQueryForm(p => ({ ...p, phone: e.target.value }))} className="w-full bg-[#161e31] border border-white/10 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
                                     </div>
-                                    <button type="submit" className="w-full mt-6 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white font-bold py-3.5 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(217,70,239,0.3)] flex items-center justify-center gap-2">
-                                        <i className="fa-regular fa-paper-plane" /> Send via Email
+                                    <button type="submit" disabled={status === 'loading'} className="w-full mt-6 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white font-bold py-3.5 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(217,70,239,0.3)] flex items-center justify-center gap-2 disabled:opacity-50">
+                                        {status === 'loading' ? 'Submitting...' : <><i className="fa-regular fa-paper-plane" /> Send Inquiry</>}
                                     </button>
+                                    {status === 'success' && <p className="text-center text-green-400 font-bold text-sm mt-3">Thank you! We have received your inquiry.</p>}
+                                    {status === 'error' && <p className="text-center text-red-400 font-bold text-sm mt-3">Something went wrong. Please try again later.</p>}
                                     <p className="text-center text-[10px] text-slate-500 mt-3 font-light">We respect your privacy. No spam, ever.</p>
                                 </form>
                             </div>

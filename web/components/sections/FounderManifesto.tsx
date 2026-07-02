@@ -90,9 +90,7 @@ export function FounderManifesto() {
                 <div className="flex flex-col lg:flex-row justify-between items-start gap-16 mb-24">
                     {/* Left: Quote */}
                     <div className="flex-1 max-w-2xl">
-                        <div className="inline-flex items-center gap-2 text-[#6B21FB] font-bold text-xs tracking-[0.2em] uppercase mb-8">
-                            <Sparkles className="w-4 h-4" /> THE FOUNDER'S MANIFESTO
-                        </div>
+
                         <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-black leading-[1.25] tracking-tight mb-12">
                             “दिल में हो आग <br />
                             तो जलती रहनी चाहिए,<br />

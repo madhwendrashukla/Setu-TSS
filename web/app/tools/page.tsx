@@ -13,9 +13,7 @@ export default function ToolsPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-violet/5 rounded-full blur-[120px] pointer-events-none"></div>
 
             <div className="text-center px-6 relative z-10 w-full max-w-5xl mx-auto">
-                <span className="text-accent-violet text-xs font-bold tracking-[0.2em] uppercase mb-4 flex items-center justify-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-accent-violet"></span> ECOSYSTEM HUB
-                </span>
+
                 <h1 className="text-4xl md:text-6xl font-black text-black mb-6 tracking-tight">
                     Startup <span className="text-accent-violet">Tools.</span>
                 </h1>

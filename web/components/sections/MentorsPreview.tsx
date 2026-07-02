@@ -52,9 +52,7 @@ export function MentorsPreview({ data = [] }: { data?: MentorProfile[] }) {
             {/* Header */}
             <div className="max-w-7xl mx-auto px-6 relative z-10 mb-16">
                 <div className="flex flex-col items-start text-left">
-                    <div className="inline-flex items-center gap-2 text-[#6B21FB] font-bold text-xs md:text-sm tracking-[0.2em] uppercase mb-4">
-                        <Sparkles className="w-4 h-4" /> OUR MENTORS
-                    </div>
+
                     <h2 className="text-4xl md:text-6xl font-bold text-black tracking-tight mb-4 leading-[1.15]">
                         Learn from <br className="hidden md:block" /> people who've <span className="text-[#6B21FB]">built.</span>
                     </h2>

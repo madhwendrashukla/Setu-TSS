@@ -9,6 +9,7 @@ const ToolsShowcase = dynamic(() => import("@/components/sections/ToolsShowcase"
 const FounderManifesto = dynamic(() => import("@/components/sections/FounderManifesto").then(mod => mod.FounderManifesto), { ssr: true });
 const VideoAndGallery = dynamic(() => import("@/components/sections/VideoAndGallery").then(mod => mod.VideoAndGallery), { ssr: true });
 const Programs = dynamic(() => import("@/components/sections/Programs").then(mod => mod.Programs), { ssr: true });
+const WhoIsSetuFor = dynamic(() => import("@/components/sections/WhoIsSetuFor").then(mod => mod.WhoIsSetuFor), { ssr: true });
 
 // New Sections for PRD v2
 const PastWorkshopsRolling = dynamic(() => import("@/components/sections/PastWorkshopsRolling").then(mod => mod.PastWorkshopsRolling), { ssr: true });
@@ -17,6 +18,7 @@ const StartupsMentored = dynamic(() => import("@/components/sections/StartupsMen
 const Testimonials = dynamic(() => import("@/components/sections/Testimonials").then(mod => mod.Testimonials), { ssr: true });
 const EcosystemPartners = dynamic(() => import("@/components/sections/EcosystemPartners").then(mod => mod.EcosystemPartners), { ssr: true });
 const Contact = dynamic(() => import("@/components/sections/Contact").then(mod => mod.Contact), { ssr: true });
+const FAQ = dynamic(() => import("@/components/sections/FAQ").then(mod => mod.FAQ), { ssr: true });
 
 // Fetch data from Express Backend
 async function getHomepageData() {
@@ -51,8 +53,9 @@ export default async function Home() {
         
         {/* Main Content Sections */}
         <div className="w-full flex flex-col items-center justify-start">
-        
+
         {/* 2. Pinned Workshop */}
+        <WhoIsSetuFor />
         <WorkshopPreview />
         
         {/* 3. Mentors (Carousel) */}
@@ -84,9 +87,12 @@ export default async function Home() {
         
         {/* 11. Ecosystem Partners */}
         <EcosystemPartners data={data?.partners} />
-        
+
         {/* 12. Contact Form */}
         <Contact />
+        
+        {/* 13. FAQ */}
+        <FAQ />
         </div>
       </main>
     </>

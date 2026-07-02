@@ -49,9 +49,7 @@ export function ToolsShowcase() {
             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-60 pointer-events-none [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_20%,transparent_100%)]"></div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10 mb-16 text-center">
-                <div className="inline-flex items-center justify-center gap-2 text-[#6B21FB] font-bold text-xs md:text-sm tracking-[0.2em] uppercase mb-4">
-                    <Sparkles className="w-4 h-4" /> PREMIUM RESOURCES
-                </div>
+
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black tracking-tight mb-4">
                     Tools &amp; <span className="text-[#6B21FB]">Resources.</span>
                 </h2>

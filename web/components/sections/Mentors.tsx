@@ -13,7 +13,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
             <div className={`relative w-full h-full duration-700 preserve-3d md:group-hover:rotate-y-180 ${isFlipped ? 'rotate-y-180' : ''}`}>
 
                 {/* Front Face: Portrait & Highlight */}
-                <div className={`absolute inset-0 backface-hidden glass-card rounded-3xl p-6 flex flex-col items-center justify-center text-center bg-bg-surface border border-white/5 shadow-2xl overflow-hidden md:group-hover:pointer-events-none ${isFlipped ? 'pointer-events-none' : 'pointer-events-auto'}`}>
+                <div className={`absolute inset-0 backface-hidden glass-card rounded-3xl p-6 flex flex-col items-center justify-center text-center bg-bg-surface border border-functional-border shadow-2xl overflow-hidden md:group-hover:pointer-events-none ${isFlipped ? 'pointer-events-none' : 'pointer-events-auto'}`}>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
 
                     {/* Massive Portrait */}
@@ -33,13 +33,13 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
 
                     {/* Content Overlay */}
                     <div className="relative z-20 mt-auto w-full transform translate-y-4 group-hover:-translate-y-2 transition-transform duration-500 pointer-events-none">
-                        <h4 className="text-2xl font-black text-white mb-1 tracking-tight drop-shadow-lg">{mentor.name}</h4>
+                        <h4 className="text-2xl font-black text-text-primary mb-1 tracking-tight drop-shadow-lg">{mentor.name}</h4>
                         <p className="text-accent-blue font-bold text-xs tracking-widest uppercase truncate drop-shadow-md">{mentor.title}</p>
                     </div>
 
                     {/* Hover Cue / Mobile Flip Button */}
                     <div 
-                        className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-bg-main/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/80 md:text-white/50 md:group-hover:text-accent-blue md:group-hover:border-accent-blue transition-all cursor-pointer pointer-events-auto"
+                        className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-bg-main/50 backdrop-blur-md border border-functional-border flex items-center justify-center text-text-primary/80 md:text-text-primary/50 md:group-hover:text-accent-blue md:group-hover:border-accent-blue transition-all cursor-pointer pointer-events-auto"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsFlipped(true); }}
                     >
                         <i className="fas fa-sync-alt text-sm drop-shadow-lg"></i>
@@ -47,11 +47,11 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
                 </div>
 
                 {/* Back Face: Details & LinkedIn */}
-                <div className={`absolute inset-0 backface-hidden rotate-y-180 glass-card rounded-3xl p-8 flex flex-col justify-center text-center bg-bg-main border border-accent-blue/30 shadow-[0_0_30px_rgba(139,92,246,0.15)] pointer-events-none md:group-hover:pointer-events-auto ${isFlipped ? 'pointer-events-auto' : ''}`}>
+                <div className={`absolute inset-0 backface-hidden rotate-y-180 glass-card rounded-3xl p-8 flex flex-col justify-center text-center bg-bg-main border border-[#A855F7]/30 shadow-[0_0_30px_rgba(168,85,247,0.15)] pointer-events-none md:group-hover:pointer-events-auto ${isFlipped ? 'pointer-events-auto' : ''}`}>
                     
                     {/* Close icon for mobile */}
                     <div 
-                        className="absolute top-4 right-4 z-20 w-10 h-10 md:hidden rounded-full bg-black/5 backdrop-blur-md border border-black/10 flex items-center justify-center text-text-primary hover:bg-black/10 transition-all cursor-pointer pointer-events-auto"
+                        className="absolute top-4 right-4 z-20 w-10 h-10 md:hidden rounded-full bg-white/5 backdrop-blur-md border border-functional-border flex items-center justify-center text-text-primary hover:bg-white/10 transition-all cursor-pointer pointer-events-auto"
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsFlipped(false); }}
                     >
                         <i className="fas fa-times text-sm"></i>
@@ -59,10 +59,10 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
 
                     <div className="mb-6 mt-4 md:mt-0 pointer-events-none">
                         <h4 className="text-xl font-bold text-text-primary tracking-tight leading-tight">{mentor.name}</h4>
-                        <span className="text-accent-blue text-xs uppercase tracking-widest font-bold">{mentor.title}</span>
+                        <span className="text-[#A855F7] text-xs uppercase tracking-widest font-bold">{mentor.title}</span>
                     </div>
 
-                    <p className="text-text-primary text-sm leading-relaxed mb-8 flex-grow overflow-y-auto font-light no-scrollbar pointer-events-none md:pointer-events-auto">
+                    <p className="text-text-secondary text-sm leading-relaxed mb-8 flex-grow overflow-y-auto font-light no-scrollbar pointer-events-none md:pointer-events-auto">
                         {mentor.bio || (Array.isArray(mentor.credentials) ? mentor.credentials.join(" ") : mentor.credentials)}
                     </p>
 
@@ -71,7 +71,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
                             href={mentor.linkedin_url || mentor.linkedinUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full py-3 rounded-full bg-black text-white font-bold uppercase tracking-wider text-xs hover:bg-accent-blue transition-colors duration-300 flex justify-center items-center gap-2 relative z-50 pointer-events-auto"
+                            className="w-full py-3 rounded-full bg-accent-blue hover:bg-accent-royal text-white text-white font-bold uppercase tracking-wider text-xs hover:bg-accent-blue transition-colors duration-300 flex justify-center items-center gap-2 relative z-50 pointer-events-auto"
                             onClick={(e) => e.stopPropagation()} 
                         >
                             Connect on LinkedIn <i className="fab fa-linkedin-in text-sm"></i>

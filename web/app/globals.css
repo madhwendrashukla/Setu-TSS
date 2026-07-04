@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-main: #FDFDFD;
-  --color-bg-surface: #F8FAFC; 
-  --color-text-primary: #13113D;
-  --color-text-secondary: #475569;
-  --color-accent-blue: #6B21FB; /* Primary Purple */
-  --color-accent-violet: #872DFB; /* Bright Violet */
-  --color-accent-royal: #490DEE; /* Deep Royal Purple */
-  --color-accent-lavender: #B797EB; /* Soft Lavender Highlight */
-  --color-functional-success: #10B981;
-  --color-functional-border: #E2E8F0;
+  --color-bg-main: #FAFAFC; /* Background */
+  --color-bg-surface: #FFFFFF; /* Surface */
+  --color-text-primary: #13113B; /* Primary Text */
+  --color-text-secondary: #4B5563; /* Secondary Text */
+  --color-accent-blue: #7C3AED; /* Primary Royal Violet */
+  --color-accent-violet: #C026D3; /* Accent Magenta */
+  --color-accent-royal: #5A1EEB; /* Primary Dark */
+  --color-accent-lavender: #B395E6; /* Primary Light */
+  --color-functional-success: #16A34A;
+  --color-functional-border: #E5E7EB;
 
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Merriweather', serif;
 
-  --background-image-gradient-primary: linear-gradient(135deg, #7c3aed, #5b21b6); /* 2-stop purple gradient */
+  --background-image-gradient-primary: linear-gradient(135deg, #C026D3 0%, #8B3DFF 45%, #7C3AED 100%); /* Signature Gradient */
 
   --animate-scroll-left: scrollLeft 40s linear infinite;
   --animate-scroll-right: scrollRight 40s linear infinite;
@@ -73,17 +73,17 @@ h1, h2, h3, h4, h5, h6 {
 .bg-pattern {
   background-color: var(--color-bg-main);
   background-image: 
-    radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0, transparent 50%),
-    radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    radial-gradient(circle at center, rgba(124, 58, 237, 0.03) 0, transparent 50%),
+    radial-gradient(rgba(19, 17, 59, 0.02) 1px, transparent 1px);
   background-size: 100% 100%, 30px 30px;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.85); /* Light glass */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(229, 231, 235, 0.5); /* Soft border #E5E7EB */
+  box-shadow: 0 8px 32px rgba(19, 17, 59, 0.05); /* Very soft dark shadow */
   border-radius: 1rem;
 }
 
@@ -93,9 +93,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hover-glow:hover {
-  box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 10px 40px -10px rgba(124, 58, 237, 0.2);
   transform: translateY(-4px);
-  border-color: rgba(99, 102, 241, 0.2);
+  border-color: rgba(124, 58, 237, 0.3);
 }
 
 /* 1. Desktop Only: Pause on Hover (Requires a mouse) */

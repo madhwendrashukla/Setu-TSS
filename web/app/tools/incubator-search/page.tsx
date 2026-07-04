@@ -20,7 +20,7 @@ export default function EcosystemPage() {
                 {/* Header */}
                 <div className="text-center mb-24 max-w-4xl mx-auto">
                     <span className="text-accent-blue text-xs font-bold tracking-[0.2em] uppercase mb-4 block">ECOSYSTEM DIRECTORY</span>
-                    <h1 className="text-5xl md:text-5xl font-black text-white mb-6 tracking-[-0.04em] leading-tight">
+                    <h1 className="text-5xl md:text-5xl font-black text-text-primary mb-6 tracking-[-0.04em] leading-tight">
                         Map the <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))]">Ecosystem.</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-text-secondary font-light">
@@ -29,10 +29,10 @@ export default function EcosystemPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-32 border-y border-white/5 py-12">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-32 border-y border-functional-border py-12">
                     {STATS.map((stat, i) => (
                         <div key={i} className="text-center">
-                            <div className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-2">{stat.value}</div>
+                            <div className="text-4xl md:text-5xl font-black text-text-primary tracking-tighter mb-2">{stat.value}</div>
                             <div className="text-sm font-bold text-text-secondary tracking-widest uppercase">{stat.label}</div>
                         </div>
                     ))}
@@ -45,7 +45,7 @@ export default function EcosystemPage() {
                         <span className="bg-accent-blue text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-6 inline-block">
                             Mumbai Exclusive
                         </span>
-                        <h2 className="text-4xl font-bold text-white mb-6 tracking-tight">Incubators & Accelerators Directory</h2>
+                        <h2 className="text-4xl font-bold text-text-primary mb-6 tracking-tight">Incubators & Accelerators Directory</h2>
                         <p className="text-text-secondary text-lg leading-relaxed mb-10 max-w-3xl mx-auto font-light">
                             We've mapped out top accelerators and incubators. Compare equity models, desks, fees, and funding prospects instantly.
                         </p>
@@ -58,19 +58,19 @@ export default function EcosystemPage() {
                 {/* Categories Grid */}
                 <section>
                     <div className="grid md:grid-cols-3 gap-8">
-                        <Link href="/tools/incubator-search/grants" className="glass-card p-10 rounded-3xl border border-white/5 relative group hover:border-accent-blue/50 transition-colors">
-                            <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-accent-blue font-bold mb-6 group-hover:scale-110 transition-transform">1</div>
-                            <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-accent-blue transition-colors">Grants & Schemes</h3>
+                        <Link href="/tools/incubator-search/grants" className="glass-card p-10 rounded-3xl border border-functional-border relative group hover:border-accent-blue/50 transition-colors">
+                            <div className="w-12 h-12 rounded-full bg-white/5 border border-functional-border flex items-center justify-center text-accent-blue font-bold mb-6 group-hover:scale-110 transition-transform">1</div>
+                            <h3 className="text-2xl font-bold text-text-primary mb-4 group-hover:text-accent-blue transition-colors">Grants & Schemes</h3>
                             <p className="text-text-secondary leading-relaxed font-light">Explore government-backed hubs, universities, and pure grants asking for 0% equity.</p>
                         </Link>
-                        <Link href="/tools/incubator-search/incubators" className="glass-card p-10 rounded-3xl border border-white/5 relative group hover:border-accent-blue/50 transition-colors">
-                            <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-accent-blue font-bold mb-6 group-hover:scale-110 transition-transform">2</div>
-                            <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-accent-blue transition-colors">Incubators</h3>
+                        <Link href="/tools/incubator-search/incubators" className="glass-card p-10 rounded-3xl border border-functional-border relative group hover:border-accent-blue/50 transition-colors">
+                            <div className="w-12 h-12 rounded-full bg-white/5 border border-functional-border flex items-center justify-center text-accent-blue font-bold mb-6 group-hover:scale-110 transition-transform">2</div>
+                            <h3 className="text-2xl font-bold text-text-primary mb-4 group-hover:text-accent-blue transition-colors">Incubators</h3>
                             <p className="text-text-secondary leading-relaxed font-light">Find the best incubators, hardware labs, and accelerators to scale your startup.</p>
                         </Link>
-                        <Link href="/tools/incubator-search/investors" className="glass-card p-10 rounded-3xl border border-white/5 relative group hover:border-accent-blue/50 transition-colors">
-                            <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-accent-blue font-bold mb-6 group-hover:scale-110 transition-transform">3</div>
-                            <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-accent-blue transition-colors">Investors</h3>
+                        <Link href="/tools/incubator-search/investors" className="glass-card p-10 rounded-3xl border border-functional-border relative group hover:border-accent-blue/50 transition-colors">
+                            <div className="w-12 h-12 rounded-full bg-white/5 border border-functional-border flex items-center justify-center text-accent-blue font-bold mb-6 group-hover:scale-110 transition-transform">3</div>
+                            <h3 className="text-2xl font-bold text-text-primary mb-4 group-hover:text-accent-blue transition-colors">Investors</h3>
                             <p className="text-text-secondary leading-relaxed font-light">Discover hubs with the highest investor density and direct seed funding guarantees.</p>
                         </Link>
                     </div>

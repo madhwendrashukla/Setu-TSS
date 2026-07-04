@@ -66,7 +66,7 @@ export function Gallery({ data = [] }: { data?: any[] }) {
         const isExternal = thumbnailUrl.startsWith('http');
 
         return (
-            <div className={`relative overflow-hidden rounded-2xl group border border-black/5 bg-gray-100 ${className}`}>
+            <div className={`relative overflow-hidden rounded-2xl group border border-functional-border bg-[#1e293b] ${className}`}>
                 {isExternal ? (
                     <img
                         src={thumbnailUrl}
@@ -82,7 +82,7 @@ export function Gallery({ data = [] }: { data?: any[] }) {
                     />
                 )}
                 {isVideo && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                    <div className="absolute inset-0 flex items-center justify-center bg-accent-blue hover:bg-accent-royal text-white/20 group-hover:bg-accent-blue hover:bg-accent-royal text-white/10 transition-colors">
                         <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                             <svg className="w-6 h-6 text-[#6B21FB] ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </div>
@@ -93,13 +93,13 @@ export function Gallery({ data = [] }: { data?: any[] }) {
     };
 
     return (
-        <section className="w-full bg-white py-24 relative overflow-hidden">
+        <section className="w-full bg-bg-main py-24 relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
                 <div className="max-w-2xl">
-                    <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">
-                        Learn Online, <span className="text-[#6B21FB]">Connect Offline</span>
+                    <h2 className="text-3xl md:text-4xl font-black text-text-primary tracking-tight mb-4">
+                        Community Gallery, <span className="text-[#A855F7]">Connect Offline</span>
                     </h2>
-                    <p className="text-gray-600 text-lg md:text-xl font-medium leading-relaxed">
+                    <p className="text-text-secondary text-lg md:text-xl font-medium leading-relaxed">
                         Engage with other learners, alumni, and mentors and attend community sessions to learn from each other in our curated community.
                     </p>
                 </div>
@@ -108,13 +108,13 @@ export function Gallery({ data = [] }: { data?: any[] }) {
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={() => scroll('left')}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none"
+                        className="w-12 h-12 flex items-center justify-center rounded-xl border border-functional-border text-text-primary hover:bg-white/10 hover:border-white/30 transition-all focus:outline-none"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <button 
                         onClick={() => scroll('right')}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-gray-900 text-white hover:bg-black transition-all focus:outline-none shadow-md"
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 text-text-primary hover:bg-white/20 transition-all focus:outline-none shadow-md"
                     >
                         <ArrowRight className="w-5 h-5" />
                     </button>

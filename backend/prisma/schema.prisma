@@ -289,3 +289,17 @@ model LeadSource {
 
   @@map("lead_sources")
 }
+
+model PromoBar {
+  id            String   @id @default(uuid()) @db.Uuid
+  title         String
+  button_text   String
+  button_link   String
+  price_text    String?
+  subtext       String?
+  timer_minutes Int?
+  is_active     Boolean  @default(true)
+  updated_at    DateTime @updatedAt
+
+  @@map("promo_bar")
+}

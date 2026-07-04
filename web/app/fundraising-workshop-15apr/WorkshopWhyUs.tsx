@@ -36,7 +36,7 @@ export function WorkshopWhyUs() {
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#d946ef]">this workshop?</span>
                         </h2>
 
-                        <ul className="space-y-3.5 text-sm md:text-base text-slate-300 font-light text-left inline-block w-full">
+                        <ul className="space-y-3.5 text-sm md:text-base text-text-secondary font-light text-left inline-block w-full">
                             {items.map((item, i) => (
                                 <li key={i} className="flex items-start gap-3">
                                     <i className="fa-solid fa-check text-[#8b5cf6] mt-1.5 shrink-0" />
@@ -45,7 +45,7 @@ export function WorkshopWhyUs() {
                             ))}
                             <li className="flex items-start gap-3">
                                 <i className="fa-solid fa-plus text-[#d946ef] shrink-0 text-lg" />
-                                <span className="font-medium text-white text-base md:text-lg">...and a lot more!</span>
+                                <span className="font-medium text-text-primary text-base md:text-lg">...and a lot more!</span>
                             </li>
                         </ul>
                     </div>

@@ -85,7 +85,7 @@ export function AIWorkshopPricing() {
                 <div className="text-center mb-12 md:mb-16">
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4">We Offer Customised Learning Path</h2>
                     <div className="w-24 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-6" />
-                    <p className="text-slate-400 text-base md:text-lg font-light max-w-xl mx-auto">Individual workshops or the complete entrepreneurship bundle — you decide.</p>
+                    <p className="text-text-secondary text-base md:text-lg font-light max-w-xl mx-auto">Individual workshops or the complete entrepreneurship bundle — you decide.</p>
 
                     {/* FOMO Early Bird Banner */}
                     <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-[#d946ef]/40 bg-[#d946ef]/10 text-sm font-semibold text-[#f0abfc] animate-pulse">
@@ -98,10 +98,10 @@ export function AIWorkshopPricing() {
                     {plans.map((plan, pi) => (
                         <div
                             key={pi}
-                            className={`bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] rounded-2xl md:rounded-3xl p-6 flex flex-col transition-all duration-300 relative overflow-hidden ${plan.isFeatured ? 'border-2 border-[#8b5cf6]/50 shadow-[0_0_40px_rgba(217,70,239,0.15)] hover:shadow-[0_0_50px_rgba(217,70,239,0.25)]' : 'border border-white/10 hover:border-white/25'}`}
+                            className={`bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] rounded-2xl md:rounded-3xl p-6 flex flex-col transition-all duration-300 relative overflow-hidden ${plan.isFeatured ? 'border-2 border-[#8b5cf6]/50 shadow-[0_0_40px_rgba(217,70,239,0.15)] hover:shadow-[0_0_50px_rgba(217,70,239,0.25)]' : 'border border-functional-border hover:border-white/25'}`}
                         >
                             {plan.isFeatured && (
-                                <div className="absolute top-0 right-0 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-lg">Early Bird Offer</div>
+                                <div className="absolute top-0 right-0 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-text-primary text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-widest shadow-lg">Early Bird Offer</div>
                             )}
                             {plan.saveBadge && (
                                 <div className="mb-3 inline-flex">
@@ -110,11 +110,11 @@ export function AIWorkshopPricing() {
                             )}
 
                             <div className="mb-4">
-                                <div className="inline-block px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest text-white mb-2" style={{ background: plan.isFeatured ? 'linear-gradient(135deg, #8b5cf6, #d946ef)' : 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.3)' }}>
+                                <div className="inline-block px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest text-text-primary mb-2" style={{ background: plan.isFeatured ? 'linear-gradient(135deg, #8b5cf6, #d946ef)' : 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.3)' }}>
                                     {plan.level}
                                 </div>
-                                <h3 className="text-lg md:text-xl font-bold text-white mb-1 leading-tight">{plan.name}</h3>
-                                <p className="text-xs text-slate-400 font-light">by {plan.mentor}</p>
+                                <h3 className="text-lg md:text-xl font-bold text-text-primary mb-1 leading-tight">{plan.name}</h3>
+                                <p className="text-xs text-text-secondary font-light">by {plan.mentor}</p>
                             </div>
 
                             {/* Pricing display */}
@@ -123,16 +123,16 @@ export function AIWorkshopPricing() {
                                     <span className="text-slate-500 line-through text-base font-medium">{plan.originalPrice}</span>
                                     <span className="text-xs text-green-400 font-bold bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">Early Bird</span>
                                 </div>
-                                <div className={`text-4xl md:text-5xl font-extrabold ${plan.isFeatured ? 'bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent' : 'text-white'}`}>
+                                <div className={`text-4xl md:text-5xl font-extrabold ${plan.isFeatured ? 'bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent' : 'text-text-primary'}`}>
                                     {plan.earlyBird}
                                 </div>
                             </div>
 
                             <div className="mb-5 space-y-1.5">
-                                <div className="flex items-center gap-2 text-xs text-slate-400">
+                                <div className="flex items-center gap-2 text-xs text-text-secondary">
                                     <i className="fa-regular fa-clock text-[#8b5cf6]" /> {plan.sessions}
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-slate-400">
+                                <div className="flex items-center gap-2 text-xs text-text-secondary">
                                     <i className="fa-regular fa-calendar text-[#8b5cf6]" /> {plan.date}
                                 </div>
                             </div>
@@ -141,7 +141,7 @@ export function AIWorkshopPricing() {
                                 {plan.includes.map((item, ii) => (
                                     <li key={ii} className="flex items-start gap-2">
                                         <i className="fa-solid fa-check mt-0.5 text-[10px] shrink-0" style={{ color: plan.color }} />
-                                        <span className="text-xs text-slate-300 font-light">{item}</span>
+                                        <span className="text-xs text-text-secondary font-light">{item}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -151,14 +151,14 @@ export function AIWorkshopPricing() {
                                 {plan.isFeatured ? (
                                     <div className="relative w-full">
                                         <span
-                                             className="relative w-full block text-center px-4 py-4 rounded-xl bg-[#1e293b] border border-white/10 text-white/50 font-bold transition-all text-base cursor-not-allowed"
+                                             className="relative w-full block text-center px-4 py-4 rounded-xl bg-[#1e293b] border border-functional-border text-text-primary/50 font-bold transition-all text-base cursor-not-allowed"
                                          >
                                              Sold Out
                                          </span>
                                     </div>
                                 ) : (
                                     <span
-                                        className="w-full block text-center px-4 py-3.5 rounded-xl text-white/50 font-bold transition-all text-sm border border-white/10 bg-[#1e293b] cursor-not-allowed"
+                                        className="w-full block text-center px-4 py-3.5 rounded-xl text-text-primary/50 font-bold transition-all text-sm border border-functional-border bg-[#1e293b] cursor-not-allowed"
                                     >
                                         Sold Out
                                     </span>

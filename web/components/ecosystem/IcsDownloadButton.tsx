@@ -43,7 +43,7 @@ END:VCALENDAR`;
     return (
         <button
             onClick={handleDownload}
-            className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white py-2.5 px-4 rounded-xl text-sm font-medium transition-colors border border-white/5 hover:border-white/10"
+            className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-text-primary py-2.5 px-4 rounded-xl text-sm font-medium transition-colors border border-functional-border hover:border-functional-border"
         >
             <Download className="w-4 h-4" />
             iCal

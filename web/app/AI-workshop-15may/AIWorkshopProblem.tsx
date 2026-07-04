@@ -32,12 +32,12 @@ export function AIWorkshopProblem() {
 
                 <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-14 md:mb-20">
                     {painPoints.map((point, i) => (
-                        <div key={i} className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-white/10 rounded-2xl p-6 md:p-8 hover:border-white/20 transition-all duration-300 group hover:-translate-y-1">
+                        <div key={i} className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-2xl p-6 md:p-8 hover:border-functional-border transition-all duration-300 group hover:-translate-y-1">
                             <div className="w-12 h-12 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center mb-5 border border-[#8b5cf6]/20 group-hover:scale-110 transition-transform">
                                 <i className={`fa-solid ${point.icon} text-xl`} style={{ color: point.color }} />
                             </div>
-                            <h3 className="text-lg md:text-xl font-bold text-white mb-3">{point.title}</h3>
-                            <p className="text-sm md:text-base text-slate-400 font-light leading-relaxed">{point.desc}</p>
+                            <h3 className="text-lg md:text-xl font-bold text-text-primary mb-3">{point.title}</h3>
+                            <p className="text-sm md:text-base text-text-secondary font-light leading-relaxed">{point.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -45,8 +45,8 @@ export function AIWorkshopProblem() {
                 {/* Transition */}
                 <div className="relative group max-w-3xl mx-auto">
                     <div className="absolute -inset-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-500" />
-                    <div className="relative text-center bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] rounded-2xl p-6 md:p-10 border border-white/10">
-                        <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-slate-200 leading-snug">
+                    <div className="relative text-center bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] rounded-2xl p-6 md:p-10 border border-functional-border">
+                        <p className="text-xl md:text-2xl lg:text-3xl font-semibold text-text-primary leading-snug">
                             What if you could go from idea to <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] font-extrabold">validated MVP in just 3 days?</span>
                         </p>
                     </div>

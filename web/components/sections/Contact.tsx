@@ -64,56 +64,56 @@ export function Contact() {
     };
 
     return (
-        <section id="contact" className="card-section pb-24 md:pb-32 pt-12 relative overflow-hidden">
+        <section id="contact" className="card-section pb-24 md:pb-32 pt-8 relative overflow-hidden">
             {/* Extremely Subtle Background Glow */}
-            <div className="!absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#6B21FB]/5 rounded-full blur-[150px] pointer-events-none z-0"></div>
+            <div className="!absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#A855F7]/5 rounded-full blur-[150px] pointer-events-none z-0"></div>
 
             <div className="max-w-3xl mx-auto px-6 relative z-10">
-                <div className="text-center mb-16 flex flex-col items-center justify-center">
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 leading-tight">
-                        HAI <span className="text-[#6B21FB]">KEEDA?</span><br />
-                        HAI <span className="text-[#6B21FB]">HIMMAT?</span><br />
-                        TO KAR <span className="text-[#6B21FB]">STARTUP!</span>
+                <div className="text-center mb-10 flex flex-col items-center justify-center">
+                    <h2 className="text-3xl md:text-4xl font-black tracking-tight text-text-primary leading-tight">
+                        HAI <span className="text-[#A855F7]">KEEDA?</span><br />
+                        HAI <span className="text-[#A855F7]">HIMMAT?</span><br />
+                        TO KAR <span className="text-[#A855F7]">STARTUP!</span>
                     </h2>
                 </div>
 
-                <div className="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-xl shadow-gray-200/50 relative overflow-hidden">
-                    <div className="mb-10 text-center">
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">To know more about our programs, drop your details below</h3>
-                        <div className="h-1 w-12 bg-[#6B21FB] mx-auto rounded-full"></div>
+                <div className="bg-bg-surface rounded-3xl p-6 md:p-8 border border-functional-border shadow-[0_8px_40px_rgba(168,85,247,0.1)] relative overflow-hidden">
+                    <div className="mb-6 text-center">
+                        <h3 className="text-lg font-bold text-text-primary mb-3">To know more about our programs, drop your details below</h3>
+                        <div className="h-1 w-12 bg-[#A855F7] mx-auto rounded-full"></div>
                     </div>
                     
-                    <form id="inquiry-form" onSubmit={handleFormSubmit} className="space-y-6 relative z-10">
-                        <div className="grid md:grid-cols-2 gap-6">
+                    <form id="inquiry-form" onSubmit={handleFormSubmit} className="space-y-4 relative z-10">
+                        <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="form-name" className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-2">Full Name</label>
+                                <label htmlFor="form-name" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">Full Name</label>
                                 <input
                                     type="text"
                                     id="form-name"
                                     required
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B21FB]/20 focus:border-[#6B21FB] transition-all placeholder-gray-400"
+                                    className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all placeholder-slate-500"
                                     placeholder="John Doe"
                                 />
                             </div>
                             <div>
-                                <label htmlFor="form-city" className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-2">City</label>
+                                <label htmlFor="form-city" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">City</label>
                                 <input
                                     type="text"
                                     id="form-city"
                                     required
                                     value={formData.city}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B21FB]/20 focus:border-[#6B21FB] transition-all placeholder-gray-400"
+                                    className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all placeholder-slate-500"
                                     placeholder="Mumbai, Bengaluru, etc."
                                 />
                             </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="form-contact" className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-2">Contact Number</label>
+                                <label htmlFor="form-contact" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">Contact Number</label>
                                 <input
                                     type="tel"
                                     id="form-contact"
@@ -122,32 +122,32 @@ export function Contact() {
                                     title="Please enter a valid 10 digit mobile number"
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B21FB]/20 focus:border-[#6B21FB] transition-all placeholder-gray-400"
+                                    className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all placeholder-slate-500"
                                     placeholder="9876543210"
                                 />
                             </div>
                             <div>
-                                <label htmlFor="form-email" className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-2">Email Address</label>
+                                <label htmlFor="form-email" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">Email Address</label>
                                 <input
                                     type="email"
                                     id="form-email"
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B21FB]/20 focus:border-[#6B21FB] transition-all placeholder-gray-400"
+                                    className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all placeholder-slate-500"
                                     placeholder="john@example.com"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="form-source" className="block text-xs font-semibold tracking-wider text-gray-500 uppercase mb-2">What are you interested in?</label>
+                            <label htmlFor="form-source" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">What are you interested in?</label>
                             <select
                                 id="form-source"
                                 required
                                 value={formData.source}
                                 onChange={handleChange}
-                                className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#6B21FB]/20 focus:border-[#6B21FB] transition-all"
+                                className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all"
                             >
                                 {sourceOptions.length > 0 ? (
                                     sourceOptions.map(option => (
@@ -159,8 +159,8 @@ export function Contact() {
                             </select>
                         </div>
 
-                        <div className="pt-8 text-center flex flex-col items-center justify-center gap-4">
-                            <button type="submit" disabled={status === 'loading'} className="group w-full md:w-auto bg-[#6B21FB] hover:bg-[#5818d6] text-white px-10 py-4 rounded-full font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center shadow-lg shadow-[#6B21FB]/25 hover:shadow-xl hover:shadow-[#6B21FB]/40 hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0">
+                        <div className="pt-4 text-center flex flex-col items-center justify-center gap-4">
+                            <button type="submit" disabled={status === 'loading'} className="group w-full md:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-text-primary px-8 py-3 rounded-full font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center shadow-[0_4px_14px_0_rgba(168,85,247,0.39)] hover:shadow-[0_6px_20px_rgba(168,85,247,0.23)] hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0">
                                 {status === 'loading' ? 'Submitting...' : 'Submit Inquiry'}
                                 {status !== 'loading' && <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
                             </button>

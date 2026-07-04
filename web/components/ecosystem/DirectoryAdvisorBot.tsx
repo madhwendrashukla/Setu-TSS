@@ -218,7 +218,7 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                                     <button 
                                         onClick={handleSendMessage}
                                         disabled={!message.trim() || isSending}
-                                        className={`p-2.5 rounded-full transition-all ${message.trim() && !isSending ? 'bg-[#3b5e48] text-white hover:bg-[#2d4736]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                                        className={`p-2.5 rounded-full transition-all ${message.trim() && !isSending ? 'bg-[#3b5e48] text-text-primary hover:bg-[#2d4736]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
                                     >
                                         {isSending ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send size={16} />}
                                     </button>
@@ -276,12 +276,12 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
             <div className="relative w-[52px] h-[52px]">
                 <div className="absolute inset-0 rounded-full bg-accent-violet opacity-30 animate-ping" style={{ animationDuration: '3s' }} />
                 {notifCount > 0 && (
-                    <span className="absolute -top-1 -right-1 z-20 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                    <span className="absolute -top-1 -right-1 z-20 w-5 h-5 bg-red-500 text-text-primary text-[10px] font-black rounded-full flex items-center justify-center shadow-lg border-2 border-white">
                         {notifCount}
                     </span>
                 )}
                 <button
-                    className="absolute inset-0 w-full h-full rounded-full bg-accent-violet border border-white/10 text-white shadow-xl flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-violet-700 z-10"
+                    className="absolute inset-0 w-full h-full rounded-full bg-accent-violet border border-functional-border text-text-primary shadow-xl flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-violet-700 z-10"
                     onClick={() => { setIsOpen(o => !o); setShowIdle(false); }}
                     aria-label="Open Help"
                 >

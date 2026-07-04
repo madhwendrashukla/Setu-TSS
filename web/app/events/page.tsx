@@ -45,7 +45,7 @@ export default async function EventsPage() {
                     <div className="grid lg:grid-cols-2 gap-8">
                         {upcoming.length === 0 ? (
                             <div className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-dashed border-black/10 flex flex-col items-center justify-center text-center h-full min-h-[300px] lg:col-span-2">
-                                <div className="w-16 h-16 rounded-full bg-black/5 border border-black/10 flex items-center justify-center text-text-secondary mb-6">
+                                <div className="w-16 h-16 rounded-full bg-accent-blue hover:bg-accent-royal text-white/5 border border-black/10 flex items-center justify-center text-text-secondary mb-6">
                                     <i className="fas fa-bullhorn text-2xl"></i>
                                 </div>
                                 <p className="text-text-primary font-bold text-xl mb-2 tracking-tight">More events being scheduled.</p>
@@ -55,11 +55,11 @@ export default async function EventsPage() {
                             upcoming.map((event: any) => (
                                 <div key={event.id} className="glass-card rounded-3xl p-8 border border-black/5 bg-bg-surface flex flex-col">
                                     {event.banner_url ? (
-                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-black/5">
+                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-accent-blue hover:bg-accent-royal text-white/5">
                                             <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain" />
                                         </div>
                                     ) : (
-                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-black/5">
+                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-accent-blue hover:bg-accent-royal text-white/5">
                                             <img src="/ai-workshop-banner.webp" alt="Event Banner" className="w-full h-full object-contain opacity-50" />
                                         </div>
                                     )}
@@ -86,16 +86,16 @@ export default async function EventsPage() {
                         {past.map((event: any) => (
                             <div key={event.id} className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-black/5 relative group h-full flex flex-col bg-bg-surface">
                                 {event.banner_url ? (
-                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-black/5">
+                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-accent-blue hover:bg-accent-royal text-white/5">
                                         <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 ) : (
-                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-black/5">
+                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-accent-blue hover:bg-accent-royal text-white/5">
                                         <img src="/ai-workshop-banner.webp" alt="Past Event" className="w-full h-full object-contain opacity-50 group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 )}
                                 <div className="flex justify-between items-start mb-6">
-                                    <div className="bg-black/5 border border-black/10 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                                    <div className="bg-accent-blue hover:bg-accent-royal text-white/5 border border-black/10 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
                                         Concluded
                                     </div>
                                 </div>
@@ -113,7 +113,7 @@ export default async function EventsPage() {
                                         </div>
                                     </div>
                                     {event.registration_url && (
-                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-black hover:bg-accent-blue text-white px-8 py-3 rounded-full font-bold transition duration-300 text-center">
+                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-accent-blue hover:bg-accent-royal text-white hover:bg-accent-blue text-white px-8 py-3 rounded-full font-bold transition duration-300 text-center">
                                             Register for this Event
                                         </Link>
                                     )}

@@ -34,15 +34,15 @@ export function AIWorkshopSchedule() {
                 <div className="text-center mb-12 md:mb-16">
                     <h2 className="text-3xl md:text-5xl font-extrabold mb-4">Complete Schedule</h2>
                     <div className="w-24 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-4" />
-                    <p className="text-slate-400 text-base md:text-lg font-light">3 days · 5 sessions · 13 total hours — designed for working professionals</p>
+                    <p className="text-text-secondary text-base md:text-lg font-light">3 days · 5 sessions · 13 total hours — designed for working professionals</p>
                 </div>
 
                 <div className="max-w-4xl mx-auto space-y-6">
                     {schedule.map((day, di) => (
-                        <div key={di} className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300">
-                            <div className="px-6 md:px-8 py-4 border-b border-white/5 flex items-center gap-4">
-                                <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white text-sm font-extrabold rounded-lg uppercase tracking-widest">{day.day}</span>
-                                <span className="text-white font-extrabold text-lg md:text-xl">{day.date}</span>
+                        <div key={di} className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-2xl overflow-hidden hover:border-functional-border transition-all duration-300">
+                            <div className="px-6 md:px-8 py-4 border-b border-functional-border flex items-center gap-4">
+                                <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-text-primary text-sm font-extrabold rounded-lg uppercase tracking-widest">{day.day}</span>
+                                <span className="text-text-primary font-extrabold text-lg md:text-xl">{day.date}</span>
                             </div>
                             <div className="divide-y divide-white/5">
                                 {day.sessions.map((session, si) => (
@@ -52,12 +52,12 @@ export function AIWorkshopSchedule() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-wrap items-center gap-2 mb-2">
-                                                <span className="text-sm font-bold font-mono text-white bg-white/10 px-2.5 py-1 rounded shadow-sm">{session.time}</span>
+                                                <span className="text-sm font-bold font-mono text-text-primary bg-white/10 px-2.5 py-1 rounded shadow-sm">{session.time}</span>
                                                 <span className="hidden sm:inline text-slate-500">·</span>
-                                                <span className="text-xs text-slate-400">Live on Zoom</span>
+                                                <span className="text-xs text-text-secondary">Live on Zoom</span>
                                             </div>
-                                            <p className="text-sm md:text-base font-bold text-white">{session.title}</p>
-                                            <p className="text-xs md:text-sm text-slate-400 font-light mt-0.5">by {session.mentor}</p>
+                                            <p className="text-sm md:text-base font-bold text-text-primary">{session.title}</p>
+                                            <p className="text-xs md:text-sm text-text-secondary font-light mt-0.5">by {session.mentor}</p>
                                         </div>
                                     </div>
                                 ))}

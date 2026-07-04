@@ -8,7 +8,7 @@ export function WorkshopHero() {
             <div className="absolute -bottom-8 left-20 w-64 h-64 md:w-96 md:h-96 rounded-full mix-blend-screen pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0) 70%)' }} />
 
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-1.5 rounded-full bg-white/5 border border-white/10 text-xs md:text-sm text-[#d946ef] mb-6 md:mb-8 backdrop-blur-md">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-1.5 rounded-full bg-white/5 border border-functional-border text-xs md:text-sm text-[#d946ef] mb-6 md:mb-8 backdrop-blur-md">
                     <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8b5cf6] opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-[#d946ef]" />
@@ -26,14 +26,14 @@ export function WorkshopHero() {
                     </span>{' '}Not Luck.
                 </h1>
 
-                <p className="mt-6 md:mt-8 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl text-slate-400 mb-8 md:mb-12 leading-relaxed font-light px-2">
+                <p className="mt-6 md:mt-8 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl text-text-secondary mb-8 md:mb-12 leading-relaxed font-light px-2">
                     Stop guessing what investors want. Join the live, cohort-based program that transforms passionate
-                    builders into <span className="text-white font-medium">investable founders.</span>
+                    builders into <span className="text-text-primary font-medium">investable founders.</span>
                 </p>
 
                 <div className="flex flex-col items-center justify-center gap-4 md:gap-6 w-full max-w-md mx-auto sm:max-w-none">
                     <div className="relative group w-full sm:w-auto">
-                        <button disabled className="relative w-full sm:w-auto px-6 py-4 md:px-8 md:py-5 text-base md:text-lg font-bold rounded-xl text-white bg-slate-800 border border-white/20 cursor-not-allowed flex items-center justify-center">
+                        <button disabled className="relative w-full sm:w-auto px-6 py-4 md:px-8 md:py-5 text-base md:text-lg font-bold rounded-xl text-text-primary bg-slate-800 border border-functional-border cursor-not-allowed flex items-center justify-center">
                             <i className="fa-solid fa-lock mr-2" /> Registrations Closed
                         </button>
                     </div>

@@ -3,7 +3,7 @@ import { Inter, Merriweather } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import FooterLoader from "@/components/layout/FooterLoader";
-import ChatBotGate from "@/components/layout/ChatBotGate";
+import { PromoBar } from '@/components/layout/PromoBar';
 import Script from "next/script";
 
 const inter = Inter({
@@ -103,12 +103,12 @@ export default function RootLayout({
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
+        <PromoBar />
         <Navbar />
         <main className="min-h-screen overflow-x-hidden w-full">
           {children}
         </main>
         <FooterLoader />
-        <ChatBotGate />
       </body>
     </html>
   );

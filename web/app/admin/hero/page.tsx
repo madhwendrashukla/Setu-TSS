@@ -273,7 +273,7 @@ export default function AdminHero() {
                                     <div key={slide.id} className="relative group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden aspect-video">
                                         <Image src={slide.image_url} alt="Hero Slide" fill className="object-cover transition-transform duration-500 group-hover:scale-110" unoptimized />
                                         <div className="absolute inset-0 bg-white/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                                            <button onClick={() => handleDeleteSlide(slide.id)} className="bg-red-500/80 text-white font-bold px-4 py-2 rounded-lg hover:bg-red-500 transition-colors shadow-lg border border-red-400/50">
+                                            <button onClick={() => handleDeleteSlide(slide.id)} className="bg-red-500/80 text-text-primary font-bold px-4 py-2 rounded-lg hover:bg-red-500 transition-colors shadow-lg border border-red-400/50">
                                                 <i className="fas fa-trash-alt mr-2"></i>Delete
                                             </button>
                                         </div>

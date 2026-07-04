@@ -74,7 +74,7 @@ export function AIWorkshopMentors() {
                 <div className="text-center mb-12 md:mb-16">
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4">Learn from Founders Who&apos;ve<br className="hidden md:block" /> Actually Done It</h2>
                     <div className="w-24 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-4" />
-                    <p className="text-slate-400 text-base md:text-lg font-light max-w-2xl mx-auto">Three domain experts, one comprehensive system to launch your startup.</p>
+                    <p className="text-text-secondary text-base md:text-lg font-light max-w-2xl mx-auto">Three domain experts, one comprehensive system to launch your startup.</p>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
@@ -99,26 +99,26 @@ export function AIWorkshopMentors() {
                             <div className="p-6 md:p-8 flex flex-col flex-1">
 
                             {/* Badge */}
-                            <div className="inline-block px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest text-white mb-3 w-fit" style={{ background: `linear-gradient(135deg, ${mentor.color}50, ${mentor.color}30)`, border: `1px solid ${mentor.color}40` }}>
+                            <div className="inline-block px-2.5 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest text-text-primary mb-3 w-fit" style={{ background: `linear-gradient(135deg, ${mentor.color}50, ${mentor.color}30)`, border: `1px solid ${mentor.color}40` }}>
                                 {mentor.workshop}
                             </div>
 
-                            <h3 className="text-xl md:text-2xl font-extrabold text-white mb-1">{mentor.name}</h3>
+                            <h3 className="text-xl md:text-2xl font-extrabold text-text-primary mb-1">{mentor.name}</h3>
                             <p className="text-sm font-bold mb-4" style={{ color: mentor.color }}>{mentor.role}</p>
-                            <p className="text-sm text-slate-400 font-light leading-relaxed mb-5">{mentor.bio}</p>
+                            <p className="text-sm text-text-secondary font-light leading-relaxed mb-5">{mentor.bio}</p>
 
                             {/* Credentials */}
                             <ul className="space-y-2 mb-5">
                                 {mentor.credentials.map((cred, ci) => (
                                     <li key={ci} className="flex items-start gap-2.5">
                                         <i className={`fa-solid ${cred.icon} mt-0.5 text-xs shrink-0`} style={{ color: mentor.color }} />
-                                        <span className="text-xs text-slate-300 font-light">{cred.text}</span>
+                                        <span className="text-xs text-text-secondary font-light">{cred.text}</span>
                                     </li>
                                 ))}
                             </ul>
 
                             {/* Quote */}
-                            <div className="mb-5 p-4 rounded-xl bg-white/5 border border-white/10 italic text-xs text-slate-300 font-light leading-relaxed">
+                            <div className="mb-5 p-4 rounded-xl bg-white/5 border border-functional-border italic text-xs text-text-secondary font-light leading-relaxed">
                                 {mentor.quote}
                             </div>
 

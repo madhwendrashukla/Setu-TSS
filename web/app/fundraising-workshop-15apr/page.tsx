@@ -31,7 +31,7 @@ export default function WorkshopPage() {
             }} />
 
             {/* Navigation */}
-            <nav className="fixed w-full z-50 bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border-b border-white/5 transition-all duration-300">
+            <nav className="fixed w-full z-50 bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border-b border-functional-border transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16 md:h-20">
                         <Link href="/" className="flex-shrink-0 font-extrabold text-lg md:text-2xl tracking-tight flex items-center gap-2 md:gap-3 hover:opacity-90 transition-opacity">
@@ -41,7 +41,7 @@ export default function WorkshopPage() {
                         <div>
                             <div className="relative group">
                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-300" />
-                                <a href="#pricing" className="relative inline-flex items-center justify-center px-4 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold rounded-lg text-white bg-[#0f172a] border border-white/10 hover:bg-transparent transition-all">
+                                <a href="#pricing" className="relative inline-flex items-center justify-center px-4 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold rounded-lg text-text-primary bg-[#0f172a] border border-functional-border hover:bg-transparent transition-all">
                                     Secure Your Seat
                                 </a>
                             </div>

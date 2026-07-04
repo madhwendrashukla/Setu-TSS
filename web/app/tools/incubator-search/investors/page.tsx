@@ -103,7 +103,7 @@ function InvestorDetail({ investor, onClose }: { investor: Investor; onClose: ()
                             )}
 
                             <div className="flex gap-3">
-                                {investor.socials?.linkedin && <a href={investor.socials.linkedin} target="_blank" className="flex-1 flex items-center justify-center gap-2 bg-[#0077b5] hover:opacity-90 text-white py-3 rounded-2xl text-sm font-bold transition-all"><Linkedin size={18} /> LinkedIn</a>}
+                                {investor.socials?.linkedin && <a href={investor.socials.linkedin} target="_blank" className="flex-1 flex items-center justify-center gap-2 bg-[#0077b5] hover:opacity-90 text-text-primary py-3 rounded-2xl text-sm font-bold transition-all"><Linkedin size={18} /> LinkedIn</a>}
                                 {investor.socials?.website && <a href={investor.socials.website} target="_blank" className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-white/20 text-gray-900 py-3 rounded-2xl text-sm font-bold transition-all border border-gray-200"><Globe size={18} /> Website</a>}
                             </div>
                         </div>
@@ -289,7 +289,7 @@ export default function InvestorsPage() {
 
                     {displayedInvestors.length === 0 && (
                         <div className="text-center py-20 shadow-sm rounded-[2rem] border border-gray-100">
-                            <Briefcase size={48} className="text-white/20 mx-auto mb-4" />
+                            <Briefcase size={48} className="text-text-primary/20 mx-auto mb-4" />
                             <h3 className="text-xl font-bold text-gray-900 mb-2">No investors found</h3>
                             <p className="text-gray-500">Try adjusting your filters or search terms.</p>
                         </div>

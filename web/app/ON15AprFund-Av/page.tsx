@@ -116,13 +116,13 @@ export default function PaymentSuccessAv() {
                 }
             `}} />
 
-            <div className="payment-success-body antialiased selection:bg-[#8b5cf6] selection:text-white relative">
+            <div className="payment-success-body antialiased selection:bg-[#8b5cf6] selection:text-text-primary relative">
                 
                 {/* Global Background Texture */}
                 <div className="fixed inset-0 bg-grid-pattern z-[-1] pointer-events-none"></div>
 
                 {/* Navigation */}
-                <nav className={`fixed w-full z-50 transition-all duration-300 border-b border-white/5 ${scrolled ? 'bg-[#0f172a]/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5)]' : 'glass-card'}`}>
+                <nav className={`fixed w-full z-50 transition-all duration-300 border-b border-functional-border ${scrolled ? 'bg-[#0f172a]/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5)]' : 'glass-card'}`}>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 md:h-20">
                             <a 
@@ -144,7 +144,7 @@ export default function PaymentSuccessAv() {
                                     <a 
                                         href="https://thestartupschool.in" 
                                         onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in'); }} 
-                                        className="relative inline-flex items-center justify-center px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold rounded-lg text-white bg-[#0f172a] border border-white/10 hover:bg-transparent transition-all gap-1.5 md:gap-2"
+                                        className="relative inline-flex items-center justify-center px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold rounded-lg text-text-primary bg-[#0f172a] border border-functional-border hover:bg-transparent transition-all gap-1.5 md:gap-2"
                                     >
                                         <i className="fa-solid fa-arrow-left"></i> <span className="hidden xs:inline sm:inline">Return</span> Home
                                     </a>
@@ -161,7 +161,7 @@ export default function PaymentSuccessAv() {
                     <div className="absolute bottom-1/4 -right-10 w-64 h-64 md:w-96 md:h-96 bg-[#d946ef] rounded-full mix-blend-screen filter blur-[90px] md:blur-[128px] opacity-30 animate-blob pointer-events-none" style={{ animationDelay: '2000ms' }}></div>
                     
                     <div className="w-full max-w-2xl relative z-10 fade-in-section is-visible">
-                        <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 border-t border-l border-r border-white/10 border-b-4 border-b-[#25D366] text-center shadow-[0_15px_40px_-15px_rgba(37,211,102,0.2)] md:shadow-[0_20px_50px_-15px_rgba(37,211,102,0.2)]">
+                        <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 border-t border-l border-r border-functional-border border-b-4 border-b-[#25D366] text-center shadow-[0_15px_40px_-15px_rgba(37,211,102,0.2)] md:shadow-[0_20px_50px_-15px_rgba(37,211,102,0.2)]">
                             
                             {/* Success Icon */}
                             <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-[#25D366]/10 rounded-full flex items-center justify-center mb-6 sm:mb-8 border border-[#25D366]/30 shadow-[0_0_20px_rgba(37,211,102,0.3)] md:shadow-[0_0_30px_rgba(37,211,102,0.3)] animate-success-pop">
@@ -169,9 +169,9 @@ export default function PaymentSuccessAv() {
                             </div>
 
                             {/* Text Content */}
-                            <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-white mb-3 sm:mb-4 tracking-tight">Payment Successful!</h1>
+                            <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-text-primary mb-3 sm:mb-4 tracking-tight">Payment Successful!</h1>
                             
-                            <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed font-light mb-6 sm:mb-8 max-w-lg mx-auto">
+                            <p className="text-sm sm:text-base md:text-lg text-text-secondary leading-relaxed font-light mb-6 sm:mb-8 max-w-lg mx-auto">
                                 Your transaction has been completed successfully. A confirmation email with the details has been sent to your registered email address.
                             </p>
 
@@ -179,11 +179,11 @@ export default function PaymentSuccessAv() {
                             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-6 sm:my-8"></div>
 
                             {/* Next Steps / WhatsApp CTA */}
-                            <div className="bg-[#0f172a]/50 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 border border-white/5 backdrop-blur-sm">
-                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                            <div className="bg-[#0f172a]/50 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 border border-functional-border backdrop-blur-sm">
+                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-text-primary mb-2 flex items-center justify-center gap-2">
                                     <i className="fa-brands fa-whatsapp text-[#25D366] text-lg md:text-xl"></i> Next Step: Join the Inner Circle
                                 </h3>
-                                <p className="text-xs sm:text-sm md:text-base text-slate-400 font-light mb-5 sm:mb-6">
+                                <p className="text-xs sm:text-sm md:text-base text-text-secondary font-light mb-5 sm:mb-6">
                                     Join our exclusive WhatsApp community instantly to avoid any hassle and get immediate access to cohort updates.
                                 </p>
 
@@ -194,11 +194,11 @@ export default function PaymentSuccessAv() {
                                         href="https://chat.whatsapp.com/Lm2k3AV1HgAI3XxdXBfd4L?mode=gi_t" 
                                         target="_blank" 
                                         rel="noreferrer"
-                                        className="relative flex items-center justify-center px-4 py-3.5 sm:px-6 sm:py-4 md:px-8 md:py-5 text-sm sm:text-base md:text-lg font-bold rounded-xl text-white bg-[#25D366] hover:bg-[#20b858] border border-white/20 transition-all duration-300 transform group-hover:-translate-y-1 w-full shadow-lg text-center"
+                                        className="relative flex items-center justify-center px-4 py-3.5 sm:px-6 sm:py-4 md:px-8 md:py-5 text-sm sm:text-base md:text-lg font-bold rounded-xl text-text-primary bg-[#25D366] hover:bg-[#20b858] border border-functional-border transition-all duration-300 transform group-hover:-translate-y-1 w-full shadow-lg text-center"
                                     >
                                         <i className="fa-brands fa-whatsapp text-lg sm:text-xl mr-2 animate-pulse"></i> 
                                         <span>Join WhatsApp Group <span className="hidden xs:inline">Now</span></span>
-                                        <i className="fa-solid fa-arrow-right ml-2 sm:ml-3 text-white/70 text-xs sm:text-sm"></i>
+                                        <i className="fa-solid fa-arrow-right ml-2 sm:ml-3 text-text-primary/70 text-xs sm:text-sm"></i>
                                     </a>
                                 </div>
                             </div>

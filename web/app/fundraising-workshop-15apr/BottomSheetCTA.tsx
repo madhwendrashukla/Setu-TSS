@@ -35,7 +35,7 @@ function BottomSheetCTAContent() {
                 <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center p-0 sm:p-4">
                     {/* Backdrop */}
                     <div 
-                        className={`fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
+                        className={`fixed inset-0 bg-accent-blue hover:bg-accent-royal text-white/60 backdrop-blur-sm transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
                         onClick={handleClose}
                         aria-hidden="true"
                     />
@@ -81,7 +81,7 @@ function BottomSheetCTAContent() {
                                 href="https://chat.whatsapp.com/DsWZ7dyfz4C5bB4QydtNqH"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-[0_10px_20px_-10px_rgba(37,211,102,0.5)] hover:shadow-[0_15px_25px_-10px_rgba(37,211,102,0.6)] hover:-translate-y-0.5"
+                                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-text-primary font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-[0_10px_20px_-10px_rgba(37,211,102,0.5)] hover:shadow-[0_15px_25px_-10px_rgba(37,211,102,0.6)] hover:-translate-y-0.5"
                                 onClick={handleClose}
                             >
                                 <span className="text-lg">Chat with us on WhatsApp</span>

@@ -8,7 +8,7 @@ export default function AdminEvents() {
     const [file, setFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({
         title: "", registration_url: "", description: "", venue: "", 
-        start_date: "", end_date: "", is_past: false, is_pinned: false
+        start_date: "", end_date: "", is_past: false, is_pinned: false, display_order: 0
     });
 
     const fetchEvents = () => {
@@ -113,7 +113,7 @@ export default function AdminEvents() {
     };
 
     const resetForm = () => {
-        setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", end_date: "", is_past: false, is_pinned: false });
+        setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", end_date: "", is_past: false, is_pinned: false, display_order: 0 });
         setFile(null);
     };
 
@@ -127,7 +127,8 @@ export default function AdminEvents() {
             start_date: new Date(event.start_date).toISOString().split('T')[0],
             end_date: new Date(event.end_date).toISOString().split('T')[0],
             is_past: event.is_past,
-            is_pinned: event.is_pinned
+            is_pinned: event.is_pinned,
+            display_order: event.display_order || 0
         });
         setFile(null);
         setIsModalOpen(true);
@@ -222,7 +223,7 @@ export default function AdminEvents() {
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(event.id)} 
-                                                    className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"
+                                                    className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-text-primary transition-all flex items-center justify-center"
                                                 >
                                                     <i className="fas fa-trash-alt text-sm"></i>
                                                 </button>
@@ -296,6 +297,12 @@ export default function AdminEvents() {
                                     <input type="checkbox" checked={formData.is_pinned} onChange={e => setFormData({...formData, is_pinned: e.target.checked})} className="w-5 h-5 accent-accent-blue rounded" />
                                     <span className="text-sm font-medium text-gray-700">Pin to Homepage</span>
                                 </label>
+                                {formData.is_pinned && (
+                                    <div className="flex items-center gap-2 ml-auto">
+                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Display Order:</label>
+                                        <input type="number" min="0" value={formData.display_order || 0} onChange={e => setFormData({...formData, display_order: parseInt(e.target.value) || 0})} className="w-20 bg-white border border-gray-200 rounded-lg px-2 py-1 text-gray-900 focus:border-accent-blue outline-none" />
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex gap-3 mt-4 pt-4 border-t border-gray-100">

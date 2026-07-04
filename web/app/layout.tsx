@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import FooterLoader from "@/components/layout/FooterLoader";
 import { PromoBar } from '@/components/layout/PromoBar';
+import ChatBotGate from "@/components/layout/ChatBotGate";
 import Script from "next/script";
 
 const inter = Inter({
@@ -109,6 +110,7 @@ export default function RootLayout({
           {children}
         </main>
         <FooterLoader />
+        <ChatBotGate />
       </body>
     </html>
   );

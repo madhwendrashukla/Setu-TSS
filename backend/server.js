@@ -48,6 +48,15 @@ const helpdeskRoutes = require('./routes/helpdesk');
 app.use('/api/chat-widgets', chatWidgetsRoutes);
 app.use('/api/helpdesk', helpdeskRoutes);
 
+// --- LMS INTEGRATION ---
+// Courses are owned by the LMS (jjlms database, read-only role here);
+// payments are processed here, then a signed webhook enrolls the student
+// in the LMS. See deploy/sql/ for the course_orders/webhook_deliveries DDL.
+const coursesRoutes = require('./routes/courses');
+const paymentsRoutes = require('./routes/payments');
+app.use('/api/courses', coursesRoutes);
+app.use('/api/payments', paymentsRoutes);
+
 // --- PUBLIC API ENDPOINTS ---
 app.get('/api/events/pinned', async (req, res) => {
   try {

@@ -289,3 +289,45 @@ model LeadSource {
 
   @@map("lead_sources")
 }
+
+// Paid-course orders. The course itself lives in the LMS's jjlms database
+// (read-only from here); lms_course_id/course_slug reference it by value.
+// status: created -> paid | failed. webhook_status: pending -> delivered | failed.
+model CourseOrder {
+  id                  String            @id @default(uuid()) @db.Uuid
+  razorpay_order_id   String?           @unique
+  razorpay_payment_id String?
+  lms_course_id       String
+  course_slug         String
+  course_title        String
+  amount              Int // paise, mirrors LMS Course.price
+  currency            String            @default("INR")
+  buyer_email         String
+  buyer_name          String
+  buyer_phone         String?
+  status              String            @default("created")
+  webhook_status      String?
+  utm_source          String?
+  utm_medium          String?
+  utm_campaign        String?
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
+  deliveries          WebhookDelivery[]
+
+  @@map("course_orders")
+}
+
+// Audit log: one row per enrollment-webhook attempt to the LMS.
+model WebhookDelivery {
+  id            String      @id @default(uuid()) @db.Uuid
+  order_id      String      @db.Uuid
+  order         CourseOrder @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  attempt       Int
+  status_code   Int?
+  response_body String?
+  error         String?
+  delivered_at  DateTime?
+  created_at    DateTime    @default(now())
+
+  @@map("webhook_deliveries")
+}

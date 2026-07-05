@@ -215,6 +215,12 @@ export default function AdminEvents() {
                                         </td>
                                         <td className="p-5 text-right">
                                             <div className="flex justify-end gap-2">
+                                                <a 
+                                                    href={`/admin/events/${event.id}/builder`}
+                                                    className="w-auto px-3 h-8 rounded-lg bg-accent-blue/10 text-accent-blue hover:bg-accent-blue hover:text-white transition-all flex items-center justify-center text-xs font-bold gap-1"
+                                                >
+                                                    <i className="fas fa-hammer"></i> Builder
+                                                </a>
                                                 <button 
                                                     onClick={() => openEdit(event)} 
                                                     className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-all flex items-center justify-center"

@@ -77,7 +77,15 @@ app.get('/api/events', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to fetch events' }); }
 });
 
-
+app.get('/api/events/slug/:slug', async (req, res) => {
+  try {
+    const event = await prisma.event.findUnique({ 
+      where: { slug: req.params.slug, is_active: true }
+    });
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+    res.json(event);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch event by slug' }); }
+});
 
 app.get('/api/gallery', async (req, res) => {
   try {
@@ -166,6 +174,16 @@ app.post('/api/leads', async (req, res) => {
 // --- ADMIN API ENDPOINTS (Protected) ---
 app.use('/api/admin', authMiddleware);
 
+app.post('/api/admin/upload', upload.single('file'), compressImage, async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    res.json({ url: req.file.url });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Failed to upload file' });
+  }
+});
+
 // EVENTS
 app.post('/api/admin/events', upload.single('banner'), compressImage, async (req, res) => {
   try {
@@ -183,6 +201,10 @@ app.post('/api/admin/events', upload.single('banner'), compressImage, async (req
     
     if (data.start_date) data.start_date = new Date(data.start_date);
     if (data.end_date) data.end_date = new Date(data.end_date);
+    
+    if (data.page_blocks && typeof data.page_blocks === 'string') {
+      try { data.page_blocks = JSON.parse(data.page_blocks); } catch (e) {}
+    }
 
     const newEvent = await prisma.event.create({ data });
     res.json(newEvent);
@@ -211,6 +233,10 @@ app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (
     
     if (data.start_date) data.start_date = new Date(data.start_date);
     if (data.end_date) data.end_date = new Date(data.end_date);
+    
+    if (data.page_blocks && typeof data.page_blocks === 'string') {
+      try { data.page_blocks = JSON.parse(data.page_blocks); } catch (e) {}
+    }
 
     const updated = await prisma.event.update({ where: { id: req.params.id }, data });
     res.json(updated);

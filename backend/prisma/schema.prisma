@@ -43,6 +43,8 @@ model Event {
   is_past     Boolean  @default(false)
   is_pinned   Boolean  @default(false)
   is_active   Boolean  @default(true)
+  slug        String?  @unique
+  page_blocks Json     @default("[]")
   created_at  DateTime @default(now())
 
   @@map("tss_events")

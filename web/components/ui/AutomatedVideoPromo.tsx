@@ -59,9 +59,9 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
             ))}
 
             {/* Dark Overlays for readability */}
-            <div className="absolute inset-0 z-0 bg-bg-main/80"></div>
-            <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/80 via-white/40 to-transparent"></div>
-            <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-white/40 to-bg-main"></div>
+            {/* Full-screen Dark Navy Washout over the images */}
+            <div className="absolute inset-0 z-0 bg-[#0B1120]/80"></div>
+            <div className="absolute inset-0 z-0 bg-gradient-to-t from-[#0B1120] via-transparent to-transparent opacity-90"></div>
 
             {/* Main Content Area */}
             <div className="relative z-10 w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center text-center h-full">
@@ -88,12 +88,12 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
                             className={`absolute flex flex-col items-center justify-center transition-all duration-1000 ease-in-out w-full px-4 ${index === currentSlide ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
                         >
                             <h1 
-                                className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-text-primary leading-[1.2] mb-6 drop-shadow-lg"
+                                className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.2] mb-6 drop-shadow-lg"
                                 dangerouslySetInnerHTML={{ __html: finalHeading }}
                             />
                             
                             <p 
-                                className="text-base md:text-xl font-medium text-text-secondary max-w-2xl mx-auto tracking-wide drop-shadow-md"
+                                className="text-base md:text-xl font-medium text-[#94A3B8] max-w-2xl mx-auto tracking-wide drop-shadow-md"
                                 dangerouslySetInnerHTML={{ __html: finalTagline }}
                             />
                         </div>

@@ -77,35 +77,35 @@ export function Contact() {
                     </h2>
                 </div>
 
-                <div className="bg-bg-surface rounded-3xl p-6 md:p-8 border border-functional-border shadow-[0_8px_40px_rgba(168,85,247,0.1)] relative overflow-hidden">
+                <div className="bg-[#13113B] rounded-3xl p-6 md:p-8 border border-functional-border/20 shadow-[0_8px_40px_rgba(168,85,247,0.15)] relative overflow-hidden">
                     <div className="mb-6 text-center">
-                        <h3 className="text-lg font-bold text-text-primary mb-3">To know more about our programs, drop your details below</h3>
+                        <h3 className="text-lg font-bold text-white mb-3">To know more about our programs, drop your details below</h3>
                         <div className="h-1 w-12 bg-[#A855F7] mx-auto rounded-full"></div>
                     </div>
                     
                     <form id="inquiry-form" onSubmit={handleFormSubmit} className="space-y-4 relative z-10">
                         <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="form-name" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">Full Name</label>
+                                <label htmlFor="form-name" className="block text-xs font-semibold tracking-wider text-gray-400 uppercase mb-1.5">Full Name</label>
                                 <input
                                     type="text"
                                     id="form-name"
                                     required
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all placeholder-slate-500"
+                                    className="w-full bg-black/20 border border-functional-border/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-[#A855F7]/40 focus:border-[#A855F7] transition-all placeholder-gray-500"
                                     placeholder="John Doe"
                                 />
                             </div>
                             <div>
-                                <label htmlFor="form-city" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">City</label>
+                                <label htmlFor="form-city" className="block text-xs font-semibold tracking-wider text-gray-400 uppercase mb-1.5">City</label>
                                 <input
                                     type="text"
                                     id="form-city"
                                     required
                                     value={formData.city}
                                     onChange={handleChange}
-                                    className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all placeholder-slate-500"
+                                    className="w-full bg-black/20 border border-functional-border/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-[#A855F7]/40 focus:border-[#A855F7] transition-all placeholder-gray-500"
                                     placeholder="Mumbai, Bengaluru, etc."
                                 />
                             </div>
@@ -113,7 +113,7 @@ export function Contact() {
 
                         <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="form-contact" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">Contact Number</label>
+                                <label htmlFor="form-contact" className="block text-xs font-semibold tracking-wider text-gray-400 uppercase mb-1.5">Contact Number</label>
                                 <input
                                     type="tel"
                                     id="form-contact"
@@ -122,32 +122,32 @@ export function Contact() {
                                     title="Please enter a valid 10 digit mobile number"
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all placeholder-slate-500"
+                                    className="w-full bg-black/20 border border-functional-border/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-[#A855F7]/40 focus:border-[#A855F7] transition-all placeholder-gray-500"
                                     placeholder="9876543210"
                                 />
                             </div>
                             <div>
-                                <label htmlFor="form-email" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">Email Address</label>
+                                <label htmlFor="form-email" className="block text-xs font-semibold tracking-wider text-gray-400 uppercase mb-1.5">Email Address</label>
                                 <input
                                     type="email"
                                     id="form-email"
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all placeholder-slate-500"
+                                    className="w-full bg-black/20 border border-functional-border/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-[#A855F7]/40 focus:border-[#A855F7] transition-all placeholder-gray-500"
                                     placeholder="john@example.com"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="form-source" className="block text-xs font-semibold tracking-wider text-text-secondary uppercase mb-1.5">What are you interested in?</label>
+                            <label htmlFor="form-source" className="block text-xs font-semibold tracking-wider text-gray-400 uppercase mb-1.5">What are you interested in?</label>
                             <select
                                 id="form-source"
                                 required
                                 value={formData.source}
                                 onChange={handleChange}
-                                className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 focus:border-[#A855F7] transition-all"
+                                className="w-full bg-black/20 border border-functional-border/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-[#A855F7]/40 focus:border-[#A855F7] transition-all"
                             >
                                 {sourceOptions.length > 0 ? (
                                     sourceOptions.map(option => (
@@ -160,7 +160,7 @@ export function Contact() {
                         </div>
 
                         <div className="pt-4 text-center flex flex-col items-center justify-center gap-4">
-                            <button type="submit" disabled={status === 'loading'} className="group w-full md:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-text-primary px-8 py-3 rounded-full font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center shadow-[0_4px_14px_0_rgba(168,85,247,0.39)] hover:shadow-[0_6px_20px_rgba(168,85,247,0.23)] hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0">
+                            <button type="submit" disabled={status === 'loading'} className="group w-full md:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-white px-8 py-3 rounded-full font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center shadow-[0_4px_14px_0_rgba(168,85,247,0.39)] hover:shadow-[0_6px_20px_rgba(168,85,247,0.23)] hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0">
                                 {status === 'loading' ? 'Submitting...' : 'Submit Inquiry'}
                                 {status !== 'loading' && <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
                             </button>

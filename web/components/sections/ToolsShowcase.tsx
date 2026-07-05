@@ -58,12 +58,12 @@ export function ToolsShowcase() {
                 </p>
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-wrap justify-center gap-6">
                 {CATEGORIES.map((category, idx) => (
                     <Link 
                         key={idx} 
                         href={category.href}
-                        className={`group flex flex-col p-8 md:p-10 bg-bg-surface border border-functional-border rounded-[32px] transition-all duration-300 relative overflow-hidden ${category.comingSoon ? 'opacity-80 cursor-not-allowed hover:bg-black/5' : 'hover:border-accent-blue/30 hover:shadow-[0_8px_40px_rgba(124,58,237,0.1)] hover:-translate-y-1 hover:bg-gray-50'}`}
+                        className={`w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group flex flex-col p-8 md:p-10 bg-[#13113B] border border-functional-border rounded-[32px] transition-all duration-300 relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.2)] ${category.comingSoon ? 'opacity-80 cursor-not-allowed' : 'hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)] hover:-translate-y-1 hover:bg-[#1a1845]'}`}
                         onClick={(e) => { if (category.comingSoon) e.preventDefault(); }}
                     >
                         <div className="flex items-start justify-between w-full mb-8">
@@ -77,10 +77,10 @@ export function ToolsShowcase() {
                             )}
                         </div>
                         
-                        <h3 className={`text-2xl font-bold mb-3 tracking-tight ${category.comingSoon ? 'text-text-primary/60' : 'text-text-primary'}`}>
+                        <h3 className={`text-2xl font-bold mb-3 tracking-tight ${category.comingSoon ? 'text-white/60' : 'text-white'}`}>
                             {category.title}
                         </h3>
-                        <p className="text-text-secondary font-medium leading-relaxed mb-10 flex-1">
+                        <p className="text-gray-400 font-medium leading-relaxed mb-10 flex-1">
                             {category.description}
                         </p>
                         

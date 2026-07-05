@@ -53,24 +53,24 @@ export default async function EventsPage() {
                             </div>
                         ) : (
                             upcoming.map((event: any) => (
-                                <div key={event.id} className="glass-card rounded-3xl p-8 border border-black/5 bg-bg-surface flex flex-col">
+                                <div key={event.id} className="glass-card rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
                                     {event.banner_url ? (
-                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-accent-blue hover:bg-accent-royal text-white/5">
+                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
                                             <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain" />
                                         </div>
                                     ) : (
-                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-accent-blue hover:bg-accent-royal text-white/5">
+                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
                                             <img src="/ai-workshop-banner.webp" alt="Event Banner" className="w-full h-full object-contain opacity-50" />
                                         </div>
                                     )}
-                                    <h3 className="text-2xl font-bold text-text-primary mb-4">{event.title}</h3>
-                                    <p className="text-text-secondary mb-6 flex-grow">{event.description}</p>
-                                    <div className="flex gap-4 text-sm text-text-secondary mb-6">
-                                        <span><i className="fas fa-map-marker-alt text-text-secondary w-4"></i> {event.venue}</span>
-                                        <span><i className="far fa-calendar text-text-secondary w-4"></i> {new Date(event.start_date).toLocaleDateString()}</span>
+                                    <h3 className="text-2xl font-bold text-white mb-4">{event.title}</h3>
+                                    <p className="text-gray-400 mb-6 flex-grow">{event.description}</p>
+                                    <div className="flex gap-4 text-sm text-gray-400 mb-6">
+                                        <span><i className="fas fa-map-marker-alt text-gray-400 w-4"></i> {event.venue}</span>
+                                        <span><i className="far fa-calendar text-gray-400 w-4"></i> {new Date(event.start_date).toLocaleDateString()}</span>
                                     </div>
                                     {event.registration_url && (
-                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-accent-blue font-bold uppercase text-sm group-hover:text-accent-violet transition-colors">Register Now &rarr;</Link>
+                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-[#A855F7] font-bold uppercase text-sm hover:text-[#9333ea] transition-colors">Register Now &rarr;</Link>
                                     )}
                                 </div>
                             ))
@@ -84,36 +84,36 @@ export default async function EventsPage() {
 
                     <div className="grid lg:grid-cols-2 gap-8">
                         {past.map((event: any) => (
-                            <div key={event.id} className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-black/5 relative group h-full flex flex-col bg-bg-surface">
+                            <div key={event.id} className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-functional-border/20 relative group h-full flex flex-col bg-[#13113B] shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
                                 {event.banner_url ? (
-                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-accent-blue hover:bg-accent-royal text-white/5">
+                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
                                         <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 ) : (
-                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-accent-blue hover:bg-accent-royal text-white/5">
+                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
                                         <img src="/ai-workshop-banner.webp" alt="Past Event" className="w-full h-full object-contain opacity-50 group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 )}
                                 <div className="flex justify-between items-start mb-6">
-                                    <div className="bg-accent-blue hover:bg-accent-royal text-white/5 border border-black/10 text-text-secondary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                                    <div className="bg-white/10 border border-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
                                         Concluded
                                     </div>
                                 </div>
 
-                                <h3 className="text-3xl font-bold text-text-primary mb-4 tracking-[-0.02em] leading-tight group-hover:text-accent-blue transition duration-300">{event.title}</h3>
-                                <p className="text-text-secondary text-lg leading-relaxed mb-10 flex-grow">{event.description}</p>
+                                <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-[#A855F7] transition duration-300">{event.title}</h3>
+                                <p className="text-gray-400 text-lg leading-relaxed mb-10 flex-grow">{event.description}</p>
 
-                                <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-black/5">
+                                <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/10">
                                     <div className="space-y-2">
-                                        <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                            <i className="far fa-calendar text-text-secondary/50 w-6"></i> {new Date(event.start_date).toLocaleDateString()} (Past)
+                                        <div className="flex items-center text-gray-400 font-medium tracking-wide">
+                                            <i className="far fa-calendar text-gray-400 w-6"></i> {new Date(event.start_date).toLocaleDateString()} (Past)
                                         </div>
-                                        <div className="flex items-center text-text-secondary font-medium tracking-wide">
-                                            <i className="fas fa-map-marker-alt text-text-secondary/50 w-6"></i> {event.venue}
+                                        <div className="flex items-center text-gray-400 font-medium tracking-wide">
+                                            <i className="fas fa-map-marker-alt text-gray-400 w-6"></i> {event.venue}
                                         </div>
                                     </div>
                                     {event.registration_url && (
-                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-accent-blue hover:bg-accent-royal text-white hover:bg-accent-blue text-white px-8 py-3 rounded-full font-bold transition duration-300 text-center">
+                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-white px-8 py-3 rounded-full font-bold transition duration-300 text-center">
                                             Register for this Event
                                         </Link>
                                     )}

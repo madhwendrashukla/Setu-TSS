@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-main: #FAFAFC; /* Background */
+  --color-bg-main: #EEF2FF; /* Premium light indigo/blue wash Background */
   --color-bg-surface: #FFFFFF; /* Surface */
   --color-text-primary: #13113B; /* Primary Text */
   --color-text-secondary: #4B5563; /* Secondary Text */
   --color-accent-blue: #7C3AED; /* Primary Royal Violet */
-  --color-accent-violet: #C026D3; /* Accent Magenta */
+  --color-accent-violet: #A855F7; /* Accent Lavender (replaced pink) */
   --color-accent-royal: #5A1EEB; /* Primary Dark */
   --color-accent-lavender: #B395E6; /* Primary Light */
   --color-functional-success: #16A34A;
@@ -15,7 +15,7 @@
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Merriweather', serif;
 
-  --background-image-gradient-primary: linear-gradient(135deg, #C026D3 0%, #8B3DFF 45%, #7C3AED 100%); /* Signature Gradient */
+  --background-image-gradient-primary: linear-gradient(135deg, #A855F7 0%, #8B3DFF 45%, #7C3AED 100%); /* Signature Gradient */
 
   --animate-scroll-left: scrollLeft 40s linear infinite;
   --animate-scroll-right: scrollRight 40s linear infinite;

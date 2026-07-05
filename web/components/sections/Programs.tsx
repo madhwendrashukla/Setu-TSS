@@ -30,12 +30,9 @@ export function Programs({ data = [] }: { data?: any[] }) {
 
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 max-w-6xl mx-auto items-stretch">
                     {programs.map((program: any, index: number) => {
-                        const isEven = index % 2 !== 0;
-                        const cardBg = isEven ? 'bg-[#EDE5FF] border-accent-blue/20' : 'bg-bg-surface border-functional-border';
-                        const btnStyle = isEven 
-                            ? 'bg-accent-blue hover:bg-accent-royal text-white' 
-                            : 'bg-black/5 hover:bg-black/10 text-text-primary border border-functional-border';
-                        const btnArrow = isEven ? 'text-white' : 'text-text-primary';
+                        const cardBg = 'bg-[#13113B] border-functional-border/20';
+                        const btnStyle = 'bg-[#A855F7] hover:bg-[#9333ea] text-white';
+                        const btnArrow = 'text-white';
                         
                         // Parse durations into array (assuming backend might send comma separated or just one string)
                         const locations = program.duration ? program.duration.split(',').map((l: string) => l.trim()) : ['TBA'];
@@ -49,19 +46,19 @@ export function Programs({ data = [] }: { data?: any[] }) {
                                             <div className="w-6 h-px bg-[#A855F7]/40"></div>
                                         </div>
                                         
-                                        <h3 className="text-3xl md:text-4xl font-bold text-text-primary tracking-tight mb-4 leading-[1.15]">
+                                        <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4 leading-[1.15]">
                                             {program.title}:<br />{program.subtitle}
                                         </h3>
                                         
-                                        <p className="text-text-secondary text-base leading-relaxed mb-6 font-medium whitespace-pre-line">
+                                        <p className="text-gray-400 text-base leading-relaxed mb-6 font-medium whitespace-pre-line">
                                             {program.description}
                                         </p>
 
-                                        <div className="w-full h-px bg-text-secondary/20 mb-6"></div>
+                                        <div className="w-full h-px bg-white/10 mb-6"></div>
 
                                         <div className="space-y-3 mb-6 flex-grow">
                                             {locations.map((loc: string, i: number) => (
-                                                <div key={i} className="flex items-center text-text-secondary font-medium text-sm">
+                                                <div key={i} className="flex items-center text-gray-400 font-medium text-sm">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-[#A855F7] mr-4 shadow-[0_0_8px_rgba(168,85,247,0.6)]"></span> {loc}
                                                 </div>
                                             ))}

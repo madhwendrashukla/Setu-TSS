@@ -9,7 +9,7 @@ type Course = {
     id: string;
     title: string;
     smallDescription: string | null;
-    price: number; // paise
+    price: number; // rupees (as stored by the LMS)
     duration: number;
     level: string;
     category: string | null;
@@ -26,8 +26,8 @@ async function getCourses(): Promise<Course[]> {
     }
 }
 
-const formatPrice = (paise: number) =>
-    paise <= 0 ? 'Free' : `₹${(paise / 100).toLocaleString('en-IN')}`;
+const formatPrice = (rupees: number) =>
+    rupees <= 0 ? 'Free' : `₹${rupees.toLocaleString('en-IN')}`;
 
 export default async function CoursesPage() {
     const courses = await getCourses();

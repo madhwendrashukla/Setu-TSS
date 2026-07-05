@@ -8,6 +8,10 @@ const { Pool } = require('pg');
 // The LMS owns the Course table and all migrations against it; the website
 // only ever reads. Column/table identifiers are quoted because the LMS's
 // Prisma schema has no @@map directives (PascalCase/camelCase identifiers).
+//
+// UNIT WARNING: Course.price is in RUPEES (verified against the LMS admin
+// form, "Price: (₹)"), NOT paise — convert to paise only where a payment
+// gateway requires it.
 const lmsPool = new Pool({
   connectionString: process.env.LMS_DATABASE_URL_RO,
   max: 5,

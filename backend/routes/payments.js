@@ -60,12 +60,16 @@ router.post('/create-order', async (req, res) => {
       return res.status(400).json({ error: 'This course is free — enroll directly on the LMS' });
     }
 
+    // The LMS stores Course.price in RUPEES; Razorpay (and our order
+    // records) work in PAISE. Convert exactly once, here.
+    const amountPaise = Math.round(course.price * 100);
+
     const order = await prisma.courseOrder.create({
       data: {
         lms_course_id: course.id,
         course_slug: course.slug,
         course_title: course.title,
-        amount: course.price, // paise, as stored by the LMS
+        amount: amountPaise,
         currency: 'INR',
         buyer_email: email.trim().toLowerCase(),
         buyer_name: name.trim(),
@@ -77,7 +81,7 @@ router.post('/create-order', async (req, res) => {
     });
 
     const razorpayOrder = await razorpay.orders.create({
-      amount: course.price,
+      amount: amountPaise,
       currency: 'INR',
       receipt: order.id,
       notes: { courseSlug: course.slug, orderId: order.id },
@@ -91,7 +95,7 @@ router.post('/create-order', async (req, res) => {
     res.json({
       orderId: order.id,
       razorpayOrderId: razorpayOrder.id,
-      amount: course.price,
+      amount: amountPaise, // paise — what Razorpay checkout expects
       currency: 'INR',
       keyId: process.env.RAZORPAY_KEY_ID,
       courseTitle: course.title,

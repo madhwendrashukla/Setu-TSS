@@ -300,7 +300,7 @@ model CourseOrder {
   lms_course_id       String
   course_slug         String
   course_title        String
-  amount              Int // paise, mirrors LMS Course.price
+  amount              Int // paise (LMS Course.price is in RUPEES — converted at order creation)
   currency            String            @default("INR")
   buyer_email         String
   buyer_name          String

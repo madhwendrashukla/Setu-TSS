@@ -3,7 +3,7 @@ const router = express.Router();
 const { listPublishedCourses, getCourseBySlug } = require('../utils/lmsDb');
 
 // Public catalog of LMS-owned courses, read via the SELECT-only RDS role.
-// Prices are in paise, exactly as the LMS stores them.
+// Prices are in RUPEES, exactly as the LMS stores them.
 
 router.get('/', async (req, res) => {
   try {

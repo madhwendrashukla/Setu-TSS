@@ -10,7 +10,7 @@ type Course = {
     title: string;
     smallDescription: string | null;
     description: string | null;
-    price: number; // paise
+    price: number; // rupees (as stored by the LMS)
     duration: number;
     level: string;
     category: string | null;

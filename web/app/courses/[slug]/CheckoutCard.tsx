@@ -17,8 +17,10 @@ declare global {
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-const formatPrice = (paise: number) =>
-    paise <= 0 ? 'Free' : `₹${(paise / 100).toLocaleString('en-IN')}`;
+// price prop is in RUPEES (LMS convention); the create-order response's
+// `amount` is in PAISE (Razorpay convention).
+const formatPrice = (rupees: number) =>
+    rupees <= 0 ? 'Free' : `₹${rupees.toLocaleString('en-IN')}`;
 
 function loadRazorpayScript(): Promise<boolean> {
     return new Promise((resolve) => {

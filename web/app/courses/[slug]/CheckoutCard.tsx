@@ -40,16 +40,21 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
     const [status, setStatus] = useState<Status>("idle");
     const [error, setError] = useState<string | null>(null);
 
-    // Free courses are enrolled inside the LMS, not purchased here.
+    // The LMS is login-access-only (no self-enrollment), so free offerings
+    // have no self-serve path yet — access is granted by the team
+    // (LMS admin manual enrollment) until a ₹0 flow is built.
     if (price <= 0) {
         return (
             <aside className="h-fit rounded-2xl border border-functional-border bg-white p-8 lg:sticky lg:top-28">
                 <p className="text-3xl font-black text-text-primary mb-4">Free</p>
+                <p className="text-sm text-text-secondary leading-relaxed mb-6">
+                    Access to this free workshop is provided by The Startup School team.
+                </p>
                 <a
-                    href={`/lms/courses/${slug}`}
+                    href="/lms/login"
                     className="block w-full rounded-full bg-gradient-primary text-white text-center font-semibold py-3"
                 >
-                    Enroll free on the LMS
+                    Already enrolled? Log in →
                 </a>
             </aside>
         );

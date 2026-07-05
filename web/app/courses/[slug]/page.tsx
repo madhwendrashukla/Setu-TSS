@@ -77,9 +77,9 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                         </div>
                     )}
                     <p className="mt-10 text-sm text-text-secondary">
-                        Want the full curriculum and free preview lessons?{' '}
-                        <a href={`/lms/courses/${course.slug}`} className="text-accent-blue font-semibold hover:underline">
-                            Explore this course on the LMS →
+                        Already enrolled?{' '}
+                        <a href="/lms/login" className="text-accent-blue font-semibold hover:underline">
+                            Log in to the LMS →
                         </a>
                     </p>
                 </div>

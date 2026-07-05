@@ -114,7 +114,7 @@ export default function ToolsPage() {
                     <h3 className="text-2xl font-black text-black mb-6">Explore by Category</h3>
                     <div className="flex flex-wrap gap-4 mb-8">
                         {['Fundraising', 'Market Research', 'Build & Tech', 'Legal & Finance', 'Marketing', 'Communities'].map(cat => (
-                            <div key={cat} className="px-5 py-2.5 rounded-full border border-black/5 bg-white text-sm font-semibold text-black hover:bg-accent-blue hover:bg-accent-royal text-white/5 cursor-pointer transition-colors flex items-center gap-2 shadow-sm">
+                            <div key={cat} className="px-5 py-2.5 rounded-full border border-black/5 bg-white text-sm font-semibold text-black hover:bg-accent-blue hover:bg-accent-royal hover:text-white cursor-pointer transition-colors flex items-center gap-2 shadow-sm">
                                 <i className="fas fa-layer-group text-accent-violet text-xs"></i> {cat}
                             </div>
                         ))}

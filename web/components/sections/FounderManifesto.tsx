@@ -25,7 +25,7 @@ export function FounderManifesto() {
                 </div>
 
                 {/* Content with Left Border */}
-                <div className="border-l-[3px] border-[#A855F7] pl-8 space-y-7 text-[#94A3B8] text-base md:text-[17px] leading-[1.8]">
+                <div className="border-l-[3px] border-[#A855F7] pl-8 space-y-7 text-text-secondary text-base md:text-[17px] leading-[1.8]">
                     
                     <h2 className="text-[28px] md:text-[36px] font-bold text-text-primary leading-[1.3] mb-12 tracking-tight">
                         “दिल में हो आग तो जलती रहनी चाहिए,<br />

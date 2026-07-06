@@ -38,7 +38,9 @@ model Event {
   venue            String?
   city             String?
   start_date       DateTime? @db.Date
+  start_time       String?
   end_date         DateTime? @db.Date
+  end_time         String?
   registration_url String    @default("")
   is_past     Boolean  @default(false)
   is_pinned   Boolean  @default(false)
@@ -57,6 +59,7 @@ model Mentor {
   bio           String?
   photo_url     String?
   linkedin_url  String?
+  show_linkedin Boolean  @default(true)
   display_order Int
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())
@@ -143,6 +146,7 @@ model SiteSetting {
   contact_email  String?
   contact_phone  String?
   certifications String   @default("[]")
+  section_toggles Json    @default("{}")
   updated_at     DateTime @updatedAt
 
   @@map("site_settings")

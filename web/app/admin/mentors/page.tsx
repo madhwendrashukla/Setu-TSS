@@ -148,7 +148,7 @@ export default function AdminMentors() {
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDelete(mentor.id)} 
-                                                    className="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center"
+                                                    className="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-text-primary transition-all flex items-center justify-center"
                                                     title="Delete Mentor"
                                                 >
                                                     <i className="fas fa-trash-alt text-sm"></i>

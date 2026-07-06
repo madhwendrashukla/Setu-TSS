@@ -29,7 +29,7 @@ const SOCIAL_LINKS = [
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
         ),
-        color: 'hover:bg-black hover:border-white/40',
+        color: 'hover:bg-black hover:text-white hover:border-black text-inherit',
     },
     {
         name: 'YouTube',
@@ -67,31 +67,31 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
     }
 
     return (
-        <footer className="bg-[#0a0d1a] border-t border-white/5 text-white py-14">
+        <footer className="bg-[#1E2640] border-t border-white/10 text-white py-14">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 {/* Top row: Brand + Tagline */}
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left gap-6 md:gap-8 mb-10">
                     <div>
                         <Link href="/" className="flex items-center gap-3 mb-4">
                             <Image 
-                                src="/setu-logo-purple.png" 
+                                src="/setu-logo-footer-new.png" 
                                 alt="Setu Logo" 
                                 width={120} 
                                 height={40} 
                                 className="object-contain"
                             />
                         </Link>
-                        <p className="text-white/40 text-sm font-light">An Alternate B-School for Aspiring Founders</p>
-                        <p className="text-white text-xs md:text-sm font-medium mt-1.5 tracking-widest uppercase">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>
-                        {siteSettings?.address && (
-                            <p className="text-white/40 text-xs mt-2 max-w-sm whitespace-pre-line">{siteSettings.address}</p>
-                        )}
-                        {(siteSettings?.contact_email || siteSettings?.contact_phone) && (
-                            <p className="text-white/40 text-xs mt-1">
-                                {siteSettings.contact_email && <a href={`mailto:${siteSettings.contact_email}`} className="hover:text-white mr-3">{siteSettings.contact_email}</a>}
-                                {siteSettings.contact_phone && <a href={`tel:${siteSettings.contact_phone}`} className="hover:text-white">{siteSettings.contact_phone}</a>}
+                        
+                        <div className="flex flex-col gap-1 mt-4 mb-6 text-center md:text-left text-sm text-gray-300">
+                            <p>An Alternate B-School for Aspiring Founders</p>
+                            <p className="font-bold text-white mt-1 tracking-wide uppercase">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>
+                            <p className="mt-2 text-gray-400">123 Startup Ave, Innovation City</p>
+                            <p className="mt-1 text-gray-400">
+                                <a href="mailto:hello@thestartupschool.in" className="hover:text-white transition-colors">hello@thestartupschool.in</a>
+                                <span className="mx-3">+91 98765 43210</span>
                             </p>
-                        )}
+                        </div>
+
                         {certs.length > 0 && (
                             <div className="flex gap-2 mt-4">
                                 {certs.map((cert: any, i: number) => (
@@ -110,7 +110,7 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title={s.name}
-                                className={`w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/60 hover:text-white transition-all duration-300 ${s.color}`}
+                                className={`w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition-all duration-300 ${s.color}`}
                             >
                                 {'svgIcon' in s && s.svgIcon
                                     ? s.svgIcon
@@ -122,12 +122,12 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                 </div>
 
                 {/* Nav Links */}
-                <div className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-3 mb-8 border-t border-white/5 pt-8">
+                <div className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-3 mb-8 border-t border-white/10 pt-8">
                     {NAV_LINKS.map((link) => (
                         <Link
                             key={link.href}
                             href={link.href}
-                            className="text-sm text-white/40 hover:text-white transition-colors font-medium text-center"
+                            className="text-sm text-gray-400 hover:text-white transition-colors font-medium text-center"
                         >
                             {link.label}
                         </Link>
@@ -135,8 +135,8 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                 </div>
 
                 {/* Bottom row: Copyright + Legal */}
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-t border-white/5 pt-6">
-                    <p className="text-white/30 text-xs text-center md:text-left">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-t border-white/10 pt-6">
+                    <p className="text-gray-500 text-xs text-center md:text-left">
                         © {new Date().getFullYear()} RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD. All rights reserved.
                     </p>
                     <div className="flex items-center gap-5">
@@ -144,7 +144,7 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="text-xs text-white/30 hover:text-white/70 transition-colors"
+                                className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
                             >
                                 {link.label}
                             </Link>

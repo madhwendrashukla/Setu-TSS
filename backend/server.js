@@ -60,9 +60,12 @@ app.use('/api/payments', paymentsRoutes);
 // --- PUBLIC API ENDPOINTS ---
 app.get('/api/events/pinned', async (req, res) => {
   try {
-    const pinnedEvent = await prisma.event.findFirst({ where: { is_pinned: true, is_past: false, is_active: true } });
-    res.json(pinnedEvent);
-  } catch (error) { res.status(500).json({ error: 'Failed to fetch pinned event' }); }
+    const pinnedEvents = await prisma.event.findMany({ 
+      where: { is_pinned: true, is_past: false, is_active: true },
+      orderBy: { display_order: 'asc' }
+    });
+    res.json(pinnedEvents);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch pinned events' }); }
 });
 
 app.get('/api/events/past-rolling', async (req, res) => {
@@ -83,7 +86,15 @@ app.get('/api/events', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to fetch events' }); }
 });
 
-
+app.get('/api/events/slug/:slug', async (req, res) => {
+  try {
+    const event = await prisma.event.findUnique({ 
+      where: { slug: req.params.slug, is_active: true }
+    });
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+    res.json(event);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch event by slug' }); }
+});
 
 app.get('/api/gallery', async (req, res) => {
   try {
@@ -120,6 +131,15 @@ app.get('/api/mentors/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to fetch mentor details' }); }
 });
 
+app.get('/api/promo-bar', async (req, res) => {
+  try {
+    const promo = await prisma.promoBar.findFirst({ 
+      where: { is_active: true },
+      orderBy: { updated_at: 'desc' }
+    });
+    res.json(promo);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch promo bar' }); }
+});
 app.get('/api/homepage', async (req, res) => {
   try {
     const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups] = await Promise.all([
@@ -163,6 +183,16 @@ app.post('/api/leads', async (req, res) => {
 // --- ADMIN API ENDPOINTS (Protected) ---
 app.use('/api/admin', authMiddleware);
 
+app.post('/api/admin/upload', upload.single('file'), compressImage, async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    res.json({ url: req.file.url });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Failed to upload file' });
+  }
+});
+
 // EVENTS
 app.post('/api/admin/events', upload.single('banner'), compressImage, async (req, res) => {
   try {
@@ -170,8 +200,8 @@ app.post('/api/admin/events', upload.single('banner'), compressImage, async (req
     if (req.file) data.banner_url = req.file.url;
     
     data.is_pinned = (data.is_pinned === 'true' || data.is_pinned === true);
-    if (data.is_pinned) {
-      await prisma.event.updateMany({ data: { is_pinned: false } });
+    if (data.display_order !== undefined) {
+      data.display_order = parseInt(data.display_order) || 0;
     }
     
     if (data.is_past !== undefined) {
@@ -180,6 +210,10 @@ app.post('/api/admin/events', upload.single('banner'), compressImage, async (req
     
     if (data.start_date) data.start_date = new Date(data.start_date);
     if (data.end_date) data.end_date = new Date(data.end_date);
+    
+    if (data.page_blocks && typeof data.page_blocks === 'string') {
+      try { data.page_blocks = JSON.parse(data.page_blocks); } catch (e) {}
+    }
 
     const newEvent = await prisma.event.create({ data });
     res.json(newEvent);
@@ -196,9 +230,10 @@ app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (
     
     if (data.is_pinned !== undefined) {
       data.is_pinned = (data.is_pinned === 'true' || data.is_pinned === true);
-      if (data.is_pinned) {
-        await prisma.event.updateMany({ data: { is_pinned: false } });
-      }
+    }
+    
+    if (data.display_order !== undefined) {
+      data.display_order = parseInt(data.display_order) || 0;
     }
     
     if (data.is_past !== undefined) {
@@ -207,6 +242,10 @@ app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (
     
     if (data.start_date) data.start_date = new Date(data.start_date);
     if (data.end_date) data.end_date = new Date(data.end_date);
+    
+    if (data.page_blocks && typeof data.page_blocks === 'string') {
+      try { data.page_blocks = JSON.parse(data.page_blocks); } catch (e) {}
+    }
 
     const updated = await prisma.event.update({ where: { id: req.params.id }, data });
     res.json(updated);
@@ -634,6 +673,20 @@ app.put('/api/admin/site_settings', async (req, res) => {
     }
     res.json(updated);
   } catch (error) { res.status(500).json({ error: 'Failed to update site settings' }); }
+});
+
+// PROMO BAR
+app.put('/api/admin/promo_bar', authMiddleware, async (req, res) => {
+  try {
+    const existing = await prisma.promoBar.findFirst({ orderBy: { updated_at: 'desc' } });
+    let updated;
+    if (existing) {
+      updated = await prisma.promoBar.update({ where: { id: existing.id }, data: req.body });
+    } else {
+      updated = await prisma.promoBar.create({ data: req.body });
+    }
+    res.json(updated);
+  } catch (error) { res.status(500).json({ error: 'Failed to update promo bar' }); }
 });
 
 // --- MISSING ADMIN GET ROUTES ---

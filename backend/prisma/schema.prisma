@@ -43,6 +43,8 @@ model Event {
   is_past     Boolean  @default(false)
   is_pinned   Boolean  @default(false)
   is_active   Boolean  @default(true)
+  slug        String?  @unique
+  page_blocks Json     @default("[]")
   created_at  DateTime @default(now())
 
   @@map("tss_events")
@@ -330,4 +332,18 @@ model WebhookDelivery {
   created_at    DateTime    @default(now())
 
   @@map("webhook_deliveries")
+}
+
+model PromoBar {
+  id            String   @id @default(uuid()) @db.Uuid
+  title         String
+  button_text   String
+  button_link   String
+  price_text    String?
+  subtext       String?
+  timer_minutes Int?
+  is_active     Boolean  @default(true)
+  updated_at    DateTime @updatedAt
+
+  @@map("promo_bar")
 }

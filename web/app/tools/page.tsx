@@ -53,21 +53,21 @@ export default function ToolsPage() {
                         </div>
                     </Link>
 
-                    {/* Coming Soon: Incubators & Accelerators */}
-                    <div className="glass-card bg-[#f8fafc] p-8 md:p-10 rounded-3xl border border-black/5 relative overflow-hidden flex flex-col items-start gap-4">
-                        <span className="bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest inline-block">Coming Soon</span>
+                    {/* Active Tool 3: Incubators & Accelerators */}
+                    <Link href="/tools/incubators-accelerators" className="glass-card bg-white p-8 md:p-10 rounded-3xl border border-black/5 hover:border-accent-violet/30 transition-all hover:shadow-[0_8px_30px_rgba(124,58,237,0.08)] group relative overflow-hidden flex flex-col items-start gap-4">
+                        <span className="bg-accent-violet/10 text-accent-violet text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest inline-block">Live Now</span>
                         <div className="flex gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center border border-green-100">
-                                <i className="fas fa-building text-xl text-green-600"></i>
+                            <div className="w-12 h-12 rounded-xl bg-accent-violet/5 flex items-center justify-center border border-accent-violet/10">
+                                <i className="fas fa-building text-xl text-accent-violet"></i>
                             </div>
                             <div>
                                 <h3 className="text-xl md:text-2xl font-bold text-black mb-2 tracking-tight">Incubators & Accelerators</h3>
-                                <div className="w-10 h-0.5 bg-green-300 mb-4"></div>
+                                <div className="w-10 h-0.5 bg-accent-violet/30 mb-4"></div>
                                 <p className="text-text-secondary leading-relaxed text-sm mb-6 max-w-sm">An intelligent mapping tool to discover workspaces across the startup landscape.</p>
-                                <span className="text-accent-violet font-bold text-sm tracking-widest flex items-center gap-2 opacity-50 cursor-not-allowed">Access Tool &rarr;</span>
+                                <span className="text-accent-violet font-bold text-sm tracking-widest flex items-center gap-2 group-hover:gap-3 transition-all">Access Tool &rarr;</span>
                             </div>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Active Tool 3: Grants & Schemes */}
                     <Link href="/tools/grants" className="glass-card bg-white p-8 md:p-10 rounded-3xl border border-black/5 hover:border-accent-violet/30 transition-all hover:shadow-[0_8px_30px_rgba(124,58,237,0.08)] group relative overflow-hidden flex flex-col items-start gap-4">
@@ -114,7 +114,7 @@ export default function ToolsPage() {
                     <h3 className="text-2xl font-black text-black mb-6">Explore by Category</h3>
                     <div className="flex flex-wrap gap-4 mb-8">
                         {['Fundraising', 'Market Research', 'Build & Tech', 'Legal & Finance', 'Marketing', 'Communities'].map(cat => (
-                            <div key={cat} className="px-5 py-2.5 rounded-full border border-black/5 bg-white text-sm font-semibold text-black hover:bg-black/5 cursor-pointer transition-colors flex items-center gap-2 shadow-sm">
+                            <div key={cat} className="px-5 py-2.5 rounded-full border border-black/5 bg-white text-sm font-semibold text-black hover:bg-accent-blue hover:bg-accent-royal hover:text-white cursor-pointer transition-colors flex items-center gap-2 shadow-sm">
                                 <i className="fas fa-layer-group text-accent-violet text-xs"></i> {cat}
                             </div>
                         ))}
@@ -122,7 +122,7 @@ export default function ToolsPage() {
 
                     <div className="bg-white border border-black/5 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-accent-violet rounded-full flex items-center justify-center text-white shrink-0 shadow-lg shadow-accent-violet/30">
+                            <div className="w-12 h-12 bg-accent-violet rounded-full flex items-center justify-center text-text-primary shrink-0 shadow-lg shadow-accent-violet/30">
                                 <i className="fas fa-comment-dots text-xl"></i>
                             </div>
                             <div>

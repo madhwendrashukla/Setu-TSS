@@ -176,7 +176,7 @@ export default function AdminLeads() {
             </div>
 
             {showSourceModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-accent-blue hover:bg-accent-royal text-white/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl p-6 w-full max-w-md">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-bold">Manage Lead Sources</h2>
@@ -184,7 +184,7 @@ export default function AdminLeads() {
                         </div>
                         <form onSubmit={addSource} className="flex gap-2 mb-4">
                             <input type="text" value={newSourceLabel} onChange={e => setNewSourceLabel(e.target.value)} placeholder="New source label (e.g. AI Workshop)" className="flex-1 border rounded px-3 py-2 text-sm text-black" required />
-                            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-bold">Add</button>
+                            <button type="submit" className="bg-blue-600 text-text-primary px-4 py-2 rounded text-sm font-bold">Add</button>
                         </form>
                         <div className="max-h-64 overflow-y-auto border rounded divide-y">
                             {adminSources.map(s => (

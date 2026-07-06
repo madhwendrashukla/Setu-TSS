@@ -108,8 +108,8 @@ function SuccessContent() {
                         </div>
                     </div>
                     
-                    <h1 className="text-2xl font-bold text-white mb-3 tracking-tight">Redirecting...</h1>
-                    <p className="text-slate-400 text-sm leading-relaxed mb-8">
+                    <h1 className="text-2xl font-bold text-text-primary mb-3 tracking-tight">Redirecting...</h1>
+                    <p className="text-text-secondary text-sm leading-relaxed mb-8">
                         Taking you to the launchpad. If you are not redirected automatically, click the link below.
                     </p>
                     
@@ -208,13 +208,13 @@ function SuccessContent() {
                 }
             `}} />
 
-            <div className="success-body antialiased selection:bg-[#8b5cf6] selection:text-white relative">
+            <div className="success-body antialiased selection:bg-[#8b5cf6] selection:text-text-primary relative">
 
                 {/* Background Grid */}
                 <div className="fixed inset-0 bg-grid-pattern z-[-1] pointer-events-none" />
 
                 {/* Nav */}
-                <nav className={`fixed w-full z-50 transition-all duration-300 border-b border-white/5 ${scrolled ? 'bg-[#0f172a]/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5)]' : 'glass-card'}`}>
+                <nav className={`fixed w-full z-50 transition-all duration-300 border-b border-functional-border ${scrolled ? 'bg-[#0f172a]/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.5)]' : 'glass-card'}`}>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 md:h-20">
                             <a
@@ -235,7 +235,7 @@ function SuccessContent() {
                                 <a
                                     href="https://thestartupschool.in/AI-workshop-15may"
                                     onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in/AI-workshop-15may'); }}
-                                    className="relative inline-flex items-center justify-center px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold rounded-lg text-white bg-[#0f172a] border border-white/10 hover:bg-transparent transition-all gap-1.5 md:gap-2"
+                                    className="relative inline-flex items-center justify-center px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold rounded-lg text-text-primary bg-[#0f172a] border border-functional-border hover:bg-transparent transition-all gap-1.5 md:gap-2"
                                 >
                                     <i className="fa-solid fa-arrow-left" /> Back to Workshop
                                 </a>
@@ -252,7 +252,7 @@ function SuccessContent() {
                     <div className="absolute bottom-1/4 -right-10 w-64 h-64 md:w-96 md:h-96 bg-[#d946ef] rounded-full mix-blend-screen filter blur-[100px] opacity-25 animate-blob pointer-events-none" style={{ animationDelay: '2000ms' }} />
 
                     <div className="w-full max-w-2xl relative z-10">
-                        <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 border border-white/10 border-b-4 text-center"
+                        <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 border border-functional-border border-b-4 text-center"
                             style={{ borderBottomColor: workshop.color, boxShadow: `0 20px 50px -15px ${workshop.color}40` }}>
 
                             {/* Success icon */}
@@ -275,14 +275,14 @@ function SuccessContent() {
                                     {workshop.subtitle}
                                 </span>
                             </div>
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mt-4 mb-2 tracking-tight leading-tight">
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-text-primary mt-4 mb-2 tracking-tight leading-tight">
                                 You&apos;re In! 🎉
                             </h1>
                             <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4" style={{ color: workshop.color }}>
                                 {workshop.title}
                             </h2>
 
-                            <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed mb-2">
+                            <p className="text-sm sm:text-base text-text-secondary font-light leading-relaxed mb-2">
                                 Payment confirmed. Your seat is secured for:
                             </p>
 
@@ -291,19 +291,19 @@ function SuccessContent() {
                                 style={{ background: `${workshop.color}10`, border: `1px solid ${workshop.color}25` }}>
                                 <div className="flex items-center gap-3 mb-2">
                                     <i className={`fa-solid ${workshop.icon} text-sm`} style={{ color: workshop.color }} />
-                                    <span className="text-white font-semibold text-sm">{workshop.title}</span>
+                                    <span className="text-text-primary font-semibold text-sm">{workshop.title}</span>
                                 </div>
                                 <div className="flex items-center gap-3 mb-2">
                                     <i className="fa-solid fa-user text-sm" style={{ color: workshop.color }} />
-                                    <span className="text-slate-300 text-sm">{workshop.mentor}</span>
+                                    <span className="text-text-secondary text-sm">{workshop.mentor}</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <i className="fa-solid fa-calendar text-sm" style={{ color: workshop.color }} />
-                                    <span className="text-slate-300 text-sm">{workshop.date}</span>
+                                    <span className="text-text-secondary text-sm">{workshop.date}</span>
                                 </div>
                             </div>
 
-                            <p className="text-xs sm:text-sm text-slate-400 font-light mb-6">
+                            <p className="text-xs sm:text-sm text-text-secondary font-light mb-6">
                                 A confirmation will be sent to your registered email. Check your inbox (and spam folder).
                             </p>
 
@@ -311,13 +311,13 @@ function SuccessContent() {
                             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-6" />
 
                             {/* WhatsApp CTA */}
-                            <div className="bg-[#0f172a]/50 rounded-2xl p-5 sm:p-6 md:p-8 border border-white/5 backdrop-blur-sm">
-                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                            <div className="bg-[#0f172a]/50 rounded-2xl p-5 sm:p-6 md:p-8 border border-functional-border backdrop-blur-sm">
+                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-text-primary mb-2 flex items-center justify-center gap-2">
                                     <i className="fa-brands fa-whatsapp text-[#25D366] text-xl" />
                                     Next Step: Join Your Workshop Group
                                 </h3>
-                                <p className="text-xs sm:text-sm text-slate-400 font-light mb-5">
-                                    Join the exclusive WhatsApp group for <strong className="text-white">{workshop.title}</strong> to get Zoom link, schedule updates, and pre-session materials.
+                                <p className="text-xs sm:text-sm text-text-secondary font-light mb-5">
+                                    Join the exclusive WhatsApp group for <strong className="text-text-primary">{workshop.title}</strong> to get Zoom link, schedule updates, and pre-session materials.
                                 </p>
 
                                 <div className="relative group block w-full">
@@ -326,11 +326,11 @@ function SuccessContent() {
                                         href={workshop.whatsappLink}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="shimmer-btn relative flex items-center justify-center px-6 py-4 sm:py-5 text-base sm:text-lg font-black rounded-xl text-white border border-white/20 transition-all duration-300 transform group-hover:-translate-y-1 w-full shadow-lg"
+                                        className="shimmer-btn relative flex items-center justify-center px-6 py-4 sm:py-5 text-base sm:text-lg font-black rounded-xl text-text-primary border border-functional-border transition-all duration-300 transform group-hover:-translate-y-1 w-full shadow-lg"
                                     >
                                         <i className="fa-brands fa-whatsapp text-xl mr-2" />
                                         Join WhatsApp Group Now
-                                        <i className="fa-solid fa-arrow-right ml-3 text-white/70 text-sm" />
+                                        <i className="fa-solid fa-arrow-right ml-3 text-text-primary/70 text-sm" />
                                     </a>
                                 </div>
 
@@ -344,7 +344,7 @@ function SuccessContent() {
                                 <a
                                     href="https://thestartupschool.in"
                                     onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in'); }}
-                                    className="text-xs sm:text-sm text-slate-500 hover:text-slate-300 transition-colors underline underline-offset-2"
+                                    className="text-xs sm:text-sm text-slate-500 hover:text-text-secondary transition-colors underline underline-offset-2"
                                 >
                                     Return to Setu - TheStartupSchool Homepage
                                 </a>
@@ -354,7 +354,7 @@ function SuccessContent() {
 
                         {/* Footer note */}
                         <p className="text-center text-[11px] text-slate-600 mt-6">
-                            Powered by <span className="text-slate-400 font-semibold">Setu - TheStartupSchool</span> · Ramsetu Alternate Education Solutions Pvt Ltd
+                            Powered by <span className="text-text-secondary font-semibold">Setu - TheStartupSchool</span> · Ramsetu Alternate Education Solutions Pvt Ltd
                         </p>
                     </div>
                 </main>

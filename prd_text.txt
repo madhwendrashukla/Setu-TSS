@@ -1,0 +1,541 @@
+PRODUCT REQUIREMENTS DOCUMENT
+The Startup School
+Phase 1 — Home, Events & Mentors Pages
+Backend Architecture, Database & Hosting Plan
+Version
+v1.0
+Date
+June 2026
+Authors
+Madhwendra, Sai, Monarch
+Stakeholder
+Gaurav Bansal
+Reference
+Live site — thestartupschool.in (June 2026)
+Pages in Scope
+Home, Events, Mentors — all sections backend-driven
+Out of Scope
+Tools & Resources page — kept exactly as-is, not part of Phase 1 backend
+Architecture
+Next.js frontend + Express backend (separate, same VPS) + PostgreSQL
+Hosting
+AWS Free Tier (12 months) → AWS Lightsail India (Mumbai)
+1. Scope of This Document
+This PRD covers the backend for three pages: Home, Events, and Mentors. These are treated as the primary pages for Phase 1.
+Tools & Resources Page — Out of Scope
+The Tools & Resources page (pitch deck library, founder calendar preview, tool cards grid) stays exactly as it currently is on the live site. It is not part of this Phase 1 backend build and will be handled separately.
+All content structure below is based directly on the live site at thestartupschool.in (June 2026). The backend replaces hardcoded content with database-driven content, manageable from an admin panel.
+2. Homepage — Section by Section
+Eleven sections total. Each one mapped to its backend requirement, in homepage order.
+Section 1 — Hero
+Current
+Rotating background images (slide-2, slide-3...) with heading 'Stop Ideating. Start Building.' and tagline.
+Backend Change
+Hero background images become manageable from admin — admin can add, remove, or reorder hero slides. 
+Heading and tagline text remain as-is (static) or can also be made editable
+.
+New Table
+hero_slides
+Field
+Type
+Notes
+id
+uuid
+Primary key
+image_url
+text
+AWS S3 URL
+display_order
+integer
+Order of rotation
+is_active
+boolean
+Default: true
+Section 2 — Pinned Upcoming Workshop
+Current
+This section already exists in the current code (event promo banner).
+Backend Change
+When an admin creates an event on the Events page (upcoming), they get a 'Pin to Homepage' toggle. When pinned, this exact event shows in homepage Section 2.
+Rule
+Only ONE event can be pinned at a time. Pinning a new event automatically un-pins the previous one (is_pinned set to false on the old record).
+Field on events table
+is_pinned (boolean, default false) — added to the events table from Section 3
+Implementation Note
+On the backend, when PUT /api/admin/events/:id sets is_pinned = true, run an UPDATE query that first sets is_pinned = false for all other rows, then sets it true for this one. This guarantees only one pinned event exists at any time.
+------------------
+Mentors list Missing
+ ---------------------------
+Section 3 — Tools & Resources Preview
+Current
+Pitch deck preview strip, founder calendar preview, and tool cards grid (Incubators, Investor DB, Grants, Events Calendar, Pitch Deck Library, Financial Modeler, Cap Table Simulator).
+Backend Change
+None for Phase 1. Kept exactly as it currently is. The Tools & Resources page (and this homepage preview) is being handled separately, outside this PRD.
+Section 4 — The Founder's Manifesto
+Current
+Gaurav Bansal's quote, photo, and manifesto text block.
+Backend Change
+None for Phase 1. Stays exactly as is (static content).
+Section 5 — Mentor Panel Highlights
+Current
+3 cards — Mentor Panel E-Cell IIT Madras, IIM Rohtak Judge & Mentor, Session at Doon B-School.
+Backend Change
+None for Phase 1. Stays exactly as is (static content).
+Section 6 — 
+Programs Launching Soon
+Current
+The Spark (3-Day Ignition Sprint) and The Transformation (30-Day Deep-Dive), each with 'Show your interest' button.
+Backend Change
+Content stays as is. Only the 'Show your interest' buttons connect to the shared Lead Form (Section 9) with a program-specific tag.
+Section 7 — Community Gallery
+Current
+Scrolling carousel of 16 community photos.
+Backend Change
+Fully backend-driven. Admin can add, edit, and delete gallery items 
+— both images and videos 
+— under one 'Gallery' section.
+Images
+Uploaded from admin panel to AWS S3. Compressed automatically on upload if the file is large.
+Videos
+URL-based only (YouTube or other external links) — no direct file upload for videos. Rendered with an embedded YouTube player on the frontend.
+New Table
+gallery_items
+Field
+Type
+Notes
+id
+uuid
+Primary key
+type
+text
+'image' | 'video'
+media_url
+text
+S3 URL for images. External URL (YouTube etc.) for videos.
+caption
+text
+Optional caption. Nullable.
+display_order
+integer
+Controls carousel order
+is_active
+boolean
+Default: true
+created_at
+timestamptz
+Auto-set
+Section 8 — 
+Testimonials
+New Section
+New section added to homepage. Two types: Video Testimonials and Text Testimonials (rolling/marquee style).
+Admin Options
+Admin can add either 'Video Testimonial' or 'Text Testimonial' from one form, with a type selector.
+Video Testimonial
+YouTube link is provided. Frontend renders an embedded YouTube player.
+Text Testimonial
+Name, city, photo (optional), quote text, and the event/program tag — rendered in a rolling/marquee strip.
+New Table
+testimonials
+Field
+Type
+Notes
+id
+uuid
+Primary key
+type
+text
+'video' | 'text'
+name
+text
+Person's name
+city
+text
+Nullable
+photo_url
+text
+S3 URL. Used for text testimonials. Nullable.
+quote
+text
+Used for text testimonials. Nullable for video type.
+youtube_url
+text
+Used for video testimonials. Nullable for text type.
+event_tag
+text
+e.g. 'AI Startup Launchpad, May 2026'. Nullable.
+display_order
+integer
+Controls display sequence
+is_active
+boolean
+Default: true
+Section 9 — 
+Community Partners
+New Section
+New section, placed after Testimonials and before the Footer. Shows partner logos.
+Per Partner
+Name, logo image, and website URL. Clicking the logo opens the partner's website (new tab).
+Backend
+Fully manageable from admin — add, edit, delete partners. Logo uploaded to S3.
+New Table
+community_partners
+Field
+Type
+Notes
+id
+uuid
+Primary key
+name
+text
+Partner organisation name
+logo_url
+text
+S3 URL
+website_url
+text
+Opens in new tab on click
+display_order
+integer
+Controls display sequence
+is_active
+boolean
+Default: true
+Section-10 – Students from 
+Section-11 – Certifications
+ and Awards (No heading name to be displayed, should have the ability to switch on and off
+ ; UDYAM 
+Section 10 — Contact / Inquiry Form
+Current
+'To know more about our programs, drop your details below' — Full Name, City, Contact Number, Email, Submit Inquiry.
+Backend Change
+One single shared lead form component used across the entire site (homepage, programs, mentors page, events page). Each placement sends a different 'source' tag so admin can filter submissions by where they came from.
+New Table
+leads
+Field
+Type
+Notes
+id
+uuid
+Primary key
+full_name
+text
+city
+text
+phone
+text
+Contact number
+email
+text
+source
+text
+Tag identifying which form/page this came from. e.g. 'homepage_contact' | 'spark_interest' | 'transformation_interest' | 'apply_mentor' | 'event_inquiry'
+status
+text
+'new' | 'contacted' | 'converted'. Default: 'new'.
+created_at
+timestamptz
+Auto-set
+Admin Panel — Leads Filtering
+Admin can filter the leads list by the source tag — e.g. view only 'Spark' program interest submissions, or only homepage contact form submissions, separately.
+Section 11 — 
+Footer
+Current
+TSS logo, tagline, company name, social links (LinkedIn, Instagram, WhatsApp, X, YouTube), navigation links, copyright, Privacy Policy, Terms of Use.
+Backend Change
+None for Phase 1. Stays exactly as is.
+3. Events Page
+The Events page has two tabs — Upcoming and Past. This is the source of truth for the pinned homepage workshop (Section 2).
+----------will we have a slideshow on home page-------------
+3.1 events table
+Field
+Type
+Notes
+id
+uuid
+Primary key
+title
+text
+Event name
+slug
+text
+URL slug for the event detail page, e.g. /events/ai-workshop-may-2026
+description
+text
+Full event description
+banner_url
+text
+S3 banner image URL
+venue
+text
+Venue name or 'Online'
+city
+text
+City or 'Online'
+start_date
+date
+end_date
+date
+Same as start_date for single-day events
+is_past
+boolean
+true = shown under 'Past' tab. Default: false.
+is_pinned
+boolean
+true = shown on homepage Section 2. Only one event can have this true (see 3.2). Default: false.
+is_active
+boolean
+false = hidden entirely from the site. Default: true.
+created_at
+timestamptz
+Auto-set
+3.2 Pinning Logic
+1
+Admin creates or edits an event under the Upcoming tab in /admin/events.
+2
+A 'Pin to Homepage' toggle is available only for upcoming (is_past = false) events.
+3
+Admin turns the toggle ON for one event.
+4
+Backend runs: SET is_pinned = false for all events, then SET is_pinned = true for this event.
+5
+Homepage Section 2 fetches the event WHERE is_pinned = true and is_past = false, and renders it.
+6
+If no event is pinned, Section 2 either hides or shows a default 'no upcoming workshop' state — to be confirmed with design.
+3.3 Events Page Endpoints
+Method
+Endpoint
+Description
+Auth
+GET
+/api/events?upcoming=true
+Upcoming tab — all active events where is_past = false.
+Public
+GET
+/api/events?past=true
+Past tab — all active events where is_past = true.
+Public
+GET
+/api/events/pinned
+Returns the single pinned event for homepage Section 2. Null if none pinned.
+Public
+GET
+/api/events/:slug
+Single event detail page.
+Public
+POST
+/api/admin/events
+Create event.
+Admin
+PUT
+/api/admin/events/:id
+Update event, including is_pinned and is_past toggles.
+Admin
+DELETE
+/api/admin/events/:id
+Soft delete: is_active = false.
+Admin
+4. Mentors Page
+Replaces the hardcoded list of 11 mentors with database-driven records. Used by both the homepage carousel (Section 1 of homepage 'Learn from Masters') and the full /mentors page.
+4.1 mentors table
+Field
+Type
+Notes
+id
+uuid
+Primary key
+name
+text
+Full name
+title
+text
+e.g. 'Co-Founder, Hypermine'
+bio
+text
+Short bio paragraph
+photo_url
+text
+S3 URL
+linkedin_url
+text
+Full LinkedIn profile URL
+display_order
+integer
+Controls carousel and grid order
+is_active
+boolean
+false = hidden. Default: true.
+created_at
+timestamptz
+Auto-set
+4.2 Mentors Page Endpoints
+Method
+Endpoint
+Description
+Auth
+GET
+/api/mentors
+All active mentors, ordered by display_order. Used by homepage carousel and full /mentors page.
+Public
+GET
+/api/mentors/:id
+Single mentor detail.
+Public
+POST
+/api/admin/mentors
+Create mentor. Photo upload to S3.
+Admin
+PUT
+/api/admin/mentors/:id
+Update mentor or replace photo.
+Admin
+DELETE
+/api/admin/mentors/:id
+Soft delete: is_active = false.
+Admin
+5. Complete Database Table List
+Table
+Powers
+Status
+hero_slides
+Homepage — Hero
+New table
+events
+Homepage Section 2, Events page
+New table — includes is_pinned and is_past flags
+gallery_items
+Homepage — Community Gallery
+New table
+testimonials
+Homepage — Testimonials
+New table
+community_partners
+Homepage — Community Partners
+New table
+leads
+Shared lead form (all pages)
+New table — filterable by source tag
+mentors
+Homepage carousel, Mentors page
+New table
+users
+Admin login / auth
+New table — for admin authentication
+6. Admin Panel — Section Summary
+Section
+What Admin Can Do
+Hero Slides
+Add, remove, reorder homepage hero background images.
+Events
+Create, edit, delete events. Toggle Upcoming/Past. Toggle Pin to Homepage (only one event pinned at a time).
+Mentors
+Add, edit, reorder, soft-delete mentors. Photo upload to S3.
+Gallery
+Add images (uploaded + auto-compressed) or videos (YouTube URL). Reorder, delete.
+Testimonials
+Add Video Testimonial (YouTube link) or Text Testimonial (name, city, photo, quote, event tag). Reorder, delete.
+Community Partners
+Add, edit, delete partner logo + website link.
+Leads
+View all submissions across all forms. Filter by source tag (homepage contact, Spark interest, Transformation interest, etc). Update status. CSV export.
+7. Architecture & Hosting
+7.1 Stack
+Layer
+Technology
+Notes
+Frontend
+Next.js
+Existing site, content sections become dynamic
+Backend
+Node.js + Express
+Separate REST API server, same VPS
+Database
+PostgreSQL
+Self-hosted on VPS
+ORM
+Prisma
+Migrations + type-safe queries
+File Storage
+AWS S3
+Hero images, gallery images, mentor photos, partner logos, testimonial photos. Auto-compression on image upload.
+Auth
+JWT
+Admin login only for Phase 1
+Hosting
+AWS Lightsail (Mumbai)
+Free Tier for 12 months, then ~Rs. 1,260/month
+7.2 System Diagram
+  Browser (thestartupschool.in)
+               |
+               v
+  +---------------------------------------+
+  |          AWS Lightsail VPS             |
+  |                                        |
+  |   Next.js Frontend     (Port 3000)     |
+  |   Express Backend API  (Port 5000)     |
+  |   PostgreSQL Database                  |
+  |   Nginx (reverse proxy + SSL)           |
+  +---------------------------------------+
+               |
+               v
+         AWS S3 Bucket
+  (hero images, gallery, mentor photos,
+   partner logos, testimonial photos)
+8. Update Flow — How Content Changes Reach the Website
+Same flow applies to every section described above: Hero Slides, Events, Mentors, Gallery, Testimonials, Community Partners.
+1
+Admin logs into /admin (protected, JWT-based).
+2
+Admin opens the relevant section (e.g. Gallery) and adds/edits/deletes an item.
+3
+Frontend sends a request to the Express API (e.g. POST /api/admin/gallery).
+4
+If a file is involved (image), it is uploaded to AWS S3 first — compressed if large — and the resulting URL is saved to PostgreSQL via Prisma.
+5
+If it's a video, the YouTube/external URL is validated and saved directly — no S3 upload.
+6
+The public-facing page (e.g. homepage) calls the public API (e.g. GET /api/gallery) on next load and shows the updated content immediately — no redeploy needed.
+9. Delivery Milestones
+Timeline
+Deliverables
+Owner
+Week 1
+Local dev setup: Node.js, PostgreSQL, Next.js + Express running locally
+All 8 tables created via Prisma migrations: hero_slides, events, gallery_items, testimonials, community_partners, leads, mentors, users
+AWS account, Free Tier verified, S3 bucket created
+Backend
+Week 2
+Events API complete, including pinning logic
+Mentors API complete
+Hero Slides, Gallery, Testimonials, Community Partners APIs complete
+Leads API complete with source tagging
+Admin auth (JWT) complete
+Backend
+Week 3
+Homepage migration: all 11 sections connected to backend (except Tools & Resources, Manifesto, Mentor Panel Highlights, Footer)
+Events page migration: Upcoming / Past tabs live
+Mentors page migration
+Shared lead form integrated everywhere with correct source tags
+Full Stack
+Week 4
+Admin panel complete — all 8 sections live, tested by Gaurav
+AWS Lightsail server set up: Nginx + PM2 + SSL
+Frontend + backend deployed, both live
+End-to-end testing across all three pages
+Full Stack
+10. Out of Scope
+Tools & Resources page — kept exactly as is, handled separately
+Founder's Manifesto section — static, unchanged
+Mentor Panel Highlights section — static, unchanged
+Footer — static, unchanged
+Razorpay payments, email automation, WhatsApp automation — Phase 2
+Flutter / Android app — Phase 3
+11. Success Criteria
+Homepage Sections 1, 2, 7, 8, 9, 10 are fully backend-driven; Sections 3, 4, 5, 6, 11 remain unchanged as specified
+Admin can pin exactly one upcoming event, and it appears correctly on the homepage
+Events page Upcoming and Past tabs both pull from the same events table
+Mentors page and homepage carousel both pull from the same mentors table
+Gallery supports both images (uploaded, compressed) and videos (YouTube URL only)
+Testimonials section supports both video and text types from one admin form
+Community Partners section is live with clickable logos linking to partner websites
+All forms across the site submit to one shared leads table with correct source tags, filterable in admin
+Both frontend and backend are deployed on AWS Lightsail and running with PM2
+The Startup School  ·  Phase 1 PRD  ·  Confidential — Internal Use Only  ·  thestartupschool.in

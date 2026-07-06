@@ -12,8 +12,8 @@ export const EcosystemPartners = ({ data }: { data?: any[] }) => {
     return (
         <section className="card-section pt-8 md:pt-12 pb-0">
             <div className="max-w-7xl mx-auto px-6 text-center">
-                <span className="text-gray-500 text-xs font-bold tracking-[0.2em] uppercase mb-4 block">NETWORK</span>
-                <h2 className="text-3xl md:text-4xl font-bold text-black tracking-tight mb-12">Ecosystem Partners</h2>
+                <span className="text-text-secondary text-xs font-bold tracking-[0.2em] uppercase mb-4 block">NETWORK</span>
+                <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-12">Ecosystem Partners</h2>
 
                 <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
                     {partners.map(partner => (
@@ -24,7 +24,7 @@ export const EcosystemPartners = ({ data }: { data?: any[] }) => {
                             rel="noopener noreferrer"
                             className="group flex flex-col items-center gap-3 block transition-transform hover:scale-105"
                         >
-                            <div className="relative w-32 h-16 md:w-40 md:h-20 filter grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition duration-300 bg-gray-50 flex items-center justify-center rounded-xl overflow-hidden border border-gray-200">
+                            <div className="relative w-32 h-16 md:w-40 md:h-20 filter grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition duration-300 bg-bg-surface flex items-center justify-center rounded-xl overflow-hidden border border-functional-border">
                                 {partner.logo_url ? (
                                     <img 
                                         src={encodeURI(partner.logo_url)} 
@@ -32,10 +32,10 @@ export const EcosystemPartners = ({ data }: { data?: any[] }) => {
                                         className="object-contain w-full h-full p-2"
                                     />
                                 ) : (
-                                    <div className="text-gray-400 font-bold text-xl px-2 text-center w-full truncate">{partner.name}</div>
+                                    <div className="text-text-secondary font-bold text-xl px-2 text-center w-full truncate">{partner.name}</div>
                                 )}
                             </div>
-                            <span className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                            <span className="text-sm font-semibold text-text-secondary group-hover:text-text-primary transition-colors">
                                 {partner.name}
                             </span>
                         </a>

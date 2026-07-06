@@ -21,13 +21,13 @@ function ScoreBadge({ score }: { score: number }) {
 function DirectoryCard({ item }: { item: any }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className="glass-card hover-glow p-6 md:p-8 rounded-3xl border border-white/5 h-full flex flex-col relative group transition-all duration-300 bg-bg-surface hover:bg-white/5">
+        <div className="glass-card hover-glow p-6 md:p-8 rounded-3xl border border-functional-border h-full flex flex-col relative group transition-all duration-300 bg-bg-surface hover:bg-white/5">
             <div className="flex justify-between items-start gap-4 mb-6">
                 <div>
                     <span className="bg-white/10 text-text-primary text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider mb-3 inline-block">
                         {item.benefitTags || 'Grant'}
                     </span>
-                    <h3 className="text-xl font-bold text-white mb-2 tracking-tight group-hover:text-accent-blue transition-colors">{item.title}</h3>
+                    <h3 className="text-xl font-bold text-text-primary mb-2 tracking-tight group-hover:text-accent-blue transition-colors">{item.title}</h3>
                     <p className="flex items-center gap-1.5 text-sm text-text-secondary font-light">
                         <MapPin size={12} className="text-accent-blue/60" /> Pan India
                     </p>
@@ -35,49 +35,49 @@ function DirectoryCard({ item }: { item: any }) {
                 <ScoreBadge score={85} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-white/5 border border-white/10 rounded-2xl">
+            <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-white/5 border border-functional-border rounded-2xl">
                 <div className="flex flex-col gap-1">
                     <span className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Funding Support</span>
-                    <strong className="text-sm text-white font-medium line-clamp-2">{item.amount || 'N/A'}</strong>
+                    <strong className="text-sm text-text-primary font-medium line-clamp-2">{item.amount || 'N/A'}</strong>
                 </div>
                 <div className="flex flex-col gap-1">
                     <span className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Ministry</span>
-                    <strong className="text-sm text-white font-medium line-clamp-2">{item.ministry || 'N/A'}</strong>
+                    <strong className="text-sm text-text-primary font-medium line-clamp-2">{item.ministry || 'N/A'}</strong>
                 </div>
                 <div className="flex flex-col gap-1">
                     <span className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Tenure</span>
-                    <strong className="text-sm text-white font-medium line-clamp-2">{item.tenure || 'N/A'}</strong>
+                    <strong className="text-sm text-text-primary font-medium line-clamp-2">{item.tenure || 'N/A'}</strong>
                 </div>
                 <div className="flex flex-col gap-1">
                     <span className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Deadline</span>
-                    <strong className="text-sm text-white font-medium line-clamp-1">{item.deadline || 'Ongoing'}</strong>
+                    <strong className="text-sm text-text-primary font-medium line-clamp-1">{item.deadline || 'Ongoing'}</strong>
                 </div>
             </div>
 
             <button
-                className="inline-flex items-center gap-2 text-sm font-bold text-accent-blue hover:text-white transition-colors mb-6 pb-2 border-b border-white/5 w-fit"
+                className="inline-flex items-center gap-2 text-sm font-bold text-accent-blue hover:text-text-primary transition-colors mb-6 pb-2 border-b border-functional-border w-fit"
                 onClick={() => setOpen(!open)}
             >
                 {open ? 'Hide details' : 'View all parameters'} {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
 
             {open && (
-                <div className="mb-8 pt-4 border-t border-white/10 animate-fade-in">
+                <div className="mb-8 pt-4 border-t border-functional-border animate-fade-in">
                     <ul className="space-y-3">
-                        <li className="text-sm text-text-secondary font-light flex justify-between gap-4 border-b border-white/5 pb-2">
-                            <span className="shrink-0 text-white font-medium">Focus Sectors:</span>
+                        <li className="text-sm text-text-secondary font-light flex justify-between gap-4 border-b border-functional-border pb-2">
+                            <span className="shrink-0 text-text-primary font-medium">Focus Sectors:</span>
                             <span className="text-right">{item.sectors || 'Agnostic'}</span>
                         </li>
-                        <li className="text-sm text-text-secondary font-light flex flex-col gap-2 pt-2 pb-2 border-b border-white/5">
-                            <span className="shrink-0 text-white font-medium">Overview:</span>
+                        <li className="text-sm text-text-secondary font-light flex flex-col gap-2 pt-2 pb-2 border-b border-functional-border">
+                            <span className="shrink-0 text-text-primary font-medium">Overview:</span>
                             <span>{item.description || 'N/A'}</span>
                         </li>
-                        <li className="text-sm text-text-secondary font-light flex flex-col gap-2 pt-2 pb-2 border-b border-white/5">
-                            <span className="shrink-0 text-white font-medium">Eligibility:</span>
+                        <li className="text-sm text-text-secondary font-light flex flex-col gap-2 pt-2 pb-2 border-b border-functional-border">
+                            <span className="shrink-0 text-text-primary font-medium">Eligibility:</span>
                             <span>{item.eligibility || 'N/A'}</span>
                         </li>
                         <li className="text-sm text-text-secondary font-light flex flex-col gap-2 pt-2">
-                            <span className="shrink-0 text-white font-medium">Benefits:</span>
+                            <span className="shrink-0 text-text-primary font-medium">Benefits:</span>
                             <span>{item.benefits || 'N/A'}</span>
                         </li>
                     </ul>
@@ -135,13 +135,13 @@ export default function GrantsPage() {
     return (
         <div className="pt-32 pb-20 min-h-screen bg-bg-main">
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <Link href="/tools" className="inline-flex items-center text-text-tertiary hover:text-white transition-colors mb-8 text-sm group">
+                <Link href="/tools" className="inline-flex items-center text-text-tertiary hover:text-text-primary transition-colors mb-8 text-sm group">
                     <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
                     Back to Tools
                 </Link>
 
                 <div className="mb-12">
-                    <h1 className="text-5xl md:text-5xl font-black text-white tracking-[-0.04em] mb-6">
+                    <h1 className="text-5xl md:text-5xl font-black text-text-primary tracking-[-0.04em] mb-6">
                         Grants <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))]">Directory.</span>
                     </h1>
                     <p className="text-xl text-text-secondary font-light max-w-2xl">
@@ -150,10 +150,10 @@ export default function GrantsPage() {
                 </div>
 
                 {/* Unified Filter Bar */}
-                <div className="glass-card p-4 md:p-6 rounded-[2rem] border border-white/10 bg-bg-surface/30 mb-12 flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
-                    <div className="flex items-center gap-4 px-4 border-r border-white/10 hidden lg:flex">
+                <div className="glass-card p-4 md:p-6 rounded-[2rem] border border-functional-border bg-bg-surface/30 mb-12 flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
+                    <div className="flex items-center gap-4 px-4 border-r border-functional-border hidden lg:flex">
                         <Filter size={20} className="text-accent-blue" />
-                        <span className="text-xs font-bold text-white uppercase tracking-widest whitespace-nowrap">Browse Grants</span>
+                        <span className="text-xs font-bold text-text-primary uppercase tracking-widest whitespace-nowrap">Browse Grants</span>
                     </div>
 
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -163,7 +163,7 @@ export default function GrantsPage() {
                             <select
                                 value={regionFilter}
                                 onChange={(e) => setRegionFilter(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm text-white focus:outline-none focus:border-accent-blue/50 transition-all appearance-none cursor-pointer"
+                                className="w-full bg-white/5 border border-functional-border rounded-2xl py-4 px-4 text-sm text-text-primary focus:outline-none focus:border-accent-blue/50 transition-all appearance-none cursor-pointer"
                             >
                                 {regions.map(r => <option key={r} value={r} className="bg-bg-surface">{r}</option>)}
                             </select>
@@ -183,7 +183,7 @@ export default function GrantsPage() {
                                 placeholder="Grant name, provider, sector..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue/50 transition-all"
+                                className="w-full bg-white/5 border border-functional-border rounded-2xl py-4 pl-12 pr-4 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue/50 transition-all"
                             />
                         </div>
                     </div>
@@ -191,7 +191,7 @@ export default function GrantsPage() {
 
                 <div className="flex items-center justify-between mb-8">
                     <p className="text-text-tertiary text-xs font-bold uppercase tracking-widest">
-                        Grants Available: <span className="text-white ml-2">{filteredData.length}</span>
+                        Grants Available: <span className="text-text-primary ml-2">{filteredData.length}</span>
                     </p>
                 </div>
 
@@ -202,8 +202,8 @@ export default function GrantsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="glass-card p-16 rounded-3xl border border-dashed border-white/10 text-center flex flex-col items-center justify-center min-h-[400px]">
-                        <h3 className="text-2xl font-bold text-white mb-2">No Results Found</h3>
+                    <div className="glass-card p-16 rounded-3xl border border-dashed border-functional-border text-center flex flex-col items-center justify-center min-h-[400px]">
+                        <h3 className="text-2xl font-bold text-text-primary mb-2">No Results Found</h3>
                         <p className="text-text-secondary mb-8">No grants matched this specific query setup.</p>
                         <button className="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition-colors" onClick={resetFilters}>Clear Filters</button>
                     </div>

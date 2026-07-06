@@ -15,11 +15,11 @@ export default function FinancialModelerPage() {
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="mb-12">
-                    <Link href="/tools" className="text-text-secondary hover:text-white transition-colors text-sm font-medium tracking-wide flex items-center gap-2 mb-8 w-fit">
+                    <Link href="/tools" className="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium tracking-wide flex items-center gap-2 mb-8 w-fit">
                         <span>&larr;</span> Back to Tools
                     </Link>
                     <span className="text-accent-violet text-sm font-bold tracking-[0.2em] uppercase mb-4 block">Interactive Tool</span>
-                    <h1 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-black text-text-primary mb-6 tracking-tight">
                         Financial <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))]">Modeler.</span>
                     </h1>
                     <p className="text-xl text-text-secondary font-light max-w-3xl leading-relaxed">

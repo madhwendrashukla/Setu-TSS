@@ -123,7 +123,7 @@ function PitchDeckCard({ deck }: { deck: GlobalPitchDeck }) {
             <div className="flex flex-col gap-3 pt-4 border-t border-gray-100">
                 <Link
                     href={`/tools/pitch-decks/${deck.id}`}
-                    className="w-full flex items-center justify-center gap-2 bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))] hover:opacity-90 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-lg shadow-accent-blue/10"
+                    className="w-full flex items-center justify-center gap-2 bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))] hover:opacity-90 text-text-primary py-3 rounded-2xl text-xs font-bold transition-all shadow-lg shadow-accent-blue/10"
                 >
                     View Pitch Deck <ExternalLink size={14} />
                 </Link>

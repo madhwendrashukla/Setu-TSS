@@ -19,7 +19,7 @@ const EditableNumber = ({
     currency = null,
     prefix = '',
     suffix = '',
-    textColor = "text-white"
+    textColor = "text-text-primary"
 }: {
     value: number;
     onChange: (val: number) => void;
@@ -237,7 +237,7 @@ export default function CapTableSimulator() {
     const PieChart = ({ data, total }: { data: any[], total: number }) => {
         let currentAngle = 0;
         // Don't draw if 0
-        if (total <= 0) return <div className="w-48 h-48 rounded-full bg-white/5 border border-white/10"></div>;
+        if (total <= 0) return <div className="w-48 h-48 rounded-full bg-white/5 border border-functional-border"></div>;
 
         return (
             <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
@@ -291,10 +291,10 @@ export default function CapTableSimulator() {
                 {/* Header */}
                 <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                     <div>
-                        <Link href="/tools" className="text-accent-violet text-xs font-bold uppercase tracking-widest hover:text-white transition-colors mb-4 flex items-center gap-2 w-max">
+                        <Link href="/tools" className="text-accent-violet text-xs font-bold uppercase tracking-widest hover:text-text-primary transition-colors mb-4 flex items-center gap-2 w-max">
                             <i className="fas fa-arrow-left"></i> Tools Directory
                         </Link>
-                        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4">
+                        <h1 className="text-4xl md:text-5xl font-black text-text-primary tracking-tighter mb-4">
                             Cap Table <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,var(--color-accent-blue),var(--color-accent-violet))]">Simulator.</span>
                         </h1>
                         <p className="text-lg text-text-secondary font-light max-w-2xl">
@@ -303,11 +303,11 @@ export default function CapTableSimulator() {
                     </div>
 
                     <div className="flex flex-col gap-3 items-start md:items-end">
-                        <div className="flex bg-bg-surface border border-white/10 rounded-full p-1 opacity-90 backdrop-blur-sm">
-                            <button onClick={() => handleCurrencyChange('USD')} className={`py-2 px-4 text-xs font-bold uppercase tracking-wider rounded-full transition-all ${currency === 'USD' ? 'bg-white/10 text-white shadow-sm' : 'text-text-tertiary hover:text-white hover:bg-white/5'}`}>USD ($)</button>
-                            <button onClick={() => handleCurrencyChange('INR')} className={`py-2 px-4 text-xs font-bold uppercase tracking-wider rounded-full transition-all ${currency === 'INR' ? 'bg-white/10 text-white shadow-sm' : 'text-text-tertiary hover:text-white hover:bg-white/5'}`}>INR (₹)</button>
+                        <div className="flex bg-bg-surface border border-functional-border rounded-full p-1 opacity-90 backdrop-blur-sm">
+                            <button onClick={() => handleCurrencyChange('USD')} className={`py-2 px-4 text-xs font-bold uppercase tracking-wider rounded-full transition-all ${currency === 'USD' ? 'bg-white/10 text-text-primary shadow-sm' : 'text-text-tertiary hover:text-text-primary hover:bg-white/5'}`}>USD ($)</button>
+                            <button onClick={() => handleCurrencyChange('INR')} className={`py-2 px-4 text-xs font-bold uppercase tracking-wider rounded-full transition-all ${currency === 'INR' ? 'bg-white/10 text-text-primary shadow-sm' : 'text-text-tertiary hover:text-text-primary hover:bg-white/5'}`}>INR (₹)</button>
                         </div>
-                        <button onClick={exportCSV} className="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-2 shadow-lg w-max">
+                        <button onClick={exportCSV} className="bg-white/10 hover:bg-white/20 border border-functional-border text-text-primary px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-2 shadow-lg w-max">
                             <i className="fas fa-file-csv"></i> Download Impact Report
                         </button>
                     </div>
@@ -328,8 +328,8 @@ export default function CapTableSimulator() {
                     <div className="lg:col-span-5 flex flex-col gap-6">
 
                         {/* Box 1: Pre-Money Cap Table */}
-                        <div className="glass-card p-6 md:p-8 rounded-3xl border border-white/10 bg-bg-surface">
-                            <h3 className="text-xl font-black text-white mb-2">1. Current Cap Table</h3>
+                        <div className="glass-card p-6 md:p-8 rounded-3xl border border-functional-border bg-bg-surface">
+                            <h3 className="text-xl font-black text-text-primary mb-2">1. Current Cap Table</h3>
                             <p className="text-xs text-text-tertiary mb-6">Before the funding round.</p>
 
                             <div className="space-y-4 mb-6">
@@ -338,12 +338,12 @@ export default function CapTableSimulator() {
                                         <div className="flex items-center gap-3">
                                             <div className="w-3 h-3 rounded-sm shadow-sm" style={{ backgroundColor: s.color }}></div>
                                             {s.type === 'option_pool' ? (
-                                                <span className="text-sm font-medium text-white">{s.name}</span>
+                                                <span className="text-sm font-medium text-text-primary">{s.name}</span>
                                             ) : (
                                                 <input
                                                     value={s.name}
                                                     onChange={(e) => updateShareholder(s.id, 'name', e.target.value)}
-                                                    className="bg-transparent text-sm font-medium text-white border-b border-transparent focus:border-white/30 outline-none w-32 md:w-48"
+                                                    className="bg-transparent text-sm font-medium text-text-primary border-b border-transparent focus:border-white/30 outline-none w-32 md:w-48"
                                                 />
                                             )}
                                         </div>
@@ -354,7 +354,7 @@ export default function CapTableSimulator() {
                                                 textColor={s.type === 'option_pool' ? 'text-text-secondary' : 'text-accent-blue'}
                                             />
                                             {s.type !== 'option_pool' && (s.type !== 'founder' || foundersCount > 1) && (
-                                                <button onClick={() => removeShareholder(s.id)} className="text-white/20 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1 title-attr" title="Remove Founder">
+                                                <button onClick={() => removeShareholder(s.id)} className="text-text-primary/20 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 p-1 title-attr" title="Remove Founder">
                                                     <i className="fas fa-times text-xs"></i>
                                                 </button>
                                             )}
@@ -363,11 +363,11 @@ export default function CapTableSimulator() {
                                 ))}
                             </div>
 
-                            <button onClick={addFounder} className="w-full py-3 rounded-xl border border-dashed border-white/20 text-white/50 hover:text-white hover:border-white/50 hover:bg-white/5 transition-all text-sm font-bold tracking-widest uppercase flex items-center justify-center gap-2">
+                            <button onClick={addFounder} className="w-full py-3 rounded-xl border border-dashed border-functional-border text-text-primary/50 hover:text-text-primary hover:border-functional-border0 hover:bg-white/5 transition-all text-sm font-bold tracking-widest uppercase flex items-center justify-center gap-2">
                                 <i className="fas fa-plus"></i> Add Founder
                             </button>
 
-                            <div className="mt-6 pt-4 border-t border-white/10 flex justify-between items-center text-sm font-bold text-white">
+                            <div className="mt-6 pt-4 border-t border-functional-border flex justify-between items-center text-sm font-bold text-text-primary">
                                 <span>Total Shares</span>
                                 <span>{currentTotalShares.toLocaleString()}</span>
                             </div>
@@ -375,7 +375,7 @@ export default function CapTableSimulator() {
 
                         {/* Box 2: The Raise */}
                         <div className="glass-card p-6 md:p-8 rounded-3xl border border-accent-violet/20 bg-accent-violet/5">
-                            <h3 className="text-xl font-black text-white mb-2">2. Term Sheet (The Raise)</h3>
+                            <h3 className="text-xl font-black text-text-primary mb-2">2. Term Sheet (The Raise)</h3>
                             <p className="text-xs text-text-tertiary mb-6">Investors dictating the terms.</p>
 
                             <div className="space-y-6">
@@ -392,10 +392,10 @@ export default function CapTableSimulator() {
                                 <div>
                                     <label className="flex justify-between text-sm text-text-secondary mb-2 items-center group relative cursor-help">
                                         <span className="border-b border-dotted border-text-tertiary">Pre-Money Valuation</span>
-                                        <EditableNumber value={preMoneyValuation} onChange={setPreMoneyValuation} currency={currency} textColor="text-white font-bold" />
+                                        <EditableNumber value={preMoneyValuation} onChange={setPreMoneyValuation} currency={currency} textColor="text-text-primary font-bold" />
 
                                         {/* Tooltip */}
-                                        <div className="absolute bottom-full left-0 mb-2 w-64 bg-[#111] border border-white/10 p-3 rounded-lg text-xs text-text-secondary opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                                        <div className="absolute bottom-full left-0 mb-2 w-64 bg-[#111] border border-functional-border p-3 rounded-lg text-xs text-text-secondary opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
                                             The value of your company *before* the new money enters the bank account.
                                         </div>
                                     </label>
@@ -404,7 +404,7 @@ export default function CapTableSimulator() {
                                         className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
                                 </div>
 
-                                <div className="p-4 bg-bg-main/40 rounded-xl border border-white/5 relative group cursor-help">
+                                <div className="p-4 bg-bg-main/40 rounded-xl border border-functional-border relative group cursor-help">
                                     <label className="flex justify-between text-sm text-text-secondary mb-2 items-center">
                                         <span className="font-bold text-accent-blue border-b border-dotted border-accent-blue/50">Post-Money Option Pool Target</span>
                                         <EditableNumber value={targetOptionPoolPercent} onChange={setTargetOptionPoolPercent} suffix="%" textColor="text-accent-blue font-bold" />
@@ -426,35 +426,35 @@ export default function CapTableSimulator() {
 
                         {/* Top Metrics */}
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div className="glass-card p-5 rounded-2xl border border-white/10 bg-bg-surface">
+                            <div className="glass-card p-5 rounded-2xl border border-functional-border bg-bg-surface">
                                 <span className="text-[10px] text-text-tertiary uppercase tracking-wider block mb-1">Calculated Share Price</span>
-                                <span className="text-xl md:text-2xl font-mono text-white block tracking-tight">{formatCurrency(sharePrice, currency)}</span>
+                                <span className="text-xl md:text-2xl font-mono text-text-primary block tracking-tight">{formatCurrency(sharePrice, currency)}</span>
                             </div>
-                            <div className="glass-card p-5 rounded-2xl border border-white/10 bg-bg-surface">
+                            <div className="glass-card p-5 rounded-2xl border border-functional-border bg-bg-surface">
                                 <span className="text-[10px] text-text-tertiary uppercase tracking-wider block mb-1">Post-Money Valuation</span>
-                                <span className="text-xl md:text-2xl font-mono text-white block tracking-tight">{formatCurrency(postMoneyValuation, currency)}</span>
+                                <span className="text-xl md:text-2xl font-mono text-text-primary block tracking-tight">{formatCurrency(postMoneyValuation, currency)}</span>
                             </div>
-                            <div className="glass-card p-5 rounded-2xl border border-white/10 bg-bg-surface md:col-span-1 col-span-2">
+                            <div className="glass-card p-5 rounded-2xl border border-functional-border bg-bg-surface md:col-span-1 col-span-2">
                                 <span className="text-[10px] text-text-tertiary uppercase tracking-wider block mb-1">New Pool Shares Issued</span>
                                 <span className="text-xl md:text-2xl font-mono text-red-400 block tracking-tight">+{calcData.newPoolSharesToCreate.toLocaleString()}</span>
                             </div>
                         </div>
 
                         {/* Pie Chart Visuals */}
-                        <div className="glass-card p-6 md:p-8 rounded-3xl border border-white/10 bg-bg-surface relative overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
+                        <div className="glass-card p-6 md:p-8 rounded-3xl border border-functional-border bg-bg-surface relative overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-accent-violet/5 rounded-full blur-[80px] pointer-events-none"></div>
 
                             <div className="grid grid-cols-2 w-full gap-8 relative z-10">
                                 {/* Pre Money Pie */}
                                 <div className="flex flex-col items-center text-center">
-                                    <h4 className="text-xs font-bold text-text-tertiary uppercase tracking-widest mb-6 border-b border-white/10 pb-2 w-full">Current (Pre-Money)</h4>
+                                    <h4 className="text-xs font-bold text-text-tertiary uppercase tracking-widest mb-6 border-b border-functional-border pb-2 w-full">Current (Pre-Money)</h4>
                                     <div className="w-32 h-32 md:w-48 md:h-48 relative drop-shadow-[0_0_20px_rgba(255,255,255,0.05)]">
                                         <PieChart data={shareholders} total={currentTotalShares} />
                                     </div>
                                     <div className="mt-6 flex flex-col gap-1 w-full max-w-[200px]">
                                         {shareholders.map(s => (
-                                            <div key={`pre-${s.id}`} className="flex justify-between text-[10px] font-mono border-b border-white/5 py-1">
-                                                <span className="text-white truncate pr-2 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: s.color }}></span> {s.name}</span>
+                                            <div key={`pre-${s.id}`} className="flex justify-between text-[10px] font-mono border-b border-functional-border py-1">
+                                                <span className="text-text-primary truncate pr-2 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: s.color }}></span> {s.name}</span>
                                                 <span className="text-text-secondary">{currentTotalShares > 0 ? ((s.shares / currentTotalShares) * 100).toFixed(1) : 0}%</span>
                                             </div>
                                         ))}
@@ -469,8 +469,8 @@ export default function CapTableSimulator() {
                                     </div>
                                     <div className="mt-6 flex flex-col gap-1 w-full max-w-[240px]">
                                         {postShareholders.map(s => (
-                                            <div key={`post-${s.id}`} className={`flex justify-between items-center text-[10px] font-mono border-b border-white/5 py-1 ${s.isNew ? 'bg-amber-500/10 px-2 rounded -mx-2 border-transparent' : ''}`}>
-                                                <span className="text-white truncate pr-2 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: s.color }}></span> {s.name}</span>
+                                            <div key={`post-${s.id}`} className={`flex justify-between items-center text-[10px] font-mono border-b border-functional-border py-1 ${s.isNew ? 'bg-amber-500/10 px-2 rounded -mx-2 border-transparent' : ''}`}>
+                                                <span className="text-text-primary truncate pr-2 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: s.color }}></span> {s.name}</span>
                                                 <div className="flex items-center gap-2">
                                                     <span className={s.type === 'investor' ? 'text-amber-400 font-bold' : s.type === 'option_pool' && calcData.newPoolSharesToCreate > 0 ? 'text-accent-blue' : 'text-text-secondary'}>
                                                         {s.postPercent.toFixed(1)}%
@@ -482,8 +482,8 @@ export default function CapTableSimulator() {
                                 </div>
                             </div>
 
-                            <div className="mt-8 text-center text-xs text-text-tertiary bg-white/5 py-2 px-6 rounded-full border border-white/10 font-medium">
-                                Look closely: Even though you sold <span className="text-white font-bold">{isWipeout ? 0 : ((investmentAmount / postMoneyValuation) * 100).toFixed(1)}%</span> to investors, founder dilution is much higher due to the Option Pool.
+                            <div className="mt-8 text-center text-xs text-text-tertiary bg-white/5 py-2 px-6 rounded-full border border-functional-border font-medium">
+                                Look closely: Even though you sold <span className="text-text-primary font-bold">{isWipeout ? 0 : ((investmentAmount / postMoneyValuation) * 100).toFixed(1)}%</span> to investors, founder dilution is much higher due to the Option Pool.
                             </div>
                         </div>
 

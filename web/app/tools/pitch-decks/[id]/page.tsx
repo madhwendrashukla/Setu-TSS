@@ -132,7 +132,7 @@ export default async function PitchDeckDetailPage({ params }: Props) {
                     <iframe
                         src={`${deck.fileUrl}#view=FitH`}
                         title={`${deck.company} Pitch Deck`}
-                        className="w-full h-full border-none object-contain bg-black"
+                        className="w-full h-full border-none object-contain bg-accent-blue hover:bg-accent-royal text-white"
                     />
                 </div>
 

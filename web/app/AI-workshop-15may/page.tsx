@@ -43,7 +43,7 @@ export default function AIWorkshopPage() {
             }} />
 
             {/* Navigation */}
-            <nav className="fixed w-full z-50 bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border-b border-white/5 transition-all duration-300">
+            <nav className="fixed w-full z-50 bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border-b border-functional-border transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16 md:h-20">
                         <Link href="/" className="flex-shrink-0 font-extrabold text-lg md:text-2xl tracking-tight flex items-center gap-2 md:gap-3 hover:opacity-90 transition-opacity">
@@ -53,7 +53,7 @@ export default function AIWorkshopPage() {
                         <div>
                             <div className="relative group">
                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-300" />
-                                <span className="relative inline-flex items-center justify-center px-3 py-1.5 md:px-5 md:py-2.5 text-[11px] md:text-sm font-semibold rounded-lg text-white/50 bg-[#0f172a] border border-white/10 whitespace-nowrap cursor-not-allowed">
+                                <span className="relative inline-flex items-center justify-center px-3 py-1.5 md:px-5 md:py-2.5 text-[11px] md:text-sm font-semibold rounded-lg text-text-primary/50 bg-[#0f172a] border border-functional-border whitespace-nowrap cursor-not-allowed">
                                     Registrations Closed
                                 </span>
                             </div>
@@ -74,7 +74,7 @@ export default function AIWorkshopPage() {
             <AIWorkshopFinal />         {/* 9. FAQ + final CTA */}
 
             {/* Footer */}
-            <footer className="border-t border-white/5 py-10 bg-[#0A0F1C]">
+            <footer className="border-t border-functional-border py-10 bg-[#0A0F1C]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex flex-col items-center md:items-start gap-0.5">
@@ -82,12 +82,12 @@ export default function AIWorkshopPage() {
                                 <Image src="/logo.png" alt="Setu - TheStartupSchool" width={32} height={32} className="w-8 h-8 rounded-lg object-cover" />
                                 <span>The <span className="bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">Startup</span> School</span>
                             </Link>
-                            <p className="text-[9px] text-white tracking-wide uppercase pl-10">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>
+                            <p className="text-[9px] text-text-primary tracking-wide uppercase pl-10">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>
                         </div>
                         <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
-                            <Link href="/privacy-policy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
-                            <Link href="/terms-of-use" className="hover:text-slate-300 transition-colors">Terms of Use</Link>
-                            <a href="mailto:info@thestartupschool.in" className="hover:text-slate-300 transition-colors">info@thestartupschool.in</a>
+                            <Link href="/privacy-policy" className="hover:text-text-secondary transition-colors">Privacy Policy</Link>
+                            <Link href="/terms-of-use" className="hover:text-text-secondary transition-colors">Terms of Use</Link>
+                            <a href="mailto:info@thestartupschool.in" className="hover:text-text-secondary transition-colors">info@thestartupschool.in</a>
                         </div>
                         <p className="text-xs text-slate-600">© 2026 Setu - TheStartupSchool. All rights reserved.</p>
                     </div>

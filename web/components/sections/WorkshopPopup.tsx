@@ -28,21 +28,21 @@ export function WorkshopPopup() {
         <div className="fixed inset-0 z-[9999] flex items-end justify-center sm:items-center p-0 sm:p-4">
             {/* Backdrop */}
             <div 
-                className={`fixed inset-0 bg-black/80 sm:backdrop-blur-md transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
+                className={`fixed inset-0 bg-accent-blue hover:bg-accent-royal text-white/80 sm:backdrop-blur-md transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
                 onClick={handleClose}
                 aria-hidden="true"
             />
             
             {/* Modal - Adjusted mobile width and scale */}
             <div 
-                className={`relative w-full sm:max-w-md max-w-[92%] sm:mx-0 mx-auto bg-[#0A0F1C] border border-white/20 rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden transition-transform duration-300 transform ${isClosing ? 'translate-y-full sm:translate-y-10 sm:scale-95 sm:opacity-0' : 'translate-y-0 sm:scale-100 sm:opacity-100'} mb-4 sm:mb-0`}
+                className={`relative w-full sm:max-w-md max-w-[92%] sm:mx-0 mx-auto bg-[#0A0F1C] border border-functional-border rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden transition-transform duration-300 transform ${isClosing ? 'translate-y-full sm:translate-y-10 sm:scale-95 sm:opacity-0' : 'translate-y-0 sm:scale-100 sm:opacity-100'} mb-4 sm:mb-0`}
                 role="dialog"
                 aria-modal="true"
             >
                 {/* Close Button */}
                 <button 
                     onClick={handleClose}
-                    className="absolute top-4 right-4 p-1.5 bg-white/5 hover:bg-white/10 text-slate-400 rounded-full transition-colors z-20"
+                    className="absolute top-4 right-4 p-1.5 bg-white/5 hover:bg-white/10 text-text-secondary rounded-full transition-colors z-20"
                     aria-label="Close"
                 >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,17 +61,17 @@ export function WorkshopPopup() {
                     {/* ICON */}
                     <div className="w-20 h-20 sm:w-24 sm:h-24 mb-6 rounded-3xl bg-gradient-to-br from-[#872DFB] to-[#B797EB] flex items-center justify-center relative shadow-[0_0_30px_rgba(139,92,246,0.6)] group">
                         <div className="absolute inset-0 bg-[#872DFB] rounded-3xl animate-pulse opacity-20"></div>
-                        <i className="fa-solid fa-rocket text-white text-3xl sm:text-4xl" />
+                        <i className="fa-solid fa-rocket text-text-primary text-3xl sm:text-4xl" />
                     </div>
 
                     {/* Text content */}
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-4 sm:mb-6 tracking-tight leading-[1.1] px-2">
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-text-primary mb-4 sm:mb-6 tracking-tight leading-[1.1] px-2">
                         AI Startup<br />
                         Launchpad<br />
                         2026
                     </h3>
-                    <p className="text-slate-300 mb-8 sm:mb-10 text-sm sm:text-base md:text-lg leading-relaxed max-w-sm font-medium px-4">
-                        From idea to AI-powered MVP in 3 days. Live on Zoom with <span className="text-white font-bold">India&apos;s top mentors</span> — Limited seats!
+                    <p className="text-text-secondary mb-8 sm:mb-10 text-sm sm:text-base md:text-lg leading-relaxed max-w-sm font-medium px-4">
+                        From idea to AI-powered MVP in 3 days. Live on Zoom with <span className="text-text-primary font-bold">India&apos;s top mentors</span> — Limited seats!
                     </p>
 
                     {/* CTA */}

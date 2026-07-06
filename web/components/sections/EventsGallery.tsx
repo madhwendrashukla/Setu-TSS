@@ -75,20 +75,23 @@ export function EventsGallery() {
                                 ? start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                                 : `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${end.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
                             
+                            const timeStr = event.start_time ? (event.end_time ? ` @ ${event.start_time} - ${event.end_time}` : ` @ ${event.start_time}`) : '';
+                            const fullDateStr = dateStr + timeStr;
+                            
                             const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
                             const locationStr = isOnline ? "Live Cohort (Online)" : `${event.venue}${event.city ? `, ${event.city}` : ''}`;
 
                             const CardContent = (
                                 <div className={`w-full glass-card rounded-[24px] overflow-hidden border border-functional-border group flex flex-col h-full bg-[#13113B] transition-all duration-300 ${activeTab === 'upcoming' ? 'hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)] cursor-pointer' : ''}`}>
-                                    <div className="relative h-56 w-full overflow-hidden bg-bg-main shrink-0">
+                                    <div className="relative h-56 w-full overflow-hidden bg-white/5 shrink-0 flex items-center justify-center p-2">
                                         <Image 
                                             src={event.banner_url ? encodeURI(event.banner_url) : "/ai-workshop-banner.webp"} 
                                             alt={event.title} 
                                             fill 
-                                            className={`object-cover ${activeTab === 'upcoming' ? 'group-hover:scale-105 transition duration-500' : ''}`} 
+                                            className={`object-contain rounded-xl ${activeTab === 'upcoming' ? 'group-hover:scale-105 transition duration-500' : ''}`} 
                                             unoptimized={true}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#13113B] to-transparent opacity-80"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#13113B] to-transparent opacity-40"></div>
                                         <div className="absolute bottom-4 left-4 right-4">
                                             {activeTab === 'concluded' && (
                                                 <span className="bg-white/10 backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded-md mb-2 inline-block font-bold">CONCLUDED</span>

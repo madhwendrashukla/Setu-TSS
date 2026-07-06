@@ -42,7 +42,28 @@ const CATEGORIES = [
     }
 ];
 
-export function ToolsShowcase() {
+export function ToolsShowcase({ toggles = {} }: { toggles?: any }) {
+    const displayCategories = CATEGORIES.map(cat => {
+        let rawToggleVal: any = true;
+        
+        if (cat.title === "Government Grants & Schemes") rawToggleVal = toggles.tool_grants;
+        if (cat.title === "Pitch Deck Library") rawToggleVal = toggles.tool_pitch_decks;
+        if (cat.title === "Events Calendar") rawToggleVal = toggles.tool_calendar;
+        if (cat.title === "Incubators & Accelerators") rawToggleVal = toggles.tool_incubators;
+        if (cat.title === "Investor Database") rawToggleVal = toggles.tool_investors;
+
+        let status = 'live';
+        if (typeof rawToggleVal === 'boolean') {
+            status = rawToggleVal ? 'live' : 'disabled';
+        } else if (typeof rawToggleVal === 'string') {
+            status = rawToggleVal;
+        }
+
+        return { ...cat, status };
+    });
+
+    if (displayCategories.length === 0) return null;
+
     return (
         <section className="card-section pt-16 md:pt-24 pb-0 relative">
             {/* Background Pattern overlay (dotted mesh effect) */}
@@ -59,38 +80,47 @@ export function ToolsShowcase() {
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-wrap justify-center gap-6">
-                {CATEGORIES.map((category, idx) => (
-                    <Link 
-                        key={idx} 
-                        href={category.href}
-                        className={`w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group flex flex-col p-8 md:p-10 bg-[#13113B] border border-functional-border rounded-[32px] transition-all duration-300 relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.2)] ${category.comingSoon ? 'opacity-80 cursor-not-allowed' : 'hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)] hover:-translate-y-1 hover:bg-[#1a1845]'}`}
-                        onClick={(e) => { if (category.comingSoon) e.preventDefault(); }}
-                    >
-                        <div className="flex items-start justify-between w-full mb-8">
-                            <div className={`w-16 h-16 rounded-2xl ${category.color} flex items-center justify-center shrink-0 ${!category.comingSoon && 'group-hover:scale-110'} transition-transform duration-500`}>
-                                {category.icon}
+                {displayCategories.map((category, idx) => {
+                    const isUnclickable = category.status !== 'live';
+                    
+                    let badgeText = "";
+                    if (category.status === 'coming_soon') badgeText = "COMING SOON";
+                    else if (category.status === 'upcoming') badgeText = "UPCOMING";
+                    else if (category.status === 'disabled') badgeText = "HIDDEN";
+
+                    return (
+                        <Link 
+                            key={idx} 
+                            href={category.href}
+                            className={`w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group flex flex-col p-8 md:p-10 bg-[#13113B] border border-functional-border rounded-[32px] transition-all duration-300 relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.2)] ${isUnclickable ? 'opacity-80 cursor-not-allowed' : 'hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)] hover:-translate-y-1 hover:bg-[#1a1845]'}`}
+                            onClick={(e) => { if (isUnclickable) e.preventDefault(); }}
+                        >
+                            <div className="flex items-start justify-between w-full mb-8">
+                                <div className={`w-16 h-16 rounded-2xl ${category.color} flex items-center justify-center shrink-0 ${!isUnclickable && 'group-hover:scale-110'} transition-transform duration-500`}>
+                                    {category.icon}
+                                </div>
+                                {badgeText && (
+                                    <span className={`text-[10px] font-bold tracking-widest uppercase border border-functional-border px-3 py-1.5 rounded-full ${category.status === 'disabled' ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-text-secondary bg-white/5'}`}>
+                                        {badgeText}
+                                    </span>
+                                )}
                             </div>
-                            {category.comingSoon && (
-                                <span className="text-[10px] font-bold text-text-secondary tracking-widest uppercase border border-functional-border bg-white/5 px-3 py-1.5 rounded-full">
-                                    Coming Soon
-                                </span>
+                            
+                            <h3 className={`text-2xl font-bold mb-3 tracking-tight ${isUnclickable ? 'text-white/60' : 'text-white'}`}>
+                                {category.title}
+                            </h3>
+                            <p className="text-gray-400 font-medium leading-relaxed mb-10 flex-1">
+                                {category.description}
+                            </p>
+                            
+                            {!isUnclickable && (
+                                <div className="flex items-center gap-2 text-[#A855F7] font-bold mt-auto group-hover:gap-3 transition-all">
+                                    Explore <ArrowRight className="w-5 h-5" />
+                                </div>
                             )}
-                        </div>
-                        
-                        <h3 className={`text-2xl font-bold mb-3 tracking-tight ${category.comingSoon ? 'text-white/60' : 'text-white'}`}>
-                            {category.title}
-                        </h3>
-                        <p className="text-gray-400 font-medium leading-relaxed mb-10 flex-1">
-                            {category.description}
-                        </p>
-                        
-                        {!category.comingSoon && (
-                            <div className="flex items-center gap-2 text-[#A855F7] font-bold mt-auto group-hover:gap-3 transition-all">
-                                Explore <ArrowRight className="w-5 h-5" />
-                            </div>
-                        )}
-                    </Link>
-                ))}
+                        </Link>
+                    )
+                })}
             </div>
 
             <div className="mt-6 text-center relative z-10">

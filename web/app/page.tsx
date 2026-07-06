@@ -35,6 +35,9 @@ async function getHomepageData() {
 
 export default async function Home() {
   const data = await getHomepageData();
+  const togglesStr = data?.siteSettings?.section_toggles;
+  let toggles: any = {};
+  try { toggles = typeof togglesStr === 'string' ? JSON.parse(togglesStr) : (togglesStr || {}); } catch(e) {}
 
   return (
     <>
@@ -55,47 +58,48 @@ export default async function Home() {
         {/* Main Content Sections */}
         <div className="w-full flex flex-col items-center justify-start">
 
-        {/* 2. Pinned Workshop */}
-        <WorkshopPreview />
+        {/* 3. Upcoming events */}
+        {toggles.show_pinned_event !== false && <WorkshopPreview />}
         
-        {/* 3. Mentors (Carousel) */}
-        <MentorsPreview data={data?.mentors || []} />
+        {/* 4. Mentors List */}
+        {toggles.show_mentors !== false && <MentorsPreview data={data?.mentors || []} />}
         
-        {/* 4. Tools & Resources Preview */}
-        <ToolsShowcase />
+        {/* 5. Tools & Resources */}
+        {toggles.show_tools !== false && <ToolsShowcase toggles={toggles} />}
         
-        {/* 5. Founder's Manifesto */}
-        <FounderManifesto />
+        {/* 6. Events Gallery (includes past + upcoming events) */}
+        {toggles.show_past_events !== false && <EventsGallery />}
         
-        {/* 6. Mentor Panel Highlights */}
-        <VideoAndGallery />
+        {/* 7. Images gallery (Events + workshops pics) */}
+        {toggles.show_community_gallery !== false && <CommunityGallery data={data?.galleryItems} />}
         
-        {/* 7. Programs Launching Soon */}
-        <Programs data={data?.programs} />
+        {/* 8. Video gallery (Educational + general Content) */}
+        {toggles.show_video_gallery !== false && <VideoAndGallery />}
         
-        {/* 6. Events Gallery (Tabs) */}
-        <EventsGallery />
-        
-        {/* 9. Community Gallery */}
-        <CommunityGallery data={data?.galleryItems} />
-        
-        {/* Startups Mentored */}
-        <StartupsMentored data={data?.mentoredStartups} />
-        
-        {/* 10. Testimonials */}
-        <Testimonials data={data?.testimonials} />
-        
-        {/* 11. Ecosystem Partners */}
-        <EcosystemPartners data={data?.partners} />
+        {/* 9 & 10. Testimonials - Videos & Text */}
+        {toggles.show_testimonials !== false && <Testimonials data={data?.testimonials} toggles={toggles} />}
 
-        {/* 12. Students From */}
-        <StudentsFrom data={data?.studentsFrom} />
+        {/* 11. Students from */}
+        {toggles.show_students_from !== false && <StudentsFrom data={data?.studentsFrom} />}
+        
+        {/* 12. Ecosystem Partners */}
+        {toggles.show_partners !== false && <EcosystemPartners data={data?.partners} />}
 
-        {/* 13. Certifications and Awards */}
+        {/* 13. Certifications */}
         <Certifications data={data?.certifications} />
 
-        {/* 14. Contact Form */}
+        {/* 14. Upcoming Programs */}
+        {toggles.show_programs !== false && <Programs data={data?.programs} />}
+
+        {/* 15. Contact Enquiry form */}
         <Contact />
+
+        {/* 16. Founders Image + Manifesto */}
+        {toggles.show_founder_manifesto !== false && <FounderManifesto />}
+        
+        {/* 17. Startups Mentored (Placing here as additional content) */}
+        {toggles.show_startups !== false && <StartupsMentored data={data?.mentoredStartups} />}
+        
         </div>
       </main>
     </>

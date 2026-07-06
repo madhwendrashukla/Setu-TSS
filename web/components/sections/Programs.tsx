@@ -16,11 +16,11 @@ export function Programs({ data = [] }: { data?: any[] }) {
             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none [mask-image:radial-gradient(ellipse_50%_50%_at_50%_0%,#000_20%,transparent_100%)]"></div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                
+
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <div className="mb-4 text-sm md:text-base font-bold tracking-tight text-text-secondary">
-                        For all those who have <span className="text-[#A855F7]">'KEEDA'</span> and <span className="text-[#A855F7]">'HIMMAT'</span> :
+                    <div className="mb-4 text-base md:text-lg font-bold tracking-tight text-text-secondary">
+                        For all those who have <span className="text-[#A855F7]">'KEEDA'</span> and <span className="text-[#A855F7]">'HIMMAT'</span>
                     </div>
                     <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-6">
                         Programs Launching Soon
@@ -33,7 +33,7 @@ export function Programs({ data = [] }: { data?: any[] }) {
                         const cardBg = 'bg-[#13113B] border-functional-border/20';
                         const btnStyle = 'bg-[#A855F7] hover:bg-[#9333ea] text-white';
                         const btnArrow = 'text-white';
-                        
+
                         // Parse durations into array (assuming backend might send comma separated or just one string)
                         const locations = program.duration ? program.duration.split(',').map((l: string) => l.trim()) : ['TBA'];
 
@@ -45,11 +45,11 @@ export function Programs({ data = [] }: { data?: any[] }) {
                                             <span className="text-[#A855F7] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase">PROGRAM {index + 1}</span>
                                             <div className="w-6 h-px bg-[#A855F7]/40"></div>
                                         </div>
-                                        
+
                                         <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4 leading-[1.15]">
                                             {program.title}:<br />{program.subtitle}
                                         </h3>
-                                        
+
                                         <p className="text-gray-400 text-base leading-relaxed mb-6 font-medium whitespace-pre-line">
                                             {program.description}
                                         </p>
@@ -64,7 +64,7 @@ export function Programs({ data = [] }: { data?: any[] }) {
                                             ))}
                                         </div>
                                     </div>
-                                    
+
                                     <Link href="/#contact" className={`w-full flex justify-center items-center gap-3 ${btnStyle} font-bold py-4 rounded-xl transition duration-300 mt-auto`}>
                                         {program.cta_text} <ArrowRight className={`w-5 h-5 ${btnArrow}`} />
                                     </Link>

@@ -45,6 +45,8 @@ model Event {
   is_active   Boolean  @default(true)
   slug        String?  @unique
   page_blocks Json     @default("[]")
+  start_time  String?
+  end_time    String?
   created_at  DateTime @default(now())
 
   @@map("tss_events")
@@ -59,6 +61,7 @@ model Mentor {
   linkedin_url  String?
   display_order Int
   is_active     Boolean  @default(true)
+  show_linkedin Boolean  @default(true)
   created_at    DateTime @default(now())
 
   @@map("mentors")
@@ -141,9 +144,10 @@ model SiteSetting {
   id             String   @id @default(uuid()) @db.Uuid
   address        String?
   contact_email  String?
-  contact_phone  String?
-  certifications String   @default("[]")
-  updated_at     DateTime @updatedAt
+  contact_phone   String?
+  certifications  String   @default("[]")
+  section_toggles Json     @default("{}")
+  updated_at      DateTime @updatedAt
 
   @@map("site_settings")
 }

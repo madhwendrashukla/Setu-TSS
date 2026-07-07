@@ -12,10 +12,18 @@ const { Pool } = require('pg');
 // UNIT WARNING: Course.price is in RUPEES (verified against the LMS admin
 // form, "Price: (₹)"), NOT paise — convert to paise only where a payment
 // gateway requires it.
+// AWS RDS requires TLS; the `pg` driver defaults to no-SSL (unlike psql/
+// Prisma, which negotiate it), so RDS rejects the connection with a
+// pg_hba "no encryption" error. Enable SSL automatically for RDS hosts,
+// leave it off for a plain local Postgres in dev. rejectUnauthorized:false
+// accepts RDS's managed certificate without bundling the CA chain.
+const usesRds = (process.env.LMS_DATABASE_URL_RO || '').includes('amazonaws.com');
+
 const lmsPool = new Pool({
   connectionString: process.env.LMS_DATABASE_URL_RO,
   max: 5,
   idleTimeoutMillis: 30_000,
+  ssl: usesRds ? { rejectUnauthorized: false } : false,
 });
 
 lmsPool.on('error', (err) => {

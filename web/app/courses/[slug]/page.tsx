@@ -15,6 +15,7 @@ type Course = {
     level: string;
     category: string | null;
     slug: string;
+    fileKey: string | null; // full CDN URL of the course thumbnail
 };
 
 async function getCourse(slug: string): Promise<Course | null> {
@@ -66,6 +67,14 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                     <h1 className="text-4xl md:text-5xl font-black text-text-primary tracking-[-0.04em] mb-6">
                         {course.title}
                     </h1>
+                    {course.fileKey && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={course.fileKey}
+                            alt={course.title}
+                            className="w-full aspect-video object-cover rounded-2xl border border-functional-border mb-8"
+                        />
+                    )}
                     {course.smallDescription && (
                         <p className="text-xl text-text-secondary font-light leading-relaxed mb-8">
                             {course.smallDescription}

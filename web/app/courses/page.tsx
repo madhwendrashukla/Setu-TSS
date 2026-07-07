@@ -14,6 +14,7 @@ type Course = {
     level: string;
     category: string | null;
     slug: string;
+    fileKey: string | null; // full CDN URL of the course thumbnail
 };
 
 async function getCourses(): Promise<Course[]> {
@@ -54,8 +55,22 @@ export default async function CoursesPage() {
                             <Link
                                 key={course.id}
                                 href={`/courses/${course.slug}`}
-                                className="group rounded-2xl border border-functional-border bg-white p-6 flex flex-col transition-shadow hover:shadow-lg"
+                                className="group rounded-2xl border border-functional-border bg-white flex flex-col overflow-hidden transition-shadow hover:shadow-lg"
                             >
+                                {/* Thumbnail (plain img — the CDN host isn't in next/image remotePatterns) */}
+                                <div className="aspect-video w-full overflow-hidden bg-bg-surface">
+                                    {course.fileKey ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={course.fileKey}
+                                            alt={course.title}
+                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div className="h-full w-full bg-gradient-primary opacity-90" />
+                                    )}
+                                </div>
+                                <div className="p-6 flex flex-col flex-1">
                                 <div className="flex items-center gap-2 mb-4 text-xs font-semibold uppercase tracking-wide text-text-secondary">
                                     <span className="rounded-full bg-bg-surface border border-functional-border px-2.5 py-0.5">
                                         {course.level}
@@ -81,6 +96,7 @@ export default async function CoursesPage() {
                                     <span className="text-sm font-semibold text-accent-blue">
                                         View course →
                                     </span>
+                                </div>
                                 </div>
                             </Link>
                         ))}

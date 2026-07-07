@@ -17,7 +17,9 @@ export function Navbar() {
 
     const isActive = (path: string) => pathname === path;
 
-    if (EXCLUDED_NAV_PATHS.includes(pathname) || pathname.startsWith('/admin')) return null;
+    // Hide global nav on dynamic event pages
+    const isDynamicEventPage = pathname.startsWith('/events/') && pathname !== '/events';
+    if (EXCLUDED_NAV_PATHS.includes(pathname) || pathname.startsWith('/admin') || isDynamicEventPage) return null;
 
     return (
         <>
@@ -36,7 +38,7 @@ export function Navbar() {
                                         priority
                                     />
                                     <div className="h-5 w-px bg-text-secondary/20"></div>
-                                    <span className="text-[10px] md:text-[13px] font-black tracking-[0.2em] text-text-primary uppercase mt-0.5">The <span className="text-accent-blue">Startup</span> School</span>
+                                    <span className="text-[10px] md:text-[13px] font-black tracking-[0.2em] text-[#0B1120] uppercase mt-0.5">The <span className="text-accent-violet">Startup</span> School</span>
                                 </div>
                             </Link>
                         </div>

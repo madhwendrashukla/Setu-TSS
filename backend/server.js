@@ -153,7 +153,7 @@ app.get('/api/homepage', async (req, res) => {
 
 app.post('/api/leads', async (req, res) => {
   try {
-    const { name, email, phone, message, source } = req.body;
+    const { name, email, phone, city, message, source } = req.body;
     if (!name || !email) {
       return res.status(400).json({ error: 'Name and Email are required' });
     }
@@ -162,6 +162,7 @@ app.post('/api/leads', async (req, res) => {
         full_name: name,
         email,
         phone: phone || null,
+        city: city || null,
         message: message || null,
         source: source || 'contact_form',
         status: 'new'

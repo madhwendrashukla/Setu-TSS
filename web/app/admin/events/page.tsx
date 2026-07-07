@@ -23,7 +23,7 @@ export default function AdminEvents() {
 
     const [formData, setFormData] = useState({
         title: "", registration_url: "", description: "", venue: "", 
-        start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0
+        start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: ""
     });
 
     const fetchEvents = () => {
@@ -132,7 +132,7 @@ export default function AdminEvents() {
     };
 
     const resetForm = () => {
-        setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0 });
+        setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: "" });
         setFile(null);
     };
 
@@ -140,6 +140,7 @@ export default function AdminEvents() {
         setEditingEvent(event);
         setFormData({
             title: event.title,
+            slug: event.slug || "",
             registration_url: event.registration_url || "",
             description: event.description,
             venue: event.venue || "",
@@ -219,6 +220,7 @@ export default function AdminEvents() {
                                     <td className="p-5">
                                         <div className="flex flex-col">
                                             <h3 className="font-bold text-gray-900">{event.title}</h3>
+                                            {event.slug && <span className="text-xs text-purple-600 mt-1">Slug: {event.slug}</span>}
                                             {event.registration_url && <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent-blue mt-1 hover:underline">{event.registration_url}</a>}
                                         </div>
                                     </td>
@@ -303,10 +305,14 @@ export default function AdminEvents() {
                                     <input placeholder="Event Title" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Registration URL</label>
-                                    <input placeholder="https://example.com/register" value={formData.registration_url} onChange={e => setFormData({...formData, registration_url: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Slug (URL)</label>
+                                    <input placeholder="e.g. ai-workshop-15may" value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
-                                <div className="md:col-span-2">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Registration URL</label>
+                                    <input placeholder="https://example.com/register" value={formData.registration_url} onChange={e => setFormData({...formData, registration_url: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                </div>
+                                <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Venue</label>
                                     <input placeholder="Venue" value={formData.venue} onChange={e => setFormData({...formData, venue: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>

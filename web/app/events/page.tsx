@@ -69,8 +69,15 @@ export default async function EventsPage() {
                                         <span><i className="fas fa-map-marker-alt text-gray-400 w-4"></i> {event.venue}</span>
                                         <span><i className="far fa-calendar text-gray-400 w-4"></i> {new Date(event.start_date).toLocaleDateString()}</span>
                                     </div>
-                                    {event.registration_url && (
-                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-[#A855F7] font-bold uppercase text-sm hover:text-[#9333ea] transition-colors">Register Now &rarr;</Link>
+                                    {(event.slug || event.registration_url) && (
+                                        <Link 
+                                            href={event.slug ? `/events/${event.slug}` : event.registration_url} 
+                                            target={event.slug ? "_self" : "_blank"} 
+                                            rel={event.slug ? "" : "noopener noreferrer"} 
+                                            className="text-[#A855F7] font-bold uppercase text-sm hover:text-[#9333ea] transition-colors"
+                                        >
+                                            {event.slug ? "View Event Details \u2192" : "Register Now \u2192"}
+                                        </Link>
                                     )}
                                 </div>
                             ))
@@ -112,9 +119,14 @@ export default async function EventsPage() {
                                             <i className="fas fa-map-marker-alt text-gray-400 w-6"></i> {event.venue}
                                         </div>
                                     </div>
-                                    {event.registration_url && (
-                                        <Link href={event.registration_url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-white px-8 py-3 rounded-full font-bold transition duration-300 text-center">
-                                            Register for this Event
+                                    {(event.slug || event.registration_url) && (
+                                        <Link 
+                                            href={event.slug ? `/events/${event.slug}` : event.registration_url} 
+                                            target={event.slug ? "_self" : "_blank"} 
+                                            rel={event.slug ? "" : "noopener noreferrer"} 
+                                            className="w-full sm:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-white px-8 py-3 rounded-full font-bold transition duration-300 text-center"
+                                        >
+                                            View Event Details
                                         </Link>
                                     )}
                                 </div>

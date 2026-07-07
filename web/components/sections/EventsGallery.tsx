@@ -108,10 +108,13 @@ export function EventsGallery() {
                                 </div>
                             );
 
+                            const targetUrl = event.slug ? `/events/${event.slug}` : (event.registration_url || "#");
+                            const targetAttr = event.slug ? "_self" : "_blank";
+
                             return activeTab === 'upcoming' ? (
-                                <a key={event.id} href={event.registration_url || "#"} target="_blank" rel="noopener noreferrer" className="block h-full">
+                                <Link key={event.id} href={targetUrl} target={targetAttr} rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} className="block h-full">
                                     {CardContent}
-                                </a>
+                                </Link>
                             ) : (
                                 <div key={event.id} className="block h-full cursor-default">
                                     {CardContent}

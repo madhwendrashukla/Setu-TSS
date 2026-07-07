@@ -73,13 +73,13 @@ export function PromoBar() {
     };
 
     // Attempt to parse original and discounted prices
-    let renderPrice = <span className="text-white font-bold">{promo.price_text}</span>;
+    let renderPrice = <span className="text-slate-900 font-bold">{promo.price_text}</span>;
     if (promo.price_text?.includes('|')) {
         const [original, discounted] = promo.price_text.split('|');
         renderPrice = (
             <div className="flex items-center gap-2">
-                <span className="line-through text-gray-400 font-medium text-sm">{original.trim()}</span>
-                <span className="text-white font-bold">{discounted.trim()}</span>
+                <span className="line-through text-slate-500 font-medium text-sm">{original.trim()}</span>
+                <span className="text-slate-900 font-bold">{discounted.trim()}</span>
             </div>
         );
     } else if (promo.price_text?.includes(' ')) {
@@ -87,8 +87,8 @@ export function PromoBar() {
         const lastWord = priceParts.pop();
         renderPrice = (
             <div className="flex items-center gap-2">
-                <span className="line-through text-gray-400 font-medium text-sm">{priceParts.join(' ')}</span>
-                <span className="text-white font-bold">{lastWord}</span>
+                <span className="line-through text-slate-500 font-medium text-sm">{priceParts.join(' ')}</span>
+                <span className="text-slate-900 font-bold">{lastWord}</span>
             </div>
         );
     }
@@ -99,7 +99,7 @@ export function PromoBar() {
                 hasScrolled ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-24 opacity-0 scale-95'
             }`}
         >
-            <div className="pointer-events-auto w-full max-w-4xl bg-[#0B0F19]/80 backdrop-blur-2xl border border-white/10 shadow-[0_0_40px_rgba(99,102,241,0.2)] rounded-2xl md:rounded-full px-2 py-2 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-2">
+            <div className="pointer-events-auto w-full max-w-4xl bg-white/95 backdrop-blur-2xl border border-slate-200 shadow-[0_10px_40px_rgba(0,0,0,0.1)] rounded-2xl md:rounded-full px-2 py-2 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-2">
                 
                 {/* Title & Animated Pulse */}
                 <div className="flex items-center gap-4 pl-4 py-2">
@@ -107,7 +107,7 @@ export function PromoBar() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-blue opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-4 w-4 bg-accent-blue"></span>
                     </div>
-                    <div className="font-bold text-lg md:text-xl text-white tracking-wide">
+                    <div className="font-bold text-lg md:text-xl text-slate-900 tracking-wide">
                         {promo.title}
                     </div>
                 </div>
@@ -115,7 +115,7 @@ export function PromoBar() {
                 {/* Right Actions Block */}
                 <div className="flex items-center gap-4 pr-2 pb-2 md:pb-0">
                     {promo.price_text && (
-                        <div className="flex flex-col text-right pr-4 border-r border-white/10 hidden md:flex">
+                        <div className="flex flex-col text-right pr-4 border-r border-slate-200 hidden md:flex">
                             <div className="text-base md:text-lg">
                                 {renderPrice}
                             </div>
@@ -123,7 +123,7 @@ export function PromoBar() {
                                 <div className="text-accent-blue text-xs mt-0.5 font-bold uppercase tracking-wider flex items-center justify-end gap-1.5">
                                     {promo.subtext.replace(/TIMER:\d+/g, '').trim()}
                                     {timeLeft !== null && (
-                                        <span className="inline-flex items-center text-white bg-white/10 px-1.5 py-0.5 rounded text-[11px] tabular-nums font-mono animate-pulse">
+                                        <span className="inline-flex items-center text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded text-[11px] tabular-nums font-mono animate-pulse">
                                             <i className="fa-regular fa-clock mr-1 opacity-70"></i>
                                             {formatTime(timeLeft)}
                                         </span>
@@ -135,7 +135,7 @@ export function PromoBar() {
                     
                     <a 
                         href={promo.button_link} 
-                        className="bg-white text-black px-8 py-3.5 rounded-full font-bold text-sm md:text-base hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all whitespace-nowrap uppercase tracking-widest hover:-translate-y-0.5"
+                        className="bg-slate-900 text-white px-8 py-3.5 rounded-full font-bold text-sm md:text-base hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all whitespace-nowrap uppercase tracking-widest hover:-translate-y-0.5"
                     >
                         {promo.button_text}
                     </a>

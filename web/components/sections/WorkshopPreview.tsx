@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 export function WorkshopPreview() {
     const [events, setEvents] = useState<any[]>([]);
@@ -66,12 +67,15 @@ export function WorkshopPreview() {
                 const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
                 const locationStr = isOnline ? "Online" : `Offline • Venue: ${event.venue}${event.city ? `, ${event.city}` : ''}`;
 
+                const targetUrl = event.slug ? `/events/${event.slug}` : (event.registration_url || "#");
+                const targetAttr = event.slug ? "_self" : (event.registration_url ? "_blank" : "_self");
+
                 return (
-                    <a 
+                    <Link 
                         key={event.id}
-                        href={event.registration_url || "#"} 
-                        target={event.registration_url ? "_blank" : "_self"}
-                        rel="noopener noreferrer" 
+                        href={targetUrl} 
+                        target={targetAttr}
+                        rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} 
                         className={`absolute top-0 left-0 w-full block rounded-[32px] md:rounded-[48px] overflow-hidden border border-functional-border shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_40px_rgba(168,85,247,0.1)] bg-bg-surface cursor-pointer group isolate transition-all duration-1000 ease-in-out ${
                             index === currentIndex ? 'opacity-100 z-10 translate-x-0' : 'opacity-0 z-0 translate-x-8 pointer-events-none'
                         }`}
@@ -117,7 +121,7 @@ export function WorkshopPreview() {
                                 <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-white/80 to-transparent pointer-events-none"></div>
                             </div>
                         </div>
-                    </a>
+                    </Link>
                 );
             })}
             

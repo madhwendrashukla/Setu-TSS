@@ -17,7 +17,7 @@ const DynamicCheckoutModal = dynamic(() => import("./DynamicCheckoutModal").then
 // Contact section
 // const DynamicContact = dynamic(() => import("./DynamicContact").then(mod => mod.DynamicContact)); // to be added later
 
-export function DynamicSections({ pageData }: { pageData: PageData }) {
+export function DynamicSections({ pageData, eventSlug }: { pageData: PageData, eventSlug?: string }) {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
 
@@ -55,6 +55,7 @@ export function DynamicSections({ pageData }: { pageData: PageData }) {
                     isOpen={isCheckoutOpen}
                     onClose={() => setIsCheckoutOpen(false)}
                     workshop={selectedWorkshop}
+                    eventSlug={eventSlug}
                     couponConfig={pageData.coupon}
                     onSuccess={handleCheckoutSuccess}
                 />

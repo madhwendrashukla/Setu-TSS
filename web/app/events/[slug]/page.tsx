@@ -130,7 +130,7 @@ export default async function DynamicEventPage({ params }: { params: Promise<{ s
                     })
                 ) : (
                     // New Unified Support
-                    <DynamicSections pageData={pageData} />
+                    <DynamicSections pageData={pageData} eventSlug={event.slug} />
                 )}
             </main>
 

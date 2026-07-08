@@ -30,6 +30,12 @@ app.post('/api/admin/login', async (req, res) => {
   res.json({ token });
 });
 
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
+const paymentsRoutes = require('./routes/payments');
+app.use('/api/payments', paymentsRoutes);
+
 // --- TOOLS & RESOURCES ROUTES ---
 const pitchDecksRoutes = require('./routes/pitchDecks');
 const grantsRoutes = require('./routes/grants');
@@ -679,6 +685,20 @@ app.put('/api/admin/leads/:id', async (req, res) => {
     const updated = await prisma.lead.update({ where: { id: req.params.id }, data: { status: req.body.status } });
     res.json(updated);
   } catch (error) { res.status(500).json({ error: 'Failed to update lead status' }); }
+});
+
+// REGISTRATIONS
+app.get('/api/admin/registrations', authMiddleware, async (req, res) => {
+  try {
+    const registrations = await prisma.eventRegistration.findMany({ 
+      include: { user: true },
+      orderBy: { created_at: 'desc' } 
+    });
+    res.json(registrations);
+  } catch (error) { 
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch registrations' }); 
+  }
 });
 
 // SITE SETTINGS

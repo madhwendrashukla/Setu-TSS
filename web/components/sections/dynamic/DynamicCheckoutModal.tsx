@@ -3,20 +3,23 @@
 import { useState } from 'react';
 import { CouponData, WorkshopData } from '@/types/cms';
 import Script from 'next/script';
+import { useAuth } from '@/context/AuthContext';
 
 interface CheckoutModalProps {
     isOpen: boolean;
     onClose: () => void;
     workshop: WorkshopData | null;
+    eventSlug?: string;
     couponConfig?: CouponData;
     onSuccess: (response: any) => void;
 }
 
-export function DynamicCheckoutModal({ isOpen, onClose, workshop, couponConfig, onSuccess }: CheckoutModalProps) {
+export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, couponConfig, onSuccess }: CheckoutModalProps) {
     const [couponCode, setCouponCode] = useState('');
     const [isCouponApplied, setIsCouponApplied] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { user, token, openAuthModal } = useAuth();
 
     if (!isOpen || !workshop) return null;
 
@@ -43,16 +46,25 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, couponConfig, 
     };
 
     const handleCheckout = async () => {
+        if (!user || !token) {
+            openAuthModal();
+            return;
+        }
+
         setIsProcessing(true);
         setError(null);
 
         try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             // Create order on backend
-            const res = await fetch('/api/razorpay/create-order', {
+            const res = await fetch(`${apiUrl}/api/payments/create-order`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 body: JSON.stringify({
-                    workshopId: workshop.id,
+                    workshopId: eventSlug || workshop.id,
                     workshopTitle: workshop.title,
                     basePrice: basePrice,
                     couponCode: isCouponApplied ? couponConfig?.code : null,
@@ -61,12 +73,12 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, couponConfig, 
                 })
             });
 
+            const data = await res.json();
             if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.message || 'Failed to create order');
+                throw new Error(data.error || data.message || 'Failed to create order');
             }
 
-            const { orderId, amount, currency } = await res.json();
+            const { orderId, amount, currency } = data;
 
             // Open Razorpay
             const options = {
@@ -76,12 +88,29 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, couponConfig, 
                 name: 'The Startup School',
                 description: `Enrollment for ${workshop.title}`,
                 order_id: orderId,
-                handler: function (response: any) {
-                    onSuccess(response);
+                handler: async function (response: any) {
+                    try {
+                        const verifyRes = await fetch(`${apiUrl}/api/payments/verify-payment`, {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}` 
+                            },
+                            body: JSON.stringify(response)
+                        });
+                        const verifyData = await verifyRes.json();
+                        if (verifyData.success) {
+                            onSuccess(response);
+                        } else {
+                            setError('Payment verification failed');
+                        }
+                    } catch (e) {
+                         setError('Payment verification failed');
+                    }
                 },
                 prefill: {
-                    name: '',
-                    email: '',
+                    name: user.name || '',
+                    email: user.email || '',
                     contact: ''
                 },
                 theme: {

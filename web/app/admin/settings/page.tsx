@@ -5,7 +5,7 @@ export default function AdminSettings() {
     const [settings, setSettings] = useState<any>({});
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [formData, setFormData] = useState({ address: "", contact_email: "", contact_phone: "" });
+    const [formData, setFormData] = useState({ address: "", contact_email: "", contact_phone: "", section_toggles: {} as any });
     const [promoData, setPromoData] = useState({ title: "", button_text: "", button_link: "", price_text: "", subtext: "", is_active: false });
     const [savingPromo, setSavingPromo] = useState(false);
     const [savedPromo, setSavedPromo] = useState(false);
@@ -18,7 +18,14 @@ export default function AdminSettings() {
             .then(res => res.json())
             .then(data => {
                 setSettings(data);
-                setFormData({ address: data.address ?? "", contact_email: data.contact_email ?? "", contact_phone: data.contact_phone ?? "" });
+                let toggles = {};
+                try { toggles = typeof data.section_toggles === 'string' ? JSON.parse(data.section_toggles) : (data.section_toggles || {}); } catch(e) {}
+                setFormData({ 
+                    address: data.address ?? "", 
+                    contact_email: data.contact_email ?? "", 
+                    contact_phone: data.contact_phone ?? "",
+                    section_toggles: toggles
+                });
             })
             .catch(console.error);
 
@@ -108,10 +115,112 @@ export default function AdminSettings() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button type="submit" disabled={saving} className="bg-white text-black font-bold px-6 py-3 rounded hover:bg-gray-200 disabled:opacity-50 mt-4">
-                            {saving ? 'Saving...' : 'Save Footer Settings'}
+                        <button type="submit" disabled={saving} className="bg-white text-black font-bold px-6 py-3 rounded hover:bg-gray-200 disabled:opacity-50 mt-4 border border-gray-200">
+                            {saving ? 'Saving...' : 'Save Settings'}
                         </button>
-                        {saved && <span className="text-green-400 text-sm mt-4"><i className="fas fa-check mr-1"></i>Saved successfully</span>}
+                        {saved && <span className="text-green-500 text-sm mt-4 font-semibold"><i className="fas fa-check mr-1"></i>Saved successfully</span>}
+                    </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 p-8 rounded-xl mb-8 space-y-6">
+                    <h2 className="text-xl font-bold border-b border-gray-200 pb-4">Section Visibility (Homepage)</h2>
+                    <p className="text-sm text-gray-500 mb-4">Turn off any section to hide it from the main website.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                            { key: 'show_pinned_event', label: 'Pinned Event / Workshop Preview' },
+                            { key: 'show_mentors', label: 'Mentors Preview' },
+                            { key: 'show_tools', label: 'Tools Showcase' },
+                            { key: 'show_founder_manifesto', label: 'Founder Manifesto' },
+                            { key: 'show_programs', label: 'Programs Launching Soon' },
+                            { key: 'show_video_gallery', label: 'Video & Gallery' },
+                            { key: 'show_past_events', label: 'Events Gallery' },
+                            { key: 'show_community_gallery', label: 'Community Gallery' },
+                            { key: 'show_startups', label: 'Startups Mentored' },
+                            { key: 'show_testimonials', label: 'Testimonials' },
+                            { key: 'show_partners', label: 'Ecosystem Partners' },
+                            { key: 'show_students_from', label: 'Students From' }
+                        ].map((section) => (
+                            <label key={section.key} className="flex items-center justify-between p-4 border border-gray-100 rounded bg-gray-50 cursor-pointer">
+                                <span className="text-gray-700 font-medium">{section.label}</span>
+                                <div className="relative">
+                                    <input 
+                                        type="checkbox" 
+                                        className="sr-only" 
+                                        checked={formData.section_toggles[section.key] !== false} 
+                                        onChange={e => setFormData({
+                                            ...formData, 
+                                            section_toggles: { ...formData.section_toggles, [section.key]: e.target.checked }
+                                        })} 
+                                    />
+                                    <div className={`block w-12 h-6 rounded-full transition-colors ${formData.section_toggles[section.key] !== false ? 'bg-accent-blue' : 'bg-gray-300'}`}></div>
+                                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${formData.section_toggles[section.key] !== false ? 'transform translate-x-6' : ''}`}></div>
+                                </div>
+                            </label>
+                        ))}
+                    </div>
+
+                    <h3 className="text-lg font-bold border-b border-gray-100 pb-2 mt-8 mb-4 text-gray-800">Individual Tool Visibility</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                            { key: 'tool_grants', label: 'Government Grants' },
+                            { key: 'tool_pitch_decks', label: 'Pitch Deck Library' },
+                            { key: 'tool_calendar', label: 'Events Calendar' },
+                            { key: 'tool_incubators', label: 'Incubators & Accelerators' },
+                            { key: 'tool_investors', label: 'Investor Database' }
+                        ].map((section) => {
+                            const val = formData.section_toggles[section.key];
+                            const status = typeof val === 'boolean' ? (val ? 'live' : 'disabled') : (val || 'live');
+                            return (
+                                <div key={section.key} className="flex flex-col gap-2 p-4 border border-gray-100 rounded bg-gray-50">
+                                    <span className="text-gray-700 font-medium">{section.label}</span>
+                                    <select
+                                        value={status}
+                                        onChange={e => setFormData({
+                                            ...formData, 
+                                            section_toggles: { ...formData.section_toggles, [section.key]: e.target.value }
+                                        })}
+                                        className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-accent-blue"
+                                    >
+                                        <option value="live">Live</option>
+                                        <option value="coming_soon">Coming Soon</option>
+                                        <option value="upcoming">Upcoming</option>
+                                        <option value="disabled">Disabled (Hidden)</option>
+                                    </select>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <h3 className="text-lg font-bold border-b border-gray-100 pb-2 mt-8 mb-4 text-gray-800">Testimonial Types Visibility</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                            { key: 'testi_video', label: 'Video Testimonials' },
+                            { key: 'testi_text', label: 'Text Testimonials' }
+                        ].map((section) => (
+                            <label key={section.key} className="flex items-center justify-between p-4 border border-gray-100 rounded bg-gray-50 cursor-pointer">
+                                <span className="text-gray-700 font-medium">{section.label}</span>
+                                <div className="relative">
+                                    <input 
+                                        type="checkbox" 
+                                        className="sr-only" 
+                                        checked={formData.section_toggles[section.key] !== false} 
+                                        onChange={e => setFormData({
+                                            ...formData, 
+                                            section_toggles: { ...formData.section_toggles, [section.key]: e.target.checked }
+                                        })} 
+                                    />
+                                    <div className={`block w-12 h-6 rounded-full transition-colors ${formData.section_toggles[section.key] !== false ? 'bg-accent-blue' : 'bg-gray-300'}`}></div>
+                                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${formData.section_toggles[section.key] !== false ? 'transform translate-x-6' : ''}`}></div>
+                                </div>
+                            </label>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-4 mt-6">
+                        <button type="submit" disabled={saving} className="bg-accent-blue text-white font-bold px-6 py-3 rounded hover:bg-[#6D28D9] transition-colors disabled:opacity-50">
+                            {saving ? 'Saving...' : 'Save Visibility Settings'}
+                        </button>
+                        {saved && <span className="text-green-500 text-sm font-semibold"><i className="fas fa-check mr-1"></i>Saved successfully</span>}
                     </div>
                 </div>
             </form>

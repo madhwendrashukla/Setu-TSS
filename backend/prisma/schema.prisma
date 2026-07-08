@@ -38,15 +38,15 @@ model Event {
   venue            String?
   city             String?
   start_date       DateTime? @db.Date
+  start_time       String?
   end_date         DateTime? @db.Date
+  end_time         String?
   registration_url String    @default("")
   is_past     Boolean  @default(false)
   is_pinned   Boolean  @default(false)
   is_active   Boolean  @default(true)
   slug        String?  @unique
   page_blocks Json     @default("[]")
-  start_time  String?
-  end_time    String?
   created_at  DateTime @default(now())
 
   @@map("tss_events")
@@ -59,9 +59,9 @@ model Mentor {
   bio           String?
   photo_url     String?
   linkedin_url  String?
+  show_linkedin Boolean  @default(true)
   display_order Int
   is_active     Boolean  @default(true)
-  show_linkedin Boolean  @default(true)
   created_at    DateTime @default(now())
 
   @@map("mentors")
@@ -154,11 +154,30 @@ model SiteSetting {
 
 model User {
   id         String   @id @default(uuid()) @db.Uuid
+  name       String?
   email      String   @unique
   password   String
+  role       String   @default("user")
   created_at DateTime @default(now())
+  registrations EventRegistration[]
 
   @@map("users")
+}
+
+model EventRegistration {
+  id                  String   @id @default(uuid()) @db.Uuid
+  user_id             String   @db.Uuid
+  event_id            String
+  razorpay_order_id   String?
+  razorpay_payment_id String?
+  status              String   @default("PENDING")
+  amount              Int?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  user                User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("event_registrations")
 }
 
 model MentoredStartup {

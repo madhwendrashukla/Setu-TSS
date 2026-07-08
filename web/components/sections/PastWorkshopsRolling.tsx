@@ -20,28 +20,35 @@ export const PastWorkshopsRolling = async () => {
 
     const renderCard = (event: any, keySuffix: string) => {
         const start = new Date(event.start_date);
-        const dateStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const end = event.end_date ? new Date(event.end_date) : start;
+        
+        const dateStr = start.getTime() === end.getTime() 
+            ? start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            : `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${end.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
+            
+        const timeStr = event.start_time ? (event.end_time ? ` @ ${event.start_time} - ${event.end_time}` : ` @ ${event.start_time}`) : '';
+        const fullDateStr = dateStr + timeStr;
         
         return (
             <div key={event.id + keySuffix} className="inline-block w-[300px] md:w-[400px] glass-card rounded-2xl overflow-hidden border border-functional-border group flex-shrink-0">
-                <div className="relative h-48 w-full overflow-hidden bg-bg-main">
+                <div className="relative h-48 w-full overflow-hidden bg-white/5 flex items-center justify-center p-2">
                     <Image 
                         src={event.banner_url ? encodeURI(event.banner_url) : "/ai-workshop-banner.webp"} 
                         alt={event.title} 
                         fill 
-                        className="object-cover group-hover:scale-105 transition duration-500" 
+                        className="object-contain rounded-xl group-hover:scale-105 transition duration-500" 
                         unoptimized={true}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg-main to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#13113B] to-transparent opacity-40"></div>
                     <div className="absolute bottom-4 left-4 right-4">
                         <span className="bg-white/10 backdrop-blur-md text-text-primary text-[10px] uppercase tracking-widest px-2 py-1 rounded-md mb-2 inline-block">Concluded</span>
                         <h3 className="text-text-primary font-bold text-lg whitespace-normal leading-tight line-clamp-2">{event.title}</h3>
                     </div>
                 </div>
                 <div className="p-4 bg-bg-surface flex justify-between items-center">
-                    <div className="text-text-secondary text-sm flex gap-3">
+                    <div className="text-text-secondary text-sm flex gap-3 flex-wrap">
                         <span>📍 {event.venue || 'TBA'}</span>
-                        <span>📅 {dateStr}</span>
+                        <span>📅 {fullDateStr}</span>
                     </div>
                 </div>
             </div>

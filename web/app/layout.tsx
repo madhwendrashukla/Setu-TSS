@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import FooterLoader from "@/components/layout/FooterLoader";
 import { PromoBar } from '@/components/layout/PromoBar';
 import ChatBotGate from "@/components/layout/ChatBotGate";
+import { Providers } from "@/components/layout/Providers";
 import Script from "next/script";
 
 const inter = Inter({
@@ -105,12 +106,14 @@ export default function RootLayout({
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <PromoBar />
-        <Navbar />
-        <main className="min-h-screen overflow-x-hidden w-full">
-          {children}
-        </main>
-        <FooterLoader />
-        <ChatBotGate />
+        <Providers>
+          <Navbar />
+          <main className="min-h-screen overflow-x-hidden w-full">
+            {children}
+          </main>
+          <FooterLoader />
+          <ChatBotGate />
+        </Providers>
       </body>
     </html>
   );

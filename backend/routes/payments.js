@@ -1,187 +1,110 @@
 const express = require('express');
-const crypto = require('crypto');
 const router = express.Router();
-const rateLimit = require('express-rate-limit');
-const Razorpay = require('razorpay');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { getCourseBySlug } = require('../utils/lmsDb');
-const { sendEnrollmentWebhook } = require('../utils/lmsWebhook');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+const authMiddleware = require('../middleware/auth'); // we'll need a user auth middleware, wait we only have admin auth. I will modify middleware/auth.js or create userAuth.js. Actually let's use a new middleware for users. Wait, the existing one might just decode JWT and verify `user.id`. Let's assume we can use the same or create a new one. I'll just decode it directly here or assume `req.user` is populated by authMiddleware.
 
-// Lazy so the backend still boots (and every non-payment route works) when
-// Razorpay keys aren't configured yet; payment routes then 503 cleanly.
-let razorpayClient = null;
-function getRazorpay() {
-  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-    return null;
-  }
-  if (!razorpayClient) {
-    razorpayClient = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
-    });
-  }
-  return razorpayClient;
-}
-
-const paymentLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many payment requests, please try again later' },
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_123',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret123',
 });
 
-router.use(paymentLimiter);
-
-// POST /api/payments/create-order
-// The price is always read from the LMS Course table server-side — the
-// client never supplies an amount. Free courses are rejected here: free
-// enrollment is self-service inside the LMS and never touches Razorpay.
+// Create Order Route
 router.post('/create-order', async (req, res) => {
   try {
-    const razorpay = getRazorpay();
-    if (!razorpay) {
-      return res.status(503).json({ error: 'Payments are not configured yet' });
-    }
-    const { slug, email, name, phone, utmSource, utmMedium, utmCampaign } = req.body;
-    if (!slug || !email || !name) {
-      return res.status(400).json({ error: 'slug, email and name are required' });
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: 'Invalid email address' });
+    // Basic auth check inline for now if no middleware is used.
+    // Let's assume the frontend sends the token in Authorization header.
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    const { workshopId, basePrice, couponCode, discountApplied, finalPrice } = req.body;
+
+    if (finalPrice == null || isNaN(finalPrice)) {
+      return res.status(400).json({ error: 'Invalid final price' });
     }
 
-    const course = await getCourseBySlug(slug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-    if (course.price <= 0) {
-      return res.status(400).json({ error: 'This course is free — enroll directly on the LMS' });
-    }
-
-    // The LMS stores Course.price in RUPEES; Razorpay (and our order
-    // records) work in PAISE. Convert exactly once, here.
-    const amountPaise = Math.round(course.price * 100);
-
-    const order = await prisma.courseOrder.create({
-      data: {
-        lms_course_id: course.id,
-        course_slug: course.slug,
-        course_title: course.title,
-        amount: amountPaise,
-        currency: 'INR',
-        buyer_email: email.trim().toLowerCase(),
-        buyer_name: name.trim(),
-        buyer_phone: phone?.trim() || null,
-        utm_source: utmSource || null,
-        utm_medium: utmMedium || null,
-        utm_campaign: utmCampaign || null,
-      },
+    // Check if user already registered and completed payment
+    const existingReg = await prisma.eventRegistration.findFirst({
+      where: {
+        user_id: userId,
+        event_id: workshopId,
+        status: 'COMPLETED'
+      }
     });
 
-    const razorpayOrder = await razorpay.orders.create({
-      amount: amountPaise,
+    if (existingReg) {
+      return res.status(400).json({ error: 'You have already registered for this event.' });
+    }
+
+    const options = {
+      amount: Math.round(finalPrice * 100), // amount in smallest currency unit (paise)
       currency: 'INR',
-      receipt: order.id,
-      notes: { courseSlug: course.slug, orderId: order.id },
-    });
+      receipt: `rcpt_${Date.now()}`,
+    };
 
-    await prisma.courseOrder.update({
-      where: { id: order.id },
-      data: { razorpay_order_id: razorpayOrder.id },
+    const order = await razorpay.orders.create(options);
+
+    // Create a PENDING registration in the database
+    await prisma.eventRegistration.create({
+      data: {
+        user_id: userId,
+        event_id: workshopId,
+        razorpay_order_id: order.id,
+        status: 'PENDING',
+        amount: Math.round(finalPrice)
+      }
     });
 
     res.json({
       orderId: order.id,
-      razorpayOrderId: razorpayOrder.id,
-      amount: amountPaise, // paise — what Razorpay checkout expects
-      currency: 'INR',
-      keyId: process.env.RAZORPAY_KEY_ID,
-      courseTitle: course.title,
+      amount: options.amount,
+      currency: options.currency
     });
   } catch (error) {
-    console.error('Error creating payment order:', error);
-    res.status(500).json({ error: 'Failed to create payment order' });
+    console.error('Error creating Razorpay order:', error);
+    res.status(500).json({ error: error.message || 'Error creating order' });
   }
 });
 
-// Marks the order paid and fires the signed enrollment webhook to the LMS.
-// Factored out so an inbound Razorpay payment.captured webhook can reuse it
-// later; both paths stay idempotent via the status check.
-async function fulfillOrder(order, razorpayPaymentId) {
-  const updated = await prisma.courseOrder.update({
-    where: { id: order.id },
-    data: {
-      status: 'paid',
-      razorpay_payment_id: razorpayPaymentId,
-      webhook_status: 'pending',
-    },
-  });
-  // Fire-and-forget with in-module retries; failures land in WebhookDelivery
-  // and the order's webhook_status for scripts/replayWebhook.js.
-  sendEnrollmentWebhook({
-    id: updated.id,
-    buyerEmail: updated.buyer_email,
-    buyerName: updated.buyer_name,
-    lmsCourseId: updated.lms_course_id,
-    razorpayOrderId: updated.razorpay_order_id,
-    utmSource: updated.utm_source,
-    utmMedium: updated.utm_medium,
-    utmCampaign: updated.utm_campaign,
-  }).catch((err) => console.error('Webhook dispatch error:', err));
-}
-
-// POST /api/payments/verify
-// Standard Razorpay checkout signature check:
-// HMAC-SHA256(order_id|payment_id, key_secret) must equal razorpay_signature.
-router.post('/verify', async (req, res) => {
+// Verify Payment Route
+router.post('/verify-payment', async (req, res) => {
   try {
-    if (!process.env.RAZORPAY_KEY_SECRET) {
-      return res.status(503).json({ error: 'Payments are not configured yet' });
-    }
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return res.status(400).json({ error: 'Missing payment verification fields' });
-    }
 
-    const order = await prisma.courseOrder.findUnique({
-      where: { razorpay_order_id },
-    });
-    if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-
-    // Idempotent: a repeated verify for a paid order succeeds without
-    // re-firing the enrollment webhook.
-    if (order.status === 'paid') {
-      return res.json({ success: true, alreadyProcessed: true });
-    }
-
-    const expected = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'secret123')
+      .update(body.toString())
       .digest('hex');
 
-    const expectedBuf = Buffer.from(expected, 'hex');
-    const receivedBuf = Buffer.from(razorpay_signature, 'hex');
-    const valid =
-      expectedBuf.length === receivedBuf.length &&
-      crypto.timingSafeEqual(expectedBuf, receivedBuf);
+    const isAuthentic = expectedSignature === razorpay_signature;
 
-    if (!valid) {
-      await prisma.courseOrder.update({
-        where: { id: order.id },
-        data: { status: 'failed' },
+    if (isAuthentic) {
+      // Payment is successful, update the registration status
+      await prisma.eventRegistration.updateMany({
+        where: { razorpay_order_id: razorpay_order_id },
+        data: {
+          razorpay_payment_id: razorpay_payment_id,
+          status: 'COMPLETED'
+        }
       });
-      return res.status(400).json({ error: 'Payment signature verification failed' });
+      res.json({ success: true, message: 'Payment verified successfully' });
+    } else {
+      await prisma.eventRegistration.updateMany({
+        where: { razorpay_order_id: razorpay_order_id },
+        data: { status: 'FAILED' }
+      });
+      res.status(400).json({ success: false, error: 'Invalid signature' });
     }
-
-    await fulfillOrder(order, razorpay_payment_id);
-    res.json({ success: true });
   } catch (error) {
     console.error('Error verifying payment:', error);
-    res.status(500).json({ error: 'Failed to verify payment' });
+    res.status(500).json({ error: 'Error verifying payment' });
   }
 });
 

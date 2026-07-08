@@ -88,12 +88,12 @@ export function AIWorkshopCurriculum() {
                 <div className="text-center mb-12 md:mb-20">
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4">Workshop Breakdown</h2>
                     <div className="w-24 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-4" />
-                    <p className="text-text-secondary text-base md:text-lg font-light max-w-2xl mx-auto">Three battle-tested workshops designed to take you from zero to launch.</p>
+                    <p className="text-slate-300 text-base md:text-lg font-light max-w-2xl mx-auto">Three battle-tested workshops designed to take you from zero to launch.</p>
                 </div>
 
                 <div className="space-y-6">
                     {workshops.map((ws, wi) => (
-                        <div key={wi} className={`bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] rounded-2xl md:rounded-3xl border overflow-hidden transition-all duration-500 ${open === wi ? 'border-[#8b5cf6]/40 shadow-[0_0_30px_rgba(139,92,246,0.13)]' : 'border-functional-border hover:border-functional-border'}`}>
+                        <div key={wi} className={`bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] rounded-2xl md:rounded-3xl border overflow-hidden transition-all duration-500 ${open === wi ? 'border-[#8b5cf6]/40 shadow-[0_0_30px_rgba(139,92,246,0.13)]' : 'border-slate-700/50 hover:border-slate-700/50'}`}>
                             {/* Header — clicking anywhere toggles */}
                             <button
                                 className="w-full text-left px-6 md:px-10 py-6 md:py-8 flex items-start gap-4 md:gap-6 group"
@@ -104,11 +104,11 @@ export function AIWorkshopCurriculum() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex flex-wrap items-center gap-3 mb-2">
-                                        <span className="inline-block px-3 py-1 text-xs font-extrabold rounded uppercase tracking-widest text-text-primary shadow-sm" style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}>{ws.badge}</span>
-                                        <span className="text-sm md:text-base font-semibold text-text-primary">{ws.date}</span>
+                                        <span className="inline-block px-3 py-1 text-xs font-extrabold rounded uppercase tracking-widest text-slate-50 shadow-sm" style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}>{ws.badge}</span>
+                                        <span className="text-sm md:text-base font-semibold text-slate-50">{ws.date}</span>
                                     </div>
-                                    <h3 className="text-xl md:text-2xl font-bold text-text-primary mb-1">{ws.title}</h3>
-                                    <p className="text-sm text-text-secondary font-light">by <span className="text-text-primary font-medium">{ws.mentor}</span> · {ws.duration}</p>
+                                    <h3 className="text-xl md:text-2xl font-bold text-slate-50 mb-1">{ws.title}</h3>
+                                    <p className="text-sm text-slate-300 font-light">by <span className="text-slate-50 font-medium">{ws.mentor}</span> · {ws.duration}</p>
                                     <p className="text-xs md:text-sm mt-2 font-medium" style={{ color: ws.color }}>{ws.tagline}</p>
 
                                     {/* Google Calendar buttons */}
@@ -120,7 +120,7 @@ export function AIWorkshopCurriculum() {
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 onClick={(e) => e.stopPropagation()}
-                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#ffffff0a] border border-functional-border text-[11px] md:text-xs text-text-secondary font-medium hover:bg-white/15 hover:border-[#4285F4]/50 hover:text-text-primary transition-all"
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#ffffff0a] border border-slate-700/50 text-[11px] md:text-xs text-slate-300 font-medium hover:bg-white/15 hover:border-[#4285F4]/50 hover:text-slate-50 transition-all"
                                             >
                                                 <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z" fill="#4285F4"/>
@@ -135,7 +135,7 @@ export function AIWorkshopCurriculum() {
                                         <button
                                             type="button"
                                             onClick={(e) => { e.stopPropagation(); setOpen(open === wi ? -1 : wi); }}
-                                            className="self-start whitespace-nowrap inline-flex items-center gap-1.5 px-4 py-2 md:px-5 md:py-2.5 rounded md:rounded-lg text-xs md:text-sm font-extrabold transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-text-primary"
+                                            className="self-start whitespace-nowrap inline-flex items-center gap-1.5 px-4 py-2 md:px-5 md:py-2.5 rounded md:rounded-lg text-xs md:text-sm font-extrabold transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-slate-50"
                                             style={open === wi
                                                 ? { background: `linear-gradient(135deg, ${ws.color}cc, ${ws.color})`, boxShadow: `0 4px 18px ${ws.color}55` }
                                                 : { background: 'linear-gradient(135deg, #8b5cf6, #d946ef)', boxShadow: '0 4px 18px rgba(139,92,246,0.4)' }
@@ -148,33 +148,33 @@ export function AIWorkshopCurriculum() {
 
                                         {/* Brand watermark */}
                                         <span className="whitespace-nowrap text-sm md:text-base font-black select-none md:text-right" style={{ letterSpacing: '0.08em' }}>
-                                            <span className="text-text-primary">THE </span><span className="bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">STARTUP</span><span className="text-text-primary"> SCHOOL.in</span>
+                                            <span className="text-slate-50">THE </span><span className="bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">STARTUP</span><span className="text-slate-50"> SCHOOL.in</span>
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Chevron — top-right, all screens */}
                                 <div className={`shrink-0 mt-2 transition-transform duration-300 ${open === wi ? 'rotate-180' : ''}`}>
-                                    <i className="fa-solid fa-chevron-down text-text-secondary" />
+                                    <i className="fa-solid fa-chevron-down text-slate-300" />
                                 </div>
                             </button>
 
                             {/* Expanded content */}
                             {open === wi && (
-                                <div className="px-6 md:px-10 pb-8 md:pb-10 border-t border-functional-border">
+                                <div className="px-6 md:px-10 pb-8 md:pb-10 border-t border-slate-700/50">
                                     <div className="mt-8 grid md:grid-cols-2 gap-6 lg:gap-10">
                                         {/* Modules */}
                                         <div>
-                                            <h4 className="text-base font-bold text-text-primary mb-5 flex items-center gap-2">
+                                            <h4 className="text-base font-bold text-slate-50 mb-5 flex items-center gap-2">
                                                 <i className="fa-solid fa-book-open text-[#8b5cf6]" /> What You&apos;ll Learn
                                             </h4>
                                             <div className="space-y-5">
                                                 {ws.modules.map((mod, mi) => (
                                                     <div key={mi} className="relative pl-4 border-l-2" style={{ borderColor: `${ws.color}50` }}>
-                                                        <h5 className="text-sm font-bold text-text-primary mb-2">{mod.title}</h5>
+                                                        <h5 className="text-sm font-bold text-slate-50 mb-2">{mod.title}</h5>
                                                         <ul className="space-y-1.5">
                                                             {mod.points.map((point, pi) => (
-                                                                <li key={pi} className="flex items-start gap-2 text-xs text-text-secondary font-light">
+                                                                <li key={pi} className="flex items-start gap-2 text-xs text-slate-300 font-light">
                                                                     <i className="fa-solid fa-circle-dot mt-1 shrink-0 text-[8px]" style={{ color: `${ws.color}80` }} />
                                                                     {point}
                                                                 </li>
@@ -187,15 +187,15 @@ export function AIWorkshopCurriculum() {
 
                                         {/* Deliverables */}
                                         <div>
-                                            <h4 className="text-base font-bold text-text-primary mb-5 flex items-center gap-2">
+                                            <h4 className="text-base font-bold text-slate-50 mb-5 flex items-center gap-2">
                                                 <i className="fa-solid fa-gift text-[#d946ef]" /> Your Deliverables
                                             </h4>
-                                            <div className="bg-white/5 rounded-xl p-5 border border-functional-border">
+                                            <div className="bg-white/5 rounded-xl p-5 border border-slate-700/50">
                                                 <ul className="space-y-3">
                                                     {ws.deliverables.map((d, di2) => (
                                                         <li key={di2} className="flex items-start gap-3">
                                                             <i className="fa-solid fa-check mt-0.5 text-xs shrink-0" style={{ color: ws.color }} />
-                                                            <span className="text-sm text-text-secondary font-light">{d}</span>
+                                                            <span className="text-sm text-slate-300 font-light">{d}</span>
                                                         </li>
                                                     ))}
                                                 </ul>
@@ -204,7 +204,7 @@ export function AIWorkshopCurriculum() {
                                             {/* Google Calendar links moved to header */}
 
 
-                                            <a href="#pricing" className="mt-5 w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-text-primary transition-all hover:opacity-90" style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}>
+                                            <a href="#pricing" className="mt-5 w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-slate-50 transition-all hover:opacity-90" style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}>
                                                 Book Seat Now for this workshop <i className="fa-solid fa-arrow-right" />
                                             </a>
                                         </div>

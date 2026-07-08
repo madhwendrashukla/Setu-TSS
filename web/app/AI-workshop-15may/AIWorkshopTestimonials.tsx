@@ -74,10 +74,10 @@ function VideoCard({ t, i }: { t: typeof testimonials[0]; i: number }) {
     const [played, setPlayed] = useState(false);
 
     return (
-        <div className="bg-[rgba(15,23,42,0.7)] backdrop-blur-[16px] border border-functional-border rounded-2xl overflow-hidden hover:border-functional-border transition-all duration-300 hover:-translate-y-1 group flex flex-col h-full">
+        <div className="bg-[rgba(15,23,42,0.7)] backdrop-blur-[16px] border border-slate-700/50 rounded-2xl overflow-hidden hover:border-slate-700/50 transition-all duration-300 hover:-translate-y-1 group flex flex-col h-full">
             {/* Video Thumbnail */}
             <div
-                className={`relative h-44 bg-bg-main flex items-center justify-center cursor-pointer overflow-hidden group/thumb shrink-0`}
+                className={`relative h-44 bg-[#0f172a] flex items-center justify-center cursor-pointer overflow-hidden group/thumb shrink-0`}
                 onClick={() => setPlayed(true)}
             >
                 {!played ? (
@@ -93,8 +93,8 @@ function VideoCard({ t, i }: { t: typeof testimonials[0]; i: number }) {
                         
                         {/* Play button */}
                         <div className="relative z-10 flex flex-col items-center gap-3">
-                            <div className="w-14 h-14 rounded-full bg-red-600/90 backdrop-blur-sm border border-functional-border flex items-center justify-center group-hover/thumb:scale-110 transition-transform shadow-[0_0_30px_rgba(220,38,38,0.4)]">
-                                <i className="fa-solid fa-play text-text-primary text-lg ml-1" />
+                            <div className="w-14 h-14 rounded-full bg-red-600/90 backdrop-blur-sm border border-slate-700/50 flex items-center justify-center group-hover/thumb:scale-110 transition-transform shadow-[0_0_30px_rgba(220,38,38,0.4)]">
+                                <i className="fa-solid fa-play text-slate-50 text-lg ml-1" />
                             </div>
                         </div>
                         {/* Duration badge */}
@@ -119,7 +119,7 @@ function VideoCard({ t, i }: { t: typeof testimonials[0]; i: number }) {
                 {/* Workshop tag */}
                 <div>
                     <span
-                        className="inline-block px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest text-text-primary mb-3"
+                        className="inline-block px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest text-slate-50 mb-3"
                         style={{ background: `${t.tagColor}30`, border: `1px solid ${t.tagColor}50`, color: t.tagColor }}
                     >
                         {t.workshopTag}
@@ -134,20 +134,20 @@ function VideoCard({ t, i }: { t: typeof testimonials[0]; i: number }) {
                 </div>
 
                 {/* Quote */}
-                <p className="text-sm text-text-secondary font-light leading-relaxed mb-6 italic flex-grow">
+                <p className="text-sm text-slate-300 font-light leading-relaxed mb-6 italic flex-grow">
                     {t.quote}
                 </p>
 
                 {/* Person */}
-                <div className="flex items-center gap-3 border-t border-functional-border pt-4 mt-auto">
+                <div className="flex items-center gap-3 border-t border-slate-700/50 pt-4 mt-auto">
                     <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold text-text-primary shrink-0"
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold text-slate-50 shrink-0"
                         style={{ background: `linear-gradient(135deg, ${t.tagColor}, ${t.tagColor}80)` }}
                     >
                         {t.avatar}
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-text-primary">{t.name}</p>
+                        <p className="text-sm font-bold text-slate-50">{t.name}</p>
                         <p className="text-[11px] text-slate-500 leading-tight">{t.role} <br/> {t.location}</p>
                     </div>
                 </div>
@@ -158,20 +158,20 @@ function VideoCard({ t, i }: { t: typeof testimonials[0]; i: number }) {
 
 export function AIWorkshopTestimonials() {
     return (
-        <section className="py-16 md:py-24 relative border-t border-functional-border" id="testimonials">
+        <section className="py-16 md:py-24 relative border-t border-slate-700/50" id="testimonials">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-full mix-blend-screen filter blur-[160px] opacity-[0.07] pointer-events-none" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
                 {/* Header */}
                 <div className="text-center mb-12 md:mb-16">
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-functional-border text-xs text-text-secondary font-medium uppercase tracking-widest mb-5">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-slate-700/50 text-xs text-slate-300 font-medium uppercase tracking-widest mb-5">
                         <i className="fa-solid fa-quote-left text-[#8b5cf6]" /> Student Stories
                     </span>
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-text-primary mb-4">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-50 mb-4">
                         Hear it from those who&apos;ve{' '}
                         <span className="bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">been there</span>
                     </h2>
-                    <p className="text-text-secondary text-base md:text-lg font-light max-w-xl mx-auto">
+                    <p className="text-slate-300 text-base md:text-lg font-light max-w-xl mx-auto">
                         Real founders. Real results. From past workshops.
                     </p>
                 </div>

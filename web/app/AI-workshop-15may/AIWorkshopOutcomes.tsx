@@ -28,7 +28,7 @@ export function AIWorkshopOutcomes() {
     return (
         <>
             {/* Deliverables */}
-            <section className="py-16 md:py-24 relative z-10 border-t border-functional-border" id="deliverables">
+            <section className="py-16 md:py-24 relative z-10 border-t border-slate-700/50" id="deliverables">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12 md:mb-16">
                         <h2 className="text-3xl md:text-5xl font-extrabold mb-4">Your Complete Startup Launch Toolkit</h2>
@@ -36,12 +36,12 @@ export function AIWorkshopOutcomes() {
                     </div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
                         {deliverables.map((item, i) => (
-                            <div key={i} className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-2xl p-6 hover:border-white/25 hover:-translate-y-1 transition-all duration-300 group">
+                            <div key={i} className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-slate-700/50 rounded-2xl p-6 hover:border-white/25 hover:-translate-y-1 transition-all duration-300 group">
                                 <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 border transition-transform group-hover:scale-110" style={{ background: `${item.color}15`, borderColor: `${item.color}30` }}>
                                     <i className={`fa-solid ${item.icon} text-lg`} style={{ color: item.color }} />
                                 </div>
-                                <h3 className="text-base md:text-lg font-bold text-text-primary mb-2">{item.title}</h3>
-                                <p className="text-sm text-text-secondary font-light leading-relaxed">{item.desc}</p>
+                                <h3 className="text-base md:text-lg font-bold text-slate-50 mb-2">{item.title}</h3>
+                                <p className="text-sm text-slate-300 font-light leading-relaxed">{item.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -49,7 +49,7 @@ export function AIWorkshopOutcomes() {
             </section>
 
             {/* Who Should Attend */}
-            <section className="py-16 md:py-24 relative border-t border-functional-border" id="audience">
+            <section className="py-16 md:py-24 relative border-t border-slate-700/50" id="audience">
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full max-w-xl h-[400px] bg-gradient-to-l from-[#d946ef] to-[#8b5cf6] rounded-full mix-blend-screen filter blur-[150px] opacity-8 pointer-events-none" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
                     <div className="text-center mb-12 md:mb-16">
@@ -58,13 +58,13 @@ export function AIWorkshopOutcomes() {
                     </div>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                         {audience.map((item, i) => (
-                            <div key={i} className="flex items-start gap-4 bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-xl p-5 hover:border-[#8b5cf6]/40 transition-all duration-300 group">
+                            <div key={i} className="flex items-start gap-4 bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-slate-700/50 rounded-xl p-5 hover:border-[#8b5cf6]/40 transition-all duration-300 group">
                                 <div className="w-10 h-10 rounded-lg bg-[#8b5cf6]/15 flex items-center justify-center shrink-0 border border-[#8b5cf6]/25 group-hover:scale-110 transition-transform">
                                     <i className={`fa-solid ${item.icon} text-[#8b5cf6] text-sm`} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-text-primary text-sm md:text-base mb-1">✓ {item.label}</h3>
-                                    <p className="text-xs text-text-secondary font-light">{item.desc}</p>
+                                    <h3 className="font-bold text-slate-50 text-sm md:text-base mb-1">✓ {item.label}</h3>
+                                    <p className="text-xs text-slate-300 font-light">{item.desc}</p>
                                 </div>
                             </div>
                         ))}
@@ -73,7 +73,7 @@ export function AIWorkshopOutcomes() {
             </section>
 
             {/* Why This Works */}
-            <section className="py-16 md:py-24 relative border-t border-functional-border" id="why-us">
+            <section className="py-16 md:py-24 relative border-t border-slate-700/50" id="why-us">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12 md:mb-16">
                         <h2 className="text-3xl md:text-5xl font-extrabold mb-4">Not Another Theoretical Course</h2>
@@ -81,14 +81,14 @@ export function AIWorkshopOutcomes() {
                     </div>
                     <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
                         {whyItWorks.map((item, i) => (
-                            <div key={i} className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-2xl p-6 md:p-8 hover:border-[#8b5cf6]/40 transition-all duration-300 hover:-translate-y-1 group">
+                            <div key={i} className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-slate-700/50 rounded-2xl p-6 md:p-8 hover:border-[#8b5cf6]/40 transition-all duration-300 hover:-translate-y-1 group">
                                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8b5cf6] to-[#d946ef] flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform">
-                                    <i className={`fa-solid ${item.icon} text-text-primary text-lg`} />
+                                    <i className={`fa-solid ${item.icon} text-slate-50 text-lg`} />
                                 </div>
-                                <h3 className="text-lg md:text-xl font-bold text-text-primary mb-4">{item.title}</h3>
+                                <h3 className="text-lg md:text-xl font-bold text-slate-50 mb-4">{item.title}</h3>
                                 <ul className="space-y-2.5">
                                     {item.points.map((point, pi) => (
-                                        <li key={pi} className="flex items-start gap-2.5 text-sm text-text-secondary font-light">
+                                        <li key={pi} className="flex items-start gap-2.5 text-sm text-slate-300 font-light">
                                             <i className="fa-solid fa-check text-[#8b5cf6] mt-0.5 text-xs shrink-0" />
                                             {point}
                                         </li>

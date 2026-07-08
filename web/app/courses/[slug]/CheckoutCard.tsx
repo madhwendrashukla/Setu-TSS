@@ -85,7 +85,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
         setError(null);
         setStatus("paying");
         try {
-            const orderRes = await fetch(`${API}/api/payments/create-order`, {
+            const orderRes = await fetch(`${API}/api/course-payments/create-order`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -120,7 +120,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     razorpay_payment_id: string;
                     razorpay_signature: string;
                 }) => {
-                    const verifyRes = await fetch(`${API}/api/payments/verify`, {
+                    const verifyRes = await fetch(`${API}/api/course-payments/verify`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(response),

@@ -1,14 +1,29 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Cropper from 'react-easy-crop';
+import { getCroppedImg } from "@/utils/cropImage";
+
+function readFile(file: File): Promise<string> {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => resolve(reader.result as string), false);
+        reader.readAsDataURL(file);
+    });
+}
 
 export default function AdminEvents() {
     const [events, setEvents] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState<any>(null);
     const [file, setFile] = useState<File | null>(null);
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+
     const [formData, setFormData] = useState({
         title: "", registration_url: "", description: "", venue: "", 
-        start_date: "", end_date: "", is_past: false, is_pinned: false, display_order: 0
+        start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: ""
     });
 
     const fetchEvents = () => {
@@ -58,8 +73,12 @@ export default function AdminEvents() {
                 setEditingEvent(null);
                 resetForm();
                 fetchEvents();
+            } else {
+                const errText = await res.text();
+                alert(`Error: ${res.status} - ${errText}`);
             }
-        } catch (error) {
+        } catch (error: any) {
+            alert(`Network Error: ${error.message}`);
             console.error(error);
         }
     };
@@ -113,7 +132,7 @@ export default function AdminEvents() {
     };
 
     const resetForm = () => {
-        setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", end_date: "", is_past: false, is_pinned: false, display_order: 0 });
+        setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: "" });
         setFile(null);
     };
 
@@ -121,18 +140,42 @@ export default function AdminEvents() {
         setEditingEvent(event);
         setFormData({
             title: event.title,
+            slug: event.slug || "",
             registration_url: event.registration_url || "",
             description: event.description,
-            venue: event.venue,
-            start_date: new Date(event.start_date).toISOString().split('T')[0],
-            end_date: new Date(event.end_date).toISOString().split('T')[0],
+            venue: event.venue || "",
+            start_date: event.start_date ? new Date(event.start_date).toISOString().split('T')[0] : "",
+            start_time: event.start_time || "",
+            end_date: event.end_date ? new Date(event.end_date).toISOString().split('T')[0] : "",
+            end_time: event.end_time || "",
             is_past: event.is_past,
             is_pinned: event.is_pinned,
             display_order: event.display_order || 0
         });
         setFile(null);
+        setImageSrc(null);
         setIsModalOpen(true);
     };
+
+    const onFileChange = async (e: any) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            const imageDataUrl = await readFile(file);
+            setImageSrc(imageDataUrl);
+        }
+        e.target.value = '';
+    };
+
+    const handleCropComplete = useCallback(async () => {
+        try {
+            if (!imageSrc || !croppedAreaPixels) return;
+            const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
+            setFile(croppedImage);
+            setImageSrc(null);
+        } catch (e) {
+            console.error(e);
+        }
+    }, [imageSrc, croppedAreaPixels]);
 
     return (
         <div className="animate-in fade-in duration-500">
@@ -177,6 +220,7 @@ export default function AdminEvents() {
                                     <td className="p-5">
                                         <div className="flex flex-col">
                                             <h3 className="font-bold text-gray-900">{event.title}</h3>
+                                            {event.slug && <span className="text-xs text-purple-600 mt-1">Slug: {event.slug}</span>}
                                             {event.registration_url && <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent-blue mt-1 hover:underline">{event.registration_url}</a>}
                                         </div>
                                     </td>
@@ -261,20 +305,36 @@ export default function AdminEvents() {
                                     <input placeholder="Event Title" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Slug (URL)</label>
+                                    <input placeholder="e.g. ai-workshop-15may" value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                </div>
+                                <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Registration URL</label>
-                                    <input placeholder="https://example.com/register" value={formData.registration_url} onChange={e => setFormData({...formData, registration_url: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                    <input placeholder="https://example.com/register" value={formData.registration_url} onChange={e => setFormData({...formData, registration_url: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Venue</label>
                                     <input placeholder="Venue" value={formData.venue} onChange={e => setFormData({...formData, venue: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Start Date</label>
-                                    <input type="date" value={formData.start_date} onChange={e => setFormData({...formData, start_date: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Start Date</label>
+                                        <input type="date" value={formData.start_date} onChange={e => setFormData({...formData, start_date: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Start Time</label>
+                                        <input type="time" value={formData.start_time} onChange={e => setFormData({...formData, start_time: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">End Date</label>
-                                    <input type="date" value={formData.end_date} onChange={e => setFormData({...formData, end_date: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">End Date</label>
+                                        <input type="date" value={formData.end_date} onChange={e => setFormData({...formData, end_date: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">End Time</label>
+                                        <input type="time" value={formData.end_time} onChange={e => setFormData({...formData, end_time: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                    </div>
                                 </div>
                             </div>
 
@@ -286,10 +346,10 @@ export default function AdminEvents() {
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Banner Image</label>
                                 <div className="relative w-full">
-                                    <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                    <input type="file" accept="image/*" onChange={onFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                                     <div className="w-full bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">
                                         <i className="fas fa-image text-2xl text-gray-300 group-hover:text-accent-blue transition-colors"></i>
-                                        <span className="text-gray-500 text-sm">{file ? file.name : (editingEvent && editingEvent.banner_url ? "Click to upload a new banner" : "Upload event banner (1920x1080 recommended)")}</span>
+                                        <span className="text-gray-500 text-sm">{file ? file.name : (editingEvent && editingEvent.banner_url ? "Click to upload and crop a new banner" : "Upload event banner (will be cropped to 16:9)")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -318,6 +378,43 @@ export default function AdminEvents() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Cropper Modal */}
+            {imageSrc && (
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-[100] animate-in fade-in duration-200">
+                    <div className="w-full max-w-4xl relative h-[60vh] bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-700">
+                        <Cropper
+                            image={imageSrc}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={16 / 9}
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
+                        />
+                    </div>
+                    
+                    <div className="w-full max-w-4xl mt-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="flex-1 w-full max-w-xs">
+                            <label className="text-white text-xs uppercase font-bold tracking-wider mb-2 block">Zoom</label>
+                            <input
+                                type="range"
+                                value={zoom}
+                                min={1}
+                                max={3}
+                                step={0.1}
+                                aria-labelledby="Zoom"
+                                onChange={(e) => setZoom(Number(e.target.value))}
+                                className="w-full accent-accent-blue"
+                            />
+                        </div>
+                        <div className="flex gap-4 w-full md:w-auto">
+                            <button onClick={() => setImageSrc(null)} className="flex-1 md:flex-none px-6 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold transition-colors border border-gray-700">Cancel</button>
+                            <button onClick={handleCropComplete} className="flex-1 md:flex-none px-6 py-3 rounded-xl bg-accent-blue hover:bg-accent-blue/90 text-white font-bold shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all">Confirm Crop</button>
+                        </div>
                     </div>
                 </div>
             )}

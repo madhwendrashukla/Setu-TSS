@@ -9,6 +9,7 @@ export interface MentorProfile {
     bio: string;
     photo_url: string;
     linkedin_url: string;
+    show_linkedin?: boolean;
 }
 
 const MentorCard = ({ mentor }: { mentor: MentorProfile }) => (
@@ -34,6 +35,18 @@ const MentorCard = ({ mentor }: { mentor: MentorProfile }) => (
         <p className="text-gray-400 font-medium text-sm leading-relaxed line-clamp-4 mt-auto">
             {mentor.bio || "Industry Expert"}
         </p>
+
+        {mentor.linkedin_url && mentor.show_linkedin !== false && (
+            <a 
+                href={mentor.linkedin_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="mt-4 flex items-center justify-center w-8 h-8 rounded-full bg-[#1e1b4b] border border-[#2e1065] text-gray-400 hover:text-[#0077b5] hover:bg-white transition-colors"
+                aria-label={`${mentor.name} LinkedIn`}
+            >
+                <i className="fab fa-linkedin-in text-sm"></i>
+            </a>
+        )}
     </div>
 );
 

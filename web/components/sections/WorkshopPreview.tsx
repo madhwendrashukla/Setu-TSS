@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 export function WorkshopPreview() {
     const [events, setEvents] = useState<any[]>([]);
@@ -10,7 +11,7 @@ export function WorkshopPreview() {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/events/pinned`, { cache: 'no-store' });
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/events/pinned?_t=${Date.now()}`, { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
                     if (Array.isArray(data)) {
@@ -59,16 +60,22 @@ export function WorkshopPreview() {
                 const dateStr = start.getTime() === end.getTime() 
                     ? start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                     : `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${end.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
+                
+                const timeStr = event.start_time ? (event.end_time ? ` @ ${event.start_time} - ${event.end_time}` : ` @ ${event.start_time}`) : '';
+                const fullDateStr = dateStr + timeStr;
                     
                 const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
                 const locationStr = isOnline ? "Online" : `Offline • Venue: ${event.venue}${event.city ? `, ${event.city}` : ''}`;
 
+                const targetUrl = event.slug ? `/events/${event.slug}` : (event.registration_url || "#");
+                const targetAttr = event.slug ? "_self" : (event.registration_url ? "_blank" : "_self");
+
                 return (
-                    <a 
+                    <Link 
                         key={event.id}
-                        href={event.registration_url || "#"} 
-                        target={event.registration_url ? "_blank" : "_self"}
-                        rel="noopener noreferrer" 
+                        href={targetUrl} 
+                        target={targetAttr}
+                        rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} 
                         className={`absolute top-0 left-0 w-full block rounded-[32px] md:rounded-[48px] overflow-hidden border border-functional-border shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_40px_rgba(168,85,247,0.1)] bg-bg-surface cursor-pointer group isolate transition-all duration-1000 ease-in-out ${
                             index === currentIndex ? 'opacity-100 z-10 translate-x-0' : 'opacity-0 z-0 translate-x-8 pointer-events-none'
                         }`}
@@ -78,7 +85,7 @@ export function WorkshopPreview() {
                             <div className="w-full md:w-1/2 px-8 py-12 md:px-16 md:py-20 flex flex-col justify-center relative z-10 order-2 md:order-1">
                                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-functional-border text-[10px] md:text-xs font-bold mb-6 w-fit text-text-primary uppercase tracking-wider">
                                     <span className="w-2 h-2 rounded-full bg-[#A855F7] animate-pulse"></span>
-                                    <span>Live Event • {dateStr} • {locationStr}</span>
+                                    <span>Live Event • {fullDateStr} • {locationStr}</span>
                                 </div>
 
                                 <h3 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 tracking-tight leading-tight text-text-primary">
@@ -97,24 +104,24 @@ export function WorkshopPreview() {
                             </div>
 
                             {/* Image Column */}
-                            <div className="w-full md:w-1/2 h-64 md:h-auto relative order-1 md:order-2 shrink-0 bg-bg-main">
+                            <div className="w-full md:w-1/2 h-64 md:h-auto relative order-1 md:order-2 shrink-0 bg-gray-50/50 flex items-center justify-center p-4">
                                 {event.banner_url ? (
                                     <img 
                                         src={encodeURI(event.banner_url)} 
                                         alt={event.title} 
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-contain rounded-xl shadow-sm"
                                     />
                                 ) : (
                                     <img 
                                         src="/ai-workshop-banner.webp" 
                                         alt={event.title} 
-                                        className="w-full h-full object-cover opacity-60 mix-blend-screen"
+                                        className="w-full h-full object-contain opacity-60 mix-blend-multiply"
                                     />
                                 )}
                                 <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-white/80 to-transparent pointer-events-none"></div>
                             </div>
                         </div>
-                    </a>
+                    </Link>
                 );
             })}
             

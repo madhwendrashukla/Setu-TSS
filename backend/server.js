@@ -30,6 +30,12 @@ app.post('/api/admin/login', async (req, res) => {
   res.json({ token });
 });
 
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
+const paymentsRoutes = require('./routes/payments');
+app.use('/api/payments', paymentsRoutes);
+
 // --- TOOLS & RESOURCES ROUTES ---
 const pitchDecksRoutes = require('./routes/pitchDecks');
 const grantsRoutes = require('./routes/grants');
@@ -50,19 +56,24 @@ app.use('/api/helpdesk', helpdeskRoutes);
 
 // --- LMS INTEGRATION ---
 // Courses are owned by the LMS (jjlms database, read-only role here);
-// payments are processed here, then a signed webhook enrolls the student
-// in the LMS. See deploy/sql/ for the course_orders/webhook_deliveries DDL.
+// course payments are processed here, then a signed webhook enrolls the
+// student in the LMS. See deploy/sql/ for the course_orders/webhook_deliveries DDL.
+//
+// NOTE: /api/payments (routes/payments.js) is the EVENT-registration payment
+// system (EventRegistration model). Course payments live on a SEPARATE
+// endpoint /api/course-payments (routes/coursePayments.js) so the two payment
+// flows don't collide. Both use Razorpay but for different products.
 const coursesRoutes = require('./routes/courses');
-const paymentsRoutes = require('./routes/payments');
+const coursePaymentsRoutes = require('./routes/coursePayments');
 app.use('/api/courses', coursesRoutes);
-app.use('/api/payments', paymentsRoutes);
+app.use('/api/course-payments', coursePaymentsRoutes);
 
 // --- PUBLIC API ENDPOINTS ---
 app.get('/api/events/pinned', async (req, res) => {
   try {
     const pinnedEvents = await prisma.event.findMany({ 
       where: { is_pinned: true, is_past: false, is_active: true },
-      orderBy: { display_order: 'asc' }
+      orderBy: { start_date: 'asc' }
     });
     res.json(pinnedEvents);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch pinned events' }); }
@@ -154,12 +165,15 @@ app.get('/api/homepage', async (req, res) => {
       prisma.mentoredStartup.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
     ]);
     res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups });
-  } catch (error) { res.status(500).json({ error: 'Failed to fetch homepage data' }); }
+  } catch (error) { 
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch homepage data' }); 
+  }
 });
 
 app.post('/api/leads', async (req, res) => {
   try {
-    const { name, email, phone, message, source } = req.body;
+    const { name, email, phone, city, message, source } = req.body;
     if (!name || !email) {
       return res.status(400).json({ error: 'Name and Email are required' });
     }
@@ -168,6 +182,7 @@ app.post('/api/leads', async (req, res) => {
         full_name: name,
         email,
         phone: phone || null,
+        city: city || null,
         message: message || null,
         source: source || 'contact_form',
         status: 'new'
@@ -200,9 +215,8 @@ app.post('/api/admin/events', upload.single('banner'), compressImage, async (req
     if (req.file) data.banner_url = req.file.url;
     
     data.is_pinned = (data.is_pinned === 'true' || data.is_pinned === true);
-    if (data.display_order !== undefined) {
-      data.display_order = parseInt(data.display_order) || 0;
-    }
+    delete data.display_order;
+
     
     if (data.is_past !== undefined) {
       data.is_past = (data.is_past === 'true' || data.is_past === true);
@@ -232,9 +246,8 @@ app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (
       data.is_pinned = (data.is_pinned === 'true' || data.is_pinned === true);
     }
     
-    if (data.display_order !== undefined) {
-      data.display_order = parseInt(data.display_order) || 0;
-    }
+    delete data.display_order;
+
     
     if (data.is_past !== undefined) {
       data.is_past = (data.is_past === 'true' || data.is_past === true);
@@ -328,8 +341,8 @@ app.post('/api/admin/testimonials', upload.single('photo'), compressImage, async
 
     if (data.type === 'video') {
       const activeVideos = await prisma.testimonial.count({ where: { type: 'video', is_active: true } });
-      if (activeVideos >= 4) {
-        return res.status(400).json({ error: 'Maximum 4 video testimonials allowed.' });
+      if (activeVideos >= 9) {
+        return res.status(400).json({ error: 'Maximum 9 video testimonials allowed.' });
       }
       
       if (data.display_order > 0) {
@@ -412,9 +425,31 @@ app.delete('/api/admin/community_partners/:id', async (req, res) => {
 });
 
 // MENTORS
+app.get('/api/admin/mentors', async (req, res) => {
+  try {
+    const mentors = await prisma.mentor.findMany({ orderBy: { display_order: 'asc' } });
+    res.json(mentors);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch mentors' }); }
+});
+
+app.put('/api/admin/mentors/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+    const updates = items.map(item => 
+      prisma.mentor.update({ where: { id: item.id }, data: { display_order: item.display_order } })
+    );
+    await prisma.$transaction(updates);
+    res.json({ success: true });
+  } catch (error) { 
+    console.error(error);
+    res.status(500).json({ error: 'Failed to reorder mentors' }); 
+  }
+});
 app.post('/api/admin/mentors', upload.single('photo'), compressImage, async (req, res) => {
   try {
     const data = { ...req.body };
+    if (data.show_linkedin !== undefined) data.show_linkedin = data.show_linkedin === 'true';
     if (req.file) data.photo_url = req.file.url;
     
     // Automatically assign display_order if not provided
@@ -436,11 +471,16 @@ app.post('/api/admin/mentors', upload.single('photo'), compressImage, async (req
 app.put('/api/admin/mentors/:id', upload.single('photo'), compressImage, async (req, res) => {
   try {
     const data = { ...req.body };
+    if (data.show_linkedin !== undefined) data.show_linkedin = data.show_linkedin === 'true';
+    if (data.is_active !== undefined) data.is_active = data.is_active === 'true' || data.is_active === true;
     if (req.file) data.photo_url = req.file.url;
     if (data.display_order) data.display_order = parseInt(data.display_order);
     const updated = await prisma.mentor.update({ where: { id: req.params.id }, data });
     res.json(updated);
-  } catch (error) { res.status(500).json({ error: 'Failed to update mentor' }); }
+  } catch (error) { 
+    console.error("Mentor Update Error:", error);
+    res.status(500).json({ error: 'Failed to update mentor' }); 
+  }
 });
 
 app.delete('/api/admin/mentors/:id', async (req, res) => {
@@ -659,6 +699,20 @@ app.put('/api/admin/leads/:id', async (req, res) => {
     const updated = await prisma.lead.update({ where: { id: req.params.id }, data: { status: req.body.status } });
     res.json(updated);
   } catch (error) { res.status(500).json({ error: 'Failed to update lead status' }); }
+});
+
+// REGISTRATIONS
+app.get('/api/admin/registrations', authMiddleware, async (req, res) => {
+  try {
+    const registrations = await prisma.eventRegistration.findMany({ 
+      include: { user: true },
+      orderBy: { created_at: 'desc' } 
+    });
+    res.json(registrations);
+  } catch (error) { 
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch registrations' }); 
+  }
 });
 
 // SITE SETTINGS

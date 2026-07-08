@@ -1,6 +1,8 @@
-import React from 'react';
+"use client";
 
-export const Testimonials = ({ data }: { data?: any[] }) => {
+import React, { useRef } from 'react';
+
+export const Testimonials = ({ data, toggles = {} }: { data?: any[], toggles?: any }) => {
     // Fallback data if none provided
     const testimonials = data && data.length > 0 ? data : [
         { id: 1, type: 'video', youtube_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', video_heading: 'Incredible Experience', video_description: 'This program changed my startup trajectory.', show_description: true },
@@ -9,8 +11,8 @@ export const Testimonials = ({ data }: { data?: any[] }) => {
         { id: 4, type: 'text', name: 'Vikram Singh', quote: 'The community is unmatched. You learn so much just by being in the room.', city: 'Delhi' },
     ];
 
-    const videoTestimonials = testimonials.filter(t => t.type === 'video').slice(0, 4);
-    const textTestimonials = testimonials.filter(t => t.type === 'text')
+    let videoTestimonials = testimonials.filter(t => t.type === 'video').slice(0, 9);
+    let textTestimonials = testimonials.filter(t => t.type === 'text')
         .sort((a, b) => {
             if (a.created_at && b.created_at) {
                 return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -18,18 +20,46 @@ export const Testimonials = ({ data }: { data?: any[] }) => {
             return 0;
         });
 
+    if (toggles.testi_video === false) videoTestimonials = [];
+    if (toggles.testi_text === false) textTestimonials = [];
+
+    if (videoTestimonials.length === 0 && textTestimonials.length === 0) return null;
+
+    const videoRef = useRef<HTMLDivElement>(null);
+    const scrollVideo = (direction: 'left' | 'right') => {
+        if (videoRef.current) {
+            const scrollAmount = window.innerWidth > 768 ? 424 : window.innerWidth * 0.85 + 24;
+            videoRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+        }
+    };
+
     return (
         <section className="card-section py-16 md:py-24">
-            <div className="max-w-7xl mx-auto px-6 mb-12">
-                <h2 className="text-3xl font-bold text-text-primary tracking-tight mb-2">What Founders Say</h2>
-                <p className="text-text-secondary">Real stories from our community members.</p>
+            <div className="max-w-7xl mx-auto px-6 mb-12 flex justify-between items-end gap-4">
+                <div>
+                    <h2 className="text-3xl font-bold text-text-primary tracking-tight mb-2">What Founders Say</h2>
+                    <p className="text-text-secondary">Real stories from our community members.</p>
+                </div>
+                {videoTestimonials.length > 4 && (
+                    <div className="flex gap-3">
+                        <button onClick={() => scrollVideo('left')} className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Previous videos">
+                            <i className="fas fa-arrow-left text-text-primary text-lg"></i>
+                        </button>
+                        <button onClick={() => scrollVideo('right')} className="w-12 h-12 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Next videos">
+                            <i className="fas fa-arrow-right text-text-primary text-lg"></i>
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Video Testimonials */}
             {videoTestimonials.length > 0 && (
-                <div className="max-w-7xl mx-auto px-6 mb-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div 
+                    ref={videoRef}
+                    className="max-w-7xl mx-auto px-6 mb-16 flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4"
+                >
                     {videoTestimonials.map(t => (
-                        <div key={t.id} className={`rounded-2xl overflow-hidden border border-functional-border bg-bg-surface flex flex-col ${!t.show_description ? 'self-start' : 'h-full'}`}>
+                        <div key={t.id} className={`w-[85vw] md:w-[400px] shrink-0 snap-start rounded-2xl overflow-hidden border border-functional-border bg-bg-surface flex flex-col ${!t.show_description ? 'self-start' : 'h-full'}`}>
                             <div className="relative w-full pt-[56.25%] bg-accent-blue hover:bg-accent-royal text-white">
                                 <iframe 
                                     src={t.youtube_url} 

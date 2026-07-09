@@ -373,3 +373,36 @@ model PromoBar {
 
   @@map("promo_bar")
 }
+
+// Coupons: created in prod by Madhwendra (his machine's db push) but missing
+// from the committed schema — added here to reconcile drift so `db push`
+// doesn't try to DROP the live tables. Definitions match the live DDL exactly.
+model Coupon {
+  id                String        @id @default(uuid()) @db.Uuid
+  code              String        @unique
+  type              String
+  discount_value    Float
+  is_active         Boolean       @default(true)
+  start_date        DateTime?
+  end_date          DateTime?
+  max_uses          Int?
+  current_uses      Int           @default(0)
+  max_uses_per_user Int?
+  applicable_emails String[]
+  referrer_id       String?       @db.Uuid
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+  usages            CouponUsage[]
+
+  @@map("coupons")
+}
+
+model CouponUsage {
+  id         String   @id @default(uuid()) @db.Uuid
+  coupon_id  String   @db.Uuid
+  user_email String?
+  used_at    DateTime @default(now())
+  coupon     Coupon   @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+
+  @@map("coupon_usages")
+}

@@ -37,3 +37,16 @@ the live DB agree, so a future sync will not try to drop them.
    `prisma db push`** so the repo stays the source of truth. If you have other
    local schema edits that were pushed to prod but not committed, reconcile
    those too — the next person's `db push` will hit the same wall.
+
+## Update 2026-07-10 — coupons drift
+
+Same situation again, caught by a pre-deploy `prisma migrate diff`: the live DB
+has `coupons` and `coupon_usages` tables (with data — 1 live coupon) that were
+not in the committed schema. A plain `db push` would have DROPPED them.
+
+Added `Coupon` and `CouponUsage` models to `schema.prisma` (this commit),
+introspected 1:1 from the live DDL. `migrate diff` against prod is now an empty
+migration — schema and DB fully agree.
+
+Madhwendra: if the code that creates/uses these tables lives on your machine,
+please commit it (and its schema) so the repo stays the source of truth.

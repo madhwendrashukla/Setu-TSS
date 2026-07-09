@@ -23,6 +23,7 @@ const NAV_CATEGORIES = [
         links: [
             { href: "/admin/registrations", label: "Registrations", icon: "fas fa-ticket-alt" },
             { href: "/admin/leads", label: "Leads", icon: "fas fa-envelope-open-text" },
+            { href: "/admin/mailer", label: "Mass Mailer", icon: "fas fa-paper-plane" },
         ]
     },
     {

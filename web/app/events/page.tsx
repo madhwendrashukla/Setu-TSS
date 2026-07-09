@@ -7,6 +7,31 @@ export const metadata: Metadata = {
     description: 'Upcoming and past events, workshops, and startup testimonials at Setu - TheStartupSchool.',
 };
 
+type Course = {
+    id: string;
+    title: string;
+    smallDescription: string | null;
+    price: number; // rupees (as stored by the LMS)
+    duration: number;
+    level: string;
+    category: string | null;
+    slug: string;
+    fileKey: string | null; // full CDN URL of the course thumbnail
+};
+
+async function getCourses(): Promise<Course[]> {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses`, { cache: 'no-store' });
+        if (!res.ok) return [];
+        return await res.json();
+    } catch {
+        return [];
+    }
+}
+
+const formatPrice = (rupees: number) =>
+    rupees <= 0 ? 'Free' : `₹${rupees.toLocaleString('en-IN')}`;
+
 async function getEvents() {
     try {
         const upcomingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?upcoming=true`, { cache: 'no-store' });
@@ -22,7 +47,7 @@ async function getEvents() {
 }
 
 export default async function EventsPage() {
-    const { upcoming, past } = await getEvents();
+    const [{ upcoming, past }, courses] = await Promise.all([getEvents(), getCourses()]);
 
     return (
         <div className="pt-32 pb-20 min-h-screen bg-bg-main">
@@ -37,6 +62,50 @@ export default async function EventsPage() {
                         Join our immersive sessions to learn from the best, network with peers, and accelerate your startup journey.
                     </p>
                 </div>
+
+                {/* Courses (LMS) */}
+                {courses.length > 0 && (
+                    <section id="courses" className="mb-32 scroll-mt-32">
+                        <h2 className="text-2xl font-bold text-text-primary mb-10 tracking-tight pb-4 border-b border-black/10">Courses & Cohorts</h2>
+
+                        <div className="grid lg:grid-cols-2 gap-8">
+                            {courses.map((course) => (
+                                <div key={course.id} className="glass-card rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
+                                    <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
+                                        {course.fileKey ? (
+                                            <img src={course.fileKey} alt={course.title} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <img src="/ai-workshop-banner.webp" alt={course.title} className="w-full h-full object-contain opacity-50" />
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2 mb-4 text-xs font-bold uppercase tracking-widest">
+                                        <span className="bg-white/10 border border-white/20 text-white px-3 py-1 rounded-full">
+                                            {course.level}
+                                        </span>
+                                        {course.category && (
+                                            <span className="bg-white/10 border border-white/20 text-white px-3 py-1 rounded-full">
+                                                {course.category}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-white mb-4">{course.title}</h3>
+                                    {course.smallDescription && (
+                                        <p className="text-gray-400 mb-6 flex-grow">{course.smallDescription}</p>
+                                    )}
+                                    <div className="flex justify-between items-center mt-auto pt-6 border-t border-white/10">
+                                        <span className="text-xl font-black text-white">{formatPrice(course.price)}</span>
+                                        <Link
+                                            href={`/courses/${course.slug}`}
+                                            className="text-[#A855F7] font-bold uppercase text-sm hover:text-[#9333ea] transition-colors"
+                                        >
+                                            Enroll Now {"→"}
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
                 {/* Upcoming Workshops Tab */}
                 <section className="mb-32">

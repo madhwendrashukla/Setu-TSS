@@ -166,16 +166,19 @@ model User {
 
 model EventRegistration {
   id                  String   @id @default(uuid()) @db.Uuid
-  user_id             String   @db.Uuid
+  user_id             String?  @db.Uuid
   event_id            String
   razorpay_order_id   String?
   razorpay_payment_id String?
   status              String   @default("PENDING")
   amount              Int?
+  guest_name          String?
+  guest_email         String?
+  guest_phone         String?
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
 
-  user                User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("event_registrations")
 }

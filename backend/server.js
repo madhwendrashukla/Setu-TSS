@@ -779,6 +779,156 @@ app.get('/api/admin/hero_slides', authMiddleware, async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to fetch hero slides' }); }
 });
 
+// ─── OTP ROUTES ──────────────────────────────────────────────────────────────
+const { sendMail, sendBulkMail, otpEmailHtml } = require('./utils/mailer');
+
+// In-memory OTP store: { email -> { otp, name, phone, expiresAt } }
+// In production, replace with Redis or a short-lived DB table.
+const otpStore = new Map();
+
+app.post('/api/otp/send', async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+    if (!name || !email || !phone) {
+      return res.status(400).json({ error: 'Name, email and phone are required.' });
+    }
+
+    // Rate limit: max 3 OTPs per email per 10 minutes
+    const existing = otpStore.get(email);
+    if (existing && existing.attempts >= 3 && Date.now() < existing.expiresAt) {
+      return res.status(429).json({ error: 'Too many OTP requests. Try again in 10 minutes.' });
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    otpStore.set(email, {
+      otp,
+      name,
+      phone,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+      attempts: (existing?.attempts || 0) + 1,
+    });
+
+    // Send OTP email
+    await sendMail(email, 'Your OTP – The Startup School', otpEmailHtml(name, otp));
+
+    res.json({ success: true, message: 'OTP sent to ' + email });
+  } catch (error) {
+    console.error('OTP send error:', error);
+    res.status(500).json({ error: 'Failed to send OTP. Check SMTP configuration.' });
+  }
+});
+
+app.post('/api/otp/verify', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ error: 'Email and OTP are required.' });
+    }
+
+    const stored = otpStore.get(email);
+    if (!stored) {
+      return res.status(400).json({ error: 'No OTP found for this email. Please request a new one.' });
+    }
+    if (Date.now() > stored.expiresAt) {
+      otpStore.delete(email);
+      return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
+    }
+    if (stored.otp !== String(otp)) {
+      return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
+    }
+
+    // OTP correct — delete from store and issue a short-lived guest token
+    otpStore.delete(email);
+    const guestToken = jwt.sign(
+      { guest: true, name: stored.name, email, phone: stored.phone },
+      process.env.GUEST_TOKEN_SECRET || 'tss_guest_otp_secret_2026',
+      { expiresIn: '30m' }
+    );
+
+    res.json({
+      success: true,
+      guestToken,
+      user: { name: stored.name, email, phone: stored.phone }
+    });
+  } catch (error) {
+    console.error('OTP verify error:', error);
+    res.status(500).json({ error: 'Verification failed.' });
+  }
+});
+
+// ─── ADMIN MAILER ROUTES ──────────────────────────────────────────────────────
+
+// Send bulk email
+app.post('/api/admin/mailer/send-bulk', authMiddleware, async (req, res) => {
+  try {
+    const { subject, message, recipients } = req.body;
+    if (!subject || !message || !Array.isArray(recipients) || recipients.length === 0) {
+      return res.status(400).json({ error: 'subject, message and recipients array are required.' });
+    }
+    const result = await sendBulkMail(recipients, subject, message, 500);
+    res.json(result);
+  } catch (error) {
+    console.error('Bulk mail error:', error);
+    res.status(500).json({ error: 'Failed to send bulk emails.' });
+  }
+});
+
+// Send single email
+app.post('/api/admin/mailer/send-one', authMiddleware, async (req, res) => {
+  try {
+    const { email, name, subject, message } = req.body;
+    if (!email || !subject || !message) {
+      return res.status(400).json({ error: 'email, subject and message are required.' });
+    }
+    const personalizedHtml = message
+      .replace(/\{\{name\}\}/g, name || '')
+      .replace(/\{\{email\}\}/g, email || '');
+    await sendMail(email, subject, personalizedHtml);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Single mail error:', error);
+    res.status(500).json({ error: 'Failed to send email: ' + error.message });
+  }
+});
+
+// ─── LEADS MAILER ROUTES ──────────────────────────────────────────────────────
+
+// Mail all filtered leads (accepts pre-built recipients from client)
+app.post('/api/admin/leads/mail-filtered', authMiddleware, async (req, res) => {
+  try {
+    const { subject, message, recipients } = req.body;
+    if (!subject || !message || !Array.isArray(recipients) || recipients.length === 0) {
+      return res.status(400).json({ error: 'subject, message and recipients array are required.' });
+    }
+    const result = await sendBulkMail(recipients, subject, message, 500);
+    res.json(result);
+  } catch (error) {
+    console.error('Leads bulk mail error:', error);
+    res.status(500).json({ error: 'Failed to send bulk emails.' });
+  }
+});
+
+// Mail a single lead by ID
+app.post('/api/admin/leads/mail-one/:id', authMiddleware, async (req, res) => {
+  try {
+    const lead = await prisma.lead.findUnique({ where: { id: req.params.id } });
+    if (!lead) return res.status(404).json({ error: 'Lead not found.' });
+
+    const { subject, message } = req.body;
+    if (!subject || !message) {
+      return res.status(400).json({ error: 'subject and message are required.' });
+    }
+    const personalizedHtml = message
+      .replace(/\{\{name\}\}/g, lead.full_name || '')
+      .replace(/\{\{email\}\}/g, lead.email || '');
+    await sendMail(lead.email, subject, personalizedHtml);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Lead single mail error:', error);
+    res.status(500).json({ error: 'Failed to send email: ' + error.message });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

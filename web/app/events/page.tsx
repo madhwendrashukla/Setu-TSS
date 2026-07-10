@@ -68,9 +68,9 @@ export default async function EventsPage() {
                     <section id="courses" className="mb-32 scroll-mt-32">
                         <h2 className="text-2xl font-bold text-text-primary mb-10 tracking-tight pb-4 border-b border-black/10">Courses & Cohorts</h2>
 
+                        {/* Cards deliberately omit .glass-card: its unlayered white background overrides the bg-[#13113B] utility */}
                         <div className="grid lg:grid-cols-2 gap-8">
                             {courses.map((course) => (
-                                {/* No glass-card here: its unlayered white background overrides the bg utility */}
                                 <div key={course.id} className="rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
                                     <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
                                         {course.fileKey ? (

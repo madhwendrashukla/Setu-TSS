@@ -30,6 +30,10 @@ app.post('/api/admin/login', async (req, res) => {
   res.json({ token });
 });
 
+app.get('/api/admin/verify', authMiddleware, (req, res) => {
+  res.json({ valid: true });
+});
+
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
@@ -51,8 +55,10 @@ app.use('/api/tools/founder-events', founderEventsRoutes);
 
 const chatWidgetsRoutes = require('./routes/chatWidgets');
 const helpdeskRoutes = require('./routes/helpdesk');
+const couponsRoutes = require('./routes/coupons');
 app.use('/api/chat-widgets', chatWidgetsRoutes);
 app.use('/api/helpdesk', helpdeskRoutes);
+app.use('/api/coupons', couponsRoutes);
 
 // --- PUBLIC API ENDPOINTS ---
 app.get('/api/events/pinned', async (req, res) => {

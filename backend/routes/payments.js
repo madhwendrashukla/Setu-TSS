@@ -124,6 +124,28 @@ router.post('/verify-payment', async (req, res) => {
           status: 'COMPLETED'
         }
       });
+      
+      // Log coupon usage if a valid coupon was used
+      if (req.body.couponCode) {
+        try {
+          const coupon = await prisma.coupon.findUnique({ where: { code: req.body.couponCode.toUpperCase() } });
+          if (coupon) {
+            await prisma.couponUsage.create({
+              data: {
+                coupon_id: coupon.id,
+                user_email: req.body.email || null
+              }
+            });
+            await prisma.coupon.update({
+              where: { id: coupon.id },
+              data: { current_uses: { increment: 1 } }
+            });
+          }
+        } catch (err) {
+          console.error("Failed to log coupon usage:", err);
+        }
+      }
+
       res.json({ success: true, message: 'Payment verified successfully' });
     } else {
       await prisma.eventRegistration.updateMany({

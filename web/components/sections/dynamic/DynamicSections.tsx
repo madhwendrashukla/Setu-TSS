@@ -7,7 +7,8 @@ import { PageData, WorkshopData } from '@/types/cms';
 const DynamicHero = dynamic(() => import("./DynamicHero").then(mod => mod.DynamicHero));
 const DynamicStoryline = dynamic(() => import("./DynamicStoryline").then(mod => mod.DynamicStoryline));
 const DynamicOutcomes = dynamic(() => import("./DynamicOutcomes").then(mod => mod.DynamicOutcomes));
-const DynamicWorkshops = dynamic(() => import("./DynamicWorkshops").then(mod => mod.DynamicWorkshops));
+const DynamicWorkshopBreakdown = dynamic(() => import("./DynamicWorkshopBreakdown").then(mod => mod.DynamicWorkshopBreakdown));
+const DynamicPricing = dynamic(() => import("./DynamicPricing").then(mod => mod.DynamicPricing));
 const DynamicMentors = dynamic(() => import("./DynamicMentors").then(mod => mod.DynamicMentors));
 const DynamicVideoGallery = dynamic(() => import("./DynamicVideoGallery").then(mod => mod.DynamicVideoGallery));
 const DynamicTestimonials = dynamic(() => import("./DynamicTestimonials").then(mod => mod.DynamicTestimonials));
@@ -31,7 +32,8 @@ export function DynamicSections({ pageData, eventSlug }: { pageData: PageData, e
     };
 
     const selectedWorkshop = selectedWorkshopId 
-        ? pageData.workshops?.find((w: WorkshopData) => w.id === selectedWorkshopId) || null 
+        ? (pageData.pricing_options?.find((w: any) => w.id === selectedWorkshopId) || 
+           pageData.workshops?.find((w: WorkshopData) => w.id === selectedWorkshopId) || null)
         : null;
 
     // Check if Workshops exist to determine if Nudge is needed
@@ -47,7 +49,8 @@ export function DynamicSections({ pageData, eventSlug }: { pageData: PageData, e
                 <WorkshopNudgeCTA />
             )}
 
-            {pageData.section_visibility?.workshops && <DynamicWorkshops data={pageData} onCheckoutClick={handleCheckoutClick} />}
+            {pageData.section_visibility?.workshops && <DynamicWorkshopBreakdown data={pageData} onCheckoutClick={handleCheckoutClick} />}
+            {pageData.section_visibility?.pricing && <DynamicPricing data={pageData} onCheckoutClick={handleCheckoutClick} />}
             
             {pageData.section_visibility?.mentors && <DynamicMentors data={pageData} />}
             {pageData.section_visibility?.video_gallery && <DynamicVideoGallery data={pageData} />}

@@ -19,21 +19,21 @@ const quillModules = {
 };
 
 const StringArrayEditor = ({ value, onChange, placeholder }: { value: string[], onChange: (val: string[]) => void, placeholder?: string }) => {
-    const handleAdd = () => onChange([...(value || []), ""]);
+    const handleAdd = () => onChange([...(Array.isArray(value) ? value : []), ""]);
     const handleRemove = (index: number) => {
-        const newArr = [...(value || [])];
+        const newArr = [...(Array.isArray(value) ? value : [])];
         newArr.splice(index, 1);
         onChange(newArr);
     };
     const handleChange = (index: number, val: string) => {
-        const newArr = [...(value || [])];
+        const newArr = [...(Array.isArray(value) ? value : [])];
         newArr[index] = val;
         onChange(newArr);
     };
 
     return (
         <div className="space-y-2">
-            {(value || []).map((item, index) => (
+            {(Array.isArray(value) ? value : []).map((item, index) => (
                 <div key={index} className="flex gap-2">
                     <input 
                         className="flex-1 bg-white border border-gray-200 p-2 rounded-lg focus:border-accent-blue outline-none"
@@ -58,16 +58,16 @@ const StringArrayEditor = ({ value, onChange, placeholder }: { value: string[], 
 };
 
 const FaqsEditor = ({ faqs, onChange }: { faqs: any[], onChange: (f: any[]) => void }) => {
-    const handleAdd = () => onChange([...(faqs || []), { priority_order: (faqs?.length || 0) + 1, question: "", answer: "" }]);
-    const handleRemove = (index: number) => { const newArr = [...(faqs || [])]; newArr.splice(index, 1); onChange(newArr); };
+    const handleAdd = () => onChange([...(Array.isArray(faqs) ? faqs : []), { priority_order: (faqs?.length || 0) + 1, question: "", answer: "" }]);
+    const handleRemove = (index: number) => { const newArr = [...(Array.isArray(faqs) ? faqs : [])]; newArr.splice(index, 1); onChange(newArr); };
     const handleChange = (index: number, field: string, val: any) => {
-        const newArr = [...(faqs || [])];
+        const newArr = [...(Array.isArray(faqs) ? faqs : [])];
         newArr[index] = { ...newArr[index], [field]: val };
         onChange(newArr);
     };
     return (
         <div className="space-y-4">
-            {(faqs || []).map((faq, index) => (
+            {(Array.isArray(faqs) ? faqs : []).map((faq, index) => (
                 <div key={index} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm relative">
                     <button onClick={() => handleRemove(index)} className="absolute top-4 right-4 text-red-500 hover:text-red-700 w-8 h-8 flex items-center justify-center bg-red-50 rounded"><i className="fas fa-trash"></i></button>
                     <div className="grid grid-cols-1 gap-3 pr-10">
@@ -85,16 +85,16 @@ const FaqsEditor = ({ faqs, onChange }: { faqs: any[], onChange: (f: any[]) => v
 };
 
 const TextTestimonialsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[]) => void }) => {
-    const handleAdd = () => onChange([...(items || []), { id: "t_"+Date.now(), name: "", role: "", company: "", quote: "", rating: 5, visible: true }]);
-    const handleRemove = (index: number) => { const newArr = [...(items || [])]; newArr.splice(index, 1); onChange(newArr); };
+    const handleAdd = () => onChange([...(Array.isArray(items) ? items : []), { id: "t_"+Date.now(), name: "", role: "", company: "", quote: "", rating: 5, visible: true }]);
+    const handleRemove = (index: number) => { const newArr = [...(Array.isArray(items) ? items : [])]; newArr.splice(index, 1); onChange(newArr); };
     const handleChange = (index: number, field: string, val: any) => {
-        const newArr = [...(items || [])];
+        const newArr = [...(Array.isArray(items) ? items : [])];
         newArr[index] = { ...newArr[index], [field]: val };
         onChange(newArr);
     };
     return (
         <div className="space-y-4">
-            {(items || []).map((t, index) => (
+            {(Array.isArray(items) ? items : []).map((t, index) => (
                 <div key={index} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm relative">
                     <button onClick={() => handleRemove(index)} className="absolute top-4 right-4 text-red-500 hover:text-red-700 w-8 h-8 flex items-center justify-center bg-red-50 rounded"><i className="fas fa-trash"></i></button>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pr-10 mb-3">
@@ -112,16 +112,16 @@ const TextTestimonialsEditor = ({ items, onChange }: { items: any[], onChange: (
 };
 
 const VideoTestimonialsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[]) => void }) => {
-    const handleAdd = () => onChange([...(items || []), { id: "vt_"+Date.now(), name: "", role: "", company: "", video_url: "", video_description: "", rating: 5, visible: true }]);
-    const handleRemove = (index: number) => { const newArr = [...(items || [])]; newArr.splice(index, 1); onChange(newArr); };
+    const handleAdd = () => onChange([...(Array.isArray(items) ? items : []), { id: "vt_"+Date.now(), name: "", role: "", company: "", video_url: "", video_description: "", rating: 5, visible: true }]);
+    const handleRemove = (index: number) => { const newArr = [...(Array.isArray(items) ? items : [])]; newArr.splice(index, 1); onChange(newArr); };
     const handleChange = (index: number, field: string, val: any) => {
-        const newArr = [...(items || [])];
+        const newArr = [...(Array.isArray(items) ? items : [])];
         newArr[index] = { ...newArr[index], [field]: val };
         onChange(newArr);
     };
     return (
         <div className="space-y-4">
-            {(items || []).map((t, index) => (
+            {(Array.isArray(items) ? items : []).map((t, index) => (
                 <div key={index} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm relative">
                     <button onClick={() => handleRemove(index)} className="absolute top-4 right-4 text-red-500 hover:text-red-700 w-8 h-8 flex items-center justify-center bg-red-50 rounded"><i className="fas fa-trash"></i></button>
                     <div className="grid grid-cols-2 gap-3 pr-10 mb-3">
@@ -142,12 +142,12 @@ const VideoTestimonialsEditor = ({ items, onChange }: { items: any[], onChange: 
 };
 
 const MentorsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[]) => void }) => {
-    const handleAdd = () => onChange([...(items || []), { id: "m_"+Date.now(), name: "", professional_headline: "", professional_description: "", image_url: "", credential_bullets: [], visible: true }]);
-    const handleRemove = (index: number) => { const newArr = [...(items || [])]; newArr.splice(index, 1); onChange(newArr); };
-    const handleChange = (index: number, field: string, val: any) => { const newArr = [...(items || [])]; newArr[index] = { ...newArr[index], [field]: val }; onChange(newArr); };
+    const handleAdd = () => onChange([...(Array.isArray(items) ? items : []), { id: "m_"+Date.now(), name: "", professional_headline: "", professional_description: "", image_url: "", credential_bullets: [], badge_text: "", visible: true }]);
+    const handleRemove = (index: number) => { const newArr = [...(Array.isArray(items) ? items : [])]; newArr.splice(index, 1); onChange(newArr); };
+    const handleChange = (index: number, field: string, val: any) => { const newArr = [...(Array.isArray(items) ? items : [])]; newArr[index] = { ...newArr[index], [field]: val }; onChange(newArr); };
     return (
         <div className="space-y-4">
-            {(items || []).map((m, index) => (
+            {(Array.isArray(items) ? items : []).map((m, index) => (
                 <div key={index} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm relative">
                     <button onClick={() => handleRemove(index)} className="absolute top-4 right-4 text-red-500 hover:text-red-700 w-8 h-8 flex items-center justify-center bg-red-50 rounded"><i className="fas fa-trash"></i></button>
                     <div className="flex gap-4">
@@ -161,6 +161,7 @@ const MentorsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[])
                                 <div><label className="block text-xs font-bold mb-1 text-gray-500">Name</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={m.name || ""} onChange={e => handleChange(index, 'name', e.target.value)} /></div>
                                 <div><label className="block text-xs font-bold mb-1 text-gray-500">Headline</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={m.professional_headline || ""} onChange={e => handleChange(index, 'professional_headline', e.target.value)} /></div>
                             </div>
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Badge / Tag (Optional)</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={m.badge_text || ""} onChange={e => handleChange(index, 'badge_text', e.target.value)} placeholder="e.g. WORKSHOP 1: STARTUP IDEATION" /></div>
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Description</label><textarea className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none h-16" value={m.professional_description || ""} onChange={e => handleChange(index, 'professional_description', e.target.value)} /></div>
                             <div>
                                 <label className="block text-xs font-bold mb-1 text-gray-500">Credentials (Bullets)</label>
@@ -176,13 +177,13 @@ const MentorsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[])
 };
 
 const StoryBoxesEditor = ({ boxes, onChange }: { boxes: any[], onChange: (b: any[]) => void }) => {
-    const handleAdd = () => onChange([...(boxes || []), { title: "", description: "", bullets: [] }]);
-    const handleRemove = (index: number) => { const newArr = [...(boxes || [])]; newArr.splice(index, 1); onChange(newArr); };
-    const handleChange = (index: number, field: string, val: any) => { const newArr = [...(boxes || [])]; newArr[index] = { ...newArr[index], [field]: val }; onChange(newArr); };
+    const handleAdd = () => onChange([...(Array.isArray(boxes) ? boxes : []), { title: "", description: "", bullets: [] }]);
+    const handleRemove = (index: number) => { const newArr = [...(Array.isArray(boxes) ? boxes : [])]; newArr.splice(index, 1); onChange(newArr); };
+    const handleChange = (index: number, field: string, val: any) => { const newArr = [...(Array.isArray(boxes) ? boxes : [])]; newArr[index] = { ...newArr[index], [field]: val }; onChange(newArr); };
     
     return (
         <div className="space-y-4">
-            {(boxes || []).map((b, index) => (
+            {(Array.isArray(boxes) ? boxes : []).map((b, index) => (
                 <div key={index} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm relative">
                     <button onClick={() => handleRemove(index)} className="absolute top-4 right-4 text-red-500 hover:text-red-700 w-8 h-8 flex items-center justify-center bg-red-50 rounded"><i className="fas fa-trash"></i></button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-10 mb-3">
@@ -203,10 +204,10 @@ const StoryBoxesEditor = ({ boxes, onChange }: { boxes: any[], onChange: (b: any
                     <div className="mt-4 border-t border-gray-100 pt-3">
                         <label className="block text-xs font-bold mb-2 text-gray-500">Bullets (Check/Cross)</label>
                         <div className="space-y-2">
-                            {(b.bullets || []).map((bullet: any, bIndex: number) => (
+                            {(Array.isArray(b.bullets) ? b.bullets : []).map((bullet: any, bIndex: number) => (
                                 <div key={bIndex} className="flex gap-2 items-center">
                                     <select className="bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs" value={bullet.style || "check"} onChange={e => {
-                                        const newBullets = [...(b.bullets || [])];
+                                        const newBullets = [...(Array.isArray(b.bullets) ? b.bullets : [])];
                                         newBullets[bIndex] = { ...newBullets[bIndex], style: e.target.value };
                                         handleChange(index, 'bullets', newBullets);
                                     }}>
@@ -219,18 +220,18 @@ const StoryBoxesEditor = ({ boxes, onChange }: { boxes: any[], onChange: (b: any
                                         <option value="cross_grey">Cross (Grey)</option>
                                     </select>
                                     <input className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={bullet.text || ""} onChange={e => {
-                                        const newBullets = [...(b.bullets || [])];
+                                        const newBullets = [...(Array.isArray(b.bullets) ? b.bullets : [])];
                                         newBullets[bIndex] = { ...newBullets[bIndex], text: e.target.value };
                                         handleChange(index, 'bullets', newBullets);
                                     }} placeholder="Bullet text..." />
                                     <button onClick={() => {
-                                        const newBullets = [...(b.bullets || [])];
+                                        const newBullets = [...(Array.isArray(b.bullets) ? b.bullets : [])];
                                         newBullets.splice(bIndex, 1);
                                         handleChange(index, 'bullets', newBullets);
                                     }} className="text-red-500 p-2 hover:bg-red-50 rounded"><i className="fas fa-trash text-xs"></i></button>
                                 </div>
                             ))}
-                            <button onClick={() => handleChange(index, 'bullets', [...(b.bullets || []), { text: "", style: "check" }])} className="text-xs font-bold text-accent-blue hover:text-blue-700 flex items-center gap-1 mt-1"><i className="fas fa-plus"></i> Add Bullet</button>
+                            <button onClick={() => handleChange(index, 'bullets', [...(Array.isArray(b.bullets) ? b.bullets : []), { text: "", style: "check" }])} className="text-xs font-bold text-accent-blue hover:text-blue-700 flex items-center gap-1 mt-1"><i className="fas fa-plus"></i> Add Bullet</button>
                         </div>
                     </div>
                 </div>
@@ -240,14 +241,27 @@ const StoryBoxesEditor = ({ boxes, onChange }: { boxes: any[], onChange: (b: any
     );
 };
 
-const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: (w: any[]) => void }) => {
-    const handleAdd = () => onChange([...(workshops || []), { id: "w_"+Date.now(), priority_order: (workshops?.length || 0)+1, heading: "DAY 1", title: "", key_features: "", detail_bullets: { what_youll_learn: [], your_deliverables: [] }, pricing: { strike_price: 0, actual_price: 0, date_time_bullets: [], mode: "online", address: "" }, cta: { text: "Book Now", active: true }, visible: true }]);
-    const handleRemove = (index: number) => { const newArr = [...(workshops || [])]; newArr.splice(index, 1); onChange(newArr); };
-    const handleChange = (index: number, field: string, val: any) => { const newArr = [...(workshops || [])]; newArr[index] = { ...newArr[index], [field]: val }; onChange(newArr); };
+const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: (w: any[] | ((prev: any[]) => any[])) => void }) => {
+    const handleAdd = () => onChange((prev) => [...(Array.isArray(prev) ? prev : []), { id: "w_"+Date.now(), priority_order: (prev?.length || 0)+1, heading: "DAY 1", title: "", key_features: "", detail_bullets: { what_youll_learn: [], your_deliverables: [] }, pricing: { strike_price: 0, actual_price: 0, date_time_bullets: [], mode: "online", address: "" }, cta: { text: "Book Now", active: true }, visible: true }]);
+    const handleRemove = (index: number) => { onChange(prev => { const newArr = [...(Array.isArray(prev) ? prev : [])]; newArr.splice(index, 1); return newArr; }); };
+    const handleChange = (index: number, field: string, val: any) => { onChange(prev => { const newArr = [...(Array.isArray(prev) ? prev : [])]; newArr[index] = { ...newArr[index], [field]: val }; return newArr; }); };
+    const handleDeepChange = (index: number, objName: string, propName: string, val: any) => {
+        onChange(prev => {
+            const newArr = [...(Array.isArray(prev) ? prev : [])];
+            newArr[index] = { 
+                ...newArr[index], 
+                [objName]: {
+                    ...newArr[index][objName],
+                    [propName]: val
+                }
+            };
+            return newArr;
+        });
+    };
 
     return (
         <div className="space-y-6">
-            {(workshops || []).map((w, index) => (
+            {(Array.isArray(workshops) ? workshops : []).map((w, index) => (
                 <div key={index} className="border border-gray-300 rounded-xl bg-gray-50 shadow-sm relative overflow-hidden">
                     <div className="bg-gray-200 p-3 flex justify-between items-center">
                         <h4 className="font-bold text-sm text-gray-700">Workshop {index + 1}</h4>
@@ -256,10 +270,17 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                     <div className="p-5 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Priority Order</label><input type="number" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.priority_order || 0} onChange={e => handleChange(index, 'priority_order', parseInt(e.target.value)||0)} /></div>
-                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Heading (e.g. DAY 1)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Badge / Day (e.g. DAY 1)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Title</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
                         </div>
                         <div><label className="block text-xs font-bold mb-1 text-gray-500">Key Features</label><textarea className="w-full bg-white border border-gray-200 p-2 rounded outline-none h-16" value={w.key_features || ""} onChange={e => handleChange(index, 'key_features', e.target.value)} /></div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-gray-100 p-3 rounded">
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Date</label><input type="date" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.date || ""} onChange={e => handleChange(index, 'date', e.target.value)} /></div>
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Start Time</label><input type="time" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.start_time || ""} onChange={e => handleChange(index, 'start_time', e.target.value)} /></div>
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">End Time</label><input type="time" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.end_time || ""} onChange={e => handleChange(index, 'end_time', e.target.value)} /></div>
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Total Duration</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" placeholder="e.g. 3 hours" value={w.duration || ""} onChange={e => handleChange(index, 'duration', e.target.value)} /></div>
+                        </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 rounded border border-gray-200">
                             <div>
@@ -268,8 +289,8 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                                     <ReactQuill 
                                         theme="snow"
                                         modules={quillModules}
-                                        value={typeof w.detail_bullets?.what_youll_learn === 'string' ? w.detail_bullets.what_youll_learn : (w.detail_bullets?.what_youll_learn || []).map((b: string) => `<li>${b}</li>`).join('') ? `<ul>${(w.detail_bullets?.what_youll_learn || []).map((b: string) => `<li>${b}</li>`).join('')}</ul>` : ""} 
-                                        onChange={val => handleChange(index, 'detail_bullets', { ...w.detail_bullets, what_youll_learn: val })} 
+                                        value={typeof w.detail_bullets?.what_youll_learn === 'string' ? w.detail_bullets.what_youll_learn : (Array.isArray(w.detail_bullets?.what_youll_learn) ? w.detail_bullets?.what_youll_learn : []).map((b: string) => `<li>${b}</li>`).join('') ? `<ul>${(Array.isArray(w.detail_bullets?.what_youll_learn) ? w.detail_bullets?.what_youll_learn : []).map((b: string) => `<li>${b}</li>`).join('')}</ul>` : ""} 
+                                        onChange={val => handleDeepChange(index, 'detail_bullets', 'what_youll_learn', val)} 
                                     />
                                 </div>
                             </div>
@@ -279,37 +300,9 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                                     <ReactQuill 
                                         theme="snow"
                                         modules={quillModules}
-                                        value={typeof w.detail_bullets?.your_deliverables === 'string' ? w.detail_bullets.your_deliverables : (w.detail_bullets?.your_deliverables || []).map((b: string) => `<li>${b}</li>`).join('') ? `<ul>${(w.detail_bullets?.your_deliverables || []).map((b: string) => `<li>${b}</li>`).join('')}</ul>` : ""} 
-                                        onChange={val => handleChange(index, 'detail_bullets', { ...w.detail_bullets, your_deliverables: val })} 
+                                        value={typeof w.detail_bullets?.your_deliverables === 'string' ? w.detail_bullets.your_deliverables : (Array.isArray(w.detail_bullets?.your_deliverables) ? w.detail_bullets?.your_deliverables : []).map((b: string) => `<li>${b}</li>`).join('') ? `<ul>${(Array.isArray(w.detail_bullets?.your_deliverables) ? w.detail_bullets?.your_deliverables : []).map((b: string) => `<li>${b}</li>`).join('')}</ul>` : ""} 
+                                        onChange={val => handleDeepChange(index, 'detail_bullets', 'your_deliverables', val)} 
                                     />
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-white p-4 rounded border border-gray-200 space-y-4">
-                            <h5 className="font-bold text-xs text-gray-700 uppercase tracking-wide">Pricing & Details</h5>
-                            <div className="grid grid-cols-3 gap-3">
-                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Strike Price</label><input type="number" className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.pricing?.strike_price || 0} onChange={e => handleChange(index, 'pricing', { ...w.pricing, strike_price: parseInt(e.target.value)||0 })} /></div>
-                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Actual Price</label><input type="number" className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.pricing?.actual_price || 0} onChange={e => handleChange(index, 'pricing', { ...w.pricing, actual_price: parseInt(e.target.value)||0 })} /></div>
-                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Mode</label><select className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.pricing?.mode || "online"} onChange={e => handleChange(index, 'pricing', { ...w.pricing, mode: e.target.value })}><option value="online">Online</option><option value="offline">Offline</option><option value="hybrid">Hybrid</option></select></div>
-                            </div>
-                            {w.pricing?.mode !== 'online' && (
-                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Address (Offline/Hybrid)</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.pricing?.address || ""} onChange={e => handleChange(index, 'pricing', { ...w.pricing, address: e.target.value })} placeholder="Full address details..." /></div>
-                            )}
-                            <div>
-                                <label className="block text-xs font-bold mb-2 text-gray-700">Date/Time (Bullets)</label>
-                                <StringArrayEditor value={w.pricing?.date_time_bullets || []} onChange={v => handleChange(index, 'pricing', { ...w.pricing, date_time_bullets: v })} placeholder="e.g. May 15th" />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
-                                <div>
-                                    <label className="block text-xs font-bold mb-1 text-gray-500">CTA Button Text</label>
-                                    <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.cta?.text || ""} onChange={e => handleChange(index, 'cta', { ...w.cta, text: e.target.value })} placeholder="Book Your Seat Now" />
-                                </div>
-                                <div className="flex items-end pb-1">
-                                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                                        <input type="checkbox" checked={w.cta?.active !== false} onChange={e => handleChange(index, 'cta', { ...w.cta, active: e.target.checked })} className="w-4 h-4 accent-blue-600" />
-                                        Registrations Open (Show Button)
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -321,8 +314,64 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
     );
 };
 
+const PricingEditor = ({ options, onChange }: { options: any[], onChange: (o: any[] | ((prev: any[]) => any[])) => void }) => {
+    const handleAdd = () => onChange((prev) => [...(Array.isArray(prev) ? prev : []), { id: "p_"+Date.now(), priority_order: (prev?.length || 0)+1, heading: "OFFER", title: "", key_features: "", pricing: { strike_price: 0, actual_price: 0, date_time_bullets: [], mode: "online", address: "" }, cta: { text: "Book Now", active: true }, visible: true }]);
+    const handleRemove = (index: number) => { onChange(prev => { const newArr = [...(Array.isArray(prev) ? prev : [])]; newArr.splice(index, 1); return newArr; }); };
+    const handleChange = (index: number, field: string, val: any) => { onChange(prev => { const newArr = [...(Array.isArray(prev) ? prev : [])]; newArr[index] = { ...newArr[index], [field]: val }; return newArr; }); };
+    
+    return (
+        <div className="space-y-6">
+            {(Array.isArray(options) ? options : []).map((o, index) => (
+                <div key={index} className="border border-gray-300 rounded-xl bg-gray-50 shadow-sm relative overflow-hidden">
+                    <div className="bg-gray-200 p-3 flex justify-between items-center">
+                        <h4 className="font-bold text-sm text-gray-700">Pricing Card {index + 1}</h4>
+                        <button onClick={() => handleRemove(index)} className="text-red-500 hover:text-red-700 bg-white w-7 h-7 rounded shadow-sm"><i className="fas fa-trash text-xs"></i></button>
+                    </div>
+                    <div className="p-5 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Priority Order</label><input type="number" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={o.priority_order || 0} onChange={e => handleChange(index, 'priority_order', parseInt(e.target.value)||0)} /></div>
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Heading (e.g. OFFER)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={o.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
+                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Title</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={o.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
+                        </div>
+                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Key Features / Description (HTML allowed)</label><textarea className="w-full bg-white border border-gray-200 p-2 rounded outline-none h-16" value={o.key_features || ""} onChange={e => handleChange(index, 'key_features', e.target.value)} /></div>
+
+                        <div className="bg-white p-4 rounded border border-gray-200 space-y-4">
+                            <h5 className="font-bold text-xs text-gray-700 uppercase tracking-wide">Pricing & Details</h5>
+                            <div className="grid grid-cols-3 gap-3">
+                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Strike Price</label><input type="number" className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.pricing?.strike_price || 0} onChange={e => handleChange(index, 'pricing', { ...o.pricing, strike_price: parseInt(e.target.value)||0 })} /></div>
+                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Actual Price</label><input type="number" className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.pricing?.actual_price || 0} onChange={e => handleChange(index, 'pricing', { ...o.pricing, actual_price: parseInt(e.target.value)||0 })} /></div>
+                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Mode</label><select className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.pricing?.mode || "online"} onChange={e => handleChange(index, 'pricing', { ...o.pricing, mode: e.target.value })}><option value="online">Online</option><option value="offline">Offline</option><option value="hybrid">Hybrid</option></select></div>
+                            </div>
+                            {o.pricing?.mode !== 'online' && (
+                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Address (Offline/Hybrid)</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.pricing?.address || ""} onChange={e => handleChange(index, 'pricing', { ...o.pricing, address: e.target.value })} placeholder="Full address details..." /></div>
+                            )}
+                            <div>
+                                <label className="block text-xs font-bold mb-2 text-gray-700">Date/Time (Bullets)</label>
+                                <StringArrayEditor value={o.pricing?.date_time_bullets || []} onChange={v => handleChange(index, 'pricing', { ...o.pricing, date_time_bullets: v })} placeholder="e.g. May 15th" />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
+                                <div>
+                                    <label className="block text-xs font-bold mb-1 text-gray-500">CTA Button Text</label>
+                                    <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.cta?.text || ""} onChange={e => handleChange(index, 'cta', { ...o.cta, text: e.target.value })} placeholder="Book Your Seat Now" />
+                                </div>
+                                <div className="flex items-end pb-1">
+                                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                                        <input type="checkbox" checked={o.cta?.active !== false} onChange={e => handleChange(index, 'cta', { ...o.cta, active: e.target.checked })} className="w-4 h-4 accent-blue-600" />
+                                        Registrations Open (Show Button)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+            <button onClick={handleAdd} className="text-sm font-bold text-accent-blue hover:text-blue-700 flex items-center gap-1 mt-2"><i className="fas fa-plus"></i> Add Pricing Card</button>
+        </div>
+    );
+};
+
 const initialPageData = {
-    section_visibility: { hero: true, story: true, output: true, workshops: true, mentors: true, video_gallery: true, testimonials: true, faqs: true, contact: true },
+    section_visibility: { hero: true, story: true, output: true, workshops: true, pricing: true, mentors: true, video_gallery: true, testimonials: true, faqs: true, contact: true },
     hero: { 
         headline: "Master The Art of <span class='text-purple-500'>Startup Success</span>", 
         description: "Join the most comprehensive accelerator program designed for early-stage founders to build, scale, and raise funding.", 
@@ -439,6 +488,7 @@ export default function EventBuilderPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState("visibility");
+    const [testimonialTab, setTestimonialTab] = useState("text");
     const [adminSources, setAdminSources] = useState<any[]>([]);
 
     useEffect(() => {
@@ -475,9 +525,21 @@ export default function EventBuilderPage() {
                         parsedData = initialPageData;
                     }
                     
+                    const migratedPricingOptions = parsedData.pricing_options || (parsedData.workshops || []).map((w: any, idx: number) => ({
+                        id: w.id || `p_${Date.now()}_${idx}`,
+                        priority_order: w.priority_order || idx + 1,
+                        heading: w.heading || "OFFER",
+                        title: w.title || "",
+                        key_features: w.key_features || "",
+                        pricing: w.pricing || { strike_price: 0, actual_price: 0, date_time_bullets: [], mode: "online", address: "" },
+                        cta: w.cta || { text: "Book Now", active: true },
+                        visible: true
+                    }));
+
                     setPageData({
                         ...initialPageData,
                         ...parsedData,
+                        pricing_options: migratedPricingOptions,
                         section_visibility: { ...initialPageData.section_visibility, ...(parsedData.section_visibility || {}) },
                         hero: { ...initialPageData.hero, ...(parsedData.hero || {}) },
                         story: { ...initialPageData.story, ...(parsedData.story || {}) },
@@ -570,13 +632,14 @@ export default function EventBuilderPage() {
         { id: 'hero', label: 'Hero Section' },
         { id: 'story', label: 'Story Section' },
         { id: 'output', label: 'The Output' },
-        { id: 'workshops', label: 'Workshops & Pricing' },
+        { id: 'workshop_breakdown', label: 'Workshop Breakdown' },
+        { id: 'pricing', label: 'Pricing' },
         { id: 'mentors', label: 'Mentors' },
         { id: 'video_gallery', label: 'Video Gallery' },
-        { id: 'text_testimonials', label: 'Text Testimonials' },
-        { id: 'video_testimonials', label: 'Video Testimonials' },
+        { id: 'testimonials', label: 'Testimonials' },
         { id: 'faqs', label: 'FAQs' },
-        { id: 'contact', label: 'Contact & Coupons' }
+        { id: 'contact', label: 'Contact Details' },
+        { id: 'coupons', label: 'Coupons' }
     ];
 
     if (loading) return <div className="p-10 text-center">Loading...</div>;
@@ -670,11 +733,19 @@ export default function EventBuilderPage() {
                         </div>
                     )}
 
-                    {activeTab === 'workshops' && (
+                    {activeTab === 'workshop_breakdown' && (
                         <div className="space-y-6">
-                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Workshops & Pricing</h2>
-                            <p className="text-sm text-gray-600 mb-4 bg-yellow-50 border border-yellow-200 p-4 rounded-xl font-medium">This is the core repeatable array. Each workshop contains its own pricing, dates, and Checkout CTA toggle.</p>
-                            <WorkshopsEditor workshops={pageData.workshops || []} onChange={v => setPageData({...pageData, workshops: v})} />
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Workshop Breakdown</h2>
+                            <p className="text-sm text-gray-600 mb-4 bg-yellow-50 border border-yellow-200 p-4 rounded-xl font-medium">Define the core curriculum.</p>
+                            <WorkshopsEditor workshops={pageData.workshops || []} onChange={v => setPageData((prev: any) => ({...prev, workshops: typeof v === 'function' ? v(prev.workshops || []) : v}))} />
+                        </div>
+                    )}
+
+                    {activeTab === 'pricing' && (
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Pricing</h2>
+                            <p className="text-sm text-gray-600 mb-4 bg-yellow-50 border border-yellow-200 p-4 rounded-xl font-medium">Create independent pricing options.</p>
+                            <PricingEditor options={pageData.pricing_options || []} onChange={v => setPageData((prev: any) => ({...prev, pricing_options: typeof v === 'function' ? v(prev.pricing_options || []) : v}))} />
                         </div>
                     )}
 
@@ -696,30 +767,42 @@ export default function EventBuilderPage() {
                         </div>
                     )}
 
-                    {activeTab === 'text_testimonials' && (
+                    {activeTab === 'testimonials' && (
                         <div className="space-y-6">
-                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Text Testimonials</h2>
-                            <TextTestimonialsEditor items={pageData.text_testimonials || []} onChange={v => updateData('text_testimonials', '', v)} />
-                        </div>
-                    )}
-
-                    {activeTab === 'video_testimonials' && (
-                        <div className="space-y-6">
-                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Video Testimonials</h2>
-                            <VideoTestimonialsEditor items={pageData.video_testimonials || []} onChange={v => updateData('video_testimonials', '', v)} />
+                            <div className="flex justify-between items-center border-b pb-4 mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">Testimonials</h2>
+                                <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+                                    <button 
+                                        onClick={() => setTestimonialTab("text")}
+                                        className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${testimonialTab === "text" ? "bg-white text-accent-blue shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                                    >Text Testimonials</button>
+                                    <button 
+                                        onClick={() => setTestimonialTab("video")}
+                                        className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${testimonialTab === "video" ? "bg-white text-accent-blue shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                                    >Video Testimonials</button>
+                                </div>
+                            </div>
+                            
+                            {testimonialTab === "text" && (
+                                <TextTestimonialsEditor items={pageData.text_testimonials || []} onChange={v => setPageData({...pageData, text_testimonials: v})} />
+                            )}
+                            
+                            {testimonialTab === "video" && (
+                                <VideoTestimonialsEditor items={pageData.video_testimonials || []} onChange={v => setPageData({...pageData, video_testimonials: v})} />
+                            )}
                         </div>
                     )}
 
                     {activeTab === 'faqs' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">FAQs</h2>
-                            <FaqsEditor faqs={pageData.faqs || []} onChange={v => updateData('faqs', '', v)} />
+                            <FaqsEditor faqs={pageData.faqs || []} onChange={v => setPageData({...pageData, faqs: v})} />
                         </div>
                     )}
 
                     {activeTab === 'contact' && (
                         <div className="space-y-6">
-                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Contact Details & Global Coupons</h2>
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Contact Details</h2>
 
                             <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 shadow-sm">
                                 <h3 className="font-bold mb-4 text-lg text-gray-800"><i className="fab fa-whatsapp text-green-500 mr-2"></i>WhatsApp Block</h3>
@@ -755,7 +838,13 @@ export default function EventBuilderPage() {
                                 </div>
                             </div>
 
-                            <div className="border border-purple-200 rounded-xl p-6 bg-purple-50 shadow-sm mt-8">
+                        </div>
+                    )}
+
+                    {activeTab === 'coupons' && (
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Global Coupons</h2>
+                            <div className="border border-purple-200 rounded-xl p-6 bg-purple-50 shadow-sm">
                                 <h3 className="font-bold mb-4 text-lg text-purple-900"><i className="fas fa-ticket-alt text-purple-600 mr-2"></i>Global Coupon System</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
                                     <div><label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Featured Coupon Code</label><input placeholder="e.g. STARTUP20" className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none" value={pageData.coupon?.code || ""} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, code: e.target.value}})} /></div>
@@ -770,7 +859,7 @@ export default function EventBuilderPage() {
                                 <div className="border-t border-purple-200 pt-5">
                                     <label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Applicable Global Coupons</label>
                                     <p className="text-xs text-purple-600/70 mb-3">Add global coupon codes that are valid for this event. Leave empty to allow NO global coupons.</p>
-                                    <StringArrayEditor value={pageData.applicable_coupons || []} onChange={v => updateData('applicable_coupons', '', v)} placeholder='e.g. "DIWALI50"' />
+                                    <StringArrayEditor value={pageData.applicable_coupons || []} onChange={v => setPageData({...pageData, applicable_coupons: v})} placeholder='e.g. "DIWALI50"' />
                                 </div>
                             </div>
                         </div>

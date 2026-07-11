@@ -76,7 +76,7 @@ router.put('/admin/:id', authMiddleware, async (req, res) => {
                 max_uses: data.max_uses ? parseInt(data.max_uses) : null,
                 max_uses_per_user: data.max_uses_per_user ? parseInt(data.max_uses_per_user) : null,
                 applicable_emails: data.applicable_emails,
-                referrer_id: data.referrer_id,
+                referrer_id: data.referrer_id || null,
             }
         });
         res.json(coupon);

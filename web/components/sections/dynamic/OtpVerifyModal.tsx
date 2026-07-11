@@ -8,11 +8,13 @@ interface OtpVerifyModalProps {
   onClose: () => void;
   onVerified: (user: GuestUser) => void;
   prefillEmail?: string;
+  eventId?: string;
+  ticketTier?: string;
 }
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail }: OtpVerifyModalProps) {
+export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, eventId, ticketTier }: OtpVerifyModalProps) {
   const [step, setStep] = useState<'form' | 'otp'>('form');
   const [name, setName] = useState('');
   const [email, setEmail] = useState(prefillEmail || '');
@@ -21,13 +23,49 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail }: Ot
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
+  const [pendingLeadId, setPendingLeadId] = useState<string | null>(null);
+  const lastSentData = useRef<string>('');
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Debounced Lead Capture
+  useEffect(() => {
+    if (!isOpen || !eventId) return;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneValid = phone.replace(/\s/g, '').length >= 10;
+    
+    if (emailRegex.test(email) || phoneValid) {
+      const currentData = JSON.stringify({ name, email, phone, ticketTier });
+      if (currentData === lastSentData.current) return;
+
+      const timer = setTimeout(async () => {
+        try {
+          const res = await fetch(`${API}/api/payments/capture-lead`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, phone, eventId, ticketTier, pendingLeadId }),
+          });
+          const data = await res.json();
+          if (data.success && data.id) {
+            setPendingLeadId(data.id);
+          }
+          lastSentData.current = currentData;
+        } catch (e) {
+          console.error("Failed to capture lead", e);
+        }
+      }, 1500); // 1.5 second debounce
+
+      return () => clearTimeout(timer);
+    }
+  }, [name, email, phone, isOpen, eventId, ticketTier, pendingLeadId]);
 
   useEffect(() => {
     if (!isOpen) {
       setStep('form');
       setError(null);
       setOtp(['', '', '', '', '', '']);
+      setPendingLeadId(null);
+      lastSentData.current = '';
     }
   }, [isOpen]);
 

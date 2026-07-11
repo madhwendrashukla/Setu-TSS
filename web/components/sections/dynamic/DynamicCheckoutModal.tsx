@@ -40,9 +40,10 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
     }
     const finalPrice = Math.max(0, basePrice - discount);
 
-    const handleApplyCoupon = async () => {
+    const handleApplyCoupon = async (codeToApply?: string | React.MouseEvent) => {
+        const code = typeof codeToApply === 'string' ? codeToApply : couponCode;
         setError(null);
-        if (!couponCode) {
+        if (!code) {
             setError('Please enter a coupon code.');
             return;
         }
@@ -54,7 +55,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    code: couponCode, 
+                    code: code, 
                     email: guestUser?.email || '',
                     eventSlug: eventSlug
                 })
@@ -64,6 +65,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
             if (res.ok && data.valid) {
                 setValidatedCoupon(data.coupon);
                 setIsCouponApplied(true);
+                setCouponCode(code); // ensure input shows it
             } else {
                 setError(data.error || 'Invalid coupon code.');
                 setIsCouponApplied(false);
@@ -102,6 +104,8 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                     'Authorization': `Bearer ${activeUser.guestToken}`
                 },
                 body: JSON.stringify({
+                    eventId: eventSlug,
+                    ticketTier: (workshop as any).heading ? `${(workshop as any).heading} - ${workshop.title}` : workshop.title,
                     workshopId: eventSlug || workshop.id,
                     workshopTitle: workshop.title,
                     basePrice: basePrice,
@@ -231,6 +235,22 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                         {/* Coupon Section */}
                         {couponConfig?.active && (
                             <div className="mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                {couponConfig.featured_coupon && !isCouponApplied && (
+                                    <div className="mb-4 bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center justify-between">
+                                        <div>
+                                            <p className="text-xs font-bold text-purple-900 mb-0.5">🎉 Featured Offer!</p>
+                                            <p className="text-sm font-medium text-purple-700">Use code <span className="font-extrabold">{couponConfig.featured_coupon}</span> to get {couponConfig.featured_discount}% off!</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => handleApplyCoupon(couponConfig.featured_coupon)}
+                                            disabled={isProcessing}
+                                            className="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                                        >
+                                            Apply
+                                        </button>
+                                    </div>
+                                )}
+                                
                                 <label className="block text-xs font-bold text-slate-700 mb-2">Have a coupon code?</label>
                                 <div className="flex gap-2">
                                     <input
@@ -311,6 +331,8 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                 isOpen={showOtpModal}
                 onClose={() => setShowOtpModal(false)}
                 prefillEmail={guestUser?.email}
+                eventId={eventSlug}
+                ticketTier={(workshop as any).heading ? `${(workshop as any).heading} - ${workshop.title}` : workshop.title}
                 onVerified={(user) => {
                     setGuestUser(user);
                     setShowOtpModal(false);

@@ -168,6 +168,7 @@ model EventRegistration {
   id                  String   @id @default(uuid()) @db.Uuid
   user_id             String?  @db.Uuid
   event_id            String
+  ticket_tier         String?
   razorpay_order_id   String?
   razorpay_payment_id String?
   status              String   @default("PENDING")

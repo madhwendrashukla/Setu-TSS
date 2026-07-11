@@ -66,6 +66,9 @@ export interface WorkshopData {
   icon?: string;
   badge?: string;
   mentor?: string;
+  date?: string;
+  start_time?: string;
+  end_time?: string;
   duration?: string;
   calendarLinks?: { label: string; url: string }[];
 }
@@ -80,6 +83,7 @@ export interface MentorData {
   visible: boolean;
   color?: string;
   imagePosition?: string;
+  badge_text?: string;
 }
 
 export interface MentorsSectionData {
@@ -162,6 +166,7 @@ export interface SectionVisibility {
   story: boolean;
   output: boolean;
   workshops: boolean;
+  pricing: boolean;
   mentors: boolean;
   video_gallery: boolean;
   text_testimonials: boolean;
@@ -170,12 +175,33 @@ export interface SectionVisibility {
   contact: boolean;
 }
 
+export interface PricingTier {
+  id: string;
+  priority_order: number;
+  heading: string;
+  title: string;
+  key_features: string;
+  pricing: {
+    strike_price: number;
+    actual_price: number;
+    date_time_bullets: string[];
+    mode: string;
+    address?: string;
+  };
+  cta: {
+    text: string;
+    active: boolean;
+  };
+  visible: boolean;
+}
+
 export interface PageData {
   section_visibility: SectionVisibility;
   hero: HeroData;
   story: StoryData;
   output: OutputData;
   workshops: WorkshopData[];
+  pricing_options?: PricingTier[];
   mentors: MentorsSectionData;
   video_gallery: VideoGalleryData;
   text_testimonials: TestimonialData[];

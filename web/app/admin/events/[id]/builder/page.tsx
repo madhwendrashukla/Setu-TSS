@@ -84,7 +84,7 @@ const FaqsEditor = ({ faqs, onChange }: { faqs: any[], onChange: (f: any[]) => v
     );
 };
 
-const TestimonialsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[]) => void }) => {
+const TextTestimonialsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[]) => void }) => {
     const handleAdd = () => onChange([...(items || []), { id: "t_"+Date.now(), name: "", role: "", company: "", quote: "", rating: 5, visible: true }]);
     const handleRemove = (index: number) => { const newArr = [...(items || [])]; newArr.splice(index, 1); onChange(newArr); };
     const handleChange = (index: number, field: string, val: any) => {
@@ -106,7 +106,37 @@ const TestimonialsEditor = ({ items, onChange }: { items: any[], onChange: (i: a
                     <div><label className="block text-xs font-bold mb-1 text-gray-500">Quote</label><textarea className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none h-20" value={t.quote || ""} onChange={e => handleChange(index, 'quote', e.target.value)} /></div>
                 </div>
             ))}
-            <button onClick={handleAdd} className="text-sm font-bold text-accent-blue hover:text-blue-700 flex items-center gap-1 mt-2"><i className="fas fa-plus"></i> Add Testimonial</button>
+            <button onClick={handleAdd} className="text-sm font-bold text-accent-blue hover:text-blue-700 flex items-center gap-1 mt-2"><i className="fas fa-plus"></i> Add Text Testimonial</button>
+        </div>
+    );
+};
+
+const VideoTestimonialsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[]) => void }) => {
+    const handleAdd = () => onChange([...(items || []), { id: "vt_"+Date.now(), name: "", role: "", company: "", video_url: "", video_description: "", rating: 5, visible: true }]);
+    const handleRemove = (index: number) => { const newArr = [...(items || [])]; newArr.splice(index, 1); onChange(newArr); };
+    const handleChange = (index: number, field: string, val: any) => {
+        const newArr = [...(items || [])];
+        newArr[index] = { ...newArr[index], [field]: val };
+        onChange(newArr);
+    };
+    return (
+        <div className="space-y-4">
+            {(items || []).map((t, index) => (
+                <div key={index} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm relative">
+                    <button onClick={() => handleRemove(index)} className="absolute top-4 right-4 text-red-500 hover:text-red-700 w-8 h-8 flex items-center justify-center bg-red-50 rounded"><i className="fas fa-trash"></i></button>
+                    <div className="grid grid-cols-2 gap-3 pr-10 mb-3">
+                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Video URL (YouTube/MP4)</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={t.video_url || ""} onChange={e => handleChange(index, 'video_url', e.target.value)} /></div>
+                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Rating (1-5)</label><input type="number" max="5" min="1" className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={t.rating || 5} onChange={e => handleChange(index, 'rating', parseInt(e.target.value)||5)} /></div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Name</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={t.name || ""} onChange={e => handleChange(index, 'name', e.target.value)} /></div>
+                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Role</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={t.role || ""} onChange={e => handleChange(index, 'role', e.target.value)} /></div>
+                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Company</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={t.company || ""} onChange={e => handleChange(index, 'company', e.target.value)} /></div>
+                    </div>
+                    <div><label className="block text-xs font-bold mb-1 text-gray-500">Video Description</label><textarea className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none h-16" value={t.video_description || ""} onChange={e => handleChange(index, 'video_description', e.target.value)} /></div>
+                </div>
+            ))}
+            <button onClick={handleAdd} className="text-sm font-bold text-accent-blue hover:text-blue-700 flex items-center gap-1 mt-2"><i className="fas fa-plus"></i> Add Video Testimonial</button>
         </div>
     );
 };
@@ -358,16 +388,27 @@ const initialPageData = {
         headline: "Watch Our Previous Sessions", 
         videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"] 
     },
-    testimonials: [
+    text_testimonials: [
         {
             id: "t1",
-            video_url: "",
             name: "Sarah Lee",
             role: "Founder",
             company: "TechNova",
             city: "Bangalore",
             rating: 5,
             quote: "This program completely changed how I look at my business. Highly recommended!",
+            visible: true
+        }
+    ],
+    video_testimonials: [
+        {
+            id: "vt1",
+            name: "John Doe",
+            role: "CEO",
+            company: "InnovateTech",
+            video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            video_description: "Great experience overall.",
+            rating: 5,
             visible: true
         }
     ],
@@ -384,6 +425,7 @@ const initialPageData = {
         whatsapp: { headline: "Got Questions?", description: "Chat with our team directly.", button_text: "Message Us", link: "919876543210" }, 
         lead_gen: { headline: "Request a Callback", subtext: "Drop your details and we will call you back.", admin_email: "admin@example.com", submit_text: "Request Callback" } 
     },
+    applicable_coupons: ["EARLYBIRD", "SUMMER20"],
     coupon: { code: "EARLYBIRD", discount_percent: 20, active: true }
 };
 
@@ -442,10 +484,13 @@ export default function EventBuilderPage() {
                         output: { ...initialPageData.output, ...(parsedData.output || {}) },
                         mentors: { ...initialPageData.mentors, ...(parsedData.mentors || {}) },
                         video_gallery: { ...initialPageData.video_gallery, ...(parsedData.video_gallery || {}) },
+                        text_testimonials: parsedData.text_testimonials || initialPageData.text_testimonials,
+                        video_testimonials: parsedData.video_testimonials || initialPageData.video_testimonials,
                         contact: {
                             whatsapp: { ...initialPageData.contact?.whatsapp, ...(parsedData.contact?.whatsapp || {}) },
                             lead_gen: { ...initialPageData.contact?.lead_gen, ...(parsedData.contact?.lead_gen || {}) }
                         },
+                        applicable_coupons: parsedData.applicable_coupons || initialPageData.applicable_coupons,
                         coupon: { ...initialPageData.coupon, ...(parsedData.coupon || {}) }
                     });
                 }
@@ -528,9 +573,10 @@ export default function EventBuilderPage() {
         { id: 'workshops', label: 'Workshops & Pricing' },
         { id: 'mentors', label: 'Mentors' },
         { id: 'video_gallery', label: 'Video Gallery' },
-        { id: 'testimonials', label: 'Testimonials' },
+        { id: 'text_testimonials', label: 'Text Testimonials' },
+        { id: 'video_testimonials', label: 'Video Testimonials' },
         { id: 'faqs', label: 'FAQs' },
-        { id: 'contact', label: 'Contact & Coupon' }
+        { id: 'contact', label: 'Contact & Coupons' }
     ];
 
     if (loading) return <div className="p-10 text-center">Loading...</div>;
@@ -650,34 +696,37 @@ export default function EventBuilderPage() {
                         </div>
                     )}
 
-                    {activeTab === 'testimonials' && (
+                    {activeTab === 'text_testimonials' && (
                         <div className="space-y-6">
-                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Testimonials</h2>
-                            <div>
-                                <TestimonialsEditor items={pageData.testimonials || []} onChange={v => setPageData({...pageData, testimonials: v})} />
-                            </div>
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Text Testimonials</h2>
+                            <TextTestimonialsEditor items={pageData.text_testimonials || []} onChange={v => updateData('text_testimonials', '', v)} />
+                        </div>
+                    )}
+
+                    {activeTab === 'video_testimonials' && (
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Video Testimonials</h2>
+                            <VideoTestimonialsEditor items={pageData.video_testimonials || []} onChange={v => updateData('video_testimonials', '', v)} />
                         </div>
                     )}
 
                     {activeTab === 'faqs' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">FAQs</h2>
-                            <div>
-                                <FaqsEditor faqs={pageData.faqs || []} onChange={v => setPageData({...pageData, faqs: v})} />
-                            </div>
+                            <FaqsEditor faqs={pageData.faqs || []} onChange={v => updateData('faqs', '', v)} />
                         </div>
                     )}
 
                     {activeTab === 'contact' && (
                         <div className="space-y-6">
-                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Contact Us & Global Coupon</h2>
-                            
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Contact Details & Global Coupons</h2>
+
                             <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 shadow-sm">
                                 <h3 className="font-bold mb-4 text-lg text-gray-800"><i className="fab fa-whatsapp text-green-500 mr-2"></i>WhatsApp Block</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Headline</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.whatsapp?.headline || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, whatsapp: {...pageData.contact.whatsapp, headline: e.target.value}}})} /></div>
-                                    <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Button Text</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.whatsapp?.buttonText || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, whatsapp: {...pageData.contact.whatsapp, buttonText: e.target.value}}})} /></div>
-                                    <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Number/Link</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.whatsapp?.number || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, whatsapp: {...pageData.contact.whatsapp, number: e.target.value}}})} /></div>
+                                    <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Button Text</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.whatsapp?.button_text || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, whatsapp: {...pageData.contact.whatsapp, button_text: e.target.value}}})} /></div>
+                                    <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Number/Link</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.whatsapp?.link || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, whatsapp: {...pageData.contact.whatsapp, link: e.target.value}}})} /></div>
                                     <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Description</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.whatsapp?.description || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, whatsapp: {...pageData.contact.whatsapp, description: e.target.value}}})} /></div>
                                 </div>
                             </div>
@@ -708,15 +757,20 @@ export default function EventBuilderPage() {
 
                             <div className="border border-purple-200 rounded-xl p-6 bg-purple-50 shadow-sm mt-8">
                                 <h3 className="font-bold mb-4 text-lg text-purple-900"><i className="fas fa-ticket-alt text-purple-600 mr-2"></i>Global Coupon System</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                    <div><label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Coupon Code</label><input placeholder="e.g. STARTUP20" className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none" value={pageData.coupon?.code || ""} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, code: e.target.value}})} /></div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                                    <div><label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Featured Coupon Code</label><input placeholder="e.g. STARTUP20" className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none" value={pageData.coupon?.code || ""} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, code: e.target.value}})} /></div>
                                     <div><label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Discount %</label><input type="number" placeholder="20" className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none" value={pageData.coupon?.discount_percent || 0} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, discount_percent: parseInt(e.target.value)||0}})} /></div>
                                     <div className="flex items-center pt-6">
                                         <label className="flex items-center gap-3 cursor-pointer p-2 bg-white rounded-lg border border-purple-100 pr-4">
                                             <input type="checkbox" checked={pageData.coupon?.active || false} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, active: e.target.checked}})} className="w-5 h-5 accent-purple-600 rounded" />
-                                            <span className="font-bold text-sm text-purple-900">Coupon Active</span>
+                                            <span className="font-bold text-sm text-purple-900">Featured Coupon Active</span>
                                         </label>
                                     </div>
+                                </div>
+                                <div className="border-t border-purple-200 pt-5">
+                                    <label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Applicable Global Coupons</label>
+                                    <p className="text-xs text-purple-600/70 mb-3">Add global coupon codes that are valid for this event. Leave empty to allow NO global coupons.</p>
+                                    <StringArrayEditor value={pageData.applicable_coupons || []} onChange={v => updateData('applicable_coupons', '', v)} placeholder='e.g. "DIWALI50"' />
                                 </div>
                             </div>
                         </div>

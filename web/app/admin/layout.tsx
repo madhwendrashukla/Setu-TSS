@@ -75,6 +75,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 });
                 if (res.ok) {
                     setIsAuthenticated(true);
+                    if (pathname === "/admin") {
+                        router.push("/admin/dashboard");
+                        return; // keep loading true to prevent flashing the login form with sidebar
+                    }
                 } else {
                     localStorage.removeItem("adminToken");
                     setIsAuthenticated(false);

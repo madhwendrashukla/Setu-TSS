@@ -84,8 +84,15 @@ export function DynamicContact({ data }: { data: PageData }) {
                             )}
                             
                             {lead_gen?.subtext && (
-                                <p className="text-slate-400 mb-8">{lead_gen.subtext}</p>
+                                <p className="text-slate-400 mb-4">{lead_gen.subtext}</p>
                             )}
+
+                            {lead_gen?.description && (
+                                <div className="text-slate-300 text-sm mb-8 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                                    {lead_gen.description}
+                                </div>
+                            )}
+
 
                             {submitted ? (
                                 <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-6 rounded-xl flex items-center gap-4">

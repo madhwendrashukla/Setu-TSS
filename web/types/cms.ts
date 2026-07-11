@@ -94,13 +94,19 @@ export interface VideoGalleryData {
 
 export interface TestimonialData {
   id: string;
-  video_url: string;
-  name: string;
-  role: string;
-  company: string;
-  city: string;
-  rating: number;
-  quote: string;
+  type?: 'text' | 'video';
+  // Text Testimonial fields
+  name?: string;
+  role?: string;
+  company?: string;
+  city?: string;
+  rating?: number;
+  quote?: string;
+  // Video Testimonial fields
+  video_url?: string;
+  video_heading?: string;
+  video_description?: string;
+  show_description?: boolean;
   visible: boolean;
 }
 
@@ -158,7 +164,8 @@ export interface SectionVisibility {
   workshops: boolean;
   mentors: boolean;
   video_gallery: boolean;
-  testimonials: boolean;
+  text_testimonials: boolean;
+  video_testimonials: boolean;
   faqs: boolean;
   contact: boolean;
 }
@@ -171,7 +178,8 @@ export interface PageData {
   workshops: WorkshopData[];
   mentors: MentorsSectionData;
   video_gallery: VideoGalleryData;
-  testimonials: TestimonialData[];
+  text_testimonials: TestimonialData[];
+  video_testimonials: TestimonialData[];
   faqs: FAQData[];
   contact: ContactData;
   coupon: CouponData;

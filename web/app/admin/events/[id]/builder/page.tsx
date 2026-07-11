@@ -158,6 +158,17 @@ const StoryBoxesEditor = ({ boxes, onChange }: { boxes: any[], onChange: (b: any
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-10 mb-3">
                         <div><label className="block text-xs font-bold mb-1 text-gray-500">Box Title</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={b.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
                         <div><label className="block text-xs font-bold mb-1 text-gray-500">Box Description</label><textarea className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none h-10" value={b.description || ""} onChange={e => handleChange(index, 'description', e.target.value)} /></div>
+                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Top Icon Class</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" placeholder="e.g. fas fa-user" value={b.icon_class || ""} onChange={e => handleChange(index, 'icon_class', e.target.value)} /></div>
+                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Watermark Icon (Optional)</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" placeholder="e.g. fas fa-times" value={b.watermark_icon || ""} onChange={e => handleChange(index, 'watermark_icon', e.target.value)} /></div>
+                        <div>
+                            <label className="block text-xs font-bold mb-1 text-gray-500">Theme</label>
+                            <select className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs" value={b.theme || "light"} onChange={e => handleChange(index, 'theme', e.target.value)}>
+                                <option value="light">Light (Default)</option>
+                                <option value="dark">Dark Subdued</option>
+                                <option value="purple">Purple Highlight</option>
+                                <option value="light_purple">Light Purple Highlight</option>
+                            </select>
+                        </div>
                     </div>
                     <div className="mt-4 border-t border-gray-100 pt-3">
                         <label className="block text-xs font-bold mb-2 text-gray-500">Bullets (Check/Cross)</label>
@@ -169,8 +180,13 @@ const StoryBoxesEditor = ({ boxes, onChange }: { boxes: any[], onChange: (b: any
                                         newBullets[bIndex] = { ...newBullets[bIndex], style: e.target.value };
                                         handleChange(index, 'bullets', newBullets);
                                     }}>
-                                        <option value="check">Check (Green)</option>
-                                        <option value="cross">Cross (Red)</option>
+                                        <option value="check">Check (Green Default)</option>
+                                        <option value="check_light">Check (Light Green)</option>
+                                        <option value="cross">Cross (Red Default)</option>
+                                        <option value="cross_light">Cross (Light Red)</option>
+                                        <option value="check_purple">Check (Purple)</option>
+                                        <option value="check_purple_light">Check (Light Purple)</option>
+                                        <option value="cross_grey">Cross (Grey)</option>
                                     </select>
                                     <input className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={bullet.text || ""} onChange={e => {
                                         const newBullets = [...(b.bullets || [])];
@@ -217,12 +233,26 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 rounded border border-gray-200">
                             <div>
-                                <label className="block text-xs font-bold mb-2 text-gray-700">What You'll Learn (Bullets)</label>
-                                <StringArrayEditor value={w.detail_bullets?.what_youll_learn || []} onChange={v => handleChange(index, 'detail_bullets', { ...w.detail_bullets, what_youll_learn: v })} placeholder="Learn..." />
+                                <label className="block text-xs font-bold mb-2 text-gray-700">What You'll Learn (Rich Text / Bullets)</label>
+                                <div className="bg-white">
+                                    <ReactQuill 
+                                        theme="snow"
+                                        modules={quillModules}
+                                        value={typeof w.detail_bullets?.what_youll_learn === 'string' ? w.detail_bullets.what_youll_learn : (w.detail_bullets?.what_youll_learn || []).map((b: string) => `<li>${b}</li>`).join('') ? `<ul>${(w.detail_bullets?.what_youll_learn || []).map((b: string) => `<li>${b}</li>`).join('')}</ul>` : ""} 
+                                        onChange={val => handleChange(index, 'detail_bullets', { ...w.detail_bullets, what_youll_learn: val })} 
+                                    />
+                                </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold mb-2 text-gray-700">Deliverables (Bullets)</label>
-                                <StringArrayEditor value={w.detail_bullets?.your_deliverables || []} onChange={v => handleChange(index, 'detail_bullets', { ...w.detail_bullets, your_deliverables: v })} placeholder="Deliverable..." />
+                                <label className="block text-xs font-bold mb-2 text-gray-700">Deliverables (Rich Text / Bullets)</label>
+                                <div className="bg-white">
+                                    <ReactQuill 
+                                        theme="snow"
+                                        modules={quillModules}
+                                        value={typeof w.detail_bullets?.your_deliverables === 'string' ? w.detail_bullets.your_deliverables : (w.detail_bullets?.your_deliverables || []).map((b: string) => `<li>${b}</li>`).join('') ? `<ul>${(w.detail_bullets?.your_deliverables || []).map((b: string) => `<li>${b}</li>`).join('')}</ul>` : ""} 
+                                        onChange={val => handleChange(index, 'detail_bullets', { ...w.detail_bullets, your_deliverables: val })} 
+                                    />
+                                </div>
                             </div>
                         </div>
                         
@@ -233,9 +263,24 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                                 <div><label className="block text-xs font-bold mb-1 text-gray-500">Actual Price</label><input type="number" className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.pricing?.actual_price || 0} onChange={e => handleChange(index, 'pricing', { ...w.pricing, actual_price: parseInt(e.target.value)||0 })} /></div>
                                 <div><label className="block text-xs font-bold mb-1 text-gray-500">Mode</label><select className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.pricing?.mode || "online"} onChange={e => handleChange(index, 'pricing', { ...w.pricing, mode: e.target.value })}><option value="online">Online</option><option value="offline">Offline</option><option value="hybrid">Hybrid</option></select></div>
                             </div>
+                            {w.pricing?.mode !== 'online' && (
+                                <div><label className="block text-xs font-bold mb-1 text-gray-500">Address (Offline/Hybrid)</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.pricing?.address || ""} onChange={e => handleChange(index, 'pricing', { ...w.pricing, address: e.target.value })} placeholder="Full address details..." /></div>
+                            )}
                             <div>
                                 <label className="block text-xs font-bold mb-2 text-gray-700">Date/Time (Bullets)</label>
                                 <StringArrayEditor value={w.pricing?.date_time_bullets || []} onChange={v => handleChange(index, 'pricing', { ...w.pricing, date_time_bullets: v })} placeholder="e.g. May 15th" />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
+                                <div>
+                                    <label className="block text-xs font-bold mb-1 text-gray-500">CTA Button Text</label>
+                                    <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={w.cta?.text || ""} onChange={e => handleChange(index, 'cta', { ...w.cta, text: e.target.value })} placeholder="Book Your Seat Now" />
+                                </div>
+                                <div className="flex items-end pb-1">
+                                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                                        <input type="checkbox" checked={w.cta?.active !== false} onChange={e => handleChange(index, 'cta', { ...w.cta, active: e.target.checked })} className="w-4 h-4 accent-blue-600" />
+                                        Registrations Open (Show Button)
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -556,10 +601,6 @@ export default function EventBuilderPage() {
                     {activeTab === 'story' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Story Section</h2>
-                            <label className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-100 rounded-xl cursor-pointer">
-                                <input type="checkbox" checked={pageData.story?.visible} onChange={e => updateData('story', 'visible', e.target.checked)} className="w-5 h-5 accent-blue-600" /> 
-                                <span className="font-bold text-blue-900">Section Active</span>
-                            </label>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Headline</label><input className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl focus:bg-white outline-none focus:border-accent-blue" value={pageData.story?.headline || ""} onChange={e => updateData('story', 'headline', e.target.value)} /></div>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Description</label><textarea className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl h-24 focus:bg-white outline-none focus:border-accent-blue" value={pageData.story?.description || ""} onChange={e => updateData('story', 'description', e.target.value)} /></div>
                             <div>
@@ -571,7 +612,7 @@ export default function EventBuilderPage() {
                     {activeTab === 'output' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">The Output</h2>
-                            <div><label className="block text-sm font-bold mb-2 text-gray-700">Headline</label><input className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl focus:bg-white outline-none focus:border-accent-blue" value={pageData.output?.headline || ""} onChange={e => updateData('output', 'headline', e.target.value)} /></div>
+                            <div><label className="block text-sm font-bold mb-2 text-gray-700">Headline (Rich Text)</label><div className="bg-white"><ReactQuill modules={quillModules} theme="snow" value={pageData.output?.headline || ""} onChange={val => updateData('output', 'headline', val)} /></div></div>
                             <div>
                                 <label className="block text-sm font-bold mb-2 text-gray-700">Supporting Image</label>
                                 <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 bg-gray-50">
@@ -646,6 +687,7 @@ export default function EventBuilderPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Headline (HTML)</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.lead_gen?.headline || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, lead_gen: {...pageData.contact.lead_gen, headline: e.target.value}}})} /></div>
                                     <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Sub-text</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.lead_gen?.subtext || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, lead_gen: {...pageData.contact.lead_gen, subtext: e.target.value}}})} /></div>
+                                    <div className="md:col-span-2"><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Contact Details / Description</label><textarea placeholder="Email: abc@xyz.com..." className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none h-20" value={pageData.contact?.lead_gen?.description || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, lead_gen: {...pageData.contact.lead_gen, description: e.target.value}}})} /></div>
                                     <div><label className="block text-xs font-bold mb-2 text-red-600 uppercase tracking-wider">Admin Dest Email</label><input type="email" placeholder="leads@example.com" className="w-full bg-white border border-red-200 p-3 rounded-lg focus:border-red-500 outline-none" value={pageData.contact?.lead_gen?.admin_email || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, lead_gen: {...pageData.contact.lead_gen, admin_email: e.target.value}}})} /></div>
                                     <div><label className="block text-xs font-bold mb-2 text-gray-500 uppercase tracking-wider">Submit Button Text</label><input className="w-full bg-white border border-gray-200 p-3 rounded-lg focus:border-accent-blue outline-none" value={pageData.contact?.lead_gen?.submitButtonText || ""} onChange={e => setPageData({...pageData, contact: {...pageData.contact, lead_gen: {...pageData.contact.lead_gen, submitButtonText: e.target.value}}})} /></div>
                                     <div>

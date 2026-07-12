@@ -2,11 +2,16 @@
  * PM2 Ecosystem Config — The Startup School
  *
  * Manages two processes:
- *   1. tss-backend  — Express API server (compiled TypeScript → node dist/index.js)
+ *   1. tss-backend  — Express API server (plain JS, backend/server.js — no build step)
  *   2. tss-frontend — Next.js production server (next start)
  *
+ * NOTE: before relying on this config for a redeploy, check what is actually
+ * running on the VPS (`pm2 list` / `pm2 show tss-backend`) — the previous
+ * version of this file pointed at a dist/index.js that never existed, so the
+ * live process was started some other way.
+ *
  * BEFORE STARTING IN PRODUCTION:
- *   1. Build the backend:  cd backend && npm run build
+ *   1. Backend needs no build (plain JS).
  *   2. Build the frontend: cd web && npm run build
  *   3. Start both:         pm2 start ecosystem.config.js --env production
  *   4. Save process list:  pm2 save
@@ -26,7 +31,7 @@ module.exports = {
         // ─── 1. Express Backend ───────────────────────────────────────────────
         {
             name: 'tss-backend',
-            script: 'dist/index.js',
+            script: 'server.js',
             cwd: './backend',
 
             // Process management

@@ -60,6 +60,20 @@ app.use('/api/chat-widgets', chatWidgetsRoutes);
 app.use('/api/helpdesk', helpdeskRoutes);
 app.use('/api/coupons', couponsRoutes);
 
+// --- LMS INTEGRATION ---
+// Courses are owned by the LMS (jjlms database, read-only role here);
+// course payments are processed here, then a signed webhook enrolls the
+// student in the LMS. See deploy/sql/ for the course_orders/webhook_deliveries DDL.
+//
+// NOTE: /api/payments (routes/payments.js) is the EVENT-registration payment
+// system (EventRegistration model). Course payments live on a SEPARATE
+// endpoint /api/course-payments (routes/coursePayments.js) so the two payment
+// flows don't collide. Both use Razorpay but for different products.
+const coursesRoutes = require('./routes/courses');
+const coursePaymentsRoutes = require('./routes/coursePayments');
+app.use('/api/courses', coursesRoutes);
+app.use('/api/course-payments', coursePaymentsRoutes);
+
 // --- PUBLIC API ENDPOINTS ---
 app.get('/api/events/pinned', async (req, res) => {
   try {

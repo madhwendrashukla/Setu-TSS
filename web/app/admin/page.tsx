@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AdminLogin() {
     const [email, setEmail] = useState("");
@@ -35,7 +36,7 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0A0F1C]">
+        <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-50">
             {/* Animated Mesh Background */}
             <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-accent-blue/30 blur-[120px] animate-pulse-slow"></div>
@@ -44,9 +45,18 @@ export default function AdminLogin() {
 
             <div className="relative z-10 w-full max-w-md p-6">
                 <Link href="/" className="flex justify-center mb-8 hover:scale-105 transition-transform duration-300">
-                    <span className="text-2xl md:text-3xl font-black tracking-tight text-gray-900">
-                        THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#d946ef]">STARTUP</span> SCHOOL
-                    </span>
+                    <div className="flex items-center gap-3">
+                        <Image 
+                            src="/setu-logo-nav.png" 
+                            alt="Setu Logo" 
+                            width={120} 
+                            height={40} 
+                            className="object-contain"
+                            priority
+                        />
+                        <div className="h-6 w-px bg-gray-300"></div>
+                        <span className="text-xs md:text-sm font-black tracking-[0.2em] text-[#0B1120] uppercase mt-0.5">The <span className="text-accent-blue">Startup</span> School</span>
+                    </div>
                 </Link>
 
                 <div className="shadow-sm rounded-[2rem] p-8 md:p-10 border border-gray-200 shadow-[0_0_80px_rgba(139,92,246,0.15)] backdrop-blur-xl bg-white">

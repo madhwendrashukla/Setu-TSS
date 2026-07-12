@@ -39,10 +39,85 @@ function flexAuth(req, res, next) {
   return res.status(401).json({ error: 'Unauthorized: invalid token' });
 }
 
+// Abandoned Checkout Lead Capture
+router.post('/capture-lead', async (req, res) => {
+  try {
+    const { name, email, phone, eventId, ticketTier, pendingLeadId } = req.body;
+    if ((!email && !phone) || !eventId) return res.status(400).json({ error: 'Missing required fields' });
+
+    let existing = null;
+    if (pendingLeadId) {
+      existing = await prisma.eventRegistration.findUnique({ where: { id: pendingLeadId } });
+    }
+    
+    if (!existing) {
+      // Check if an exact pending lead exists for this event and email/phone
+      existing = await prisma.eventRegistration.findFirst({
+        where: {
+          event_id: eventId,
+          status: 'PENDING',
+          OR: [
+            ...(email ? [{ guest_email: email }] : []),
+            ...(phone ? [{ guest_phone: phone }] : [])
+          ]
+        }
+      });
+    }
+
+    if (existing) {
+      // Update phone/name/email if changed
+      await prisma.eventRegistration.update({
+        where: { id: existing.id },
+        data: {
+          guest_name: name || existing.guest_name,
+          guest_email: email || existing.guest_email,
+          guest_phone: phone || existing.guest_phone,
+          ticket_tier: ticketTier || existing.ticket_tier
+        }
+      });
+      return res.json({ success: true, message: 'Lead updated', id: existing.id });
+    }
+
+    // Check if they already have a completed order, don't capture as pending lead
+    const completed = await prisma.eventRegistration.findFirst({
+      where: { 
+        event_id: eventId, 
+        status: 'COMPLETED',
+        OR: [
+          ...(email ? [{ guest_email: email }] : []),
+          ...(phone ? [{ guest_phone: phone }] : [])
+        ]
+      }
+    });
+    if (completed) return res.json({ success: true, message: 'Already completed' });
+
+    // Create new pending lead
+    const newLead = await prisma.eventRegistration.create({
+      data: {
+        event_id: eventId,
+        ticket_tier: ticketTier,
+        status: 'PENDING',
+        guest_name: name || null,
+        guest_email: email || null,
+        guest_phone: phone || null,
+        amount: 0 // Will be updated if they actually create an order
+      }
+    });
+
+    res.json({ success: true, message: 'Lead captured', id: newLead.id });
+  } catch (error) {
+    console.error('Error capturing lead:', error);
+    res.status(500).json({ error: 'Failed to capture lead' });
+  }
+});
+
 // Create Order Route — accepts guest token OR regular JWT
 router.post('/create-order', flexAuth, async (req, res) => {
   try {
-    const { workshopId, basePrice, couponCode, discountApplied, finalPrice, workshopTitle } = req.body;
+    const { eventId, ticketTier, workshopId, basePrice, couponCode, discountApplied, finalPrice, workshopTitle } = req.body;
+
+    const actualEventId = eventId || workshopId;
+    const actualTicketTier = ticketTier || workshopTitle;
 
     if (finalPrice == null || isNaN(finalPrice)) {
       return res.status(400).json({ error: 'Invalid final price' });
@@ -60,36 +135,78 @@ router.post('/create-order', flexAuth, async (req, res) => {
     if (req.userId) {
       // Check duplicate
       const existingReg = await prisma.eventRegistration.findFirst({
-        where: { user_id: req.userId, event_id: workshopId, status: 'COMPLETED' }
+        where: { user_id: req.userId, event_id: actualEventId, status: 'COMPLETED' }
       });
       if (existingReg) {
         return res.status(400).json({ error: 'You have already registered for this event.' });
       }
 
-      await prisma.eventRegistration.create({
-        data: {
-          user_id: req.userId,
-          event_id: workshopId,
-          razorpay_order_id: order.id,
-          status: 'PENDING',
-          amount: Math.round(finalPrice),
-        }
+      // Find an existing PENDING lead to update, or create a new one
+      const pendingLead = await prisma.eventRegistration.findFirst({
+        where: { user_id: req.userId, event_id: actualEventId, status: 'PENDING' }
       });
+
+      if (pendingLead) {
+        await prisma.eventRegistration.update({
+          where: { id: pendingLead.id },
+          data: {
+            ticket_tier: actualTicketTier,
+            razorpay_order_id: order.id,
+            amount: Math.round(finalPrice)
+          }
+        });
+      } else {
+        await prisma.eventRegistration.create({
+          data: {
+            user_id: req.userId,
+            event_id: actualEventId,
+            ticket_tier: actualTicketTier,
+            razorpay_order_id: order.id,
+            status: 'PENDING',
+            amount: Math.round(finalPrice),
+          }
+        });
+      }
     } else if (req.guestUser) {
-      // Guest OTP-verified user — store with guest_email field (no user_id)
-      // We create a minimal pending registration using guest email as identifier
-      await prisma.eventRegistration.create({
-        data: {
-          user_id: null,
-          event_id: workshopId,
-          razorpay_order_id: order.id,
+      // Guest OTP-verified user — check for existing PENDING lead first
+      const pendingLead = await prisma.eventRegistration.findFirst({
+        where: { 
+          event_id: actualEventId, 
           status: 'PENDING',
-          amount: Math.round(finalPrice),
-          guest_name: req.guestUser.name || null,
-          guest_email: req.guestUser.email || null,
-          guest_phone: req.guestUser.phone || null,
+          OR: [
+            ...(req.guestUser.email ? [{ guest_email: req.guestUser.email }] : []),
+            ...(req.guestUser.phone ? [{ guest_phone: req.guestUser.phone }] : [])
+          ]
         }
       });
+
+      if (pendingLead) {
+        await prisma.eventRegistration.update({
+          where: { id: pendingLead.id },
+          data: {
+            ticket_tier: actualTicketTier,
+            razorpay_order_id: order.id,
+            amount: Math.round(finalPrice),
+            guest_name: req.guestUser.name || pendingLead.guest_name,
+            guest_email: req.guestUser.email || pendingLead.guest_email,
+            guest_phone: req.guestUser.phone || pendingLead.guest_phone,
+          }
+        });
+      } else {
+        await prisma.eventRegistration.create({
+          data: {
+            user_id: null,
+            event_id: actualEventId,
+            ticket_tier: actualTicketTier,
+            razorpay_order_id: order.id,
+            status: 'PENDING',
+            amount: Math.round(finalPrice),
+            guest_name: req.guestUser.name || null,
+            guest_email: req.guestUser.email || null,
+            guest_phone: req.guestUser.phone || null,
+          }
+        });
+      }
     }
 
     res.json({
@@ -124,6 +241,28 @@ router.post('/verify-payment', async (req, res) => {
           status: 'COMPLETED'
         }
       });
+      
+      // Log coupon usage if a valid coupon was used
+      if (req.body.couponCode) {
+        try {
+          const coupon = await prisma.coupon.findUnique({ where: { code: req.body.couponCode.toUpperCase() } });
+          if (coupon) {
+            await prisma.couponUsage.create({
+              data: {
+                coupon_id: coupon.id,
+                user_email: req.body.email || null
+              }
+            });
+            await prisma.coupon.update({
+              where: { id: coupon.id },
+              data: { current_uses: { increment: 1 } }
+            });
+          }
+        } catch (err) {
+          console.error("Failed to log coupon usage:", err);
+        }
+      }
+
       res.json({ success: true, message: 'Payment verified successfully' });
     } else {
       await prisma.eventRegistration.updateMany({

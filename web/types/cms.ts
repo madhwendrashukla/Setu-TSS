@@ -66,6 +66,9 @@ export interface WorkshopData {
   icon?: string;
   badge?: string;
   mentor?: string;
+  date?: string;
+  start_time?: string;
+  end_time?: string;
   duration?: string;
   calendarLinks?: { label: string; url: string }[];
 }
@@ -80,6 +83,7 @@ export interface MentorData {
   visible: boolean;
   color?: string;
   imagePosition?: string;
+  badge_text?: string;
 }
 
 export interface MentorsSectionData {
@@ -94,13 +98,19 @@ export interface VideoGalleryData {
 
 export interface TestimonialData {
   id: string;
-  video_url: string;
-  name: string;
-  role: string;
-  company: string;
-  city: string;
-  rating: number;
-  quote: string;
+  type?: 'text' | 'video';
+  // Text Testimonial fields
+  name?: string;
+  role?: string;
+  company?: string;
+  city?: string;
+  rating?: number;
+  quote?: string;
+  // Video Testimonial fields
+  video_url?: string;
+  video_heading?: string;
+  video_description?: string;
+  show_description?: boolean;
   visible: boolean;
 }
 
@@ -156,11 +166,33 @@ export interface SectionVisibility {
   story: boolean;
   output: boolean;
   workshops: boolean;
+  pricing: boolean;
   mentors: boolean;
   video_gallery: boolean;
-  testimonials: boolean;
+  text_testimonials: boolean;
+  video_testimonials: boolean;
   faqs: boolean;
   contact: boolean;
+}
+
+export interface PricingTier {
+  id: string;
+  priority_order: number;
+  heading: string;
+  title: string;
+  key_features: string;
+  pricing: {
+    strike_price: number;
+    actual_price: number;
+    date_time_bullets: string[];
+    mode: string;
+    address?: string;
+  };
+  cta: {
+    text: string;
+    active: boolean;
+  };
+  visible: boolean;
 }
 
 export interface PageData {
@@ -169,9 +201,11 @@ export interface PageData {
   story: StoryData;
   output: OutputData;
   workshops: WorkshopData[];
+  pricing_options?: PricingTier[];
   mentors: MentorsSectionData;
   video_gallery: VideoGalleryData;
-  testimonials: TestimonialData[];
+  text_testimonials: TestimonialData[];
+  video_testimonials: TestimonialData[];
   faqs: FAQData[];
   contact: ContactData;
   coupon: CouponData;

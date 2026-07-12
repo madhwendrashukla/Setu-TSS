@@ -168,6 +168,7 @@ model EventRegistration {
   id                  String   @id @default(uuid()) @db.Uuid
   user_id             String?  @db.Uuid
   event_id            String
+  ticket_tier         String?
   razorpay_order_id   String?
   razorpay_payment_id String?
   status              String   @default("PENDING")
@@ -374,25 +375,29 @@ model PromoBar {
   @@map("promo_bar")
 }
 
-// Coupons: created in prod by Madhwendra (his machine's db push) but missing
-// from the committed schema — added here to reconcile drift so `db push`
-// doesn't try to DROP the live tables. Definitions match the live DDL exactly.
 model Coupon {
-  id                String        @id @default(uuid()) @db.Uuid
-  code              String        @unique
-  type              String
-  discount_value    Float
-  is_active         Boolean       @default(true)
-  start_date        DateTime?
-  end_date          DateTime?
-  max_uses          Int?
-  current_uses      Int           @default(0)
-  max_uses_per_user Int?
-  applicable_emails String[]
-  referrer_id       String?       @db.Uuid
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @updatedAt
-  usages            CouponUsage[]
+  id                 String   @id @default(uuid()) @db.Uuid
+  code               String   @unique
+  type               String   // "percentage", "fixed"
+  discount_value     Float
+  is_active          Boolean  @default(true)
+
+  start_date         DateTime?
+  end_date           DateTime?
+
+  max_uses           Int?
+  current_uses       Int      @default(0)
+
+  max_uses_per_user  Int?
+
+  applicable_emails  String[] // If empty, applicable to all
+
+  referrer_id        String?  @db.Uuid // Track who this coupon belongs to for referral system
+
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  usages             CouponUsage[]
 
   @@map("coupons")
 }

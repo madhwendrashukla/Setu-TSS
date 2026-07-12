@@ -22,6 +22,8 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
     const [error, setError] = useState<string | null>(null);
     const [showOtpModal, setShowOtpModal] = useState(false);
 
+    const [validatedCoupon, setValidatedCoupon] = useState<any>(null);
+
     const { guestUser, setGuestUser, isVerified } = useGuestUser();
 
     if (!isOpen || !workshop) return null;
@@ -29,26 +31,55 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
     const basePrice = workshop.pricing?.actual_price || 0;
 
     let discount = 0;
-    if (isCouponApplied && couponConfig && couponConfig.discount_percent) {
-        discount = Math.floor(basePrice * (couponConfig.discount_percent / 100));
+    if (isCouponApplied && validatedCoupon) {
+        if (validatedCoupon.type === 'percentage') {
+            discount = Math.floor(basePrice * (validatedCoupon.discount_value / 100));
+        } else {
+            discount = validatedCoupon.discount_value;
+        }
     }
-    const finalPrice = basePrice - discount;
+    const finalPrice = Math.max(0, basePrice - discount);
 
-    const handleApplyCoupon = () => {
+    const handleApplyCoupon = async (codeToApply?: string | React.MouseEvent) => {
+        const code = typeof codeToApply === 'string' ? codeToApply : couponCode;
         setError(null);
-        if (!couponConfig || !couponConfig.active) {
-            setError('No active coupons available at this time.');
+        if (!code) {
+            setError('Please enter a coupon code.');
             return;
         }
-        if (couponCode.toUpperCase() === couponConfig.code.toUpperCase()) {
-            setIsCouponApplied(true);
-        } else {
-            setError('Invalid coupon code.');
+        
+        setIsProcessing(true);
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const res = await fetch(`${apiUrl}/api/coupons/validate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    code: code, 
+                    email: guestUser?.email || '',
+                    eventSlug: eventSlug
+                })
+            });
+            const data = await res.json();
+            
+            if (res.ok && data.valid) {
+                setValidatedCoupon(data.coupon);
+                setIsCouponApplied(true);
+                setCouponCode(code); // ensure input shows it
+            } else {
+                setError(data.error || 'Invalid coupon code.');
+                setIsCouponApplied(false);
+                setValidatedCoupon(null);
+            }
+        } catch (err) {
+            setError('Failed to validate coupon.');
+            setIsCouponApplied(false);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
     const handleCheckout = async () => {
-        // Show OTP modal if user not verified yet
         if (!isVerified) {
             setShowOtpModal(true);
             return;
@@ -73,10 +104,12 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                     'Authorization': `Bearer ${activeUser.guestToken}`
                 },
                 body: JSON.stringify({
+                    eventId: eventSlug,
+                    ticketTier: (workshop as any).heading ? `${(workshop as any).heading} - ${workshop.title}` : workshop.title,
                     workshopId: eventSlug || workshop.id,
                     workshopTitle: workshop.title,
                     basePrice: basePrice,
-                    couponCode: isCouponApplied ? couponConfig?.code : null,
+                    couponCode: isCouponApplied ? validatedCoupon?.code : null,
                     discountApplied: discount,
                     finalPrice: finalPrice
                 })
@@ -104,7 +137,11 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                                 'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${activeUser.guestToken}`
                             },
-                            body: JSON.stringify(response)
+                            body: JSON.stringify({
+                                ...response,
+                                couponCode: isCouponApplied ? validatedCoupon?.code : null,
+                                email: activeUser.email
+                            })
                         });
                         const verifyData = await verifyRes.json();
                         if (verifyData.success) {
@@ -192,12 +229,28 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                         <div className="mb-6">
                             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{workshop.heading || workshop.badge || 'Workshop'}</p>
                             <h4 className="text-lg font-extrabold text-slate-900">{workshop.title}</h4>
-                            <p className="text-sm text-slate-600 mt-1">by {workshop.mentor}</p>
+                            {workshop.mentor && <p className="text-sm text-slate-600 mt-1">by {workshop.mentor}</p>}
                         </div>
 
                         {/* Coupon Section */}
                         {couponConfig?.active && (
                             <div className="mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                {couponConfig.featured_coupon && !isCouponApplied && (
+                                    <div className="mb-4 bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center justify-between">
+                                        <div>
+                                            <p className="text-xs font-bold text-purple-900 mb-0.5">🎉 Featured Offer!</p>
+                                            <p className="text-sm font-medium text-purple-700">Use code <span className="font-extrabold">{couponConfig.featured_coupon}</span> to get {couponConfig.featured_discount}% off!</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => handleApplyCoupon(couponConfig.featured_coupon)}
+                                            disabled={isProcessing}
+                                            className="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                                        >
+                                            Apply
+                                        </button>
+                                    </div>
+                                )}
+                                
                                 <label className="block text-xs font-bold text-slate-700 mb-2">Have a coupon code?</label>
                                 <div className="flex gap-2">
                                     <input
@@ -217,7 +270,11 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                                     </button>
                                 </div>
                                 {error && !isProcessing && <p className="text-xs text-red-500 mt-2 font-medium">{error}</p>}
-                                {isCouponApplied && <p className="text-xs text-green-500 mt-2 font-medium">Coupon applied! {couponConfig.discount_percent}% off.</p>}
+                                {isCouponApplied && validatedCoupon && (
+                                    <p className="text-xs text-green-500 mt-2 font-medium">
+                                        Coupon applied! You saved {validatedCoupon.type === 'percentage' ? `${validatedCoupon.discount_value}%` : `₹${validatedCoupon.discount_value}`}!
+                                    </p>
+                                )}
                             </div>
                         )}
 
@@ -227,10 +284,10 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                                 <span>Base Price</span>
                                 <span className="font-medium">₹{basePrice}</span>
                             </div>
-                            {isCouponApplied && (
-                                <div className="flex justify-between text-sm text-green-500">
-                                    <span>Discount ({couponConfig?.code})</span>
-                                    <span className="font-medium">-₹{discount}</span>
+                            {isCouponApplied && validatedCoupon && (
+                                <div className="flex justify-between items-center text-green-600">
+                                    <span>Discount ({validatedCoupon.code})</span>
+                                    <span>-₹{discount}</span>
                                 </div>
                             )}
                             <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
@@ -274,6 +331,8 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                 isOpen={showOtpModal}
                 onClose={() => setShowOtpModal(false)}
                 prefillEmail={guestUser?.email}
+                eventId={eventSlug}
+                ticketTier={(workshop as any).heading ? `${(workshop as any).heading} - ${workshop.title}` : workshop.title}
                 onVerified={(user) => {
                     setGuestUser(user);
                     setShowOtpModal(false);

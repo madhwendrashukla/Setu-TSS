@@ -1,6 +1,23 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import dynamic from 'next/dynamic';
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
+
+const quillModules = {
+    toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        [{ 'font': [] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{'list': 'ordered'}, {'list': 'bullet'}],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'align': [] }],
+        ['link'],
+        ['clean']
+    ],
+};
 
 export default function AdminHero() {
     const [content, setContent] = useState({ 
@@ -140,20 +157,22 @@ export default function AdminHero() {
                         <h3 className="font-bold text-accent-blue">Scene 1: The Hook</h3>
                         <div>
                             <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Main Heading</label>
-                            <textarea
-                                value={content.hero_heading}
-                                onChange={e => setContent({...content, hero_heading: e.target.value})}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue transition-colors min-h-[120px]"
-                                placeholder="Stop Ideating. Start Building."
+                            <ReactQuill 
+                                theme="snow"
+                                modules={quillModules}
+                                value={content.hero_heading} 
+                                onChange={val => setContent({...content, hero_heading: val})}
+                                className="bg-white"
                             />
                         </div>
                         <div>
                             <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Tagline</label>
-                            <textarea
-                                value={content.hero_tagline}
-                                onChange={e => setContent({...content, hero_tagline: e.target.value})}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue transition-colors min-h-[100px]"
-                                placeholder="Join the alternate B-school for Aspiring Founders."
+                            <ReactQuill 
+                                theme="snow"
+                                modules={quillModules}
+                                value={content.hero_tagline} 
+                                onChange={val => setContent({...content, hero_tagline: val})}
+                                className="bg-white"
                             />
                         </div>
                     </div>
@@ -162,20 +181,22 @@ export default function AdminHero() {
                         <h3 className="font-bold text-accent-blue">Scene 2: The Bridge</h3>
                         <div>
                             <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Bridge Heading</label>
-                            <textarea
-                                value={content.hero_scene1_heading}
-                                onChange={e => setContent({...content, hero_scene1_heading: e.target.value})}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue transition-colors min-h-[120px]"
-                                placeholder="The 0 -> 1 Bridge Where Founders Are Built."
+                            <ReactQuill 
+                                theme="snow"
+                                modules={quillModules}
+                                value={content.hero_scene1_heading} 
+                                onChange={val => setContent({...content, hero_scene1_heading: val})}
+                                className="bg-white"
                             />
                         </div>
                         <div>
                             <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Bridge Tagline</label>
-                            <textarea
-                                value={content.hero_scene1_tagline}
-                                onChange={e => setContent({...content, hero_scene1_tagline: e.target.value})}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue transition-colors min-h-[100px]"
-                                placeholder="We close 4 deadly gaps..."
+                            <ReactQuill 
+                                theme="snow"
+                                modules={quillModules}
+                                value={content.hero_scene1_tagline} 
+                                onChange={val => setContent({...content, hero_scene1_tagline: val})}
+                                className="bg-white"
                             />
                         </div>
                     </div>
@@ -184,20 +205,22 @@ export default function AdminHero() {
                         <h3 className="font-bold text-accent-violet">Scene 3: The Roadmap</h3>
                         <div>
                             <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Roadmap Heading</label>
-                            <textarea
-                                value={content.hero_scene2_heading}
-                                onChange={e => setContent({...content, hero_scene2_heading: e.target.value})}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-violet transition-colors min-h-[120px]"
-                                placeholder="3 days of ignition sprint to 100 days of Deep Dive..."
+                            <ReactQuill 
+                                theme="snow"
+                                modules={quillModules}
+                                value={content.hero_scene2_heading} 
+                                onChange={val => setContent({...content, hero_scene2_heading: val})}
+                                className="bg-white"
                             />
                         </div>
                         <div>
                             <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Roadmap Tagline</label>
-                            <textarea
-                                value={content.hero_scene2_tagline}
-                                onChange={e => setContent({...content, hero_scene2_tagline: e.target.value})}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-violet transition-colors min-h-[100px]"
-                                placeholder="Choose the program that fits you the best"
+                            <ReactQuill 
+                                theme="snow"
+                                modules={quillModules}
+                                value={content.hero_scene2_tagline} 
+                                onChange={val => setContent({...content, hero_scene2_tagline: val})}
+                                className="bg-white"
                             />
                         </div>
                     </div>

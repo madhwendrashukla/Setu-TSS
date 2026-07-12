@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 const NAV_CATEGORIES = [
     {
@@ -23,6 +24,7 @@ const NAV_CATEGORIES = [
         links: [
             { href: "/admin/registrations", label: "Registrations", icon: "fas fa-ticket-alt" },
             { href: "/admin/leads", label: "Leads", icon: "fas fa-envelope-open-text" },
+            { href: "/admin/coupons", label: "Coupons", icon: "fas fa-tags" },
             { href: "/admin/mailer", label: "Mass Mailer", icon: "fas fa-paper-plane" },
         ]
     },
@@ -58,16 +60,39 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const pathname = usePathname();
 
     useEffect(() => {
-        const token = localStorage.getItem("adminToken");
-        if (token) {
-            setIsAuthenticated(true);
-        } else {
-            setIsAuthenticated(false);
-            if (pathname !== "/admin") {
-                router.push("/admin");
+        const verifyToken = async () => {
+            const token = localStorage.getItem("adminToken");
+            if (!token) {
+                setIsAuthenticated(false);
+                setIsLoading(false);
+                if (pathname !== "/admin") router.push("/admin");
+                return;
             }
-        }
-        setIsLoading(false);
+
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/verify`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    setIsAuthenticated(true);
+                    if (pathname === "/admin") {
+                        router.push("/admin/dashboard");
+                        return; // keep loading true to prevent flashing the login form with sidebar
+                    }
+                } else {
+                    localStorage.removeItem("adminToken");
+                    setIsAuthenticated(false);
+                    if (pathname !== "/admin") router.push("/admin");
+                }
+            } catch (err) {
+                console.error("Token verification failed:", err);
+                setIsAuthenticated(false);
+                if (pathname !== "/admin") router.push("/admin");
+            }
+            setIsLoading(false);
+        };
+
+        verifyToken();
     }, [pathname, router]);
 
     if (isLoading) return (
@@ -91,11 +116,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {isAuthenticated && (
                 <aside className="w-full md:w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200 p-6 flex flex-col z-10 sticky top-0 h-screen overflow-y-auto shadow-[4px_0_24px_rgba(0,0,0,0.02)] scrollbar-hide">
                     <div className="mb-8 shrink-0">
-                        <Link href="/" className="block group">
-                            <h2 className="text-xl md:text-2xl font-black tracking-tight mb-1 group-hover:scale-[1.02] transition-transform">
-                                THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#d946ef]">STARTUP</span>
-                            </h2>
-                            <h2 className="text-xl md:text-2xl font-black tracking-tight text-gray-900 mb-2 group-hover:scale-[1.02] transition-transform">SCHOOL</h2>
+                        <Link href="/" className="block group mb-3">
+                            <div className="flex flex-col gap-3">
+                                <Image 
+                                    src="/setu-logo-nav.png" 
+                                    alt="Setu Logo" 
+                                    width={100} 
+                                    height={32} 
+                                    className="object-contain"
+                                    priority
+                                />
+                                <div className="h-px w-full bg-gray-200"></div>
+                                <span className="text-[10px] md:text-[11px] font-black tracking-[0.2em] text-[#0B1120] uppercase">The <span className="text-accent-blue">Startup</span> School</span>
+                            </div>
                         </Link>
                         <span className="text-[10px] font-bold tracking-[0.2em] uppercase bg-gray-100 px-2 py-1 rounded text-gray-600 shadow-inner">Admin Panel</span>
                     </div>

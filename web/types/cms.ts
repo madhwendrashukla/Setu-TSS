@@ -1,4 +1,5 @@
 export interface HeroData {
+  top_badge?: string;
   headline: {
     text: string;
     color: string;
@@ -52,6 +53,13 @@ export interface CTAData {
   active: boolean;
 }
 
+export interface WorkshopSession {
+  title: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+}
+
 export interface WorkshopData {
   id: string;
   priority_order: number;
@@ -70,6 +78,8 @@ export interface WorkshopData {
   start_time?: string;
   end_time?: string;
   duration?: string;
+  sessions?: WorkshopSession[];
+  date_time_html?: string;
   calendarLinks?: { label: string; url: string }[];
 }
 
@@ -181,6 +191,8 @@ export interface PricingTier {
   heading: string;
   title: string;
   key_features: string;
+  sessions?: WorkshopSession[];
+  date_time_html?: string;
   pricing: {
     strike_price: number;
     actual_price: number;
@@ -196,6 +208,7 @@ export interface PricingTier {
 }
 
 export interface PageData {
+  registrations_open?: boolean;
   section_visibility: SectionVisibility;
   hero: HeroData;
   story: StoryData;

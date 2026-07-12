@@ -161,7 +161,7 @@ export default function AdminHero() {
                                 theme="snow"
                                 modules={quillModules}
                                 value={content.hero_heading} 
-                                onChange={val => setContent({...content, hero_heading: val})}
+                                onChange={val => setContent(prev => ({...prev, hero_heading: val}))}
                                 className="bg-white"
                             />
                         </div>
@@ -171,7 +171,7 @@ export default function AdminHero() {
                                 theme="snow"
                                 modules={quillModules}
                                 value={content.hero_tagline} 
-                                onChange={val => setContent({...content, hero_tagline: val})}
+                                onChange={val => setContent(prev => ({...prev, hero_tagline: val}))}
                                 className="bg-white"
                             />
                         </div>
@@ -185,7 +185,7 @@ export default function AdminHero() {
                                 theme="snow"
                                 modules={quillModules}
                                 value={content.hero_scene1_heading} 
-                                onChange={val => setContent({...content, hero_scene1_heading: val})}
+                                onChange={val => setContent(prev => ({...prev, hero_scene1_heading: val}))}
                                 className="bg-white"
                             />
                         </div>
@@ -195,7 +195,7 @@ export default function AdminHero() {
                                 theme="snow"
                                 modules={quillModules}
                                 value={content.hero_scene1_tagline} 
-                                onChange={val => setContent({...content, hero_scene1_tagline: val})}
+                                onChange={val => setContent(prev => ({...prev, hero_scene1_tagline: val}))}
                                 className="bg-white"
                             />
                         </div>
@@ -209,7 +209,7 @@ export default function AdminHero() {
                                 theme="snow"
                                 modules={quillModules}
                                 value={content.hero_scene2_heading} 
-                                onChange={val => setContent({...content, hero_scene2_heading: val})}
+                                onChange={val => setContent(prev => ({...prev, hero_scene2_heading: val}))}
                                 className="bg-white"
                             />
                         </div>
@@ -219,7 +219,7 @@ export default function AdminHero() {
                                 theme="snow"
                                 modules={quillModules}
                                 value={content.hero_scene2_tagline} 
-                                onChange={val => setContent({...content, hero_scene2_tagline: val})}
+                                onChange={val => setContent(prev => ({...prev, hero_scene2_tagline: val}))}
                                 className="bg-white"
                             />
                         </div>

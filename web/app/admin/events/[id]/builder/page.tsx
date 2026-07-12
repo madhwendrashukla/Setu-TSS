@@ -141,7 +141,7 @@ const VideoTestimonialsEditor = ({ items, onChange }: { items: any[], onChange: 
     );
 };
 
-const MentorsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[]) => void }) => {
+const MentorsEditor = ({ items, onChange, onUpload }: { items: any[], onChange: (i: any[]) => void, onUpload: (file: File) => Promise<string | null> }) => {
     const handleAdd = () => onChange([...(Array.isArray(items) ? items : []), { id: "m_"+Date.now(), name: "", professional_headline: "", professional_description: "", image_url: "", credential_bullets: [], badge_text: "", visible: true }]);
     const handleRemove = (index: number) => { const newArr = [...(Array.isArray(items) ? items : [])]; newArr.splice(index, 1); onChange(newArr); };
     const handleChange = (index: number, field: string, val: any) => { const newArr = [...(Array.isArray(items) ? items : [])]; newArr[index] = { ...newArr[index], [field]: val }; onChange(newArr); };
@@ -151,10 +151,16 @@ const MentorsEditor = ({ items, onChange }: { items: any[], onChange: (i: any[])
                 <div key={index} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm relative">
                     <button onClick={() => handleRemove(index)} className="absolute top-4 right-4 text-red-500 hover:text-red-700 w-8 h-8 flex items-center justify-center bg-red-50 rounded"><i className="fas fa-trash"></i></button>
                     <div className="flex gap-4">
-                        <div className="w-24 shrink-0">
-                            <label className="block text-xs font-bold mb-1 text-gray-500">Image URL</label>
-                            {m.image_url ? <img src={m.image_url} alt="Mentor" className="w-full aspect-square object-cover rounded-lg bg-gray-100 mb-2" /> : <div className="w-full aspect-square rounded-lg bg-gray-100 mb-2 flex items-center justify-center text-gray-400 text-xs text-center p-2 border border-dashed border-gray-300">No Image</div>}
-                            <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs" placeholder="URL..." value={m.image_url || ""} onChange={e => handleChange(index, 'image_url', e.target.value)} />
+                        <div className="w-32 shrink-0 flex flex-col gap-2">
+                            <label className="block text-xs font-bold text-gray-500">Image URL</label>
+                            {m.image_url ? <img src={m.image_url} alt="Mentor" className="w-full aspect-square object-cover rounded-lg bg-gray-100" /> : <div className="w-full aspect-square rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center p-2 border border-dashed border-gray-300">No Image</div>}
+                            <input type="file" accept="image/*" onChange={async (e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                    const url = await onUpload(e.target.files[0]);
+                                    if (url) handleChange(index, 'image_url', url);
+                                }
+                            }} className="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                            <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-[10px]" placeholder="Or paste URL..." value={m.image_url || ""} onChange={e => handleChange(index, 'image_url', e.target.value)} />
                         </div>
                         <div className="flex-1 space-y-3">
                             <div className="grid grid-cols-2 gap-3">
@@ -273,13 +279,16 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Badge / Day (e.g. DAY 1)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Title</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
                         </div>
-                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Key Features</label><textarea className="w-full bg-white border border-gray-200 p-2 rounded outline-none h-16" value={w.key_features || ""} onChange={e => handleChange(index, 'key_features', e.target.value)} /></div>
+                        <div className="bg-white rounded border border-gray-200">
+                            <label className="block text-xs font-bold mb-2 text-gray-500 p-2 pb-0">Key Features</label>
+                            <ReactQuill modules={quillModules} theme="snow" value={w.key_features || ""} onChange={val => handleChange(index, 'key_features', val)} placeholder="Enter features using bullets..." />
+                        </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-gray-100 p-3 rounded">
-                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Date</label><input type="date" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.date || ""} onChange={e => handleChange(index, 'date', e.target.value)} /></div>
-                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Start Time</label><input type="time" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.start_time || ""} onChange={e => handleChange(index, 'start_time', e.target.value)} /></div>
-                            <div><label className="block text-xs font-bold mb-1 text-gray-500">End Time</label><input type="time" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.end_time || ""} onChange={e => handleChange(index, 'end_time', e.target.value)} /></div>
-                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Total Duration</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" placeholder="e.g. 3 hours" value={w.duration || ""} onChange={e => handleChange(index, 'duration', e.target.value)} /></div>
+                        <div className="bg-gray-100 p-4 rounded border border-gray-200">
+                            <label className="block text-sm font-bold mb-2 text-gray-700">Date & Time / Sessions (Rich Text)</label>
+                            <div className="bg-white">
+                                <ReactQuill modules={quillModules} theme="snow" value={w.date_time_html || ""} onChange={val => handleChange(index, 'date_time_html', val)} placeholder="Enter dates, times, and sessions with bullets..." />
+                            </div>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 rounded border border-gray-200">
@@ -304,6 +313,13 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                                         onChange={val => handleDeepChange(index, 'detail_bullets', 'your_deliverables', val)} 
                                     />
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <div className="border-t border-gray-200 pt-4 mt-4">
+                            <div>
+                                <label className="block text-xs font-bold mb-1 text-gray-500">CTA Button Text</label>
+                                <input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.cta?.text || ""} onChange={e => handleDeepChange(index, 'cta', 'text', e.target.value)} placeholder="Book Seat Now for this workshop" />
                             </div>
                         </div>
                     </div>
@@ -333,7 +349,10 @@ const PricingEditor = ({ options, onChange }: { options: any[], onChange: (o: an
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Heading (e.g. OFFER)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={o.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Title</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={o.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
                         </div>
-                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Key Features / Description (HTML allowed)</label><textarea className="w-full bg-white border border-gray-200 p-2 rounded outline-none h-16" value={o.key_features || ""} onChange={e => handleChange(index, 'key_features', e.target.value)} /></div>
+                        <div className="bg-white rounded border border-gray-200">
+                            <label className="block text-xs font-bold mb-2 text-gray-500 p-2 pb-0">Key Features / Description</label>
+                            <ReactQuill modules={quillModules} theme="snow" value={o.key_features || ""} onChange={val => handleChange(index, 'key_features', val)} placeholder="Enter features using bullets..." />
+                        </div>
 
                         <div className="bg-white p-4 rounded border border-gray-200 space-y-4">
                             <h5 className="font-bold text-xs text-gray-700 uppercase tracking-wide">Pricing & Details</h5>
@@ -345,20 +364,16 @@ const PricingEditor = ({ options, onChange }: { options: any[], onChange: (o: an
                             {o.pricing?.mode !== 'online' && (
                                 <div><label className="block text-xs font-bold mb-1 text-gray-500">Address (Offline/Hybrid)</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.pricing?.address || ""} onChange={e => handleChange(index, 'pricing', { ...o.pricing, address: e.target.value })} placeholder="Full address details..." /></div>
                             )}
-                            <div>
-                                <label className="block text-xs font-bold mb-2 text-gray-700">Date/Time (Bullets)</label>
-                                <StringArrayEditor value={o.pricing?.date_time_bullets || []} onChange={v => handleChange(index, 'pricing', { ...o.pricing, date_time_bullets: v })} placeholder="e.g. May 15th" />
+                            <div className="bg-gray-100 p-4 rounded border border-gray-200">
+                                <label className="block text-sm font-bold mb-2 text-gray-700">Date & Time / Sessions (Rich Text)</label>
+                                <div className="bg-white">
+                                    <ReactQuill modules={quillModules} theme="snow" value={o.date_time_html || ""} onChange={val => handleChange(index, 'date_time_html', val)} placeholder="Enter dates, times, and sessions with bullets..." />
+                                </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 mt-4">
+                            <div className="border-t pt-4 mt-4">
                                 <div>
                                     <label className="block text-xs font-bold mb-1 text-gray-500">CTA Button Text</label>
                                     <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.cta?.text || ""} onChange={e => handleChange(index, 'cta', { ...o.cta, text: e.target.value })} placeholder="Book Your Seat Now" />
-                                </div>
-                                <div className="flex items-end pb-1">
-                                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                                        <input type="checkbox" checked={o.cta?.active !== false} onChange={e => handleChange(index, 'cta', { ...o.cta, active: e.target.checked })} className="w-4 h-4 accent-blue-600" />
-                                        Registrations Open (Show Button)
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -371,6 +386,7 @@ const PricingEditor = ({ options, onChange }: { options: any[], onChange: (o: an
 };
 
 const initialPageData = {
+    registrations_open: true,
     section_visibility: { hero: true, story: true, output: true, workshops: true, pricing: true, mentors: true, video_gallery: true, testimonials: true, faqs: true, contact: true },
     hero: { 
         headline: "Master The Art of <span class='text-purple-500'>Startup Success</span>", 
@@ -684,7 +700,21 @@ export default function EventBuilderPage() {
                     {activeTab === 'visibility' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Global Section Visibility</h2>
-                            <p className="text-gray-500 text-sm mb-6">Toggle which sections appear on the final landing page.</p>
+                            <p className="text-gray-500 text-sm mb-6">Toggle which sections appear on the final landing page, and control global registration status.</p>
+                            
+                            <div className="mb-8 p-5 bg-blue-50/50 border border-blue-100 rounded-xl">
+                                <label className="flex items-center gap-4 cursor-pointer">
+                                    <input type="checkbox" checked={pageData.registrations_open !== false} onChange={e => {
+                                        setPageData({...pageData, registrations_open: e.target.checked})
+                                    }} className="w-6 h-6 accent-blue-600 rounded" />
+                                    <div>
+                                        <span className="font-bold text-blue-900 block text-lg">Registrations Open (Global)</span>
+                                        <span className="text-sm text-blue-700/80">If disabled, all CTA buttons will change to "Sold Out" or "Registrations Closed"</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <h3 className="font-bold text-gray-700 mb-4 border-b pb-2">Visible Sections</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {Object.keys(pageData.section_visibility).map(key => (
                                     <label key={key} className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 border border-gray-200 transition-colors">
@@ -701,6 +731,7 @@ export default function EventBuilderPage() {
                     {activeTab === 'hero' && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Hero Section</h2>
+                            <div><label className="block text-sm font-bold mb-2 text-gray-700">Top Badge (e.g. Live Workshop Series • May 15-17)</label><input className="w-full bg-white border border-gray-200 p-3 rounded-xl focus:border-accent-blue outline-none text-sm" value={pageData.hero?.top_badge || ""} onChange={e => updateData('hero', 'top_badge', e.target.value)} placeholder="Enter badge text (optional)..." /></div>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Headline (Rich Text)</label><div className="bg-white"><ReactQuill modules={quillModules} theme="snow" value={pageData.hero?.headline || ""} onChange={val => updateData('hero', 'headline', val)} placeholder="Enter headline text or HTML..." /></div></div>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Description (Rich Text)</label><div className="bg-white"><ReactQuill modules={quillModules} theme="snow" value={pageData.hero?.description || ""} onChange={val => updateData('hero', 'description', val)} /></div></div>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Key Highlights</label><StringArrayEditor value={pageData.hero?.key_highlights || []} onChange={v => updateData('hero', 'key_highlights', v)} placeholder='e.g. "3 Mentors", "3 Days"' /></div>
@@ -754,7 +785,7 @@ export default function EventBuilderPage() {
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Mentors</h2>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Section Headline</label><input className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl focus:bg-white outline-none focus:border-accent-blue" value={pageData.mentors?.section_headline || ""} onChange={e => updateData('mentors', 'section_headline', e.target.value)} /></div>
                             <div>
-                                <MentorsEditor items={pageData.mentors?.items || []} onChange={v => updateData('mentors', 'items', v)} />
+                                <MentorsEditor items={pageData.mentors?.items || []} onChange={v => updateData('mentors', 'items', v)} onUpload={handleUpload} />
                             </div>
                         </div>
                     )}

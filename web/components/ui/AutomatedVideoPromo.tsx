@@ -87,12 +87,12 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
                             key={`text-${index}`} 
                             className={`absolute flex flex-col items-center justify-center transition-all duration-1000 ease-in-out w-full px-4 ${index === currentSlide ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
                         >
-                            <h1 
+                            <div 
                                 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.2] mb-6 drop-shadow-lg"
                                 dangerouslySetInnerHTML={{ __html: finalHeading }}
                             />
                             
-                            <p 
+                            <div 
                                 className="text-base md:text-xl font-medium text-[#94A3B8] max-w-2xl mx-auto tracking-wide drop-shadow-md"
                                 dangerouslySetInnerHTML={{ __html: finalTagline }}
                             />

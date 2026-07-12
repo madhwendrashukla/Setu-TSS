@@ -23,6 +23,13 @@ export function DynamicTestimonials({ data }: { data: PageData }) {
     if (!showText && !showVideo) return null;
     if (textTestimonials.length === 0 && videoTestimonials.length === 0) return null;
 
+    const minItemsForMarquee = 8;
+    const repeatCount = Math.max(1, Math.ceil(minItemsForMarquee / (textTestimonials.length || 1)));
+    const marqueeBlock = [];
+    for (let i = 0; i < repeatCount; i++) {
+        marqueeBlock.push(...textTestimonials);
+    }
+
     return (
         <section className="py-24 bg-white relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -101,55 +108,34 @@ export function DynamicTestimonials({ data }: { data: PageData }) {
             {/* Text Testimonials - Marquee Format */}
             {showText && textTestimonials.length > 0 && (
                 <div className="relative flex overflow-x-hidden py-4 w-full">
-                    <div className="animate-marquee-slow flex whitespace-nowrap space-x-6 px-4">
-                        {textTestimonials.map((testimonial, idx) => (
-                            <div key={testimonial.id || idx} className="inline-block w-[300px] md:w-[400px] p-8 rounded-3xl border border-slate-200 bg-white shadow-md flex flex-col flex-shrink-0 whitespace-normal">
-                                <div className="flex gap-1 mb-4 text-yellow-400">
-                                    {[...Array(testimonial.rating || 5)].map((_, i) => (
-                                        <i key={i} className="fas fa-star text-sm"></i>
-                                    ))}
-                                </div>
-                                <div className="text-slate-700 text-base md:text-lg italic mb-8 leading-relaxed">
-                                    "{testimonial.quote}"
-                                </div>
-                                <div className="mt-auto border-t border-slate-100 pt-4">
-                                    <h4 className="font-bold text-slate-900 text-lg mb-1 tracking-tight">{testimonial.name}</h4>
-                                    <p className="text-sm text-slate-500">{testimonial.role}</p>
-                                    <div className="flex items-center justify-between mt-2">
-                                        <span className="text-sm font-semibold text-blue-600">{testimonial.company}</span>
-                                        {testimonial.city && (
-                                            <span className="text-xs text-slate-400 flex items-center gap-1">
-                                                <i className="fas fa-map-marker-alt"></i> {testimonial.city}
-                                            </span>
-                                        )}
+                    <div className="animate-marquee-slow flex flex-nowrap w-max space-x-6 px-4">
+                        {[0, 1].map(blockIdx => (
+                            <React.Fragment key={blockIdx}>
+                                {marqueeBlock.map((testimonial, idx) => (
+                                    <div key={`${blockIdx}-${idx}-${testimonial.id || idx}`} className="w-[300px] md:w-[400px] p-8 rounded-3xl border border-slate-200 bg-white shadow-md flex flex-col flex-shrink-0 whitespace-normal">
+                                        <div className="flex gap-1 mb-4 text-yellow-400">
+                                            {[...Array(testimonial.rating || 5)].map((_, i) => (
+                                                <i key={i} className="fas fa-star text-sm"></i>
+                                            ))}
+                                        </div>
+                                        <div className="text-slate-700 text-base md:text-lg italic mb-8 leading-relaxed">
+                                            "{testimonial.quote}"
+                                        </div>
+                                        <div className="mt-auto border-t border-slate-100 pt-4">
+                                            <h4 className="font-bold text-slate-900 text-lg mb-1 tracking-tight">{testimonial.name}</h4>
+                                            <p className="text-sm text-slate-500">{testimonial.role}</p>
+                                            <div className="flex items-center justify-between mt-2">
+                                                <span className="text-sm font-semibold text-blue-600">{testimonial.company}</span>
+                                                {testimonial.city && (
+                                                    <span className="text-xs text-slate-400 flex items-center gap-1">
+                                                        <i className="fas fa-map-marker-alt"></i> {testimonial.city}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        ))}
-                        {/* Duplicate for Marquee effect */}
-                        {textTestimonials.map((testimonial, idx) => (
-                            <div key={(testimonial.id || idx) + '_dup'} className="inline-block w-[300px] md:w-[400px] p-8 rounded-3xl border border-slate-200 bg-white shadow-md flex flex-col flex-shrink-0 whitespace-normal">
-                                <div className="flex gap-1 mb-4 text-yellow-400">
-                                    {[...Array(testimonial.rating || 5)].map((_, i) => (
-                                        <i key={i} className="fas fa-star text-sm"></i>
-                                    ))}
-                                </div>
-                                <div className="text-slate-700 text-base md:text-lg italic mb-8 leading-relaxed">
-                                    "{testimonial.quote}"
-                                </div>
-                                <div className="mt-auto border-t border-slate-100 pt-4">
-                                    <h4 className="font-bold text-slate-900 text-lg mb-1 tracking-tight">{testimonial.name}</h4>
-                                    <p className="text-sm text-slate-500">{testimonial.role}</p>
-                                    <div className="flex items-center justify-between mt-2">
-                                        <span className="text-sm font-semibold text-blue-600">{testimonial.company}</span>
-                                        {testimonial.city && (
-                                            <span className="text-xs text-slate-400 flex items-center gap-1">
-                                                <i className="fas fa-map-marker-alt"></i> {testimonial.city}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+                                ))}
+                            </React.Fragment>
                         ))}
                     </div>
                 </div>

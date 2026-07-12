@@ -35,6 +35,7 @@ export function DynamicWorkshopBreakdown({ data, onCheckoutClick }: { data: Page
                                 index={idx}
                                 theme={theme}
                                 onCheckoutClick={onCheckoutClick}
+                                registrations_open={data.registrations_open}
                             />
                         );
                     })}
@@ -44,12 +45,12 @@ export function DynamicWorkshopBreakdown({ data, onCheckoutClick }: { data: Page
     );
 }
 
-function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick }: { workshop: WorkshopData, index: number, theme: any, onCheckoutClick?: (id: string) => void }) {
+function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, registrations_open }: { workshop: WorkshopData, index: number, theme: any, onCheckoutClick?: (id: string) => void, registrations_open?: boolean }) {
     const [expanded, setExpanded] = useState(true);
 
     return (
         <div className={`bg-white rounded-2xl md:rounded-3xl border overflow-hidden transition-all duration-500 border-slate-200 hover:border-slate-300 shadow-xl hover:shadow-2xl`}>
-            <button onClick={() => setExpanded(!expanded)} className="w-full text-left px-6 md:px-10 py-6 md:py-8 flex items-start gap-4 md:gap-6 group relative">
+            <div onClick={() => setExpanded(!expanded)} className="w-full text-left px-6 md:px-10 py-6 md:py-8 flex items-start gap-4 md:gap-6 group relative cursor-pointer">
                 
                 <div className="mt-1 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110" style={{ background: theme.bg, borderColor: theme.border }}>
                     <i className={`fas fa-${workshop.icon || 'lightbulb'} text-base md:text-lg`} style={{ color: theme.primary }}></i>
@@ -63,6 +64,9 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick }: { wo
                             </span>
                         )}
                         {(() => {
+                            if (workshop.sessions && workshop.sessions.length > 0) {
+                                return null; // We render sessions as individual calendar pills below instead
+                            }
                             if (workshop.date && workshop.start_time && workshop.end_time) {
                                 const dateObj = new Date(workshop.date);
                                 const dateStr = !isNaN(dateObj.getTime()) ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : workshop.date;
@@ -109,10 +113,52 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick }: { wo
 
                     {/* Google Calendar Link Logic */}
                     {(() => {
-                        const hasDateAndTime = workshop.date && workshop.start_time && workshop.end_time;
-                        let calendarUrl = '#';
+                        const sessions = workshop.sessions || [];
+                        const oldHasDateAndTime = workshop.date && workshop.start_time && workshop.end_time;
                         
-                        if (hasDateAndTime) {
+                        if (sessions.length > 0) {
+                            return (
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    {sessions.map((session: any, sIdx: number) => {
+                                        let calendarUrl = '#';
+                                        try {
+                                            const startIstStr = `${session.date}T${session.start_time}:00+05:30`;
+                                            const endIstStr = `${session.date}T${session.end_time}:00+05:30`;
+                                            const startDate = new Date(startIstStr);
+                                            const endDate = new Date(endIstStr);
+                                            
+                                            if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+                                                const formatGCalDate = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+                                                const title = encodeURIComponent(`${workshop.title || "Startup Workshop"} - ${session.title}`);
+                                                const details = encodeURIComponent((workshop.key_features || "").replace(/<[^>]*>?/gm, ''));
+                                                calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatGCalDate(startDate)}/${formatGCalDate(endDate)}&details=${details}`;
+                                            }
+                                        } catch (e) {
+                                            console.error('Error generating calendar link', e);
+                                        }
+
+                                        const formatTime = (t: string) => {
+                                            if (!t || !t.includes(':')) return t;
+                                            const [h, m] = t.split(':');
+                                            const hNum = parseInt(h);
+                                            const ampm = hNum >= 12 ? 'PM' : 'AM';
+                                            return `${hNum % 12 || 12}:${m} ${ampm}`;
+                                        };
+                                        const dateObj = new Date(session.date);
+                                        const dateStr = !isNaN(dateObj.getTime()) ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : session.date;
+
+                                        return (
+                                            <a key={sIdx} href={calendarUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-[11px] md:text-xs text-slate-600 font-bold hover:bg-slate-200 transition-all cursor-pointer">
+                                                <i className="fa-brands fa-google text-blue-500"></i> {session.title} — {dateStr}, {formatTime(session.start_time)} — {formatTime(session.end_time)}
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            );
+                        }
+
+                        let calendarUrl = '#';
+                        if (oldHasDateAndTime) {
                             try {
                                 const startIstStr = `${workshop.date}T${workshop.start_time}:00+05:30`;
                                 const endIstStr = `${workshop.date}T${workshop.end_time}:00+05:30`;
@@ -122,7 +168,7 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick }: { wo
                                 if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
                                     const formatGCalDate = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
                                     const title = encodeURIComponent(workshop.title || "Startup Workshop");
-                                    const details = encodeURIComponent((workshop.key_features || "").replace(/<[^>]*>?/gm, '')); // Strip HTML from details
+                                    const details = encodeURIComponent((workshop.key_features || "").replace(/<[^>]*>?/gm, ''));
                                     calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatGCalDate(startDate)}/${formatGCalDate(endDate)}&details=${details}`;
                                 }
                             } catch (e) {
@@ -130,7 +176,7 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick }: { wo
                             }
                         }
 
-                        if (hasDateAndTime && calendarUrl !== '#') {
+                        if (oldHasDateAndTime && calendarUrl !== '#') {
                             return (
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <a href={calendarUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-[11px] md:text-xs text-slate-600 font-bold hover:bg-slate-200 transition-all cursor-pointer">
@@ -153,7 +199,7 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick }: { wo
                 <div className={`shrink-0 mt-2 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}>
                     <i className="fa-solid fa-chevron-down text-slate-400"></i>
                 </div>
-            </button>
+            </div>
 
             {expanded && (
                 <div className="px-6 md:px-10 pb-8 md:pb-10 border-t border-slate-100">
@@ -180,7 +226,11 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick }: { wo
                                     </div>
                                 ) : (
                                     <div className="relative pl-4 border-l-2 border-slate-200">
-                                        <div className="prose prose-sm max-w-none prose-ul:space-y-3 prose-li:text-slate-600 prose-li:flex prose-li:gap-3 prose-li:font-medium" dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.what_youll_learn }} />
+                                        <div 
+                                            className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-600 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm"
+                                            style={{'--marker-color': theme.primary} as React.CSSProperties}
+                                            dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.what_youll_learn }} 
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -204,32 +254,52 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick }: { wo
                                             ))}
                                         </ul>
                                     ) : (
-                                        <div className="prose prose-sm max-w-none prose-ul:space-y-3 prose-li:text-slate-700 prose-li:font-medium" dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.your_deliverables }} />
+                                        <div 
+                                            className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-700 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm"
+                                            style={{'--marker-color': theme.primary} as React.CSSProperties}
+                                            dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.your_deliverables }} 
+                                        />
                                     )}
                                 </div>
                                 
-                                {workshop.cta?.active && onCheckoutClick && (
+                                {registrations_open !== false ? (
                                     <button 
-                                        onClick={(e) => { e.stopPropagation(); onCheckoutClick(workshop.id); }}
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                                        }}
                                         className="mt-5 w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 shadow-lg hover:shadow-xl"
                                         style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}
                                     >
-                                        {workshop.cta?.text || "Book Seat Now for this workshop"} <i className="fa-solid fa-arrow-right"></i>
+                                        {workshop.cta?.text || "Book Seat Now for this workshop"} <i className="fa-solid fa-arrow-down"></i>
                                     </button>
+                                ) : (
+                                    <div className="mt-5 w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold bg-slate-800 text-slate-400 cursor-not-allowed opacity-90">
+                                        Registration Closed
+                                    </div>
                                 )}
                             </div>
                         )}
                         
                         {/* Fallback button if there's no right column */}
-                        {!(workshop.detail_bullets?.your_deliverables && (Array.isArray(workshop.detail_bullets.your_deliverables) ? workshop.detail_bullets.your_deliverables.length > 0 : workshop.detail_bullets.your_deliverables.trim() !== '')) && workshop.cta?.active && onCheckoutClick && (
+                        {!(workshop.detail_bullets?.your_deliverables && (Array.isArray(workshop.detail_bullets.your_deliverables) ? workshop.detail_bullets.your_deliverables.length > 0 : workshop.detail_bullets.your_deliverables.trim() !== '')) && (
                              <div className="col-span-1 md:col-span-2 mt-4">
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); onCheckoutClick(workshop.id); }}
-                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 shadow-lg hover:shadow-xl"
-                                    style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}
-                                >
-                                    {workshop.cta?.text || "Book Seat Now for this workshop"} <i className="fa-solid fa-arrow-right"></i>
-                                </button>
+                                {registrations_open !== false ? (
+                                    <button 
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                                        }}
+                                        className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 shadow-lg hover:shadow-xl"
+                                        style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}
+                                    >
+                                        {workshop.cta?.text || "Book Seat Now for this workshop"} <i className="fa-solid fa-arrow-down"></i>
+                                    </button>
+                                ) : (
+                                    <div className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-slate-800 text-slate-400 cursor-not-allowed opacity-90">
+                                        Registration Closed
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

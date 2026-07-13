@@ -235,14 +235,14 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                         {/* Coupon Section */}
                         {couponConfig?.active && (
                             <div className="mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                {couponConfig.featured_coupon && !isCouponApplied && (
+                                {couponConfig.code && !isCouponApplied && (
                                     <div className="mb-4 bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center justify-between">
                                         <div>
                                             <p className="text-xs font-bold text-purple-900 mb-0.5">🎉 Featured Offer!</p>
-                                            <p className="text-sm font-medium text-purple-700">Use code <span className="font-extrabold">{couponConfig.featured_coupon}</span> to get {couponConfig.featured_discount}% off!</p>
+                                            <p className="text-sm font-medium text-purple-700">Use code <span className="font-extrabold">{couponConfig.code}</span> to get {couponConfig.discount_percent}% off!</p>
                                         </div>
                                         <button 
-                                            onClick={() => handleApplyCoupon(couponConfig.featured_coupon)}
+                                            onClick={() => handleApplyCoupon(couponConfig.code)}
                                             disabled={isProcessing}
                                             className="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
                                         >

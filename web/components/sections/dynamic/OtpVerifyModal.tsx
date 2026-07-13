@@ -32,10 +32,20 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
     if (!isOpen || !eventId) return;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneValid = phone.replace(/\s/g, '').length >= 10;
+    const isEmailValid = emailRegex.test(email);
+    const isPhoneValid = phone.replace(/\s/g, '').length >= 10;
     
-    if (emailRegex.test(email) || phoneValid) {
-      const currentData = JSON.stringify({ name, email, phone, ticketTier });
+    if (isEmailValid || isPhoneValid) {
+      const payload = {
+        name,
+        email: isEmailValid ? email : '',
+        phone: isPhoneValid ? phone : '',
+        eventId,
+        ticketTier,
+        pendingLeadId
+      };
+      
+      const currentData = JSON.stringify(payload);
       if (currentData === lastSentData.current) return;
 
       const timer = setTimeout(async () => {
@@ -43,7 +53,7 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
           const res = await fetch(`${API}/api/payments/capture-lead`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, phone, eventId, ticketTier, pendingLeadId }),
+            body: currentData,
           });
           const data = await res.json();
           if (data.success && data.id) {
@@ -96,6 +106,22 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+
+      // Push to CRM Leads table ONLY if it's not an event checkout
+      // Event checkouts are automatically synced to CRM via /api/payments/capture-lead
+      if (!eventId) {
+        fetch(`${API}/api/leads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name || 'Guest Checkout',
+            email: email,
+            phone: phone,
+            source: 'quick_verification'
+          })
+        }).catch(e => console.error("Failed to capture CRM lead", e));
+      }
+
       setStep('otp');
       setResendTimer(60);
     } catch (err: any) {

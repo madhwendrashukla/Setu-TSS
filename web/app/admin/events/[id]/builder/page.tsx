@@ -18,6 +18,55 @@ const quillModules = {
     ],
 };
 
+const MultiSelectDropdown = ({ options, selected, onChange, placeholder }: { options: any[], selected: string[], onChange: (val: string[]) => void, placeholder: string }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const validSelectedCount = selected.filter(code => options.some(opt => opt.code === code)).length;
+
+    return (
+        <div className="relative">
+            <button 
+                type="button" 
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none flex justify-between items-center text-left"
+            >
+                <span className={validSelectedCount === 0 ? "text-gray-400" : "text-gray-900"}>
+                    {validSelectedCount === 0 ? placeholder : `${validSelectedCount} coupon(s) selected`}
+                </span>
+                <i className={`fas fa-chevron-${isOpen ? 'up' : 'down'} text-gray-400`}></i>
+            </button>
+            {isOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-purple-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {options.length > 0 ? options.map(c => {
+                        const isSelected = selected.includes(c.code);
+                        return (
+                            <label key={c.id} className="flex items-center gap-3 p-3 hover:bg-purple-50 cursor-pointer border-b last:border-0 border-gray-100">
+                                <input 
+                                    type="checkbox" 
+                                    className="w-4 h-4 accent-purple-600 rounded"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                        if (e.target.checked) {
+                                            onChange([...selected, c.code]);
+                                        } else {
+                                            onChange(selected.filter((code: string) => code !== c.code));
+                                        }
+                                    }}
+                                />
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-sm text-gray-900">{c.code}</span>
+                                    <span className="text-[10px] text-purple-600 font-medium uppercase tracking-wider">{c.type === 'percentage' ? `${c.discount_value}% OFF` : `₹${c.discount_value} OFF`}</span>
+                                </div>
+                            </label>
+                        );
+                    }) : (
+                        <div className="p-4 text-sm text-gray-500 italic">No coupons available</div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const StringArrayEditor = ({ value, onChange, placeholder }: { value: string[], onChange: (val: string[]) => void, placeholder?: string }) => {
     const handleAdd = () => onChange([...(Array.isArray(value) ? value : []), ""]);
     const handleRemove = (index: number) => {
@@ -182,7 +231,7 @@ const MentorsEditor = ({ items, onChange, onUpload }: { items: any[], onChange: 
     );
 };
 
-const StoryBoxesEditor = ({ boxes, onChange }: { boxes: any[], onChange: (b: any[]) => void }) => {
+const StoryBoxesEditor = ({ boxes, onChange, onUpload }: { boxes: any[], onChange: (b: any[]) => void, onUpload: (file: File) => Promise<string | null> }) => {
     const handleAdd = () => onChange([...(Array.isArray(boxes) ? boxes : []), { title: "", description: "", bullets: [] }]);
     const handleRemove = (index: number) => { const newArr = [...(Array.isArray(boxes) ? boxes : [])]; newArr.splice(index, 1); onChange(newArr); };
     const handleChange = (index: number, field: string, val: any) => { const newArr = [...(Array.isArray(boxes) ? boxes : [])]; newArr[index] = { ...newArr[index], [field]: val }; onChange(newArr); };
@@ -195,16 +244,29 @@ const StoryBoxesEditor = ({ boxes, onChange }: { boxes: any[], onChange: (b: any
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-10 mb-3">
                         <div><label className="block text-xs font-bold mb-1 text-gray-500">Box Title</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={b.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
                         <div><label className="block text-xs font-bold mb-1 text-gray-500">Box Description</label><textarea className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none h-10" value={b.description || ""} onChange={e => handleChange(index, 'description', e.target.value)} /></div>
-                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Top Icon Class</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" placeholder="e.g. fas fa-user" value={b.icon_class || ""} onChange={e => handleChange(index, 'icon_class', e.target.value)} /></div>
-                        <div><label className="block text-xs font-bold mb-1 text-gray-500">Watermark Icon (Optional)</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" placeholder="e.g. fas fa-times" value={b.watermark_icon || ""} onChange={e => handleChange(index, 'watermark_icon', e.target.value)} /></div>
                         <div>
-                            <label className="block text-xs font-bold mb-1 text-gray-500">Theme</label>
-                            <select className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs" value={b.theme || "light"} onChange={e => handleChange(index, 'theme', e.target.value)}>
-                                <option value="light">Light (Default)</option>
-                                <option value="dark">Dark Subdued</option>
-                                <option value="purple">Purple Highlight</option>
-                                <option value="light_purple">Light Purple Highlight</option>
-                            </select>
+                            <label className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500">
+                                Top Icon Class
+                                <a href="https://fontawesome.com/v5/search?m=free" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 hover:underline font-normal">Find Icons</a>
+                            </label>
+                            <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" placeholder="e.g. fas fa-user" value={b.icon_class || ""} onChange={e => handleChange(index, 'icon_class', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold mb-1 text-gray-500">Top Image Upload (Overrides Icon)</label>
+                            <input type="file" accept="image/*" onChange={async (e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                    const url = await onUpload(e.target.files[0]);
+                                    if (url) handleChange(index, 'image_url', url);
+                                }
+                            }} className="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-1" />
+                            <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-[10px]" placeholder="Or paste image URL..." value={b.image_url || ""} onChange={e => handleChange(index, 'image_url', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500">
+                                Watermark Icon (Optional)
+                                <a href="https://fontawesome.com/v5/search?m=free" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 hover:underline font-normal">Find Icons</a>
+                            </label>
+                            <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" placeholder="e.g. fas fa-times" value={b.watermark_icon || ""} onChange={e => handleChange(index, 'watermark_icon', e.target.value)} />
                         </div>
                     </div>
                     <div className="mt-4 border-t border-gray-100 pt-3">
@@ -506,21 +568,33 @@ export default function EventBuilderPage() {
     const [activeTab, setActiveTab] = useState("visibility");
     const [testimonialTab, setTestimonialTab] = useState("text");
     const [adminSources, setAdminSources] = useState<any[]>([]);
+    const [globalCoupons, setGlobalCoupons] = useState<any[]>([]);
 
     useEffect(() => {
-        const fetchSources = async () => {
+        const fetchSourcesAndCoupons = async () => {
             try {
                 const token = localStorage.getItem("adminToken");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/lead-sources`, {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                const data = await res.json();
-                setAdminSources(Array.isArray(data) ? data : []);
+                const headers = { "Authorization": `Bearer ${token}` };
+                
+                const [sourcesRes, couponsRes] = await Promise.all([
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/lead-sources`, { headers }),
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/coupons/admin`, { headers })
+                ]);
+                
+                if (sourcesRes.ok) {
+                    const data = await sourcesRes.json();
+                    setAdminSources(Array.isArray(data) ? data : []);
+                }
+                
+                if (couponsRes.ok) {
+                    const couponsData = await couponsRes.json();
+                    setGlobalCoupons(Array.isArray(couponsData) ? couponsData.filter((c: any) => c.is_active) : []);
+                }
             } catch (e) {
                 console.error(e);
             }
         };
-        fetchSources();
+        fetchSourcesAndCoupons();
     }, []);
 
     useEffect(() => {
@@ -744,7 +818,7 @@ export default function EventBuilderPage() {
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Headline</label><input className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl focus:bg-white outline-none focus:border-accent-blue" value={pageData.story?.headline || ""} onChange={e => updateData('story', 'headline', e.target.value)} /></div>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Description</label><textarea className="w-full bg-gray-50 border border-gray-200 p-4 rounded-xl h-24 focus:bg-white outline-none focus:border-accent-blue" value={pageData.story?.description || ""} onChange={e => updateData('story', 'description', e.target.value)} /></div>
                             <div>
-                                <StoryBoxesEditor boxes={pageData.story?.boxes || []} onChange={v => updateData('story', 'boxes', v)} />
+                                <StoryBoxesEditor boxes={pageData.story?.boxes || []} onChange={v => updateData('story', 'boxes', v)} onUpload={handleUpload} />
                             </div>
                         </div>
                     )}
@@ -878,19 +952,50 @@ export default function EventBuilderPage() {
                             <div className="border border-purple-200 rounded-xl p-6 bg-purple-50 shadow-sm">
                                 <h3 className="font-bold mb-4 text-lg text-purple-900"><i className="fas fa-ticket-alt text-purple-600 mr-2"></i>Global Coupon System</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-                                    <div><label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Featured Coupon Code</label><input placeholder="e.g. STARTUP20" className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none" value={pageData.coupon?.code || ""} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, code: e.target.value}})} /></div>
-                                    <div><label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Discount %</label><input type="number" placeholder="20" className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none" value={pageData.coupon?.discount_percent || 0} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, discount_percent: parseInt(e.target.value)||0}})} /></div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Featured Coupon Code</label>
+                                        <select 
+                                            className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none" 
+                                            value={pageData.coupon?.code || ""} 
+                                            onChange={e => {
+                                                const code = e.target.value;
+                                                const selectedCoupon = globalCoupons.find(c => c.code === code);
+                                                setPageData({
+                                                    ...pageData, 
+                                                    coupon: {
+                                                        ...pageData.coupon, 
+                                                        code: code,
+                                                        discount_percent: selectedCoupon ? selectedCoupon.discount_value : (pageData.coupon?.discount_percent || 0)
+                                                    }
+                                                });
+                                            }}
+                                        >
+                                            <option value="">-- No Featured Coupon --</option>
+                                            {globalCoupons.map((c: any) => (
+                                                <option key={c.id} value={c.code}>{c.code} ({c.type === 'percentage' ? c.discount_value + '%' : '₹' + c.discount_value})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Discount % (Display)</label>
+                                        <input type="number" placeholder="20" className="w-full bg-white border border-purple-200 p-3 rounded-lg focus:border-purple-500 outline-none" value={pageData.coupon?.discount_percent || 0} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, discount_percent: parseInt(e.target.value)||0}})} />
+                                    </div>
                                     <div className="flex items-center pt-6">
                                         <label className="flex items-center gap-3 cursor-pointer p-2 bg-white rounded-lg border border-purple-100 pr-4">
                                             <input type="checkbox" checked={pageData.coupon?.active || false} onChange={e => setPageData({...pageData, coupon: {...pageData.coupon, active: e.target.checked}})} className="w-5 h-5 accent-purple-600 rounded" />
-                                            <span className="font-bold text-sm text-purple-900">Featured Coupon Active</span>
+                                            <span className="font-bold text-sm text-purple-900">Show Coupon Box</span>
                                         </label>
                                     </div>
                                 </div>
                                 <div className="border-t border-purple-200 pt-5">
                                     <label className="block text-xs font-bold mb-2 text-purple-700 uppercase tracking-wider">Applicable Global Coupons</label>
-                                    <p className="text-xs text-purple-600/70 mb-3">Add global coupon codes that are valid for this event. Leave empty to allow NO global coupons.</p>
-                                    <StringArrayEditor value={pageData.applicable_coupons || []} onChange={v => setPageData({...pageData, applicable_coupons: v})} placeholder='e.g. "DIWALI50"' />
+                                    <p className="text-xs text-purple-600/70 mb-4">Select the global coupon codes that are valid for this event.</p>
+                                    <MultiSelectDropdown 
+                                        options={globalCoupons} 
+                                        selected={pageData.applicable_coupons || []} 
+                                        onChange={v => setPageData({...pageData, applicable_coupons: v})} 
+                                        placeholder="Select coupons..." 
+                                    />
                                 </div>
                             </div>
                         </div>

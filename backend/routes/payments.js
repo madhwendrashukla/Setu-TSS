@@ -75,6 +75,28 @@ router.post('/capture-lead', async (req, res) => {
           ticket_tier: ticketTier || existing.ticket_tier
         }
       });
+
+      // CRM Sync
+      const leadSource = `checkout_${eventId}`;
+      const leadStatus = phone ? 'pending' : 'new';
+      if (email) {
+        const crmLead = await prisma.lead.findFirst({ where: { email: email, source: leadSource } });
+        if (crmLead) {
+          await prisma.lead.update({
+            where: { id: crmLead.id },
+            data: {
+              full_name: name || crmLead.full_name,
+              phone: phone || crmLead.phone,
+              status: crmLead.status === 'converted' ? 'converted' : leadStatus
+            }
+          });
+        } else {
+          await prisma.lead.create({
+            data: { full_name: name || 'Guest Checkout', email, phone: phone || null, source: leadSource, status: leadStatus }
+          });
+        }
+      }
+
       return res.json({ success: true, message: 'Lead updated', id: existing.id });
     }
 
@@ -103,6 +125,27 @@ router.post('/capture-lead', async (req, res) => {
         amount: 0 // Will be updated if they actually create an order
       }
     });
+
+    // CRM Sync
+    const leadSource = `checkout_${eventId}`;
+    const leadStatus = phone ? 'pending' : 'new';
+    if (email) {
+      const crmLead = await prisma.lead.findFirst({ where: { email: email, source: leadSource } });
+      if (crmLead) {
+        await prisma.lead.update({
+          where: { id: crmLead.id },
+          data: {
+            full_name: name || crmLead.full_name,
+            phone: phone || crmLead.phone,
+            status: crmLead.status === 'converted' ? 'converted' : leadStatus
+          }
+        });
+      } else {
+        await prisma.lead.create({
+          data: { full_name: name || 'Guest Checkout', email, phone: phone || null, source: leadSource, status: leadStatus }
+        });
+      }
+    }
 
     res.json({ success: true, message: 'Lead captured', id: newLead.id });
   } catch (error) {
@@ -241,6 +284,17 @@ router.post('/verify-payment', async (req, res) => {
           status: 'COMPLETED'
         }
       });
+
+      // Update CRM Lead to 'converted'
+      const reg = await prisma.eventRegistration.findFirst({
+        where: { razorpay_order_id: razorpay_order_id }
+      });
+      if (reg && reg.guest_email) {
+        await prisma.lead.updateMany({
+          where: { email: reg.guest_email, source: `checkout_${reg.event_id}` },
+          data: { status: 'converted' }
+        });
+      }
       
       // Log coupon usage if a valid coupon was used
       if (req.body.couponCode) {

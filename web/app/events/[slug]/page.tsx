@@ -15,6 +15,7 @@ const DynamicOutcomes = dynamic(() => import("@/components/sections/dynamic/Dyna
 const DynamicTestimonials = dynamic(() => import("@/components/sections/dynamic/DynamicTestimonials").then(mod => mod.DynamicTestimonials), { ssr: true });
 const DynamicSchedule = dynamic(() => import("@/components/sections/dynamic/DynamicSchedule").then(mod => mod.DynamicSchedule), { ssr: true });
 const DynamicFAQ = dynamic(() => import("@/components/sections/dynamic/DynamicFAQ").then(mod => mod.DynamicFAQ), { ssr: true });
+const DynamicContact = dynamic(() => import("@/components/sections/dynamic/DynamicContact").then(mod => mod.DynamicContact), { ssr: true });
 
 async function getEventBySlug(slug: string) {
     try {
@@ -125,6 +126,7 @@ export default async function DynamicEventPage({ params }: { params: Promise<{ s
                             case 'testimonials': return <DynamicTestimonials key={index} data={blockDataWithStatus} />;
                             case 'schedule': return <DynamicSchedule key={index} data={blockDataWithStatus} />;
                             case 'faq': return <DynamicFAQ key={index} data={blockDataWithStatus} />;
+                            case 'contact': return <DynamicContact key={index} data={blockDataWithStatus} />;
                             default: return null;
                         }
                     })

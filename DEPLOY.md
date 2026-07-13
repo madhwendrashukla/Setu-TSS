@@ -12,7 +12,7 @@ Browser ─HTTP:80─ Nginx ┌─ /        → Next.js frontend (PM2 tss-fronte
 
 - **VPS:** `65.1.142.47` (Lightsail, Ubuntu 24.04, Node 20, 911 MB RAM, ap-south-1).
 - **SSH:** `ssh -i ~/N073/.secrets/LightsailDefaultKey-ap-south-1.pem ubuntu@65.1.142.47`
-- **Branch deployed:** `integration/single-domain` (checked out in `~/Setu-TSS`).
+- **Branch deployed:** `main` (checked out in `~/Setu-TSS`). *(The `integration/single-domain` branch was retired 2026-07-13 — everyone commits to `main` directly now.)*
 - **DB:** AWS RDS Postgres — website uses the `postgres` DB (Prisma); reads LMS courses from the `jjlms` DB via a SELECT-only `website_ro` role.
 - **Nginx config:** `/etc/nginx/sites-available/tss`.
 

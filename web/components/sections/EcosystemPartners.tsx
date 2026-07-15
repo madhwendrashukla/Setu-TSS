@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-export const EcosystemPartners = ({ data }: { data?: any[] }) => {
+export const EcosystemPartners = ({ data, headings = {} }: { data?: any[], headings?: any }) => {
     // Mock data for display
     const partners = data && data.length > 0 ? data : [
         { id: 1, name: 'Partner 1', logo_url: 'https://via.placeholder.com/150x80?text=Partner+1', website_url: '#' },
@@ -12,8 +12,8 @@ export const EcosystemPartners = ({ data }: { data?: any[] }) => {
     return (
         <section className="card-section pt-8 md:pt-12 pb-0">
             <div className="max-w-7xl mx-auto px-6 text-center">
-                <span className="text-text-secondary text-xs font-bold tracking-[0.2em] uppercase mb-4 block">NETWORK</span>
-                <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-12">Ecosystem Partners</h2>
+                <span className="text-text-secondary text-xs font-bold tracking-[0.2em] uppercase mb-4 block" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'NETWORK' }} />
+                <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-12" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Ecosystem Partners' }} />
 
                 <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
                     {partners.map(partner => (

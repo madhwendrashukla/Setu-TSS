@@ -1,15 +1,13 @@
 import Image from 'next/image';
 import { Linkedin } from 'lucide-react';
 
-export function FounderManifesto() {
+export function FounderManifesto({ headings = {} }: { headings?: any }) {
     return (
         <section id="manifesto" className="w-full bg-bg-main py-24 px-6 relative overflow-hidden">
             <div className="max-w-3xl mx-auto relative z-10">
                 {/* Small Heading Pill */}
                 <div className="flex justify-center mb-16">
-                    <span className="text-[#A855F7] bg-white border border-[#A855F7]/40 px-6 py-2.5 rounded-full text-sm font-bold uppercase tracking-[0.2em] shadow-sm">
-                        The Founder's Manifesto
-                    </span>
+                    <span className="text-[#A855F7] bg-white border border-[#A855F7]/40 px-6 py-2.5 rounded-full text-sm font-bold uppercase tracking-[0.2em] shadow-sm" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'The Founder\'s Manifesto' }} />
                 </div>
                 {/* Header */}
                 <div className="flex items-center gap-5 mb-12">

@@ -8,6 +8,8 @@ export default function AdminMentors() {
     const [editingMentor, setEditingMentor] = useState<any>(null);
     const [formData, setFormData] = useState({ name: "", title: "", bio: "", linkedin_url: "", show_linkedin: true });
     const [file, setFile] = useState<File | null>(null);
+    const [globalLinkedin, setGlobalLinkedin] = useState(true);
+    const [fullSettings, setFullSettings] = useState<any>(null);
 
     const fetchMentors = () => {
         const token = localStorage.getItem("adminToken");
@@ -19,9 +21,47 @@ export default function AdminMentors() {
             .catch(console.error);
     };
 
+    const fetchSettings = () => {
+        const token = localStorage.getItem("adminToken");
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/site_settings`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            setFullSettings(data);
+            let toggles: any = {};
+            try { toggles = typeof data.section_toggles === 'string' ? JSON.parse(data.section_toggles) : (data.section_toggles || {}); } catch(e) {}
+            if (toggles.show_mentors_linkedin !== undefined) {
+                setGlobalLinkedin(toggles.show_mentors_linkedin);
+            }
+        })
+        .catch(console.error);
+    };
+
     useEffect(() => {
         fetchMentors();
+        fetchSettings();
     }, []);
+
+    const toggleGlobalLinkedin = async (checked: boolean) => {
+        setGlobalLinkedin(checked);
+        if (!fullSettings) return;
+        
+        let toggles: any = {};
+        try { toggles = typeof fullSettings.section_toggles === 'string' ? JSON.parse(fullSettings.section_toggles) : (fullSettings.section_toggles || {}); } catch(e) {}
+        
+        toggles.show_mentors_linkedin = checked;
+        
+        const newSettings = { ...fullSettings, section_toggles: toggles };
+        setFullSettings(newSettings);
+        
+        const token = localStorage.getItem("adminToken");
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/site_settings`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify(newSettings)
+        });
+    };
 
     const handleDragEnd = async (result: DropResult) => {
         if (!result.destination) return;
@@ -124,12 +164,22 @@ export default function AdminMentors() {
                     <h1 className="text-3xl font-black tracking-tight mb-1">Manage Mentors</h1>
                     <p className="text-gray-500 text-sm">Add, update, or remove mentors from the roster.</p>
                 </div>
-                <button 
-                    onClick={() => { setEditingMentor(null); setFormData({ name: "", title: "", bio: "", linkedin_url: "", show_linkedin: true }); setIsModalOpen(true); }}
-                    className="bg-accent-blue hover:bg-accent-blue/90 text-white font-bold px-5 py-2.5 rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center gap-2"
-                >
-                    <i className="fas fa-plus"></i> Add New Mentor
-                </button>
+                <div className="flex items-center gap-4">
+                    <label className="flex items-center cursor-pointer bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm hover:border-accent-blue/50 transition-colors">
+                        <span className="text-sm font-bold text-gray-700 mr-3">Universal LinkedIn</span>
+                        <div className="relative">
+                            <input type="checkbox" className="sr-only" checked={globalLinkedin} onChange={e => toggleGlobalLinkedin(e.target.checked)} />
+                            <div className={`block w-10 h-6 rounded-full transition-colors ${globalLinkedin ? 'bg-accent-blue' : 'bg-gray-300'}`}></div>
+                            <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${globalLinkedin ? 'transform translate-x-4' : ''}`}></div>
+                        </div>
+                    </label>
+                    <button 
+                        onClick={() => { setEditingMentor(null); setFormData({ name: "", title: "", bio: "", linkedin_url: "", show_linkedin: true }); setIsModalOpen(true); }}
+                        className="bg-accent-blue hover:bg-accent-blue/90 text-white font-bold px-5 py-2.5 rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] flex items-center gap-2"
+                    >
+                        <i className="fas fa-plus"></i> Add New Mentor
+                    </button>
+                </div>
             </div>
 
             <div className="shadow-sm bg-white backdrop-blur-xl border border-gray-200 rounded-2xl overflow-hidden shadow-2xl">

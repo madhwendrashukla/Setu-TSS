@@ -27,9 +27,13 @@ export default function AdminHero() {
         hero_rotation_seconds: 5 
     });
     const [slides, setSlides] = useState<any[]>([]);
+    const [sectionHeadings, setSectionHeadings] = useState<any>({});
     
     const [savingContent, setSavingContent] = useState(false);
     const [savedContent, setSavedContent] = useState(false);
+    
+    const [savingHeadings, setSavingHeadings] = useState(false);
+    const [savedHeadings, setSavedHeadings] = useState(false);
     
     const [uploadingSlide, setUploadingSlide] = useState(false);
     const [slideFile, setSlideFile] = useState<File | null>(null);
@@ -57,6 +61,15 @@ export default function AdminHero() {
                 if (data.heroSlides) {
                     setSlides(data.heroSlides);
                 }
+                if (data.siteSettings && data.siteSettings.section_headings) {
+                    try {
+                        setSectionHeadings(typeof data.siteSettings.section_headings === 'string' 
+                            ? JSON.parse(data.siteSettings.section_headings) 
+                            : data.siteSettings.section_headings);
+                    } catch (e) {
+                        console.error("Failed to parse section headings", e);
+                    }
+                }
             })
             .catch(console.error);
     };
@@ -78,6 +91,24 @@ export default function AdminHero() {
             setTimeout(() => setSavedContent(false), 3000);
         } finally {
             setSavingContent(false);
+        }
+    };
+
+    const handleSaveHeadings = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSavingHeadings(true);
+        try {
+            await fetch(`${API}/api/admin/site_settings`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token()}` },
+                body: JSON.stringify({ section_headings: sectionHeadings })
+            });
+            setSavedHeadings(true);
+            setTimeout(() => setSavedHeadings(false), 3000);
+        } catch (e) {
+            console.error("Failed to save headings", e);
+        } finally {
+            setSavingHeadings(false);
         }
     };
 
@@ -232,6 +263,112 @@ export default function AdminHero() {
                         {savingContent ? 'Saving...' : 'Save Text Settings'}
                     </button>
                     {savedContent && <span className="text-green-400 text-sm font-medium animate-pulse"><i className="fas fa-check mr-2"></i>Saved</span>}
+                </div>
+            </form>
+
+            {/* Homepage Section Headings Section */}
+            <form onSubmit={handleSaveHeadings} className="bg-white border border-gray-200 p-8 rounded-2xl mb-12 shadow-xl">
+                <h2 className="text-xl font-bold border-b border-gray-200 pb-4 mb-6">Homepage Section Headings</h2>
+                <p className="text-sm text-gray-500 mb-6">Customize the main title and subtitle of each section using the rich text editor.</p>
+                <div className="space-y-8">
+                    {[
+                        { key: 'tools_showcase', label: 'Tools & Resources' },
+                        { key: 'mentors_preview', label: 'Mentors Preview' },
+                        { key: 'events_gallery', label: 'Events Gallery' },
+                        { key: 'community_gallery', label: 'Community Gallery' },
+                        { key: 'video_gallery', label: 'Video & Media Gallery' },
+                        { key: 'programs', label: 'Upcoming Programs' },
+                        { key: 'founder_manifesto', label: 'Founder Manifesto' },
+                        { key: 'startups_mentored', label: 'Startups Mentored' },
+                        { key: 'testimonials', label: 'Testimonials' },
+                        { key: 'partners', label: 'Ecosystem Partners' },
+                        { key: 'students_from', label: 'Students From' }
+                    ].map((section) => {
+                        const defaultHeadings: any = {
+                            'tools_showcase': {
+                                prefix: 'Tools & <span style="color: #A855F7">Resources.</span>',
+                                subtitle: 'Access our curated suite of tools designed to help you raise capital, <br class="hidden md:block" /> build your product, and scale your startup.'
+                            },
+                            'mentors_preview': {
+                                prefix: 'Learn from <br class="hidden md:block" /> people who\'ve <span style="color: #A855F7">built.</span>',
+                                subtitle: ''
+                            },
+                            'events_gallery': {
+                                prefix: 'Events Gallery',
+                                subtitle: ''
+                            },
+                            'community_gallery': {
+                                prefix: 'Community Gallery, <span style="color: #A855F7">Connect Offline</span>',
+                                subtitle: 'Engage with other learners, alumni, and mentors and attend community sessions to learn from each other in our curated community.'
+                            },
+                            'video_gallery': {
+                                prefix: 'Video & Media Gallery',
+                                subtitle: ''
+                            },
+                            'programs': {
+                                prefix: 'Programs Launching Soon',
+                                subtitle: `For all those who have <span style="color: #A855F7">'KEEDA'</span> and <span style="color: #A855F7">'HIMMAT'</span>`
+                            },
+                            'founder_manifesto': {
+                                prefix: 'The Founder\'s Manifesto',
+                                subtitle: ''
+                            },
+                            'startups_mentored': {
+                                prefix: 'Startups Mentored By Us',
+                                subtitle: 'We take pride in guiding passionate founders from the idea stage all the way to product-market fit and beyond.'
+                            },
+                            'testimonials': {
+                                prefix: 'What <span style="color: #A855F7">Founders Say</span>',
+                                subtitle: 'Real stories from our community members.'
+                            },
+                            'partners': {
+                                prefix: 'Ecosystem Partners',
+                                subtitle: 'NETWORK'
+                            },
+                            'students_from': {
+                                prefix: 'Our Students Come From',
+                                subtitle: 'NETWORK'
+                            }
+                        };
+                        const headingData = sectionHeadings[section.key] || defaultHeadings[section.key] || { prefix: '', subtitle: '' };
+                        return (
+                            <div key={section.key} className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                                <h3 className="font-bold text-accent-blue">{section.label}</h3>
+                                <div>
+                                    <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Main Title</label>
+                                    <ReactQuill 
+                                        theme="snow"
+                                        modules={quillModules}
+                                        value={headingData.prefix || ''} 
+                                        onChange={val => setSectionHeadings((prev: any) => ({
+                                            ...prev, 
+                                            [section.key]: { ...headingData, prefix: val }
+                                        }))}
+                                        className="bg-white"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm text-gray-500 mb-2 uppercase tracking-wide font-bold">Subtitle</label>
+                                    <ReactQuill 
+                                        theme="snow"
+                                        modules={quillModules}
+                                        value={headingData.subtitle || ''} 
+                                        onChange={val => setSectionHeadings((prev: any) => ({
+                                            ...prev, 
+                                            [section.key]: { ...headingData, subtitle: val }
+                                        }))}
+                                        className="bg-white"
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200">
+                    <button type="submit" disabled={savingHeadings} className="bg-accent-blue text-white font-bold px-8 py-3 rounded-xl hover:bg-accent-blue/80 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(139,92,246,0.2)] hover:shadow-[0_0_30px_rgba(139,92,246,0.4)]">
+                        {savingHeadings ? 'Saving...' : 'Save Headings'}
+                    </button>
+                    {savedHeadings && <span className="text-green-400 text-sm font-medium animate-pulse"><i className="fas fa-check mr-2"></i>Saved</span>}
                 </div>
             </form>
 

@@ -159,7 +159,7 @@ app.get('/api/promo-bar', async (req, res) => {
 });
 app.get('/api/homepage', async (req, res) => {
   try {
-    const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups] = await Promise.all([
+    const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos] = await Promise.all([
       prisma.heroSlide.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.homepageContent.findFirst(),
       prisma.program.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
@@ -168,9 +168,10 @@ app.get('/api/homepage', async (req, res) => {
       prisma.communityPartner.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.siteSetting.findFirst(),
       prisma.mentor.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
-      prisma.mentoredStartup.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
+      prisma.mentoredStartup.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
+      prisma.bottomVideoGallery.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
     ]);
-    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups });
+    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos });
   } catch (error) { 
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch homepage data' }); 
@@ -797,6 +798,38 @@ app.get('/api/admin/hero_slides', authMiddleware, async (req, res) => {
     const slides = await prisma.heroSlide.findMany({ orderBy: { display_order: 'asc' } });
     res.json(slides);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch hero slides' }); }
+});
+
+// ─── BOTTOM VIDEO GALLERY ROUTES ─────────────────────────────────────────────
+app.get('/api/admin/bottom_videos', authMiddleware, async (req, res) => {
+  try {
+    const videos = await prisma.bottomVideoGallery.findMany({ orderBy: { display_order: 'asc' } });
+    res.json(videos);
+  } catch (error) { res.status(500).json({ error: 'Failed to fetch bottom videos' }); }
+});
+
+app.post('/api/admin/bottom_videos', authMiddleware, async (req, res) => {
+  try {
+    const video = await prisma.bottomVideoGallery.create({ data: req.body });
+    res.json(video);
+  } catch (error) { res.status(500).json({ error: 'Failed to add bottom video' }); }
+});
+
+app.put('/api/admin/bottom_videos/:id', authMiddleware, async (req, res) => {
+  try {
+    const video = await prisma.bottomVideoGallery.update({
+      where: { id: req.params.id },
+      data: req.body
+    });
+    res.json(video);
+  } catch (error) { res.status(500).json({ error: 'Failed to update bottom video' }); }
+});
+
+app.delete('/api/admin/bottom_videos/:id', authMiddleware, async (req, res) => {
+  try {
+    await prisma.bottomVideoGallery.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to delete bottom video' }); }
 });
 
 // ─── OTP ROUTES ──────────────────────────────────────────────────────────────

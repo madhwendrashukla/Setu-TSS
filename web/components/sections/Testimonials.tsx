@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 
-export const Testimonials = ({ data, toggles = {} }: { data?: any[], toggles?: any }) => {
+export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any[], toggles?: any, headings?: any }) => {
     // Fallback data if none provided
     const testimonials = data && data.length > 0 ? data : [
         { id: 1, type: 'video', youtube_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', video_heading: 'Incredible Experience', video_description: 'This program changed my startup trajectory.', show_description: true },
@@ -37,8 +37,8 @@ export const Testimonials = ({ data, toggles = {} }: { data?: any[], toggles?: a
         <section className="card-section py-16 md:py-24">
             <div className="max-w-7xl mx-auto px-6 mb-12 flex justify-between items-end gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-text-primary tracking-tight mb-2">What Founders Say</h2>
-                    <p className="text-text-secondary">Real stories from our community members.</p>
+                    <h2 className="text-3xl font-bold text-text-primary tracking-tight mb-2" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'What <span class="text-[#A855F7]">Founders Say</span>' }} />
+                    <p className="text-text-secondary" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Real stories from our community members.' }} />
                 </div>
                 {videoTestimonials.length > 4 && (
                     <div className="flex gap-3">

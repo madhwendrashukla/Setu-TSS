@@ -20,7 +20,7 @@ const EcosystemPartners = dynamic(() => import("@/components/sections/EcosystemP
 const StudentsFrom = dynamic(() => import("@/components/sections/StudentsFrom").then(mod => mod.StudentsFrom), { ssr: true });
 const Certifications = dynamic(() => import("@/components/sections/Certifications").then(mod => mod.Certifications), { ssr: true });
 const Contact = dynamic(() => import("@/components/sections/Contact").then(mod => mod.Contact), { ssr: true });
-
+const BottomVideoGallery = dynamic(() => import("@/components/sections/BottomVideoGallery").then(mod => mod.BottomVideoGallery), { ssr: true });
 // Fetch data from Express Backend
 async function getHomepageData() {
   try {
@@ -36,8 +36,11 @@ async function getHomepageData() {
 export default async function Home() {
   const data = await getHomepageData();
   const togglesStr = data?.siteSettings?.section_toggles;
+  const headingsStr = data?.siteSettings?.section_headings;
   let toggles: any = {};
+  let headings: any = {};
   try { toggles = typeof togglesStr === 'string' ? JSON.parse(togglesStr) : (togglesStr || {}); } catch(e) {}
+  try { headings = typeof headingsStr === 'string' ? JSON.parse(headingsStr) : (headingsStr || {}); } catch(e) {}
 
   return (
     <>
@@ -59,46 +62,49 @@ export default async function Home() {
         <div className="w-full flex flex-col items-center justify-start">
 
         {/* 3. Upcoming events */}
-        {toggles.show_pinned_event !== false && <WorkshopPreview />}
+        {toggles.show_pinned_event !== false && <WorkshopPreview headings={headings.workshop_preview} />}
         
         {/* 4. Mentors List */}
-        {toggles.show_mentors !== false && <MentorsPreview data={data?.mentors || []} />}
+        {toggles.show_mentors !== false && <MentorsPreview data={data?.mentors || []} showLinkedinUniversally={toggles.show_mentors_linkedin !== false} headings={headings.mentors_preview} />}
         
         {/* 5. Tools & Resources */}
-        {toggles.show_tools !== false && <ToolsShowcase toggles={toggles} />}
+        {toggles.show_tools !== false && <ToolsShowcase toggles={toggles} headings={headings.tools_showcase} />}
         
         {/* 6. Events Gallery (includes past + upcoming events) */}
-        {toggles.show_past_events !== false && <EventsGallery />}
+        {toggles.show_past_events !== false && <EventsGallery headings={headings.events_gallery} />}
         
         {/* 7. Images gallery (Events + workshops pics) */}
-        {toggles.show_community_gallery !== false && <CommunityGallery data={data?.galleryItems} />}
+        {toggles.show_community_gallery !== false && <CommunityGallery data={data?.galleryItems} headings={headings.community_gallery} />}
         
         {/* 8. Video gallery (Educational + general Content) */}
-        {toggles.show_video_gallery !== false && <VideoAndGallery />}
+        {toggles.show_video_gallery !== false && <VideoAndGallery headings={headings.video_gallery} />}
         
         {/* 9 & 10. Testimonials - Videos & Text */}
-        {toggles.show_testimonials !== false && <Testimonials data={data?.testimonials} toggles={toggles} />}
+        {toggles.show_testimonials !== false && <Testimonials data={data?.testimonials} toggles={toggles} headings={headings.testimonials} />}
 
         {/* 11. Students from */}
-        {toggles.show_students_from !== false && <StudentsFrom data={data?.studentsFrom} />}
+        {toggles.show_students_from !== false && <StudentsFrom data={data?.studentsFrom} headings={headings.students_from} />}
         
         {/* 12. Ecosystem Partners */}
-        {toggles.show_partners !== false && <EcosystemPartners data={data?.partners} />}
+        {toggles.show_partners !== false && <EcosystemPartners data={data?.partners} headings={headings.partners} />}
 
         {/* 13. Certifications */}
         <Certifications data={data?.certifications} />
 
         {/* 14. Upcoming Programs */}
-        {toggles.show_programs !== false && <Programs data={data?.programs} />}
+        {toggles.show_programs !== false && <Programs data={data?.programs} headings={headings.programs} />}
 
         {/* 15. Contact Enquiry form */}
         <Contact />
 
         {/* 16. Founders Image + Manifesto */}
-        {toggles.show_founder_manifesto !== false && <FounderManifesto />}
+        {toggles.show_founder_manifesto !== false && <FounderManifesto headings={headings.founder_manifesto} />}
         
         {/* 17. Startups Mentored (Placing here as additional content) */}
-        {toggles.show_startups !== false && <StartupsMentored data={data?.mentoredStartups} />}
+        {toggles.show_startups !== false && <StartupsMentored data={data?.mentoredStartups} headings={headings.startups_mentored} />}
+        
+        {/* 18. Bottom Video Gallery */}
+        <BottomVideoGallery data={data?.bottomVideos} />
         
         </div>
       </main>

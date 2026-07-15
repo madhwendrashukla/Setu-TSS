@@ -42,7 +42,7 @@ const CATEGORIES = [
     }
 ];
 
-export function ToolsShowcase({ toggles = {} }: { toggles?: any }) {
+export function ToolsShowcase({ toggles = {}, headings = {} }: { toggles?: any, headings?: any }) {
     const displayCategories = CATEGORIES.map(cat => {
         let rawToggleVal: any = true;
         
@@ -71,12 +71,8 @@ export function ToolsShowcase({ toggles = {} }: { toggles?: any }) {
 
             <div className="max-w-7xl mx-auto px-6 relative z-10 mb-16 text-center">
 
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight mb-4">
-                    Tools &amp; <span className="text-[#A855F7]">Resources.</span>
-                </h2>
-                <p className="text-sm md:text-lg text-text-secondary font-medium max-w-2xl mx-auto leading-relaxed">
-                    Access our curated suite of tools designed to help you raise capital, <br className="hidden md:block" /> build your product, and scale your startup.
-                </p>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight mb-4" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Tools & <span class="text-[#A855F7]">Resources.</span>' }} />
+                <p className="text-sm md:text-lg text-text-secondary font-medium max-w-2xl mx-auto leading-relaxed" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Access our curated suite of tools designed to help you raise capital, <br class="hidden md:block" /> build your product, and scale your startup.' }} />
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-wrap justify-center gap-6">
@@ -100,7 +96,7 @@ export function ToolsShowcase({ toggles = {} }: { toggles?: any }) {
                                     {category.icon}
                                 </div>
                                 {badgeText && (
-                                    <span className={`text-[10px] font-bold tracking-widest uppercase border border-functional-border px-3 py-1.5 rounded-full ${category.status === 'disabled' ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-text-secondary bg-white/5'}`}>
+                                    <span className={`text-[10px] font-bold tracking-widest uppercase border border-functional-border px-3 py-1.5 rounded-full ${category.status === 'disabled' ? 'text-red-400 bg-red-500/10 border-red-500/20' : category.status === 'upcoming' ? 'text-orange-400 bg-white/5' : 'text-text-secondary bg-white/5'}`}>
                                         {badgeText}
                                     </span>
                                 )}

@@ -40,6 +40,7 @@ const NAV_CATEGORIES = [
         title: "Content & Widgets",
         links: [
             { href: "/admin/gallery", label: "Gallery", icon: "fas fa-images" },
+            { href: "/admin/bottom-videos", label: "Bottom Videos", icon: "fas fa-video" },
             { href: "/admin/testimonials", label: "Testimonials", icon: "fas fa-quote-left" },
             { href: "/admin/tools", label: "Tools & Resources", icon: "fas fa-toolbox" },
             { href: "/admin/chat-widgets", label: "Chat Widgets", icon: "fas fa-comment-dots" },

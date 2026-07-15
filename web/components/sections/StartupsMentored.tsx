@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function StartupsMentored({ data = [] }: { data?: any[] }) {
+export function StartupsMentored({ data = [], headings = {} }: { data?: any[], headings?: any }) {
     const startups = data || [];
     if (startups.length === 0) return null;
 
@@ -9,12 +9,8 @@ export function StartupsMentored({ data = [] }: { data?: any[] }) {
     return (
         <section className="card-section py-16 md:py-24">
             <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
-                <h2 className="text-2xl md:text-4xl font-black text-text-primary tracking-tight mb-6">
-                    Startups Mentored By Us
-                </h2>
-                <p className="text-text-secondary text-lg max-w-2xl mx-auto">
-                    We take pride in guiding passionate founders from the idea stage all the way to product-market fit and beyond.
-                </p>
+                <h2 className="text-2xl md:text-4xl font-black text-text-primary tracking-tight mb-6" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Startups Mentored By Us' }} />
+                <p className="text-text-secondary text-lg max-w-2xl mx-auto" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'We take pride in guiding passionate founders from the idea stage all the way to product-market fit and beyond.' }} />
             </div>
 
             <div className="relative w-full overflow-hidden flex items-center justify-center py-8">

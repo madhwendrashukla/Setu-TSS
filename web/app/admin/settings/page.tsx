@@ -5,7 +5,7 @@ export default function AdminSettings() {
     const [settings, setSettings] = useState<any>({});
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [formData, setFormData] = useState({ address: "", contact_email: "", contact_phone: "", section_toggles: {} as any });
+    const [formData, setFormData] = useState({ address: "", contact_email: "", contact_phone: "", section_toggles: {} as any, section_headings: {} as any });
     const [promoData, setPromoData] = useState({ title: "", button_text: "", button_link: "", price_text: "", subtext: "", is_active: false });
     const [savingPromo, setSavingPromo] = useState(false);
     const [savedPromo, setSavedPromo] = useState(false);
@@ -19,12 +19,15 @@ export default function AdminSettings() {
             .then(data => {
                 setSettings(data);
                 let toggles = {};
+                let headings = {};
                 try { toggles = typeof data.section_toggles === 'string' ? JSON.parse(data.section_toggles) : (data.section_toggles || {}); } catch(e) {}
+                try { headings = typeof data.section_headings === 'string' ? JSON.parse(data.section_headings) : (data.section_headings || {}); } catch(e) {}
                 setFormData({ 
                     address: data.address ?? "", 
                     contact_email: data.contact_email ?? "", 
                     contact_phone: data.contact_phone ?? "",
-                    section_toggles: toggles
+                    section_toggles: toggles,
+                    section_headings: headings
                 });
             })
             .catch(console.error);
@@ -168,24 +171,53 @@ export default function AdminSettings() {
                             { key: 'tool_incubators', label: 'Incubators & Accelerators' },
                             { key: 'tool_investors', label: 'Investor Database' }
                         ].map((section) => {
+                            let currentVal = 'live';
                             const val = formData.section_toggles[section.key];
-                            const status = typeof val === 'boolean' ? (val ? 'live' : 'disabled') : (val || 'live');
+                            if (typeof val === 'boolean') {
+                                currentVal = val ? 'live' : 'disabled';
+                            } else if (typeof val === 'string') {
+                                currentVal = val;
+                            }
+                            
+                            const isVisible = currentVal !== 'disabled' && currentVal !== 'disabled_live' && currentVal !== 'disabled_upcoming' && currentVal !== false;
+                            const isLive = currentVal === 'live' || currentVal === 'disabled_live' || currentVal === true || currentVal === 'disabled';
+
+                            const handleVisibilityChange = (checked: boolean) => {
+                                const newVal = checked ? (isLive ? 'live' : 'upcoming') : (isLive ? 'disabled_live' : 'disabled_upcoming');
+                                setFormData({ ...formData, section_toggles: { ...formData.section_toggles, [section.key]: newVal } });
+                            };
+
+                            const handleStatusChange = (statusStr: string) => {
+                                const liveChecked = statusStr === 'live';
+                                const newVal = isVisible ? (liveChecked ? 'live' : 'upcoming') : (liveChecked ? 'disabled_live' : 'disabled_upcoming');
+                                setFormData({ ...formData, section_toggles: { ...formData.section_toggles, [section.key]: newVal } });
+                            };
+
                             return (
-                                <div key={section.key} className="flex flex-col gap-2 p-4 border border-gray-100 rounded bg-gray-50">
+                                <div key={section.key} className="flex flex-col gap-3 p-4 border border-gray-100 rounded bg-gray-50">
                                     <span className="text-gray-700 font-medium">{section.label}</span>
-                                    <select
-                                        value={status}
-                                        onChange={e => setFormData({
-                                            ...formData, 
-                                            section_toggles: { ...formData.section_toggles, [section.key]: e.target.value }
-                                        })}
-                                        className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-accent-blue"
-                                    >
-                                        <option value="live">Live</option>
-                                        <option value="coming_soon">Coming Soon</option>
-                                        <option value="upcoming">Upcoming</option>
-                                        <option value="disabled">Disabled (Hidden)</option>
-                                    </select>
+                                    <div className="flex items-center gap-4 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm w-full">
+                                        <label className="flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+                                            <span className="text-xs font-bold text-gray-600 mr-2">Visible</span>
+                                            <div className="relative">
+                                                <input type="checkbox" className="sr-only" checked={isVisible} onChange={e => handleVisibilityChange(e.target.checked)} />
+                                                <div className={`block w-8 h-5 rounded-full transition-colors ${isVisible ? 'bg-accent-blue' : 'bg-gray-300'}`}></div>
+                                                <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${isVisible ? 'transform translate-x-3' : ''}`}></div>
+                                            </div>
+                                        </label>
+                                        <div className="w-px h-5 bg-gray-200"></div>
+                                        <div className="flex flex-1 items-center gap-2">
+                                            <span className="text-xs font-bold text-gray-600">Status:</span>
+                                            <select 
+                                                value={isLive ? 'live' : 'upcoming'}
+                                                onChange={e => handleStatusChange(e.target.value)}
+                                                className="bg-gray-50 border border-gray-200 text-xs rounded focus:ring-accent-blue focus:border-accent-blue block w-full p-1 font-semibold text-gray-700 outline-none"
+                                            >
+                                                <option value="live">Live</option>
+                                                <option value="upcoming">Upcoming</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         })}
@@ -215,6 +247,7 @@ export default function AdminSettings() {
                             </label>
                         ))}
                     </div>
+
 
                     <div className="flex items-center gap-4 mt-6">
                         <button type="submit" disabled={saving} className="bg-accent-blue text-white font-bold px-6 py-3 rounded hover:bg-[#6D28D9] transition-colors disabled:opacity-50">

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-export function Programs({ data = [] }: { data?: any[] }) {
+export function Programs({ data = [], headings = {} }: { data?: any[], headings?: any }) {
     const defaultPrograms = [
         { id: 1, title: '7 days Sprint', subtitle: 'The Spark', description: 'A rapid 7-day intensive to kickstart your journey.', cta_text: 'Apply Now' },
         { id: 2, title: '45 days intensive', subtitle: 'The Transformation', description: 'A deep dive into transforming your startup idea into reality.', cta_text: 'Apply Now' }
@@ -19,12 +19,8 @@ export function Programs({ data = [] }: { data?: any[] }) {
 
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <div className="mb-4 text-base md:text-lg font-bold tracking-tight text-text-secondary">
-                        For all those who have <span className="text-[#A855F7]">'KEEDA'</span> and <span className="text-[#A855F7]">'HIMMAT'</span>
-                    </div>
-                    <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-6">
-                        Programs Launching Soon
-                    </h2>
+                    <div className="mb-4 text-base md:text-lg font-bold tracking-tight text-text-secondary" dangerouslySetInnerHTML={{ __html: headings?.subtitle || `For all those who have <span class="text-[#A855F7]">'KEEDA'</span> and <span class="text-[#A855F7]">'HIMMAT'</span>` }} />
+                    <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-6" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Programs Launching Soon' }} />
                     <div className="w-12 h-0.5 bg-[#A855F7] mx-auto rounded-full"></div>
                 </div>
 

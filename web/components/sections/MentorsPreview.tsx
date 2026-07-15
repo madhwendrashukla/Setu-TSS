@@ -50,7 +50,7 @@ const MentorCard = ({ mentor }: { mentor: MentorProfile }) => (
     </div>
 );
 
-export function MentorsPreview({ data = [] }: { data?: MentorProfile[] }) {
+export function MentorsPreview({ data = [], headings = {} }: { data?: MentorProfile[], headings?: any }) {
     // Duplicate for seamless infinite loop
     const track = [...data, ...data];
 
@@ -62,19 +62,8 @@ export function MentorsPreview({ data = [] }: { data?: MentorProfile[] }) {
             {/* Heading */}
             <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
                 <div className="max-w-3xl mx-auto">
-                    <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-4 leading-[1.15]">
-                        Learn from <br className="hidden md:block" /> people who've <span className="text-[#A855F7]">built.</span>
-                    </h2>
-                    <div className="flex items-center justify-center gap-4 mt-8">
-                        <div className="h-px bg-white/10 w-12 md:w-24"></div>
-                        <span className="text-text-primary/40 font-bold text-xs md:text-sm uppercase tracking-widest">Trusted By</span>
-                        <div className="flex flex-wrap items-center gap-4 text-text-secondary font-medium text-sm md:text-base">
-                            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-[#A855F7]"></div> IIT Alumni</span>
-                            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-[#A855F7]"></div> IIM Alumni</span>
-                            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-[#A855F7]"></div> Startup Founders</span>
-                            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-[#A855F7]"></div> Industry Specialists</span>
-                        </div>
-                    </div>
+                    <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-4 leading-[1.15]" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Learn from <br class="hidden md:block" /> people who\'ve <span class="text-[#A855F7]">built.</span>' }} />
+
                 </div>
             </div>
 

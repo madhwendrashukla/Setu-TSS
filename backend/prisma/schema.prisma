@@ -147,9 +147,21 @@ model SiteSetting {
   contact_phone   String?
   certifications  String   @default("[]")
   section_toggles Json     @default("{}")
+  section_headings Json    @default("{}")
   updated_at      DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model BottomVideoGallery {
+  id            String   @id @default(uuid()) @db.Uuid
+  title         String?
+  youtube_url   String
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  @@map("bottom_video_gallery")
 }
 
 model User {

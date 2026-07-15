@@ -602,7 +602,7 @@ export default function EventBuilderPage() {
         const fetchEvent = async () => {
             try {
                 const token = localStorage.getItem("adminToken");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?all=true`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const data = await res.json();

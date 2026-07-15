@@ -28,7 +28,7 @@ export default function AdminEvents() {
 
     const fetchEvents = () => {
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?all=true`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -219,7 +219,11 @@ export default function AdminEvents() {
                                 <tr key={event.id} className="hover:bg-gray-50 transition-colors group">
                                     <td className="p-5">
                                         <div className="flex flex-col">
-                                            <h3 className="font-bold text-gray-900">{event.title}</h3>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <h3 className="font-bold text-gray-900">{event.title}</h3>
+                                                {event.lms_course_slug && <span className="text-[9px] font-bold uppercase tracking-wider bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full border border-purple-200" title={`Linked to LMS course: ${event.lms_course_slug}`}>LMS</span>}
+                                                {event.is_active === false && <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full border border-amber-200" title="Not visible on the public events page yet">Hidden</span>}
+                                            </div>
                                             {event.slug && <span className="text-xs text-purple-600 mt-1">Slug: {event.slug}</span>}
                                             {event.registration_url && <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent-blue mt-1 hover:underline">{event.registration_url}</a>}
                                         </div>

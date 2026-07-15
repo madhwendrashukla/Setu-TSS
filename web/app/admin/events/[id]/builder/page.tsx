@@ -569,6 +569,7 @@ export default function EventBuilderPage() {
     const [testimonialTab, setTestimonialTab] = useState("text");
     const [adminSources, setAdminSources] = useState<any[]>([]);
     const [globalCoupons, setGlobalCoupons] = useState<any[]>([]);
+    const [lmsCoursePrice, setLmsCoursePrice] = useState<number | null>(null); // rupees — authoritative charge for LMS-linked events
 
     useEffect(() => {
         const fetchSourcesAndCoupons = async () => {
@@ -609,6 +610,16 @@ export default function EventBuilderPage() {
                 const found = data.find((e: any) => e.id === id);
                 if (found) {
                     setEvent(found);
+
+                    // Unified Events: LMS-linked events CHARGE the LMS course
+                    // price at checkout — fetch it so the Pricing tab can warn
+                    // when the display prices disagree with the real charge.
+                    if (found.lms_course_slug) {
+                        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/courses/${found.lms_course_slug}`)
+                            .then(r => (r.ok ? r.json() : null))
+                            .then(c => { if (c && typeof c.price === 'number') setLmsCoursePrice(c.price); })
+                            .catch(() => {});
+                    }
                     
                     let parsedData = typeof found.page_blocks === 'string' ? JSON.parse(found.page_blocks) : (found.page_blocks || {});
                     if (Array.isArray(parsedData)) {
@@ -850,6 +861,15 @@ export default function EventBuilderPage() {
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Pricing</h2>
                             <p className="text-sm text-gray-600 mb-4 bg-yellow-50 border border-yellow-200 p-4 rounded-xl font-medium">Create independent pricing options.</p>
+                            {/* Unified Events: display-vs-charge mismatch warning for LMS-linked events */}
+                            {lmsCoursePrice !== null && (pageData.pricing_options || []).some((o: any) => (o.pricing?.actual_price || 0) !== lmsCoursePrice) && (
+                                <div className="text-sm text-red-800 bg-red-50 border border-red-200 p-4 rounded-xl font-medium">
+                                    <i className="fas fa-triangle-exclamation mr-2"></i>
+                                    This page shows a price that differs from what buyers are actually charged:
+                                    the linked LMS course costs <strong>₹{lmsCoursePrice.toLocaleString('en-IN')}</strong>.
+                                    Update the pricing card{(pageData.pricing_options || []).length > 1 ? 's' : ''} here, or change the course price in the LMS — the checkout always charges the LMS price.
+                                </div>
+                            )}
                             <PricingEditor options={pageData.pricing_options || []} onChange={v => setPageData((prev: any) => ({...prev, pricing_options: typeof v === 'function' ? v(prev.pricing_options || []) : v}))} />
                         </div>
                     )}

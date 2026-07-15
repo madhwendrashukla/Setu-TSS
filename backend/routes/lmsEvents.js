@@ -28,10 +28,10 @@ const prisma = new PrismaClient();
 // follow the rename. page_blocks is never written here: the landing-page
 // design belongs to the website admin's builder.
 
+const { getInternalSecret, verifySignedInternalRequest } = require('../utils/internalAuth');
+
 const router = express.Router();
 
-const SIGNATURE_HEADER = 'x-tss-signature';
-const MAX_CLOCK_SKEW_MS = 5 * 60 * 1000; // replay guard on the signed ts
 const PREVIEW_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 router.use(
@@ -47,23 +47,6 @@ router.use(
 // Raw body — the signature covers these exact bytes.
 router.use(express.raw({ type: () => true, limit: '128kb' }));
 
-function getSecret() {
-  const secret = process.env.LMS_WEBHOOK_SECRET;
-  return secret && secret.length >= 32 ? secret : null;
-}
-
-function verifySignature(req, secret) {
-  const received = req.headers[SIGNATURE_HEADER];
-  if (!received || !Buffer.isBuffer(req.body)) return false;
-  const expected = crypto.createHmac('sha256', secret).update(req.body).digest('hex');
-  const expectedBuf = Buffer.from(expected, 'utf8');
-  const receivedBuf = Buffer.from(String(received), 'utf8');
-  return (
-    expectedBuf.length === receivedBuf.length &&
-    crypto.timingSafeEqual(expectedBuf, receivedBuf)
-  );
-}
-
 // Signed, expiring token that lets /events/[slug] render a HIDDEN event so
 // admins can proof the landing page before "Go live". Format: "<expiry>.<hmac>".
 function makePreviewToken(slug, secret) {
@@ -76,7 +59,7 @@ function makePreviewToken(slug, secret) {
 }
 
 function verifyPreviewToken(slug, token) {
-  const secret = getSecret();
+  const secret = getInternalSecret();
   if (!secret || typeof token !== 'string') return false;
   const dotAt = token.indexOf('.');
   if (dotAt === -1) return false;
@@ -96,24 +79,14 @@ function verifyPreviewToken(slug, token) {
 
 router.post('/publish', async (req, res) => {
   try {
-    const secret = getSecret();
-    if (!secret) {
-      return res.status(503).json({ error: 'LMS sync is not configured' });
+    const auth = verifySignedInternalRequest(req);
+    if (!auth.ok) {
+      return res.status(auth.status).json({ error: auth.error });
     }
-    if (!verifySignature(req, secret)) {
-      return res.status(401).json({ error: 'Invalid signature' });
-    }
-
-    let payload;
-    try {
-      payload = JSON.parse(req.body.toString('utf8'));
-    } catch {
-      return res.status(400).json({ error: 'Invalid JSON body' });
-    }
+    const payload = auth.payload;
 
     const {
       action = 'publish',
-      ts,
       eventId,
       courseSlug,
       title,
@@ -126,9 +99,6 @@ router.post('/publish', async (req, res) => {
       allSessionsCompleted,
     } = payload;
 
-    if (typeof ts !== 'number' || Math.abs(Date.now() - ts) > MAX_CLOCK_SKEW_MS) {
-      return res.status(401).json({ error: 'Stale or missing timestamp' });
-    }
     if (!['publish', 'golive', 'unpublish'].includes(action)) {
       return res.status(400).json({ error: 'Unknown action' });
     }
@@ -189,7 +159,7 @@ router.post('/publish', async (req, res) => {
       }
     }
 
-    const previewToken = makePreviewToken(event.slug, secret);
+    const previewToken = makePreviewToken(event.slug, getInternalSecret());
     res.json({
       eventId: event.id,
       slug: event.slug,

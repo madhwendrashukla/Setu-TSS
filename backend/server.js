@@ -15,12 +15,17 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
 
-// LMS→website sync for Unified Events (routes/lmsEvents.js). Mounted BEFORE
-// express.json() because its HMAC signature covers the exact raw request body.
+// LMS→website internal endpoints for Unified Events. Mounted BEFORE
+// express.json() because their HMAC signatures cover the exact raw body.
 const lmsEventsSync = require('./routes/lmsEvents');
+const adminHandoff = require('./routes/adminHandoff');
 app.use('/api/internal/lms-events', lmsEventsSync.router);
+app.use('/api/internal/admin-handoff', adminHandoff.internalRouter);
 
 app.use(express.json());
+
+// Browser side of the SSO-lite handoff (parsed JSON body).
+app.use('/api/admin/handoff-exchange', adminHandoff.exchangeRouter);
 // Serve uploaded images statically (Removed - now using AWS S3)
 // app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 

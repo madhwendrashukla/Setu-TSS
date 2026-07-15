@@ -14,6 +14,12 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
+
+// LMS→website sync for Unified Events (routes/lmsEvents.js). Mounted BEFORE
+// express.json() because its HMAC signature covers the exact raw request body.
+const lmsEventsSync = require('./routes/lmsEvents');
+app.use('/api/internal/lms-events', lmsEventsSync.router);
+
 app.use(express.json());
 // Serve uploaded images statically (Removed - now using AWS S3)
 // app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
@@ -92,10 +98,25 @@ app.get('/api/events/past-rolling', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to fetch past events' }); }
 });
 
+// With ?all=true and a valid admin JWT, inactive (hidden) events are included —
+// the admin list/builder need to see LMS-published stubs before "Go live".
+function hasValidAdminToken(req) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) return false;
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 app.get('/api/events', async (req, res) => {
   try {
-    const { upcoming, past } = req.query;
+    const { upcoming, past, all } = req.query;
     let whereClause = { is_active: true };
+    if (all === 'true' && hasValidAdminToken(req)) whereClause = {};
     if (upcoming === 'true') whereClause.is_past = false;
     if (past === 'true') whereClause.is_past = true;
     const events = await prisma.event.findMany({ where: whereClause, orderBy: { start_date: 'asc' } });
@@ -105,8 +126,15 @@ app.get('/api/events', async (req, res) => {
 
 app.get('/api/events/slug/:slug', async (req, res) => {
   try {
-    const event = await prisma.event.findUnique({ 
-      where: { slug: req.params.slug, is_active: true }
+    // A valid signed preview token (issued by the LMS publish sync) lets
+    // admins render a HIDDEN event's landing page before "Go live".
+    const preview =
+      typeof req.query.preview === 'string' &&
+      lmsEventsSync.verifyPreviewToken(req.params.slug, req.query.preview);
+    const event = await prisma.event.findUnique({
+      where: preview
+        ? { slug: req.params.slug }
+        : { slug: req.params.slug, is_active: true },
     });
     if (!event) return res.status(404).json({ error: 'Event not found' });
     res.json(event);

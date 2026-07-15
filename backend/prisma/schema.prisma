@@ -47,6 +47,11 @@ model Event {
   is_active   Boolean  @default(true)
   slug        String?  @unique
   page_blocks Json     @default("[]")
+  // Link to an LMS course (Unified Events). Present = this event is the
+  // marketing face of an LMS course; its CTAs route to /courses/<slug> and
+  // the LMS syncs delivery-derived fields (title/dates/banner) via
+  // /api/internal/lms-events. NULL = pure marketing event (legacy flow).
+  lms_course_slug String? @unique
   created_at  DateTime @default(now())
 
   @@map("tss_events")

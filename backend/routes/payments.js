@@ -154,6 +154,58 @@ router.post('/capture-lead', async (req, res) => {
   }
 });
 
+function getPriceFromEvent(event, workshopId, workshopTitle) {
+  if (!event || !event.page_blocks) return null;
+  
+  let pageData;
+  try {
+    pageData = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+  } catch (err) {
+    console.error('Error parsing page_blocks:', err);
+    return null;
+  }
+
+  let serverBasePrice = null;
+
+  const findPrice = (items) => {
+    if (!items || !Array.isArray(items)) return null;
+    for (const item of items) {
+      if ((workshopId && item.id === workshopId) || (workshopTitle && item.title === workshopTitle)) {
+        if (item.pricing && item.pricing.actual_price != null) {
+          return Number(item.pricing.actual_price);
+        }
+      }
+    }
+    return null;
+  };
+
+  if (Array.isArray(pageData)) {
+    // Legacy array format
+    for (const block of pageData) {
+      if (block.type === 'pricing' && block.data && block.data.pricing_options) {
+        serverBasePrice = findPrice(block.data.pricing_options);
+        if (serverBasePrice != null) return serverBasePrice;
+      }
+      if (block.type === 'workshops' && block.data && block.data.items) {
+        serverBasePrice = findPrice(block.data.items);
+        if (serverBasePrice != null) return serverBasePrice;
+      }
+    }
+  } else if (pageData && typeof pageData === 'object') {
+    // Unified JSON format
+    if (pageData.pricing_options) {
+      serverBasePrice = findPrice(pageData.pricing_options);
+      if (serverBasePrice != null) return serverBasePrice;
+    }
+    if (pageData.workshops) {
+      serverBasePrice = findPrice(pageData.workshops);
+      if (serverBasePrice != null) return serverBasePrice;
+    }
+  }
+  
+  return serverBasePrice;
+}
+
 // Create Order Route — accepts guest token OR regular JWT
 router.post('/create-order', flexAuth, async (req, res) => {
   try {
@@ -165,6 +217,51 @@ router.post('/create-order', flexAuth, async (req, res) => {
     if (finalPrice == null || isNaN(finalPrice)) {
       return res.status(400).json({ error: 'Invalid final price' });
     }
+
+    // --- SECURE PRICING CHECK ---
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(actualEventId);
+    const event = await prisma.event.findFirst({
+      where: {
+        OR: [
+          { slug: actualEventId },
+          ...(isUuid ? [{ id: actualEventId }] : [])
+        ]
+      }
+    });
+
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    let serverBasePrice = getPriceFromEvent(event, workshopId, workshopTitle);
+    
+    if (serverBasePrice !== null) {
+      let expectedFinalPrice = serverBasePrice;
+      
+      if (couponCode) {
+        const coupon = await prisma.coupon.findUnique({
+          where: { code: couponCode.toUpperCase() }
+        });
+        if (coupon && coupon.is_active) {
+          let discount = 0;
+          if (coupon.type === 'percentage') {
+            discount = Math.floor(serverBasePrice * (coupon.discount_value / 100));
+          } else {
+            discount = coupon.discount_value;
+          }
+          expectedFinalPrice = Math.max(0, serverBasePrice - discount);
+        }
+      }
+      
+      if (expectedFinalPrice !== finalPrice) {
+        return res.status(400).json({ 
+          error: `Price mismatch. Expected ₹${expectedFinalPrice} but got ₹${finalPrice}. Please refresh the page and try again.` 
+        });
+      }
+    } else {
+      console.warn(`Could not find server price for event ${actualEventId}, workshop ${workshopTitle}. Falling back to client price.`);
+    }
+    // ----------------------------
 
     const options = {
       amount: Math.round(finalPrice * 100), // paise

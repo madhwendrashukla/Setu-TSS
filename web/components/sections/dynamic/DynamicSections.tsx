@@ -17,11 +17,18 @@ const DynamicContact = dynamic(() => import("./DynamicContact").then(mod => mod.
 const DynamicCheckoutModal = dynamic(() => import("./DynamicCheckoutModal").then(mod => mod.DynamicCheckoutModal));
 const WorkshopNudgeCTA = dynamic(() => import("./WorkshopNudgeCTA").then(mod => mod.WorkshopNudgeCTA));
 
-export function DynamicSections({ pageData, eventSlug }: { pageData: PageData, eventSlug?: string }) {
+export function DynamicSections({ pageData, eventSlug, lmsCourseSlug }: { pageData: PageData, eventSlug?: string, lmsCourseSlug?: string | null }) {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
 
     const handleCheckoutClick = (workshopId: string) => {
+        // Unified Events: an LMS-linked event sells through the COURSE checkout
+        // (account + enrollment + welcome email), never the event-registration
+        // modal — otherwise buyers pay without getting LMS access.
+        if (lmsCourseSlug) {
+            window.location.href = `/courses/${lmsCourseSlug}`;
+            return;
+        }
         setSelectedWorkshopId(workshopId);
         setIsCheckoutOpen(true);
     };

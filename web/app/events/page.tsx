@@ -47,7 +47,17 @@ async function getEvents() {
 }
 
 export default async function EventsPage() {
-    const [{ upcoming, past }, courses] = await Promise.all([getEvents(), getCourses()]);
+    const [{ upcoming, past }, allCourses] = await Promise.all([getEvents(), getCourses()]);
+
+    // Unified Events: a course linked to a LIVE event appears exactly once —
+    // as that event's card (builder landing page). While its event is still
+    // hidden (publish → design phase) the course card keeps covering it here.
+    const linkedSlugs = new Set(
+        [...upcoming, ...past]
+            .map((e: any) => e.lms_course_slug)
+            .filter((s: string | null): s is string => Boolean(s))
+    );
+    const courses = allCourses.filter((c) => !linkedSlugs.has(c.slug));
 
     return (
         <div className="pt-32 pb-20 min-h-screen bg-bg-main">

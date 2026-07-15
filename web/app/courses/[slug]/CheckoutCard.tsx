@@ -35,12 +35,54 @@ function loadRazorpayScript(): Promise<boolean> {
 
 type Status = "idle" | "paying" | "success" | "error";
 
+type AppliedCoupon = {
+    code: string;
+    amount: number; // paise payable after discount
+    discount: number; // paise
+    originalAmount: number; // paise
+};
+
 export default function CheckoutCard({ slug, title, price }: { slug: string; title: string; price: number }) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [status, setStatus] = useState<Status>("idle");
     const [error, setError] = useState<string | null>(null);
+    const [couponInput, setCouponInput] = useState("");
+    const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+    const [couponError, setCouponError] = useState<string | null>(null);
+    const [couponChecking, setCouponChecking] = useState(false);
+
+    const applyCoupon = async () => {
+        const code = couponInput.trim();
+        if (!code) return;
+        setCouponChecking(true);
+        setCouponError(null);
+        try {
+            const res = await fetch(`${API}/api/course-payments/validate-coupon`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ slug, code, email: email || undefined }),
+            });
+            const data = await res.json();
+            if (!res.ok || !data.valid) {
+                setCoupon(null);
+                setCouponError(data.error || "Invalid coupon code");
+            } else {
+                setCoupon({
+                    code: data.code,
+                    amount: data.amount,
+                    discount: data.discount,
+                    originalAmount: data.originalAmount,
+                });
+            }
+        } catch {
+            setCoupon(null);
+            setCouponError("Could not check the coupon — please retry");
+        } finally {
+            setCouponChecking(false);
+        }
+    };
 
     // The LMS is login-access-only (no self-enrollment), so free offerings
     // have no self-serve path yet — access is granted by the team
@@ -66,9 +108,14 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
         return (
             <aside className="h-fit rounded-2xl border border-functional-border bg-white p-8 lg:sticky lg:top-28 text-center">
                 <p className="text-2xl font-black text-functional-success mb-3">Payment successful 🎉</p>
-                <p className="text-sm text-text-secondary leading-relaxed mb-6">
+                <p className="text-sm text-text-secondary leading-relaxed mb-4">
                     You&apos;re enrolled in <strong>{title}</strong>. Check <strong>{email}</strong> for
-                    your LMS login details (new students receive a temporary password).
+                    your login details (new students receive a temporary password).
+                </p>
+                {/* Until the domain + transactional-email cutover, welcome emails
+                    can land in spam — never leave a paying student stranded. */}
+                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-6">
+                    Can&apos;t find the email? Check your <strong>spam folder</strong> — it sometimes lands there.
                 </p>
                 <a
                     href="/lms/login"
@@ -93,6 +140,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     name,
                     email,
                     phone: phone || undefined,
+                    couponCode: coupon?.code || undefined,
                     utmSource: new URLSearchParams(window.location.search).get("utm_source") || undefined,
                     utmMedium: new URLSearchParams(window.location.search).get("utm_medium") || undefined,
                     utmCampaign: new URLSearchParams(window.location.search).get("utm_campaign") || undefined,
@@ -143,7 +191,21 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
 
     return (
         <aside className="h-fit rounded-2xl border border-functional-border bg-white p-8 lg:sticky lg:top-28">
-            <p className="text-3xl font-black text-text-primary mb-6">{formatPrice(price)}</p>
+            {coupon ? (
+                <div className="mb-6">
+                    <p className="text-3xl font-black text-text-primary">
+                        {`₹${(coupon.amount / 100).toLocaleString('en-IN')}`}
+                        <span className="ml-3 text-lg font-semibold text-text-secondary line-through">
+                            {formatPrice(price)}
+                        </span>
+                    </p>
+                    <p className="mt-1 text-xs font-semibold text-green-700">
+                        Coupon {coupon.code} applied — you save ₹{(coupon.discount / 100).toLocaleString('en-IN')}
+                    </p>
+                </div>
+            ) : (
+                <p className="text-3xl font-black text-text-primary mb-6">{formatPrice(price)}</p>
+            )}
             <form onSubmit={pay} className="space-y-4">
                 <input
                     type="text"
@@ -168,6 +230,37 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full rounded-lg border border-functional-border px-4 py-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-blue"
                 />
+                {coupon ? (
+                    <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+                        <span className="text-sm font-semibold text-green-700">{coupon.code}</span>
+                        <button
+                            type="button"
+                            onClick={() => { setCoupon(null); setCouponInput(""); setCouponError(null); }}
+                            className="text-xs font-semibold text-green-700 underline hover:text-green-900"
+                        >
+                            Remove
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            placeholder="Coupon code (optional)"
+                            value={couponInput}
+                            onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null); }}
+                            className="flex-1 rounded-lg border border-functional-border px-4 py-3 text-sm text-text-primary uppercase focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        />
+                        <button
+                            type="button"
+                            onClick={applyCoupon}
+                            disabled={couponChecking || !couponInput.trim()}
+                            className="rounded-lg border border-functional-border px-4 py-3 text-sm font-semibold text-text-primary disabled:opacity-50"
+                        >
+                            {couponChecking ? "Checking…" : "Apply"}
+                        </button>
+                    </div>
+                )}
+                {couponError && <p className="text-xs text-red-600">{couponError}</p>}
                 <button
                     type="submit"
                     disabled={status === "paying"}

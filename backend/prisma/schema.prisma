@@ -353,6 +353,8 @@ model CourseOrder {
   buyer_phone         String?
   status              String            @default("created")
   webhook_status      String?
+  coupon_code         String? // uppercased Coupon.code applied at order creation
+  discount_amount     Int? // paise knocked off by the coupon (audit trail)
   utm_source          String?
   utm_medium          String?
   utm_campaign        String?

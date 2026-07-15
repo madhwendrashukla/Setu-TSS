@@ -89,14 +89,14 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
     // (LMS admin manual enrollment) until a ₹0 flow is built.
     if (price <= 0) {
         return (
-            <aside className="h-fit rounded-2xl border border-functional-border bg-white p-8 lg:sticky lg:top-28">
-                <p className="text-3xl font-black text-text-primary mb-4">Free</p>
-                <p className="text-sm text-text-secondary leading-relaxed mb-6">
+            <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] lg:sticky lg:top-28">
+                <p className="text-3xl font-black text-[#0B1120] mb-4">Free</p>
+                <p className="text-sm text-slate-600 leading-relaxed mb-6">
                     Access to this free workshop is provided by The Startup School team.
                 </p>
                 <a
                     href="/lms/login"
-                    className="block w-full rounded-full bg-gradient-primary text-white text-center font-semibold py-3"
+                    className="block w-full rounded-full bg-accent-violet text-white text-center font-bold py-3 transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5"
                 >
                     Already enrolled? Log in →
                 </a>
@@ -106,9 +106,9 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
 
     if (status === "success") {
         return (
-            <aside className="h-fit rounded-2xl border border-functional-border bg-white p-8 lg:sticky lg:top-28 text-center">
-                <p className="text-2xl font-black text-functional-success mb-3">Payment successful 🎉</p>
-                <p className="text-sm text-text-secondary leading-relaxed mb-4">
+            <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] lg:sticky lg:top-28 text-center">
+                <p className="text-2xl font-black text-green-600 mb-3">Payment successful 🎉</p>
+                <p className="text-sm text-slate-600 leading-relaxed mb-4">
                     You&apos;re enrolled in <strong>{title}</strong>. Check <strong>{email}</strong> for
                     your login details (new students receive a temporary password).
                 </p>
@@ -119,7 +119,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                 </p>
                 <a
                     href="/lms/login"
-                    className="block w-full rounded-full bg-gradient-primary text-white text-center font-semibold py-3"
+                    className="block w-full rounded-full bg-accent-violet text-white text-center font-bold py-3 transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5"
                 >
                     Log in to the LMS →
                 </a>
@@ -190,12 +190,12 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
     };
 
     return (
-        <aside className="h-fit rounded-2xl border border-functional-border bg-white p-8 lg:sticky lg:top-28">
+        <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] lg:sticky lg:top-28">
             {coupon ? (
                 <div className="mb-6">
-                    <p className="text-3xl font-black text-text-primary">
+                    <p className="text-3xl font-black text-[#0B1120]">
                         {`₹${(coupon.amount / 100).toLocaleString('en-IN')}`}
-                        <span className="ml-3 text-lg font-semibold text-text-secondary line-through">
+                        <span className="ml-3 text-lg font-semibold text-slate-400 line-through">
                             {formatPrice(price)}
                         </span>
                     </p>
@@ -204,7 +204,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     </p>
                 </div>
             ) : (
-                <p className="text-3xl font-black text-text-primary mb-6">{formatPrice(price)}</p>
+                <p className="text-3xl font-black text-[#0B1120] mb-6">{formatPrice(price)}</p>
             )}
             <form onSubmit={pay} className="space-y-4">
                 <input
@@ -213,7 +213,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     placeholder="Full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-lg border border-functional-border px-4 py-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
                 />
                 <input
                     type="email"
@@ -221,14 +221,14 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     placeholder="Email (your LMS login)"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-lg border border-functional-border px-4 py-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
                 />
                 <input
                     type="tel"
                     placeholder="Phone (optional)"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full rounded-lg border border-functional-border px-4 py-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
                 />
                 {coupon ? (
                     <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3">
@@ -248,13 +248,13 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                             placeholder="Coupon code (optional)"
                             value={couponInput}
                             onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null); }}
-                            className="flex-1 rounded-lg border border-functional-border px-4 py-3 text-sm text-text-primary uppercase focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                            className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 uppercase placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
                         />
                         <button
                             type="button"
                             onClick={applyCoupon}
                             disabled={couponChecking || !couponInput.trim()}
-                            className="rounded-lg border border-functional-border px-4 py-3 text-sm font-semibold text-text-primary disabled:opacity-50"
+                            className="rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                         >
                             {couponChecking ? "Checking…" : "Apply"}
                         </button>
@@ -264,13 +264,13 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                 <button
                     type="submit"
                     disabled={status === "paying"}
-                    className="w-full rounded-full bg-gradient-primary text-white font-semibold py-3 disabled:opacity-60"
+                    className="w-full rounded-full bg-accent-violet text-white font-bold py-3 transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 >
                     {status === "paying" ? "Opening checkout…" : "Buy now"}
                 </button>
             </form>
             {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-            <p className="mt-4 text-xs text-text-secondary leading-relaxed">
+            <p className="mt-4 text-xs text-slate-500 leading-relaxed">
                 Secure payment via Razorpay. After payment you&apos;ll get LMS access with
                 credentials sent to your email.
             </p>

@@ -206,6 +206,69 @@ async function fulfillOrder(order, razorpayPaymentId) {
   }
 }
 
+// POST /api/course-payments/enroll-free
+// Self-serve enrollment for FREE courses (Unified Events WP-11). The course
+// must be PUBLISHED (getCourseBySlug filters) and actually priced 0 — the
+// client's claim that something is free is never trusted. No Razorpay
+// involved: a zero-amount order is recorded and the same signed enrollment
+// webhook provisions the LMS account (paymentStatus 'free').
+router.post('/enroll-free', async (req, res) => {
+  try {
+    const { slug, email, name, phone, utmSource, utmMedium, utmCampaign } = req.body;
+    if (!slug || !email || !name) {
+      return res.status(400).json({ error: 'slug, email and name are required' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    const course = await getCourseBySlug(slug);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    if (course.price > 0) {
+      return res.status(400).json({ error: 'This course is paid — use the checkout' });
+    }
+
+    const order = await prisma.courseOrder.create({
+      data: {
+        lms_course_id: course.id,
+        course_slug: course.slug,
+        course_title: course.title,
+        amount: 0,
+        currency: 'INR',
+        buyer_email: email.trim().toLowerCase(),
+        buyer_name: name.trim(),
+        buyer_phone: phone?.trim() || null,
+        status: 'paid', // fulfilled immediately — nothing to collect
+        webhook_status: 'pending',
+        utm_source: utmSource || null,
+        utm_medium: utmMedium || null,
+        utm_campaign: utmCampaign || null,
+      },
+    });
+
+    // Same fire-and-forget dispatch as paid orders; duplicates come back as
+    // 409 from the LMS and count as delivered (no double enrollment).
+    sendEnrollmentWebhook({
+      id: order.id,
+      buyerEmail: order.buyer_email,
+      buyerName: order.buyer_name,
+      lmsCourseId: order.lms_course_id,
+      razorpayOrderId: `free_${order.id}`,
+      paymentStatus: 'free',
+      utmSource: order.utm_source,
+      utmMedium: order.utm_medium,
+      utmCampaign: order.utm_campaign,
+    }).catch((err) => console.error('Webhook dispatch error:', err));
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error in free enrollment:', error);
+    res.status(500).json({ error: 'Failed to enroll' });
+  }
+});
+
 // POST /api/course-payments/verify
 // Standard Razorpay checkout signature check:
 // HMAC-SHA256(order_id|payment_id, key_secret) must equal razorpay_signature.

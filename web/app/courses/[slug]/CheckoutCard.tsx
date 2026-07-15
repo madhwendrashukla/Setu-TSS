@@ -84,22 +84,72 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
         }
     };
 
-    // The LMS is login-access-only (no self-enrollment), so free offerings
-    // have no self-serve path yet — access is granted by the team
-    // (LMS admin manual enrollment) until a ₹0 flow is built.
-    if (price <= 0) {
+    const enrollFree = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setStatus("paying");
+        try {
+            const res = await fetch(`${API}/api/course-payments/enroll-free`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    slug,
+                    name,
+                    email,
+                    phone: phone || undefined,
+                    utmSource: new URLSearchParams(window.location.search).get("utm_source") || undefined,
+                    utmMedium: new URLSearchParams(window.location.search).get("utm_medium") || undefined,
+                    utmCampaign: new URLSearchParams(window.location.search).get("utm_campaign") || undefined,
+                }),
+            });
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(body.error || "Could not enroll — please retry");
+            setStatus("success");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Something went wrong");
+            setStatus("error");
+        }
+    };
+
+    if (price <= 0 && status !== "success") {
         return (
             <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] lg:sticky lg:top-28">
                 <p className="text-3xl font-black text-[#0B1120] mb-4">Free</p>
                 <p className="text-sm text-slate-600 leading-relaxed mb-6">
-                    Access to this free workshop is provided by The Startup School team.
+                    Enroll with your email — your login details arrive in your inbox.
                 </p>
-                <a
-                    href="/lms/login"
-                    className="block w-full rounded-full bg-accent-violet text-white text-center font-bold py-3 transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5"
-                >
-                    Already enrolled? Log in →
-                </a>
+                <form onSubmit={enrollFree} className="space-y-4">
+                    <input
+                        type="text"
+                        required
+                        placeholder="Full name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
+                    />
+                    <input
+                        type="email"
+                        required
+                        placeholder="Email (your LMS login)"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
+                    />
+                    <button
+                        type="submit"
+                        disabled={status === "paying"}
+                        className="w-full rounded-full bg-accent-violet text-white font-bold py-3 transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                    >
+                        {status === "paying" ? "Enrolling…" : "Enroll free"}
+                    </button>
+                </form>
+                {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+                <p className="mt-4 text-xs text-slate-500">
+                    Already enrolled?{' '}
+                    <a href="/lms/login" className="text-accent-blue font-semibold hover:underline">
+                        Log in →
+                    </a>
+                </p>
             </aside>
         );
     }
@@ -107,7 +157,9 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
     if (status === "success") {
         return (
             <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] lg:sticky lg:top-28 text-center">
-                <p className="text-2xl font-black text-green-600 mb-3">Payment successful 🎉</p>
+                <p className="text-2xl font-black text-green-600 mb-3">
+                    {price <= 0 ? "You're enrolled 🎉" : "Payment successful 🎉"}
+                </p>
                 <p className="text-sm text-slate-600 leading-relaxed mb-4">
                     You&apos;re enrolled in <strong>{title}</strong>. Check <strong>{email}</strong> for
                     your login details (new students receive a temporary password).

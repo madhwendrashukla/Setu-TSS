@@ -29,6 +29,9 @@ async function sendOnce(order, attempt) {
     name: order.buyerName,
     courseId: order.lmsCourseId,
     paymentId: order.razorpayOrderId,
+    // 'free' only for the self-serve free flow; omitted for paid orders
+    // (the receiver defaults to 'paid' — backward compatible)
+    paymentStatus: order.paymentStatus ?? undefined,
     utmSource: order.utmSource ?? undefined,
     utmMedium: order.utmMedium ?? undefined,
     utmCampaign: order.utmCampaign ?? undefined,

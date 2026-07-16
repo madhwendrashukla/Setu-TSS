@@ -17,9 +17,12 @@ const DynamicSchedule = dynamic(() => import("@/components/sections/dynamic/Dyna
 const DynamicFAQ = dynamic(() => import("@/components/sections/dynamic/DynamicFAQ").then(mod => mod.DynamicFAQ), { ssr: true });
 const DynamicContact = dynamic(() => import("@/components/sections/dynamic/DynamicContact").then(mod => mod.DynamicContact), { ssr: true });
 
-async function getEventBySlug(slug: string) {
+async function getEventBySlug(slug: string, previewToken?: string) {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/events/slug/${slug}`, { cache: 'no-store' });
+        // A valid signed preview token (from the LMS publish sync) lets admins
+        // render a HIDDEN event at full fidelity before "Go live".
+        const preview = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/events/slug/${slug}${preview}`, { cache: 'no-store' });
         if (!res.ok) return null;
         return res.json();
     } catch (e) {
@@ -36,9 +39,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-export default async function DynamicEventPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function DynamicEventPage({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams: Promise<{ preview?: string }> }) {
     const resolvedParams = await params;
-    const event = await getEventBySlug(resolvedParams.slug);
+    const { preview } = await searchParams;
+    const event = await getEventBySlug(resolvedParams.slug, preview);
 
     if (!event) {
         return (
@@ -97,7 +101,9 @@ export default async function DynamicEventPage({ params }: { params: Promise<{ s
                         </div>
                         <div className="flex-shrink-0 ml-1 sm:ml-4">
                             {!event.is_past && event.registration_url ? (
-                                <a href={pageData.section_visibility?.pricing ? "#pricing" : "#workshop-breakdown"} className="bg-accent-violet text-white px-3 sm:px-5 py-1.5 sm:py-2 md:px-8 md:py-2.5 rounded-full text-[10px] sm:text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block">
+                                // LMS-linked events sell through the course checkout
+                                // (account + enrollment + welcome email)
+                                <a href={event.lms_course_slug ? `/courses/${event.lms_course_slug}` : (pageData.section_visibility?.pricing ? "#pricing" : "#workshop-breakdown")} className="bg-accent-violet text-white px-3 sm:px-5 py-1.5 sm:py-2 md:px-8 md:py-2.5 rounded-full text-[10px] sm:text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block">
                                     Enroll Now
                                 </a>
                             ) : (
@@ -132,7 +138,7 @@ export default async function DynamicEventPage({ params }: { params: Promise<{ s
                     })
                 ) : (
                     // New Unified Support
-                    <DynamicSections pageData={pageData} eventSlug={event.slug} />
+                    <DynamicSections pageData={pageData} eventSlug={event.slug} lmsCourseSlug={event.lms_course_slug} />
                 )}
             </main>
 

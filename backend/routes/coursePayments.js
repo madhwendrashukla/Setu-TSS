@@ -7,6 +7,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { getCourseBySlug } = require('../utils/lmsDb');
 const { sendEnrollmentWebhook } = require('../utils/lmsWebhook');
+const { validateCouponForCourse, applyCouponPaise, recordCouponUsage } = require('../utils/coupons');
 
 // Lazy so the backend still boots (and every non-payment route works) when
 // Razorpay keys aren't configured yet; payment routes then 503 cleanly.
@@ -44,7 +45,7 @@ router.post('/create-order', async (req, res) => {
     if (!razorpay) {
       return res.status(503).json({ error: 'Payments are not configured yet' });
     }
-    const { slug, email, name, phone, utmSource, utmMedium, utmCampaign } = req.body;
+    const { slug, email, name, phone, couponCode, utmSource, utmMedium, utmCampaign } = req.body;
     if (!slug || !email || !name) {
       return res.status(400).json({ error: 'slug, email and name are required' });
     }
@@ -57,12 +58,30 @@ router.post('/create-order', async (req, res) => {
       return res.status(404).json({ error: 'Course not found' });
     }
     if (course.price <= 0) {
-      return res.status(400).json({ error: 'This course is free — enroll directly on the LMS' });
+      return res.status(400).json({ error: 'This course is free — use the free enrollment option' });
     }
 
     // The LMS stores Course.price in RUPEES; Razorpay (and our order
     // records) work in PAISE. Convert exactly once, here.
-    const amountPaise = Math.round(course.price * 100);
+    const originalPaise = Math.round(course.price * 100);
+
+    // Coupons are validated and priced entirely server-side — an invalid code
+    // fails the order loudly rather than silently charging full price.
+    let amountPaise = originalPaise;
+    let discountPaise = 0;
+    let appliedCoupon = null;
+    if (couponCode) {
+      const check = await validateCouponForCourse({
+        code: couponCode,
+        email: email.trim().toLowerCase(),
+        courseSlug: course.slug,
+      });
+      if (!check.ok) {
+        return res.status(400).json({ error: check.error });
+      }
+      appliedCoupon = check.coupon;
+      ({ amount: amountPaise, discount: discountPaise } = applyCouponPaise(originalPaise, appliedCoupon));
+    }
 
     const order = await prisma.courseOrder.create({
       data: {
@@ -74,6 +93,8 @@ router.post('/create-order', async (req, res) => {
         buyer_email: email.trim().toLowerCase(),
         buyer_name: name.trim(),
         buyer_phone: phone?.trim() || null,
+        coupon_code: appliedCoupon ? appliedCoupon.code : null,
+        discount_amount: appliedCoupon ? discountPaise : null,
         utm_source: utmSource || null,
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
@@ -96,6 +117,9 @@ router.post('/create-order', async (req, res) => {
       orderId: order.id,
       razorpayOrderId: razorpayOrder.id,
       amount: amountPaise, // paise — what Razorpay checkout expects
+      originalAmount: originalPaise, // paise, pre-coupon
+      discount: discountPaise, // paise
+      couponCode: appliedCoupon ? appliedCoupon.code : null,
       currency: 'INR',
       keyId: process.env.RAZORPAY_KEY_ID,
       courseTitle: course.title,
@@ -103,6 +127,48 @@ router.post('/create-order', async (req, res) => {
   } catch (error) {
     console.error('Error creating payment order:', error);
     res.status(500).json({ error: 'Failed to create payment order' });
+  }
+});
+
+// POST /api/course-payments/validate-coupon
+// Instant checkout feedback: validates the code against the shared coupon
+// system AND returns the exact discounted price for THIS course, all
+// server-side. create-order re-validates — this response is display-only.
+router.post('/validate-coupon', async (req, res) => {
+  try {
+    const { slug, code, email } = req.body;
+    if (!slug || !code) {
+      return res.status(400).json({ error: 'slug and code are required' });
+    }
+    const course = await getCourseBySlug(slug);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    if (course.price <= 0) {
+      return res.status(400).json({ error: 'Coupons do not apply to free courses' });
+    }
+    const check = await validateCouponForCourse({
+      code,
+      email: email ? String(email).trim().toLowerCase() : undefined,
+      courseSlug: course.slug,
+    });
+    if (!check.ok) {
+      return res.status(400).json({ valid: false, error: check.error });
+    }
+    const originalPaise = Math.round(course.price * 100);
+    const { amount, discount } = applyCouponPaise(originalPaise, check.coupon);
+    res.json({
+      valid: true,
+      code: check.coupon.code,
+      type: check.coupon.type,
+      discountValue: check.coupon.discount_value,
+      originalAmount: originalPaise,
+      discount,
+      amount,
+    });
+  } catch (error) {
+    console.error('Error validating coupon:', error);
+    res.status(500).json({ error: 'Failed to validate coupon' });
   }
 });
 
@@ -130,7 +196,78 @@ async function fulfillOrder(order, razorpayPaymentId) {
     utmMedium: updated.utm_medium,
     utmCampaign: updated.utm_campaign,
   }).catch((err) => console.error('Webhook dispatch error:', err));
+
+  // Count the coupon use only once the money actually moved. Fire-and-forget:
+  // a failure here must never block enrollment (reconcile from CourseOrder).
+  if (updated.coupon_code) {
+    recordCouponUsage(updated.coupon_code, updated.buyer_email).catch((err) =>
+      console.error('Coupon usage recording error:', err)
+    );
+  }
 }
+
+// POST /api/course-payments/enroll-free
+// Self-serve enrollment for FREE courses (Unified Events WP-11). The course
+// must be PUBLISHED (getCourseBySlug filters) and actually priced 0 — the
+// client's claim that something is free is never trusted. No Razorpay
+// involved: a zero-amount order is recorded and the same signed enrollment
+// webhook provisions the LMS account (paymentStatus 'free').
+router.post('/enroll-free', async (req, res) => {
+  try {
+    const { slug, email, name, phone, utmSource, utmMedium, utmCampaign } = req.body;
+    if (!slug || !email || !name) {
+      return res.status(400).json({ error: 'slug, email and name are required' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    const course = await getCourseBySlug(slug);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    if (course.price > 0) {
+      return res.status(400).json({ error: 'This course is paid — use the checkout' });
+    }
+
+    const order = await prisma.courseOrder.create({
+      data: {
+        lms_course_id: course.id,
+        course_slug: course.slug,
+        course_title: course.title,
+        amount: 0,
+        currency: 'INR',
+        buyer_email: email.trim().toLowerCase(),
+        buyer_name: name.trim(),
+        buyer_phone: phone?.trim() || null,
+        status: 'paid', // fulfilled immediately — nothing to collect
+        webhook_status: 'pending',
+        utm_source: utmSource || null,
+        utm_medium: utmMedium || null,
+        utm_campaign: utmCampaign || null,
+      },
+    });
+
+    // Same fire-and-forget dispatch as paid orders; duplicates come back as
+    // 409 from the LMS and count as delivered (no double enrollment).
+    sendEnrollmentWebhook({
+      id: order.id,
+      buyerEmail: order.buyer_email,
+      buyerName: order.buyer_name,
+      lmsCourseId: order.lms_course_id,
+      razorpayOrderId: `free_${order.id}`,
+      paymentStatus: 'free',
+      utmSource: order.utm_source,
+      utmMedium: order.utm_medium,
+      utmCampaign: order.utm_campaign,
+    }).catch((err) => console.error('Webhook dispatch error:', err));
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error in free enrollment:', error);
+    res.status(500).json({ error: 'Failed to enroll' });
+  }
+});
 
 // POST /api/course-payments/verify
 // Standard Razorpay checkout signature check:

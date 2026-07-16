@@ -62,6 +62,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     useEffect(() => {
         const verifyToken = async () => {
+            // SSO-lite handoff (Unified Events): /admin/handoff must render for
+            // anonymous visitors — it EXCHANGES its one-time token for the session.
+            if (pathname === "/admin/handoff") {
+                setIsLoading(false);
+                return;
+            }
             const token = localStorage.getItem("adminToken");
             if (!token) {
                 setIsAuthenticated(false);
@@ -95,6 +101,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         verifyToken();
     }, [pathname, router]);
+
+    if (pathname === "/admin/handoff") return <>{children}</>;
 
     if (isLoading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">

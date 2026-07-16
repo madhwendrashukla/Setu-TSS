@@ -97,3 +97,13 @@ The website deploy is code-only when `db push` is a no-op (the usual case). To r
 ## At DNS + SSL cutover (later)
 
 Point DNS to the VPS, run Certbot, then: set the LMS `COOKIE_SECURE=true`; switch `NEXTAUTH_URL`/`NEXT_PUBLIC_APP_URL`/`WEBSITE_BASE_URL` and the frontend `NEXT_PUBLIC_API_URL` to the `https://thestartupschool.in` domain; rebuild the frontend and the LMS image; swap in **live** Razorpay keys; move SMTP to a transactional provider with a domain sender.
+
+## Unified Events (feature/unified-events, 2026-07-15)
+
+One offering = a website Event (marketing half, builder landing page) + an LMS Course (delivery half), linked via `tss_events.lms_course_slug`.
+
+- **New internal endpoints** (HMAC `x-tss-signature` over the raw body with `LMS_WEBHOOK_SECRET`, signed `ts` ≤5 min): `POST /api/internal/lms-events/publish` (publish/golive/unpublish from the LMS; creates stubs HIDDEN until Go live; never touches `page_blocks`) and `POST /api/internal/admin-handoff` (one-time 60 s tokens for the LMS→builder jump; exchange at `POST /api/admin/handoff-exchange`, page `/admin/handoff`).
+- **Coupons on course checkout**: `create-order` accepts `couponCode` (server-side validation against the shared coupon tables; `CouponUsage` recorded after payment); `POST /api/course-payments/validate-coupon` powers the checkout UI. `POST /api/course-payments/enroll-free` = self-serve ₹0 enrollment through the same enrollment webhook (`paymentStatus: 'free'`).
+- **Additive schema** (drop-check before `db push`, as always): `tss_events.lms_course_slug`, `course_orders.coupon_code`, `course_orders.discount_amount`.
+- **Optional env**: `ADMIN_HANDOFF_EMAIL` pins which account the handoff signs in as (default: role `admin` → `admin@thestartupschool.in` → oldest user).
+- LMS-linked events sell ONLY via `/courses/[slug]` (all landing CTAs route there); his `/api/payments` event checkout is untouched for pure marketing events.

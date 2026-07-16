@@ -133,7 +133,8 @@ export default async function EventsPage() {
                             </div>
                         ) : (
                             upcoming.map((event: any) => (
-                                <div key={event.id} className="glass-card rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
+                                {/* No .glass-card here: its unlayered white background beats bg-[#13113B] and made the white title invisible (same fix as the course cards, d076e0f) */}
+                                <div key={event.id} className="rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
                                     {event.banner_url ? (
                                         <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
                                             <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain" />
@@ -171,7 +172,7 @@ export default async function EventsPage() {
 
                     <div className="grid lg:grid-cols-2 gap-8">
                         {past.map((event: any) => (
-                            <div key={event.id} className="glass-card hover-glow rounded-3xl p-8 md:p-10 border border-functional-border/20 relative group h-full flex flex-col bg-[#13113B] shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
+                            <div key={event.id} className="hover-glow rounded-3xl p-8 md:p-10 border border-functional-border/20 relative group h-full flex flex-col bg-[#13113B] shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
                                 {event.banner_url ? (
                                     <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
                                         <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />

@@ -132,8 +132,8 @@ export default async function EventsPage() {
                                 <p className="text-text-secondary text-lg">Stay tuned for updates.</p>
                             </div>
                         ) : (
+                            // No .glass-card on these cards: its unlayered white background beats bg-[#13113B] and made the white title invisible (same fix as the course cards, d076e0f)
                             upcoming.map((event: any) => (
-                                {/* No .glass-card here: its unlayered white background beats bg-[#13113B] and made the white title invisible (same fix as the course cards, d076e0f) */}
                                 <div key={event.id} className="rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
                                     {event.banner_url ? (
                                         <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">

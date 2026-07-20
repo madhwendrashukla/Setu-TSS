@@ -14,6 +14,7 @@ Browser ─HTTP:80─ Nginx ┌─ /        → Next.js frontend (PM2 tss-fronte
 - **SSH:** `ssh -i ~/N073/.secrets/LightsailDefaultKey-ap-south-1.pem ubuntu@65.1.142.47`
 - **Branch deployed:** `main` (checked out in `~/Setu-TSS`). *(The `integration/single-domain` branch was retired 2026-07-13 — everyone commits to `main` directly now.)*
 - **DB:** AWS RDS Postgres — website uses the `postgres` DB (Prisma); reads LMS courses from the `jjlms` DB via a SELECT-only `website_ro` role.
+- **Reverse read (2026-07-19):** the LMS reads THIS database's `course_orders` + `coupons` tables (nothing else) via a SELECT-only **`lms_ro`** role — it powers the LMS admin's coupon-revenue dashboard. Conn string lives in `/opt/jj-lms/.env` as `WEBSITE_DB_URL_RO` (VPS backup: `~/lms-ro.txt`). Writes are denied at the Postgres level; if the role is ever dropped, only that dashboard degrades (shows "not connected").
 - **Nginx config:** `/etc/nginx/sites-available/tss`.
 
 ## Standard deploy

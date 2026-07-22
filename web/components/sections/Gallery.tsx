@@ -93,7 +93,7 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
     };
 
     return (
-        <section className="w-full bg-bg-main py-24 relative overflow-hidden">
+        <section className="w-full bg-bg-main py-24 relative overflow-x-hidden">
             <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
                 <div className="max-w-2xl">
                     <h2 className="text-3xl md:text-4xl font-black text-text-primary tracking-tight mb-4" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Community Gallery, <span class="text-[#A855F7]">Connect Offline</span>' }} />
@@ -104,12 +104,14 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={() => scroll('left')}
+                        aria-label="Scroll gallery left"
                         className="w-12 h-12 flex items-center justify-center rounded-xl border border-functional-border text-text-primary hover:bg-white/10 hover:border-white/30 transition-all focus:outline-none"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <button 
                         onClick={() => scroll('right')}
+                        aria-label="Scroll gallery right"
                         className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 text-text-primary hover:bg-white/20 transition-all focus:outline-none shadow-md"
                     >
                         <ArrowRight className="w-5 h-5" />
@@ -118,10 +120,10 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
             </div>
 
             {/* Scrollable Masonry Grid */}
-            <div className="w-full max-w-7xl mx-auto px-6">
+            <div className="w-full max-w-7xl mx-auto">
                 <div 
                     ref={scrollContainerRef}
-                    className="flex gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar"
+                    className="flex gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar px-6"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                     {/* Column 1: Tall then Short */}
@@ -153,6 +155,9 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                         {renderImage(validData[8] || { media_url: GALLERY_PHOTOS[1] }, "h-[240px]")}
                         {renderImage(validData[9] || { media_url: GALLERY_PHOTOS[2] }, "h-[360px]")}
                     </div>
+
+                    {/* Trailing spacer for right-edge padding on mobile */}
+                    <div className="w-6 shrink-0" aria-hidden="true" />
                 </div>
             </div>
 

@@ -22,7 +22,9 @@ const adminHandoff = require('./routes/adminHandoff');
 app.use('/api/internal/lms-events', lmsEventsSync.router);
 app.use('/api/internal/admin-handoff', adminHandoff.internalRouter);
 
-app.use(express.json());
+// Limit request body to 1 MB to prevent large JSON string attacks
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Browser side of the SSO-lite handoff (parsed JSON body).
 app.use('/api/admin/handoff-exchange', adminHandoff.exchangeRouter);
@@ -211,21 +213,45 @@ app.get('/api/homepage', async (req, res) => {
   }
 });
 
+// Utility: strip HTML/script injection chars and enforce max length
+function sanitizeField(str, maxLen = 200) {
+  if (!str || typeof str !== 'string') return null;
+  return str.replace(/[<>"'`]/g, '').trim().slice(0, maxLen);
+}
+
 app.post('/api/leads', async (req, res) => {
   try {
     const { name, email, phone, city, message, source } = req.body;
-    if (!name || !email) {
+
+    // Server-side sanitisation (XSS + length guards)
+    const cleanName    = sanitizeField(name,    100);
+    const cleanEmail   = sanitizeField(email,   200);
+    const cleanPhone   = sanitizeField(phone,    20);
+    const cleanCity    = sanitizeField(city,    100);
+    const cleanMessage = sanitizeField(message, 2000);
+    const cleanSource  = sanitizeField(source,   80);
+
+    if (!cleanName || !cleanEmail) {
       return res.status(400).json({ error: 'Name and Email are required' });
     }
+    // Basic email format check
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+    // Phone must be digits only (if supplied)
+    if (cleanPhone && !/^\d{7,15}$/.test(cleanPhone)) {
+      return res.status(400).json({ error: 'Invalid phone number' });
+    }
+
     const newLead = await prisma.lead.create({
       data: {
-        full_name: name,
-        email,
-        phone: phone || null,
-        city: city || null,
-        message: message || null,
-        source: source || 'contact_form',
-        status: 'new'
+        full_name: cleanName,
+        email:     cleanEmail,
+        phone:     cleanPhone  || null,
+        city:      cleanCity   || null,
+        message:   cleanMessage|| null,
+        source:    cleanSource || 'contact_form',
+        status:    'new',
       }
     });
     res.json({ success: true, id: newLead.id });
@@ -1013,6 +1039,16 @@ app.post('/api/admin/leads/mail-one/:id', authMiddleware, async (req, res) => {
     console.error('Lead single mail error:', error);
     res.status(500).json({ error: 'Failed to send email: ' + error.message });
   }
+});
+
+// ── Global error handler ─────────────────────────────────────────────────────
+// MUST be the last app.use() before app.listen(). Catches any error that
+// was passed to next(err) or thrown in async handlers without try/catch.
+// Returns a generic JSON body — NEVER the raw Node.js stack trace.
+app.use((err, req, res, next) => {
+  console.error('[Unhandled Error]', err.stack || err.message);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({ error: 'Internal server error.' });
 });
 
 // Start server

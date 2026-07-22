@@ -59,7 +59,10 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
     const [file, setFile] = useState<File | null>(null);
     const [isSending, setIsSending] = useState(false);
     const [sentStatus, setSentStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [showEmoji, setShowEmoji] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const EMOJI_LIST = ['😊','👋','🚀','💡','🎯','🙌','❤️','🔥','✅','😅','🤔','📩'];
 
     // Dynamic Widgets
     const [widgets, setWidgets] = useState<any[]>([]);
@@ -155,7 +158,8 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                         </div>
                         <button
                             className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full p-2 transition-colors -mr-2"
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => { setIsOpen(false); setShowEmoji(false); }}
+                            aria-label="Close help widget"
                         >
                             <X size={18} />
                         </button>
@@ -211,9 +215,30 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                                             }}
                                         />
                                         <div className="w-[1px] h-4 bg-gray-300"></div>
-                                        <button className="p-1.5 hover:text-gray-700 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50" disabled={isSending}>
-                                            <Smile size={18} />
-                                        </button>
+                                        <div className="relative">
+                                            <button 
+                                                className="p-1.5 hover:text-gray-700 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
+                                                onClick={() => setShowEmoji(e => !e)}
+                                                disabled={isSending}
+                                                aria-label="Open emoji picker"
+                                            >
+                                                <Smile size={18} />
+                                            </button>
+                                            {showEmoji && (
+                                                <div className="absolute bottom-9 left-0 bg-white border border-gray-200 rounded-xl p-2 shadow-xl flex flex-wrap gap-1 w-48 z-20">
+                                                    {EMOJI_LIST.map(emoji => (
+                                                        <button
+                                                            key={emoji}
+                                                            onClick={() => { setMessage(m => m + emoji); setShowEmoji(false); }}
+                                                            className="text-xl p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                                                            aria-label={`Insert ${emoji}`}
+                                                        >
+                                                            {emoji}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                     <button 
                                         onClick={handleSendMessage}

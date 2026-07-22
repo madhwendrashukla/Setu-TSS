@@ -89,6 +89,7 @@ export function MentorCTA() {
                                     <input 
                                         type="text" 
                                         required
+                                        maxLength={100}
                                         value={formData.name}
                                         onChange={e => setFormData({...formData, name: e.target.value})}
                                         className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-3 text-text-primary focus:outline-none focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] transition-all placeholder-slate-500"
@@ -100,6 +101,7 @@ export function MentorCTA() {
                                     <input 
                                         type="email" 
                                         required
+                                        maxLength={200}
                                         value={formData.email}
                                         onChange={e => setFormData({...formData, email: e.target.value})}
                                         className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-3 text-text-primary focus:outline-none focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] transition-all placeholder-slate-500"
@@ -110,6 +112,7 @@ export function MentorCTA() {
                                     <label className="block text-[10px] font-bold text-text-secondary uppercase tracking-wider mb-2">Phone Number</label>
                                     <input 
                                         type="tel" 
+                                        maxLength={15}
                                         value={formData.phone}
                                         onChange={e => setFormData({...formData, phone: e.target.value})}
                                         className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-3 text-text-primary focus:outline-none focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] transition-all placeholder-slate-500"
@@ -121,6 +124,7 @@ export function MentorCTA() {
                                     <input 
                                         type="url" 
                                         required
+                                        maxLength={300}
                                         value={formData.linkedin}
                                         onChange={e => setFormData({...formData, linkedin: e.target.value})}
                                         className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-3 text-text-primary focus:outline-none focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] transition-all placeholder-slate-500"
@@ -132,6 +136,7 @@ export function MentorCTA() {
                                     <textarea 
                                         required
                                         rows={3}
+                                        maxLength={1000}
                                         value={formData.description || ''}
                                         onChange={e => setFormData({...formData, description: e.target.value})}
                                         className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-3 text-text-primary focus:outline-none focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] transition-all resize-none placeholder-slate-500"

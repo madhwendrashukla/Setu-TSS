@@ -24,6 +24,8 @@ export default function AdminLogin() {
             const data = await res.json();
             if (res.ok && data.token) {
                 localStorage.setItem("adminToken", data.token);
+                // Also set a cookie so Edge middleware can protect /admin/* at request time
+                document.cookie = `adminToken=${data.token}; path=/; SameSite=Strict; max-age=86400`;
                 router.push("/admin/dashboard");
             } else {
                 setError(data.error || "Login failed");

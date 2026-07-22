@@ -88,6 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     }
                 } else {
                     localStorage.removeItem("adminToken");
+                    document.cookie = 'adminToken=; path=/; max-age=0; SameSite=Strict';
                     setIsAuthenticated(false);
                     if (pathname !== "/admin") router.push("/admin");
                 }
@@ -169,7 +170,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     
                     <div className="mt-8 pt-6 border-t border-gray-100 shrink-0">
                         <button 
-                            onClick={() => { localStorage.removeItem("adminToken"); window.location.href = "/admin"; }}
+                            onClick={() => { 
+                                localStorage.removeItem("adminToken"); 
+                                document.cookie = 'adminToken=; path=/; max-age=0; SameSite=Strict';
+                                window.location.href = "/admin"; 
+                            }}
                             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group"
                         >
                             <i className="fas fa-sign-out-alt w-5 text-center group-hover:-translate-x-1 transition-transform"></i>

@@ -35,17 +35,17 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
 
     return (
         <section className="card-section py-16 md:py-24">
-            <div className="max-w-7xl mx-auto px-6 mb-12 flex justify-between items-end gap-4">
+            <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-text-primary tracking-tight mb-2" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'What <span class="text-[#A855F7]">Founders Say</span>' }} />
                     <p className="text-text-secondary" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Real stories from our community members.' }} />
                 </div>
                 {videoTestimonials.length > 4 && (
-                    <div className="flex gap-3">
-                        <button onClick={() => scrollVideo('left')} className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Previous videos">
+                    <div className="flex gap-3 shrink-0">
+                        <button onClick={() => scrollVideo('left')} className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Previous testimonial videos">
                             <i className="fas fa-arrow-left text-text-primary text-lg"></i>
                         </button>
-                        <button onClick={() => scrollVideo('right')} className="w-12 h-12 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Next videos">
+                        <button onClick={() => scrollVideo('right')} className="w-12 h-12 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Next testimonial videos">
                             <i className="fas fa-arrow-right text-text-primary text-lg"></i>
                         </button>
                     </div>

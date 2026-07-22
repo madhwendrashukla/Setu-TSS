@@ -47,35 +47,46 @@ const nextConfig: NextConfig = {
     optimizeCss: false,
     optimizePackageImports: ["lucide-react", "next/font"],
   },
-  // Cache headers for static assets
+  // Security + cache headers
   async headers() {
+    // Content-Security-Policy for all page routes
+    const csp = [
+      "default-src 'self'",
+      // Next.js inlines scripts at runtime; GTM and Razorpay need 'unsafe-inline'
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+      "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+      "img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com",
+      "frame-src 'self' https://www.youtube.com https://checkout.razorpay.com",
+      "connect-src 'self' https://api.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com",
+      "media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; ");
+
     return [
+      // ── Security headers on every page response ──────────────────────────
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options",   value: "nosniff" },
+          { key: "Permissions-Policy",        value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Content-Security-Policy",   value: csp },
+        ],
+      },
+      // ── Cache headers for static assets ──────────────────────────────────
       {
         source: "/images/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
         source: "/gallery/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
         source: "/:path*.webp",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
     ];
   },

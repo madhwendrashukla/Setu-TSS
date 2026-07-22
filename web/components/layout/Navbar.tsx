@@ -53,9 +53,14 @@ export function Navbar() {
                         </div>
                         {/* Mobile Toggle */}
                         <div className="md:hidden flex items-center">
-                            <button onClick={toggleMenu} className="text-text-primary hover:text-gray-300 focus:outline-none transition-colors">
-                                {isOpen ? <X size={24} strokeWidth={2} /> : <Menu size={24} strokeWidth={2} />}
-                            </button>
+                            <button 
+                            onClick={toggleMenu} 
+                            aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+                            aria-expanded={isOpen}
+                            className="text-text-primary hover:text-gray-300 focus:outline-none transition-colors"
+                        >
+                            {isOpen ? <X size={24} strokeWidth={2} /> : <Menu size={24} strokeWidth={2} />}
+                        </button>
                         </div>
                     </div>
                 </nav>

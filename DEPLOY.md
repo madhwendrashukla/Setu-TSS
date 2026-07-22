@@ -15,6 +15,13 @@ Browser ─HTTP:80─ Nginx ┌─ /        → Next.js frontend (PM2 tss-fronte
 - **Branch deployed:** `main` (checked out in `~/Setu-TSS`). *(The `integration/single-domain` branch was retired 2026-07-13 — everyone commits to `main` directly now.)*
 - **DB:** AWS RDS Postgres — website uses the `postgres` DB (Prisma); reads LMS courses from the `jjlms` DB via a SELECT-only `website_ro` role.
 - **Reverse read (2026-07-19):** the LMS reads THIS database's `course_orders` + `coupons` tables (nothing else) via a SELECT-only **`lms_ro`** role — it powers the LMS admin's coupon-revenue dashboard. Conn string lives in `/opt/jj-lms/.env` as `WEBSITE_DB_URL_RO` (VPS backup: `~/lms-ro.txt`). Writes are denied at the Postgres level; if the role is ever dropped, only that dashboard degrades (shows "not connected").
+
+## nginx hardening (2026-07-22, from QA D4/D5)
+
+Applied to the shared nginx (backup at `/etc/nginx/sites-available/tss.bak-20260722`):
+- **Edge rate limiting:** `/etc/nginx/conf.d/hardening.conf` defines `limit_req_zone $binary_remote_addr zone=ingress:10m rate=30r/s; limit_req_status 429;`. The dynamic locations (`/`, `/api/`, `/lms`) carry `limit_req zone=ingress burst=50 nodelay;`. Static-asset locations (`/_next/static/`, `/lms/_next/static/`) are intentionally NOT throttled.
+- **Website security headers** on `location /` and `location /api/`: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Content-Security-Policy: frame-ancestors 'self'`. **`/lms` is deliberately omitted** — the LMS Next app sets its own headers; adding them at nginx would duplicate.
+- **Still TODO (website, Madhwendra):** the website's Express `/api/helpdesk` still leaks stack traces on oversized multipart + has no admin view; add multer `limits{fieldSize,fields,parts}` + an error-catch that returns a clean JSON contract, and build a real site-wide CSP. HTTPS/HSTS lands at the DNS+SSL cutover.
 - **Nginx config:** `/etc/nginx/sites-available/tss`.
 
 ## Standard deploy

@@ -35,9 +35,16 @@ const COURSE_COLUMNS = `
   level, category, slug, status, "fileKey", "createdAt"
 `;
 
+// Public website catalog (/events "Courses & Cohorts"). Only courses the admin
+// has made LIVE on the website (websiteLive = true) are listed — a course can
+// be PUBLISHED (sellable via its /courses/[slug] checkout) yet hidden from the
+// public catalog by leaving websiteLive off. Toggle it from the LMS course
+// editor's "Publish to website" card (Go live = show, Hide = hide).
 async function listPublishedCourses() {
   const { rows } = await lmsPool.query(
-    `SELECT ${COURSE_COLUMNS} FROM "Course" WHERE status = 'PUBLISHED' ORDER BY "createdAt" DESC`
+    `SELECT ${COURSE_COLUMNS} FROM "Course"
+     WHERE status = 'PUBLISHED' AND "websiteLive" = true
+     ORDER BY "createdAt" DESC`
   );
   return rows;
 }

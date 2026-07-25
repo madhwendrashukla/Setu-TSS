@@ -50,4 +50,16 @@ async function getCourseBySlug(slug) {
   return rows[0] ?? null;
 }
 
-module.exports = { lmsPool, listPublishedCourses, getCourseBySlug };
+// Course bundles: if the given course is a bundle (has CourseBundleItem rows),
+// returns the ordered list of member course ids to enrol the buyer into.
+// Empty array = not a bundle (caller enrols in the course itself). Read-only
+// via website_ro (needs SELECT on CourseBundleItem).
+async function getBundleMemberCourseIds(bundleCourseId) {
+  const { rows } = await lmsPool.query(
+    `SELECT "courseId" FROM "CourseBundleItem" WHERE "bundleId" = $1 ORDER BY position ASC, "createdAt" ASC`,
+    [bundleCourseId]
+  );
+  return rows.map((r) => r.courseId);
+}
+
+module.exports = { lmsPool, listPublishedCourses, getCourseBySlug, getBundleMemberCourseIds };

@@ -5,7 +5,7 @@ const rateLimit = require('express-rate-limit');
 const Razorpay = require('razorpay');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { getCourseBySlug } = require('../utils/lmsDb');
+const { getCourseBySlug, getBundleMemberCourseIds } = require('../utils/lmsDb');
 const { sendEnrollmentWebhook } = require('../utils/lmsWebhook');
 const { validateCouponForCourse, applyCouponPaise, recordCouponUsage } = require('../utils/coupons');
 
@@ -172,9 +172,46 @@ router.post('/validate-coupon', async (req, res) => {
   }
 });
 
-// Marks the order paid and fires the signed enrollment webhook to the LMS.
-// Factored out so an inbound Razorpay payment.captured webhook can reuse it
-// later; both paths stay idempotent via the status check.
+// Enrolls the buyer for an order. If the purchased course is a BUNDLE (has
+// CourseBundleItem members in the LMS), the buyer is enrolled into each member
+// course instead of the (content-less) bundle course; otherwise into the
+// course itself. Webhooks are fired SEQUENTIALLY in the background so a new
+// user is created exactly once (the receiver reuses it on the next calls) —
+// firing them in parallel could race on user creation. The response isn't
+// blocked by the (retrying) webhook dispatch.
+async function dispatchEnrollment(order, extra = {}) {
+  let memberIds = [];
+  try {
+    memberIds = await getBundleMemberCourseIds(order.lms_course_id);
+  } catch (err) {
+    console.error('Bundle member lookup failed (enrolling in the course itself):', err);
+  }
+  const courseIds = memberIds.length > 0 ? memberIds : [order.lms_course_id];
+
+  (async () => {
+    for (const courseId of courseIds) {
+      try {
+        await sendEnrollmentWebhook({
+          id: order.id,
+          buyerEmail: order.buyer_email,
+          buyerName: order.buyer_name,
+          lmsCourseId: courseId,
+          razorpayOrderId: extra.razorpayOrderId || order.razorpay_order_id,
+          paymentStatus: extra.paymentStatus,
+          utmSource: order.utm_source,
+          utmMedium: order.utm_medium,
+          utmCampaign: order.utm_campaign,
+        });
+      } catch (err) {
+        console.error(`Webhook dispatch error (course ${courseId}, order ${order.id}):`, err);
+      }
+    }
+  })();
+}
+
+// Marks the order paid and fires enrollment (bundle-aware). Factored out so an
+// inbound Razorpay payment.captured webhook can reuse it later; both paths stay
+// idempotent via the status check.
 async function fulfillOrder(order, razorpayPaymentId) {
   const updated = await prisma.courseOrder.update({
     where: { id: order.id },
@@ -184,18 +221,8 @@ async function fulfillOrder(order, razorpayPaymentId) {
       webhook_status: 'pending',
     },
   });
-  // Fire-and-forget with in-module retries; failures land in WebhookDelivery
-  // and the order's webhook_status for scripts/replayWebhook.js.
-  sendEnrollmentWebhook({
-    id: updated.id,
-    buyerEmail: updated.buyer_email,
-    buyerName: updated.buyer_name,
-    lmsCourseId: updated.lms_course_id,
-    razorpayOrderId: updated.razorpay_order_id,
-    utmSource: updated.utm_source,
-    utmMedium: updated.utm_medium,
-    utmCampaign: updated.utm_campaign,
-  }).catch((err) => console.error('Webhook dispatch error:', err));
+
+  await dispatchEnrollment(updated);
 
   // Count the coupon use only once the money actually moved. Fire-and-forget:
   // a failure here must never block enrollment (reconcile from CourseOrder).
@@ -248,19 +275,10 @@ router.post('/enroll-free', async (req, res) => {
       },
     });
 
-    // Same fire-and-forget dispatch as paid orders; duplicates come back as
-    // 409 from the LMS and count as delivered (no double enrollment).
-    sendEnrollmentWebhook({
-      id: order.id,
-      buyerEmail: order.buyer_email,
-      buyerName: order.buyer_name,
-      lmsCourseId: order.lms_course_id,
-      razorpayOrderId: `free_${order.id}`,
-      paymentStatus: 'free',
-      utmSource: order.utm_source,
-      utmMedium: order.utm_medium,
-      utmCampaign: order.utm_campaign,
-    }).catch((err) => console.error('Webhook dispatch error:', err));
+    // Same bundle-aware dispatch as paid orders; duplicates come back as 409
+    // from the LMS and count as delivered (no double enrollment). A free bundle
+    // grants all its member courses.
+    await dispatchEnrollment(order, { razorpayOrderId: `free_${order.id}`, paymentStatus: 'free' });
 
     res.json({ success: true });
   } catch (error) {

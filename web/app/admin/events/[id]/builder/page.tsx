@@ -432,10 +432,15 @@ const PricingEditor = ({ options, onChange }: { options: any[], onChange: (o: an
                                     <ReactQuill modules={quillModules} theme="snow" value={o.date_time_html || ""} onChange={val => handleChange(index, 'date_time_html', val)} placeholder="Enter dates, times, and sessions with bullets..." />
                                 </div>
                             </div>
-                            <div className="border-t pt-4 mt-4">
+                            <div className="border-t pt-4 mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold mb-1 text-gray-500">CTA Button Text</label>
                                     <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.cta?.text || ""} onChange={e => handleChange(index, 'cta', { ...o.cta, text: e.target.value })} placeholder="Book Your Seat Now" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold mb-1 text-gray-500">Course Slug (LMS checkout)</label>
+                                    <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.course_slug || ""} onChange={e => handleChange(index, 'course_slug', e.target.value)} placeholder="e.g. startup-ideation-and-validation" />
+                                    <p className="text-[11px] text-gray-400 mt-1">Buy Now opens <code>/courses/&lt;slug&gt;</code>. Leave blank to use this event&apos;s course. Use the bundle course&apos;s slug for an all-in-one card.</p>
                                 </div>
                             </div>
                         </div>

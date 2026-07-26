@@ -213,6 +213,7 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
+            aria-label="Close verify modal"
           >
             <i className="fa-solid fa-xmark text-lg" />
           </button>

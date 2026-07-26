@@ -22,7 +22,6 @@ const MentorCard = ({ mentor }: { mentor: MentorProfile }) => (
                 sizes="96px"
                 loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                unoptimized={true}
             />
         </div>
         

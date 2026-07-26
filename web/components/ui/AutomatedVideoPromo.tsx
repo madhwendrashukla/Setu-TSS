@@ -53,7 +53,6 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
                         priority={index === 0}
                         quality={75}
                         sizes="100vw"
-                        unoptimized
                     />
                 </div>
             ))}
@@ -72,13 +71,13 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
                     let finalTagline = "";
 
                     if (sceneIndex === 0) {
-                        finalHeading = data?.hero_heading || "Stop Ideating.<br />Start <span class=\"text-[#A855F7]\">Building.</span>";
+                        finalHeading = data?.hero_heading || "Stop Ideating. <br/> Start <span class=\"text-[#A855F7]\">Building.</span>";
                         finalTagline = data?.hero_tagline || "Join the alternate B-school for Aspiring Founders.";
                     } else if (sceneIndex === 1) {
-                        finalHeading = data?.hero_scene1_heading || "<span class=\"text-xs md:text-sm font-bold tracking-[0.2em] text-[#A855F7] uppercase mb-4 block\">THE BRIDGE</span><br/>The 0 &rarr; 1 Bridge<br/>Where Founders Are Built.";
+                        finalHeading = data?.hero_scene1_heading || "<span class=\"text-xs md:text-sm font-bold tracking-[0.2em] text-[#A855F7] uppercase mb-4 block\">THE INCUBATOR</span> <br/> The 0 &rarr; 1 Bridge <br/> Where Founders Are Built.";
                         finalTagline = data?.hero_scene1_tagline || "We close 4 deadly gaps: Learning, Access, Mentoring, Community";
                     } else {
-                        finalHeading = data?.hero_scene2_heading || "<span class=\"text-xs md:text-sm font-bold tracking-[0.2em] text-[#A855F7] uppercase mb-4 block\">THE ROADMAP</span><br/>3 days of ignition sprint<br/><span class=\"text-text-secondary text-2xl md:text-3xl block my-2\">to&nbsp;</span><span class=\"text-[#A855F7]\">100 days of Deep Dive Immersion cohorts</span>";
+                        finalHeading = data?.hero_scene2_heading || "<span class=\"text-xs md:text-sm font-bold tracking-[0.2em] text-[#A855F7] uppercase mb-4 block\">THE ROADMAP</span> <br/> 3 days of ignition sprint <br/> <span class=\"text-text-secondary text-2xl md:text-3xl block my-2\"> to </span> <span class=\"text-[#A855F7]\">100 days of Deep Dive Immersion cohorts</span>";
                         finalTagline = data?.hero_scene2_tagline || "<i class=\"font-normal\">Choose the program that fits you the best</i>";
                     }
 
@@ -88,7 +87,7 @@ export function AutomatedVideoPromo({ data, slides }: { data?: any, slides?: any
                             className={`absolute flex flex-col items-center justify-center transition-all duration-1000 ease-in-out w-full px-4 ${index === currentSlide ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
                         >
                             <div 
-                                className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.2] mb-6 drop-shadow-lg"
+                                className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.2] mb-6 drop-shadow-lg break-words whitespace-pre-wrap"
                                 dangerouslySetInnerHTML={{ __html: finalHeading }}
                             />
                             

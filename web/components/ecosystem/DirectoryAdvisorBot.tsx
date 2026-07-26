@@ -38,6 +38,7 @@ function IdleNotifications({ widgets, dismissed, onDismiss, renderIcon }: { widg
                     <button
                         onClick={(e) => { e.stopPropagation(); onDismiss(w.id); }}
                         className="p-1 rounded-full text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+                        aria-label="Dismiss notification"
                     >
                         <X size={16} strokeWidth={2} />
                     </button>
@@ -191,7 +192,7 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                                         <div className="inline-flex items-center gap-2 bg-gray-100 text-xs px-3 py-1.5 rounded-full text-gray-700">
                                             <Paperclip size={12} />
                                             <span className="truncate max-w-[150px]">{file.name}</span>
-                                            <button onClick={() => setFile(null)} className="hover:text-red-500 ml-1"><X size={12}/></button>
+                                            <button onClick={() => setFile(null)} className="hover:text-red-500 ml-1" aria-label="Remove attached file"><X size={12}/></button>
                                         </div>
                                     </div>
                                 )}
@@ -201,6 +202,7 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                                             className="p-1.5 hover:text-gray-700 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
                                             onClick={() => fileInputRef.current?.click()}
                                             disabled={isSending}
+                                            aria-label="Attach file"
                                         >
                                             <Paperclip size={18} />
                                         </button>
@@ -217,8 +219,12 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                                         <div className="w-[1px] h-4 bg-gray-300"></div>
                                         <div className="relative">
                                             <button 
+                                                type="button"
                                                 className="p-1.5 hover:text-gray-700 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
-                                                onClick={() => setShowEmoji(e => !e)}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setShowEmoji(prev => !prev);
+                                                }}
                                                 disabled={isSending}
                                                 aria-label="Open emoji picker"
                                             >
@@ -229,7 +235,12 @@ export default function DirectoryAdvisorBot({ isHome }: { isHome?: boolean }) {
                                                     {EMOJI_LIST.map(emoji => (
                                                         <button
                                                             key={emoji}
-                                                            onClick={() => { setMessage(m => m + emoji); setShowEmoji(false); }}
+                                                            type="button"
+                                                            onClick={(e) => { 
+                                                                e.preventDefault();
+                                                                setMessage(m => m + emoji); 
+                                                                setShowEmoji(false); 
+                                                            }}
                                                             className="text-xl p-1 hover:bg-gray-100 rounded-lg transition-colors"
                                                             aria-label={`Insert ${emoji}`}
                                                         >

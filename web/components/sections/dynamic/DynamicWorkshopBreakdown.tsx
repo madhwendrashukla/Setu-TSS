@@ -78,7 +78,7 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                                     return `${hNum % 12 || 12}:${m} ${ampm}`;
                                 };
                                 return (
-                                    <span className="text-sm md:text-base font-bold text-slate-700">
+                                    <span className="text-sm md:text-base font-bold text-slate-700" suppressHydrationWarning>
                                         {dateStr} &bull; {formatTime(workshop.start_time)} - {formatTime(workshop.end_time)}
                                     </span>
                                 );
@@ -148,7 +148,7 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                                         const dateStr = !isNaN(dateObj.getTime()) ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : session.date;
 
                                         return (
-                                            <a key={sIdx} href={calendarUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-[11px] md:text-xs text-slate-600 font-bold hover:bg-slate-200 transition-all cursor-pointer">
+                                            <a key={sIdx} href={calendarUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-[11px] md:text-xs text-slate-600 font-bold hover:bg-slate-200 transition-all cursor-pointer" suppressHydrationWarning>
                                                 <i className="fa-brands fa-google text-blue-500"></i> {session.title} — {dateStr}, {formatTime(session.start_time)} — {formatTime(session.end_time)}
                                             </a>
                                         );

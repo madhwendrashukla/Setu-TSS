@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { notFound } from 'next/navigation';
 import { PageData } from '@/types/cms';
 import { DynamicSections } from '@/components/sections/dynamic/DynamicSections';
 
@@ -45,11 +46,7 @@ export default async function DynamicEventPage({ params, searchParams }: { param
     const event = await getEventBySlug(resolvedParams.slug, preview);
 
     if (!event) {
-        return (
-            <div className="pt-32 pb-20 min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0f172a', color: '#f8fafc' }}>
-                <h1 className="text-4xl font-bold">Event not found</h1>
-            </div>
-        );
+        notFound();
     }
 
     // Try to parse page_data or fallback to page_blocks (which might hold the unified JSON now)

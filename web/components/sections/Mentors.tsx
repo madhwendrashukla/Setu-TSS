@@ -26,7 +26,6 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 className="object-cover group-hover:scale-105 transition-all duration-700"
                                 onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(mentor.name)}&background=1E293B&color=8B5CF6&size=400&font-size=0.33`; }}
-                                unoptimized={true}
                             />
                         ) : null}
                     </div>

@@ -26,7 +26,7 @@ export function WorkshopHero() {
                     </span>{' '}Not Luck.
                 </h1>
 
-                <p className="mt-6 md:mt-8 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl text-text-secondary mb-8 md:mb-12 leading-relaxed font-light px-2">
+                <p className="mt-6 md:mt-8 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl text-slate-300 mb-8 md:mb-12 leading-relaxed font-light px-2">
                     Stop guessing what investors want. Join the live, cohort-based program that transforms passionate
                     builders into <span className="text-text-primary font-medium">investable founders.</span>
                 </p>

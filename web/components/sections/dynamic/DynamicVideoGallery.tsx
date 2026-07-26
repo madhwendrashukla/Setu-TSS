@@ -13,13 +13,19 @@ export function DynamicVideoGallery({ data }: { data: PageData }) {
     const nextVideo = () => setCurrentIndex((prev) => (prev + 1) % videos.length);
     const prevVideo = () => setCurrentIndex((prev) => (prev - 1 + videos.length) % videos.length);
 
-    // Get current video and format URL
+    // Get current video and format URL securely to bypass SAMEORIGIN policy
     const videoUrl = videos[currentIndex];
     let embedUrl = videoUrl;
-    if (videoUrl.includes('youtube.com/watch?v=')) {
-        embedUrl = videoUrl.replace('watch?v=', 'embed/');
+    if (videoUrl.includes('youtube.com/watch')) {
+        try {
+            const urlObj = new URL(videoUrl);
+            const videoId = urlObj.searchParams.get('v');
+            if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        } catch (e) {
+            embedUrl = `https://www.youtube.com/embed/${videoUrl.split('v=')[1]?.split('&')[0]}`;
+        }
     } else if (videoUrl.includes('youtu.be/')) {
-        embedUrl = videoUrl.replace('youtu.be/', 'youtube.com/embed/');
+        embedUrl = `https://www.youtube.com/embed/${videoUrl.split('youtu.be/')[1]?.split('?')[0]}`;
     }
 
     return (
@@ -36,12 +42,14 @@ export function DynamicVideoGallery({ data }: { data: PageData }) {
                         <button 
                             onClick={prevVideo}
                             className="w-12 h-12 flex items-center justify-center rounded-xl border border-slate-700 text-white hover:bg-white/10 hover:border-slate-500 transition-all focus:outline-none"
+                            aria-label="Previous video"
                         >
                             <i className="fas fa-arrow-left"></i>
                         </button>
                         <button 
                             onClick={nextVideo}
                             className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all focus:outline-none shadow-md"
+                            aria-label="Next video"
                         >
                             <i className="fas fa-arrow-right"></i>
                         </button>

@@ -62,7 +62,7 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
                         <div key={t.id} className={`w-[85vw] md:w-[400px] shrink-0 snap-start rounded-2xl overflow-hidden border border-functional-border bg-bg-surface flex flex-col ${!t.show_description ? 'self-start' : 'h-full'}`}>
                             <div className="relative w-full pt-[56.25%] bg-accent-blue hover:bg-accent-royal text-white">
                                 <iframe 
-                                    src={t.youtube_url} 
+                                    src={t.youtube_url.includes('embed/') ? t.youtube_url : `https://www.youtube.com/embed/${t.youtube_url.split('v=')[1]?.split('&')[0] || t.youtube_url.split('youtu.be/')[1]}`} 
                                     title={t.video_heading || 'Testimonial Video'}
                                     className="absolute top-0 left-0 w-full h-full border-0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

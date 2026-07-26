@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Edge Middleware — Admin Route Protection
@@ -25,14 +25,31 @@ export function middleware(req: NextRequest) {
     if (!token) {
       const loginUrl = new URL('/admin', req.url);
       loginUrl.searchParams.set('next', pathname);
-      return NextResponse.redirect(loginUrl);
+      
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      const csp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com; frame-src 'self' https://www.youtube.com https://checkout.razorpay.com; connect-src 'self' https://api.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com; object-src 'none'; base-uri 'self'; form-action 'self'";
+      redirectResponse.headers.set('Content-Security-Policy', csp);
+      redirectResponse.headers.set('X-Content-Type-Options', 'nosniff');
+      
+      return redirectResponse;
     }
   }
 
-  return NextResponse.next();
+  // We intercept the response to guarantee CSP headers are injected at the Edge level
+  // because next.config.ts static headers are sometimes dropped during middleware evaluation.
+  const response = NextResponse.next();
+  
+  const csp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com; frame-src 'self' https://www.youtube.com https://checkout.razorpay.com; connect-src 'self' https://api.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com; object-src 'none'; base-uri 'self'; form-action 'self'";
+  
+  response.headers.set('Content-Security-Policy', csp);
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  
+  return response;
 }
 
 export const config = {
-  // Only run on /admin/* — skip API routes, _next static, favicon etc.
-  matcher: ['/admin/:path+'],
+  // Broad matcher ensures all paths are intercepted (preventing path-to-regexp bypass via special characters)
+  // while excluding Next.js core static asset namespaces.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|images).*)'],
 };
+

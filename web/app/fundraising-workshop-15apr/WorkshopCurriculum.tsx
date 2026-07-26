@@ -12,13 +12,13 @@ export function WorkshopCurriculum() {
                     <div className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border shadow-[0_4px_30px_rgba(0,0,0,0.1)] rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 hover:border-functional-border transition-all duration-500 group">
                         <div className="md:flex gap-8 lg:gap-12 items-start">
                             <div className="md:w-1/3 mb-8 md:mb-0">
-                                <div className="inline-block px-3 py-1 md:px-4 md:py-1.5 bg-slate-800 text-text-secondary font-bold rounded-lg text-xs md:text-sm mb-4 border border-functional-border shadow-inner">LEVEL 1: BASIC COHORT</div>
+                                <div className="inline-block px-3 py-1 md:px-4 md:py-1.5 bg-slate-800 text-slate-300 font-bold rounded-lg text-xs md:text-sm mb-4 border border-functional-border shadow-inner">LEVEL 1: BASIC COHORT</div>
                                 <h3 className="text-2xl md:text-3xl font-bold mb-1 text-text-primary group-hover:text-[#8b5cf6] transition-colors">Fund Raising Basics</h3>
                                 <div className="mt-6 md:mt-8 mb-6 md:mb-8">
                                     <h4 className="text-text-primary text-sm md:text-base font-semibold mb-2 md:mb-3 flex items-center gap-2">
                                         <i className="fa-solid fa-crosshairs text-[#8b5cf6] opacity-70" /> Who is this for?
                                     </h4>
-                                    <p className="text-sm text-text-secondary leading-relaxed font-light">Anyone stepping into the world of startup fundraising</p>
+                                    <p className="text-sm text-slate-300 leading-relaxed font-light">Anyone stepping into the world of startup fundraising</p>
                                 </div>
                                 <div className="bg-slate-800/50 rounded-xl p-4 md:p-5 border border-functional-border relative overflow-hidden">
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#8b5cf6]" />
@@ -36,7 +36,7 @@ export function WorkshopCurriculum() {
                                         </div>
                                         <h5 className="text-text-primary font-bold text-sm md:text-base">Introduction to the Complete Fundraising Process</h5>
                                     </div>
-                                    <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-text-secondary font-light ml-4 pl-7 border-l border-functional-border">
+                                    <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-slate-300 font-light ml-4 pl-7 border-l border-functional-border">
                                         {['Data Room Preparation','Pitch Deck Preparation','Types of Agreements — Term Sheet, SHA','Cap Table Management','Investor Outreach','Legal Compliance'].map((item, i) => (
                                             <li key={i} className="flex items-start gap-2">
                                                 <i className="fa-solid fa-circle-dot text-[#8b5cf6]/60 mt-1.5 text-[8px] shrink-0" />
@@ -46,7 +46,7 @@ export function WorkshopCurriculum() {
                                     </ul>
                                 </div>
                                 <div className="w-full h-px bg-white/5 mb-6" />
-                                <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-4 text-sm text-text-secondary font-light">
+                                <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-4 text-sm text-slate-300 font-light">
                                     {['Data Room Preparation — all documents required','All basic financial jargons and key terms every founder should know','Introduction to all agreements required','Pitch Deck creation and how to pitch it effectively','Access to tools and resources wherever needed','Certificate of Participation – Basic Level'].map((item, i) => (
                                         <li key={i} className="flex items-start gap-3">
                                             <i className="fa-solid fa-check text-[#8b5cf6] mt-1" />
@@ -55,7 +55,7 @@ export function WorkshopCurriculum() {
                                     ))}
                                 </ul>
                                 <div className="mt-6 bg-[#0f172a]/50 p-4 rounded-xl border border-functional-border">
-                                    <p className="text-xs text-slate-500 italic"><strong className="text-text-secondary">Note:</strong> What this workshop does not cover — Deep dive into term sheet, agreements, Cap Tables explaining every clause, loopholes, areas of negotiation and case studies. (These are covered in Level 2).</p>
+                                    <p className="text-xs text-slate-500 italic"><strong className="text-slate-300">Note:</strong> What this workshop does not cover — Deep dive into term sheet, agreements, Cap Tables explaining every clause, loopholes, areas of negotiation and case studies. (These are covered in Level 2).</p>
                                 </div>
                             </div>
                         </div>
@@ -72,7 +72,7 @@ export function WorkshopCurriculum() {
                                     <h4 className="text-text-primary text-sm md:text-base font-semibold mb-2 md:mb-3 flex items-center gap-2">
                                         <i className="fa-solid fa-crosshairs bg-gradient-to-br from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent" /> Who is this for?
                                     </h4>
-                                    <p className="text-sm text-text-secondary leading-relaxed font-light">Founders actively preparing to raise funds right now.</p>
+                                    <p className="text-sm text-slate-300 leading-relaxed font-light">Founders actively preparing to raise funds right now.</p>
                                 </div>
                                 <div className="bg-green-500/20 border border-green-500/50 rounded-xl p-4 shadow-[0_0_20px_rgba(34,197,94,0.2)] backdrop-blur-sm">
                                     <p className="text-xs md:text-sm font-bold text-green-400 flex items-center gap-2 tracking-wide mb-3">
@@ -106,7 +106,7 @@ export function WorkshopCurriculum() {
                                             </div>
                                             <div>
                                                 <h5 className="text-text-primary font-bold mb-1 text-sm md:text-base">{item.title}</h5>
-                                                <p className="text-xs md:text-sm text-text-secondary font-light leading-relaxed">{item.desc}</p>
+                                                <p className="text-xs md:text-sm text-slate-300 font-light leading-relaxed">{item.desc}</p>
                                             </div>
                                         </div>
                                     ))}

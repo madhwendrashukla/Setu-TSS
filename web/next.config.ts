@@ -73,6 +73,7 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options",   value: "nosniff" },
           { key: "Permissions-Policy",        value: "camera=(), microphone=(), geolocation=()" },
           { key: "Content-Security-Policy",   value: csp },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
         ],
       },
       // ── Cache headers for static assets ──────────────────────────────────

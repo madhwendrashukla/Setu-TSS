@@ -9,7 +9,7 @@ export function WorkshopMentor() {
                 <div className="text-center mb-12">
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4">Meet Your Mentor</h2>
                     <div className="w-24 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-6" />
-                    <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto font-light leading-relaxed">
+                    <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed">
                         <strong className="font-bold text-text-primary">Learn directly from someone who knows how to navigate the complexities of startup funding.</strong>
                     </p>
                 </div>
@@ -22,7 +22,7 @@ export function WorkshopMentor() {
                         <div className="inline-block px-4 py-1.5 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-text-primary font-bold rounded-lg text-sm mb-6 shadow-lg shadow-[#d946ef]/30 uppercase tracking-widest">Lead Mentor</div>
                         <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-text-primary mb-2">Gaurav Bansal</h3>
                         <p className="text-lg md:text-xl font-bold mb-8 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] bg-clip-text text-transparent">Founder – Setu - TheStartupSchool</p>
-                        <p className="text-base md:text-lg text-text-secondary font-light leading-relaxed mb-10 max-w-2xl mx-auto">
+                        <p className="text-base md:text-lg text-slate-300 font-light leading-relaxed mb-10 max-w-2xl mx-auto">
                             To master fundraising, you must speak three languages: <strong className="text-text-primary">The Narrative, The Numbers, and The Law.</strong> Gaurav will guide you through the exact execution strategies needed to build an investable company and secure your funding rounds with clarity.
                         </p>
                         <a href="#pricing" className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-text-primary font-bold hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all transform hover:-translate-y-1 text-lg">
@@ -48,7 +48,7 @@ export function WorkshopProof() {
                             </div>
                             <Image src="/bootcamp.jpeg" alt="Mentor Panel at IIT Madras" width={640} height={360} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-300 relative z-10" loading="lazy" />
                         </div>
-                        <p className="text-text-secondary text-sm mb-6 flex-grow font-light">Invited as a Mentor at E-Cell IIT Madras. Mentoring early-stage founders, reviewing startup ideas, and providing practical guidance on execution and validation.</p>
+                        <p className="text-slate-300 text-sm mb-6 flex-grow font-light">Invited as a Mentor at E-Cell IIT Madras. Mentoring early-stage founders, reviewing startup ideas, and providing practical guidance on execution and validation.</p>
                         <a href="https://www.linkedin.com/posts/gauravbansal2_mentor-iit-startup-activity-7404790908174450688-P0G5?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADU8MA4Bu-Z-EZKMZRNCs9TMRf6ND89yVds" target="_blank" rel="noopener noreferrer" className="block w-full text-center border border-functional-border text-text-primary font-bold py-3 rounded-lg hover:bg-white/5 hover:text-[#8b5cf6] transition-colors">
                             <i className="fa-brands fa-linkedin mr-2" /> Explore More
                         </a>
@@ -62,7 +62,7 @@ export function WorkshopProof() {
                             </div>
                             <Image src="/iimrohtak.jpg" alt="Judge and Mentor at IIM Rohtak" width={640} height={360} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-300 relative z-10" loading="lazy" />
                         </div>
-                        <p className="text-text-secondary text-sm mb-6 flex-grow font-light">Invited as a Judge and Mentor at IIM Rohtak. Evaluating innovative startups, providing critical feedback on pitches, and guiding aspiring founders on their journey from concept to scale.</p>
+                        <p className="text-slate-300 text-sm mb-6 flex-grow font-light">Invited as a Judge and Mentor at IIM Rohtak. Evaluating innovative startups, providing critical feedback on pitches, and guiding aspiring founders on their journey from concept to scale.</p>
                         <a href="https://www.linkedin.com/in/gauravbansal2/details/featured/" target="_blank" rel="noopener noreferrer" className="block w-full text-center border border-functional-border text-text-primary font-bold py-3 rounded-lg hover:bg-white/5 hover:text-[#d946ef] transition-colors">
                             <i className="fa-brands fa-linkedin mr-2" /> View on LinkedIn
                         </a>
@@ -71,7 +71,7 @@ export function WorkshopProof() {
                     <div className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-xl p-6 hover:border-red-500 transition-all duration-300 group flex flex-col h-full transform hover:-translate-y-2">
                         <h3 className="text-xl font-bold text-text-primary mb-4 text-center">SESSION AT DOON B. SCHOOL</h3>
                         <VideoThumbnail videoId="tt_PVE_A3wU" />
-                        <p className="text-text-secondary text-sm mb-6 flex-grow font-light">
+                        <p className="text-slate-300 text-sm mb-6 flex-grow font-light">
                             How to Ideate, Build and Scale your Startup | Hacks and Mistakes.<br />
                             <span className="text-xs text-[#8b5cf6] mt-2 block font-medium">Conducted at Doon Business School.</span>
                         </p>

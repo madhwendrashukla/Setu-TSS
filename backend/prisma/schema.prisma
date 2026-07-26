@@ -430,3 +430,14 @@ model CouponUsage {
 
   @@map("coupon_usages")
 }
+
+model HelpdeskTicket {
+  id             String   @id @default(uuid()) @db.Uuid
+  email          String?
+  message        String
+  attachment_url String?
+  status         String   @default("new")
+  created_at     DateTime @default(now())
+
+  @@map("helpdesk_tickets")
+}

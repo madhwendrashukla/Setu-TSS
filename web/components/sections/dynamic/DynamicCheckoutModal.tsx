@@ -186,7 +186,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                         <h3 className="font-bold text-slate-900 text-lg">Checkout Summary</h3>
-                        <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                        <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Close checkout modal">
                             <i className="fa-solid fa-xmark text-xl" />
                         </button>
                     </div>

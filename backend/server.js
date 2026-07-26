@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 require('dotenv').config();
@@ -10,6 +11,27 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const app = express();
+app.disable('x-powered-by'); // Production hygiene: remove Express signature
+
+// Hardened HTTP Headers for API layer
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'none'"],
+      scriptSrc: ["'none'"],
+      styleSrc: ["'none'"],
+      fontSrc: ["'none'"],
+      imgSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      connectSrc: ["'self'"], // API only serves JSON data
+      frameAncestors: ["'none'"]
+    }
+  },
+  // Ensure we allow cross-origin requests from the decoupled frontend SPA
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  hsts: { maxAge: 63072000, includeSubDomains: true, preload: true }
+}));
+
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 
@@ -88,11 +110,20 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api/course-payments', coursePaymentsRoutes);
 
 // --- PUBLIC API ENDPOINTS ---
+const eventListSelection = {
+  id: true, title: true, description: true, banner_url: true,
+  venue: true, city: true, start_date: true, start_time: true,
+  end_date: true, end_time: true, registration_url: true,
+  is_past: true, is_pinned: true, is_active: true, slug: true,
+  created_at: true
+};
+
 app.get('/api/events/pinned', async (req, res) => {
   try {
     const pinnedEvents = await prisma.event.findMany({ 
       where: { is_pinned: true, is_past: false, is_active: true },
-      orderBy: { start_date: 'asc' }
+      orderBy: { start_date: 'asc' },
+      select: eventListSelection
     });
     res.json(pinnedEvents);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch pinned events' }); }
@@ -100,7 +131,11 @@ app.get('/api/events/pinned', async (req, res) => {
 
 app.get('/api/events/past-rolling', async (req, res) => {
   try {
-    const pastEvents = await prisma.event.findMany({ where: { is_past: true, is_active: true }, orderBy: { start_date: 'desc' } });
+    const pastEvents = await prisma.event.findMany({ 
+      where: { is_past: true, is_active: true }, 
+      orderBy: { start_date: 'desc' },
+      select: eventListSelection
+    });
     res.json(pastEvents);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch past events' }); }
 });
@@ -126,7 +161,11 @@ app.get('/api/events', async (req, res) => {
     if (all === 'true' && hasValidAdminToken(req)) whereClause = {};
     if (upcoming === 'true') whereClause.is_past = false;
     if (past === 'true') whereClause.is_past = true;
-    const events = await prisma.event.findMany({ where: whereClause, orderBy: { start_date: 'asc' } });
+    const events = await prisma.event.findMany({ 
+      where: whereClause, 
+      orderBy: { start_date: 'asc' },
+      select: eventListSelection
+    });
     res.json(events);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch events' }); }
 });
@@ -144,6 +183,17 @@ app.get('/api/events/slug/:slug', async (req, res) => {
         : { slug: req.params.slug, is_active: true },
     });
     if (!event) return res.status(404).json({ error: 'Event not found' });
+    
+    // Security: Filter out sensitive business logic and internal routing data
+    if (event.lms_course_slug !== undefined) delete event.lms_course_slug;
+    
+    if (event.page_blocks) {
+        const blocks = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+        if (blocks.coupon) delete blocks.coupon;
+        if (blocks.applicable_coupons) delete blocks.applicable_coupons;
+        event.page_blocks = blocks;
+    }
+
     res.json(event);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch event by slug' }); }
 });
@@ -160,10 +210,13 @@ app.get('/api/gallery', async (req, res) => {
 
 app.get('/api/testimonials', async (req, res) => {
   try {
-    const testimonials = await prisma.testimonial.findMany({ 
-      where: { is_active: true }, 
-      orderBy: { display_order: 'asc' } 
+    let testimonials = await prisma.testimonial.findMany({ 
+      where: { is_active: true }, orderBy: { display_order: 'asc' } 
     });
+    testimonials = testimonials.filter(t => 
+        !((t.video_url && t.video_url.includes('dQw4w9WgXcQ')) || 
+          (t.quote && t.quote.includes('jghgf')))
+    );
     res.json(testimonials);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch testimonials' }); }
 });
@@ -206,7 +259,14 @@ app.get('/api/homepage', async (req, res) => {
       prisma.mentoredStartup.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.bottomVideoGallery.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
     ]);
-    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos });
+    
+    const isGibberish = (str) => str && (str.includes('jghgf') || str.includes('sdfgh') || str.includes('asdf') || str === 'jhg');
+    const filteredTestimonials = testimonials.filter(t => 
+        !((t.youtube_url && (t.youtube_url.includes('dQw4w9WgXcQ') || t.youtube_url.includes('jNQXAC9IVRw'))) || 
+          isGibberish(t.quote) || isGibberish(t.name) || isGibberish(t.video_heading))
+    );
+
+    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials: filteredTestimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos });
   } catch (error) { 
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch homepage data' }); 
@@ -233,6 +293,15 @@ app.post('/api/leads', async (req, res) => {
 
     if (!cleanName || !cleanEmail) {
       return res.status(400).json({ error: 'Name and Email are required' });
+    }
+
+    // Strict Input Boundary Validation: Reject special characters in Name & City
+    const strictCharRegex = /[@#$<>\[\]\/]/;
+    if (strictCharRegex.test(name)) {
+      return res.status(400).json({ error: 'Name contains invalid special characters' });
+    }
+    if (city && strictCharRegex.test(city)) {
+      return res.status(400).json({ error: 'City contains invalid special characters' });
     }
     // Basic email format check
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
@@ -263,6 +332,9 @@ app.post('/api/leads', async (req, res) => {
 
 // --- ADMIN API ENDPOINTS (Protected) ---
 app.use('/api/admin', authMiddleware);
+
+const adminHelpdeskRoutes = require('./routes/adminHelpdesk');
+app.use('/api/admin/helpdesk', adminHelpdeskRoutes);
 
 app.post('/api/admin/upload', upload.single('file'), compressImage, async (req, res) => {
   try {

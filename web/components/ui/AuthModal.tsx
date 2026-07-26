@@ -50,7 +50,7 @@ export function AuthModal() {
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={closeAuthModal} />
             <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 z-10 animate-in fade-in zoom-in-95">
-                <button onClick={closeAuthModal} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <button onClick={closeAuthModal} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600" aria-label="Close authentication modal">
                     <i className="fa-solid fa-xmark text-xl" />
                 </button>
                 <h2 className="text-2xl font-bold text-center text-slate-900 mb-6">

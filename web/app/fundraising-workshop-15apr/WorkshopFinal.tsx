@@ -66,10 +66,10 @@ export function WorkshopFinal() {
                                 <summary className="flex justify-between items-center font-medium cursor-pointer list-none p-5 text-text-primary hover:text-[#d946ef] transition-colors">
                                     <span>{faq.q}</span>
                                     <span className="transition group-open:rotate-180">
-                                        <i className="fa-solid fa-chevron-down text-text-secondary" />
+                                        <i className="fa-solid fa-chevron-down text-slate-300" />
                                     </span>
                                 </summary>
-                                <div className="text-text-secondary font-light p-5 pt-0 text-sm md:text-base leading-relaxed border-t border-functional-border mt-2">{faq.a}</div>
+                                <div className="text-slate-300 font-light p-5 pt-0 text-sm md:text-base leading-relaxed border-t border-functional-border mt-2">{faq.a}</div>
                             </details>
                         ))}
                     </div>
@@ -93,7 +93,7 @@ export function WorkshopFinal() {
                     <div className="text-center mb-10">
                         <h2 className="text-3xl md:text-5xl font-extrabold mb-4">Contact Us</h2>
                         <div className="w-16 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-4" />
-                        <p className="text-text-secondary text-sm md:text-base">Reach out directly or drop your details below.</p>
+                        <p className="text-slate-300 text-sm md:text-base">Reach out directly or drop your details below.</p>
                     </div>
                     <div className="max-w-4xl mx-auto flex flex-col gap-8">
                         <div className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-2xl p-6 md:p-8 text-center hover:border-green-500/50 transition-colors group relative overflow-hidden">
@@ -102,7 +102,7 @@ export function WorkshopFinal() {
                                 <i className="fa-brands fa-whatsapp text-3xl" />
                             </div>
                             <h4 className="text-text-primary font-bold text-xl mb-2 relative z-10">WhatsApp Us</h4>
-                            <p className="text-sm text-text-secondary mb-6 font-light relative z-10">Get instant replies for your queries directly from our team.</p>
+                            <p className="text-sm text-slate-300 mb-6 font-light relative z-10">Get instant replies for your queries directly from our team.</p>
                             <a href="https://chat.whatsapp.com/DsWZ7dyfz4C5bB4QydtNqH?mode=gi_t" target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3 rounded-lg bg-green-500/10 border border-green-500/30 text-sm font-bold text-green-400 hover:bg-green-500 hover:text-text-primary transition-all relative z-10">
                                 Message Now <i className="fa-solid fa-arrow-up-right-from-square ml-1 text-xs" />
                             </a>
@@ -116,20 +116,20 @@ export function WorkshopFinal() {
                                 <form className="space-y-4" onSubmit={handleQuerySubmit}>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-medium text-text-secondary">Name</label>
+                                            <label className="text-xs font-medium text-slate-300">Name</label>
                                             <input type="text" required placeholder="Your Full Name" value={queryForm.name} onChange={e => setQueryForm(p => ({ ...p, name: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-xs font-medium text-text-secondary">City</label>
+                                            <label className="text-xs font-medium text-slate-300">City</label>
                                             <input type="text" required placeholder="e.g. Mumbai, Delhi" value={queryForm.city} onChange={e => setQueryForm(p => ({ ...p, city: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-text-secondary">Email Address</label>
+                                        <label className="text-xs font-medium text-slate-300">Email Address</label>
                                         <input type="email" required placeholder="you@example.com" value={queryForm.email} onChange={e => setQueryForm(p => ({ ...p, email: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-medium text-text-secondary">Contact Number</label>
+                                        <label className="text-xs font-medium text-slate-300">Contact Number</label>
                                         <input type="tel" required placeholder="+91 XXXXXXXXXX" value={queryForm.phone} onChange={e => setQueryForm(p => ({ ...p, phone: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
                                     </div>
                                     <button type="submit" disabled={status === 'loading'} className="w-full mt-6 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-text-primary font-bold py-3.5 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(217,70,239,0.3)] flex items-center justify-center gap-2 disabled:opacity-50">
@@ -148,12 +148,12 @@ export function WorkshopFinal() {
                 <div className="text-center pb-10">
                     <div className="max-w-4xl mx-auto bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-[#8b5cf6]/50 rounded-2xl p-6 md:p-10 mb-8 shadow-[0_0_20px_rgba(139,92,246,0.2)] relative overflow-hidden">
                         <div className="absolute inset-0 bg-[#8b5cf6]/5 pointer-events-none" />
-                        <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold text-text-secondary tracking-tight relative z-10 leading-relaxed">
+                        <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold text-slate-300 tracking-tight relative z-10 leading-relaxed">
                             Don&apos;t shy investing hundreds if you are looking to raise <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-4xl md:text-5xl lg:text-6xl font-extrabold block mt-3">Millions.</span>
                         </h3>
                     </div>
                     <div className="relative group inline-block w-full sm:w-auto px-4 sm:px-0 mt-4">
-                        <button disabled className="relative flex sm:inline-flex items-center justify-center px-10 py-5 md:px-14 md:py-6 text-xl md:text-2xl font-extrabold rounded-2xl text-text-secondary bg-slate-800/50 border border-functional-border cursor-not-allowed w-full">
+                        <button disabled className="relative flex sm:inline-flex items-center justify-center px-10 py-5 md:px-14 md:py-6 text-xl md:text-2xl font-extrabold rounded-2xl text-slate-300 bg-slate-800/50 border border-functional-border cursor-not-allowed w-full">
                             <i className="fa-solid fa-lock mr-3" /> Registrations Closed
                         </button>
                     </div>

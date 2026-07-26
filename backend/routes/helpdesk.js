@@ -1,7 +1,19 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const multer = require('multer');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+// Configure AWS S3 Client
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  }
+});
 
 // Hardened multer: 5MB file cap, 20 fields, 20KB per field
 const _upload = multer({
@@ -25,6 +37,36 @@ router.post('/', uploadWithGuard, async (req, res) => {
     const { message, email } = req.body;
     if (!message) return res.status(400).json({ error: 'Message is required' });
     if (message.length > 10000) return res.status(400).json({ error: 'Message too long. Maximum 10,000 characters allowed.' });
+
+    let attachmentUrl = null;
+
+    if (req.file) {
+      const bucketName = process.env.AWS_S3_BUCKET_NAME;
+      const safeOriginalName = req.file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "-");
+      // keep original extension
+      const ext = req.file.originalname.includes('.') ? req.file.originalname.split('.').pop() : 'bin';
+      const filename = `helpdesk/${Date.now()}-${safeOriginalName}.${ext}`;
+
+      const command = new PutObjectCommand({
+        Bucket: bucketName,
+        Key: filename,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      });
+
+      await s3Client.send(command);
+      attachmentUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
+    }
+
+    // Save to Database
+    await prisma.helpdeskTicket.create({
+      data: {
+        email: email || null,
+        message,
+        attachment_url: attachmentUrl,
+        status: 'new'
+      }
+    });
 
     let transporter;
     if (process.env.SMTP_HOST) {

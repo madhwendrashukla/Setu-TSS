@@ -85,7 +85,7 @@ export function WorkshopPreview() {
                             <div className="w-full md:w-1/2 px-8 py-12 md:px-16 md:py-20 flex flex-col justify-center relative z-10 order-2 md:order-1">
                                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-functional-border text-[10px] md:text-xs font-bold mb-6 w-fit text-text-primary uppercase tracking-wider">
                                     <span className="w-2 h-2 rounded-full bg-[#A855F7] animate-pulse"></span>
-                                    <span>Live Event • {fullDateStr} • {locationStr}</span>
+                                    <span suppressHydrationWarning>Live Event • {fullDateStr} • {locationStr}</span>
                                 </div>
 
                                 <h3 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 tracking-tight leading-tight text-text-primary">

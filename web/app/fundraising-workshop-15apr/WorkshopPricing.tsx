@@ -15,9 +15,9 @@ export function WorkshopPricing() {
                     {/* Basic Pricing */}
                     <div className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-2xl md:rounded-3xl p-6 md:p-8 flex flex-col hover:border-functional-border transition-all duration-300 relative overflow-hidden">
                         <div className="mb-5 border-b border-functional-border pb-5">
-                            <div className="inline-block px-3 py-1 bg-slate-800 text-text-secondary font-bold rounded-lg text-[10px] mb-3 border border-functional-border">LEVEL 1</div>
+                            <div className="inline-block px-3 py-1 bg-slate-800 text-slate-300 font-bold rounded-lg text-[10px] mb-3 border border-functional-border">LEVEL 1</div>
                             <h3 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">Basic Cohort</h3>
-                            <p className="text-sm md:text-base text-text-secondary font-medium">The basics of capital and readiness.</p>
+                            <p className="text-sm md:text-base text-slate-300 font-medium">The basics of capital and readiness.</p>
                         </div>
                         <div className="mb-6 flex items-center flex-wrap gap-3">
                             <span className="text-slate-500 line-through text-xl font-medium">₹3,500</span>
@@ -36,16 +36,16 @@ export function WorkshopPricing() {
                                 </div>
                                 <div>
                                     <span className="text-sm md:text-base font-bold block text-text-primary">6:00 PM - 9:00 PM</span>
-                                    <span className="text-xs text-text-secondary block">Live on Zoom</span>
+                                    <span className="text-xs text-slate-300 block">Live on Zoom</span>
                                 </div>
                             </li>
                             <li className="flex items-start gap-3 md:gap-4 mt-6 bg-white/5 p-3 md:p-4 rounded-xl border border-functional-border">
                                 <i className="fa-solid fa-circle-info text-[#8b5cf6] mt-0.5 text-lg shrink-0" />
-                                <span className="text-xs md:text-sm text-text-secondary font-light leading-relaxed">Less than the cost of a weekend dinner to learn the exact financial language required to build an investable company.</span>
+                                <span className="text-xs md:text-sm text-slate-300 font-light leading-relaxed">Less than the cost of a weekend dinner to learn the exact financial language required to build an investable company.</span>
                             </li>
                         </ul>
                         <div className="mt-auto w-full">
-                            <button disabled className="w-full py-4 rounded-xl bg-slate-800/50 text-text-secondary font-bold border border-functional-border cursor-not-allowed flex items-center justify-center gap-2">
+                            <button disabled className="w-full py-4 rounded-xl bg-slate-800/50 text-slate-300 font-bold border border-functional-border cursor-not-allowed flex items-center justify-center gap-2">
                                 <i className="fa-solid fa-lock text-slate-500" /> Registrations Closed
                             </button>
                         </div>
@@ -76,7 +76,7 @@ export function WorkshopPricing() {
                                 </div>
                                 <div>
                                     <span className="text-sm md:text-base font-bold block text-text-primary">6:00 PM - 9:00 PM</span>
-                                    <span className="text-xs text-text-secondary block">Live on Zoom</span>
+                                    <span className="text-xs text-slate-300 block">Live on Zoom</span>
                                 </div>
                             </li>
                             <li className="flex items-start gap-3 md:gap-4 border-t border-functional-border pt-4 mt-2">
@@ -91,7 +91,7 @@ export function WorkshopPricing() {
                                 </div>
                                 <div>
                                     <span className="text-sm md:text-base font-bold block text-text-primary">10:00 AM - 1:30 PM & 3:00 PM to 6:30 PM</span>
-                                    <span className="text-xs text-text-secondary block">Live on Zoom</span>
+                                    <span className="text-xs text-slate-300 block">Live on Zoom</span>
                                 </div>
                             </li>
                             <li className="flex items-start gap-3 md:gap-4 mt-6 bg-[#d946ef]/10 p-3 md:p-4 rounded-xl border border-[#d946ef]/20 backdrop-blur-sm">
@@ -100,7 +100,7 @@ export function WorkshopPricing() {
                             </li>
                         </ul>
                         <div className="mt-auto w-full">
-                            <button disabled className="w-full py-4 rounded-xl bg-[#0f172a]/50 text-text-secondary font-bold border border-functional-border cursor-not-allowed flex items-center justify-center gap-2">
+                            <button disabled className="w-full py-4 rounded-xl bg-[#0f172a]/50 text-slate-300 font-bold border border-functional-border cursor-not-allowed flex items-center justify-center gap-2">
                                 <i className="fa-solid fa-lock text-slate-500" /> Registrations Closed
                             </button>
                         </div>

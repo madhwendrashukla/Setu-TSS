@@ -61,9 +61,16 @@ export function Programs({ data = [], headings = {} }: { data?: any[], headings?
                                         </div>
                                     </div>
 
-                                    <Link href="/#contact" className={`w-full flex justify-center items-center gap-3 ${btnStyle} font-bold py-4 rounded-xl transition duration-300 mt-auto`}>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                                            window.history.replaceState(null, '', window.location.pathname); // clear hash
+                                        }}
+                                        className={`w-full flex justify-center items-center gap-3 ${btnStyle} font-bold py-4 rounded-xl transition duration-300 mt-auto`}
+                                    >
                                         {program.cta_text} <ArrowRight className={`w-5 h-5 ${btnArrow}`} />
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         );

@@ -6,7 +6,7 @@ export function WorkshopOutcome() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12 md:mb-20">
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 md:mb-6">A Tale of Two Founders</h2>
-                    <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto font-light">In the startup ecosystem, there are two types of founders. Which outcome do you want?</p>
+                    <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto font-light">In the startup ecosystem, there are two types of founders. Which outcome do you want?</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6 lg:gap-12 relative">
@@ -18,17 +18,17 @@ export function WorkshopOutcome() {
                             <i className="fa-solid fa-xmark text-6xl md:text-8xl" />
                         </div>
                         <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-800 rounded-2xl flex items-center justify-center mb-6 md:mb-8 border border-functional-border">
-                            <i className="fa-solid fa-user-astronaut text-text-secondary text-xl md:text-2xl" />
+                            <i className="fa-solid fa-user-astronaut text-slate-300 text-xl md:text-2xl" />
                         </div>
                         <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-text-primary">Founder 1: Passionate but Unprepared</h3>
-                        <p className="text-sm md:text-base text-text-secondary mb-6 md:mb-8 font-light">Builds relentlessly but feels completely lost when it&apos;s time to raise capital.</p>
+                        <p className="text-sm md:text-base text-slate-300 mb-6 md:mb-8 font-light">Builds relentlessly but feels completely lost when it&apos;s time to raise capital.</p>
                         <ul className="space-y-4 md:space-y-5">
                             {['Walks into investor meetings armed with a vision, but no structured narrative.', 'Stumbles over basic unit economics and dreads the "Data Room" request.', "Often faces rejection or signs restrictive deals because they don't know the rules of the game."].map((item, i) => (
                                 <li key={i} className="flex items-start gap-3 md:gap-4">
                                     <div className="mt-1 w-5 h-5 md:w-6 md:h-6 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-functional-border">
                                         <i className="fa-solid fa-xmark text-slate-500 text-[10px] md:text-xs" />
                                     </div>
-                                    <span className="text-sm md:text-base text-text-secondary font-light leading-relaxed">{item}</span>
+                                    <span className="text-sm md:text-base text-slate-300 font-light leading-relaxed">{item}</span>
                                 </li>
                             ))}
                         </ul>

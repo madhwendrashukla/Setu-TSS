@@ -48,7 +48,7 @@ export const PastWorkshopsRolling = async () => {
                 <div className="p-4 bg-bg-surface flex justify-between items-center">
                     <div className="text-text-secondary text-sm flex gap-3 flex-wrap">
                         <span>📍 {event.venue || 'TBA'}</span>
-                        <span>📅 {fullDateStr}</span>
+                        <span suppressHydrationWarning>📅 {fullDateStr}</span>
                     </div>
                 </div>
             </div>

@@ -102,13 +102,17 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                                     <div className="p-5 bg-white flex flex-col justify-center items-start grow text-left rounded-b-[24px]">
                                         <div className="text-gray-600 text-sm font-semibold flex items-center gap-4 flex-wrap">
                                             <span className="flex items-center gap-1.5 whitespace-nowrap">📍 {locationStr}</span>
-                                            <span className="flex items-center gap-1.5 whitespace-nowrap">📅 {dateStr}</span>
+                                            <span className="flex items-center gap-1.5 whitespace-nowrap" suppressHydrationWarning>📅 {dateStr}</span>
                                         </div>
                                     </div>
                                 </div>
                             );
 
-                            const targetUrl = event.slug ? `/events/${event.slug}` : (event.registration_url || "#");
+                            const sanitizeExternalUrl = (url: string) => {
+                                if (!url || url === "#") return "#";
+                                return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+                            };
+                            const targetUrl = event.slug ? `/events/${event.slug}` : sanitizeExternalUrl(event.registration_url);
                             const targetAttr = event.slug ? "_self" : "_blank";
 
                             return activeTab === 'upcoming' ? (

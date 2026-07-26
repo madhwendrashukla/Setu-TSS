@@ -37,7 +37,7 @@ export function WorkshopGuestMentors() {
                 <div className="text-center mb-16 md:mb-20">
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4">Guest Mentors</h2>
                     <div className="w-24 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-8" />
-                    <p className="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto font-light leading-relaxed">
+                    <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
                         In addition to our lead mentor, get insights from industry specialists across legal, financial, and fundraising strategy.
                     </p>
                 </div>
@@ -77,7 +77,7 @@ export function WorkshopGuestMentors() {
                                 <p className="text-[#8b5cf6] text-xs md:text-sm font-bold mb-4 tracking-wide leading-snug">
                                     {mentor.title}
                                 </p>
-                                <p className="text-text-secondary text-xs md:text-sm font-light leading-relaxed font-medium">
+                                <p className="text-slate-300 text-xs md:text-sm font-light leading-relaxed font-medium">
                                     {mentor.description}
                                 </p>
                             </div>

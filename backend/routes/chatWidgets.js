@@ -6,9 +6,11 @@ const prisma = new PrismaClient();
 // Get all widgets
 router.get('/', async (req, res) => {
   try {
-    const widgets = await prisma.chatWidget.findMany({
+    let widgets = await prisma.chatWidget.findMany({
       orderBy: { display_order: 'asc' },
     });
+    // Temporary programmatic guard to strip the known QA debug row
+    widgets = widgets.filter(w => w.title !== 'THIS IS TITLE' && w.subtitle !== 'YES');
     res.json(widgets);
   } catch (error) {
     console.error("Error fetching chat widgets:", error);

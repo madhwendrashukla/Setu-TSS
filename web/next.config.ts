@@ -61,18 +61,21 @@ const nextConfig: NextConfig = {
     // Content-Security-Policy for all page routes
     const csp = [
       "default-src 'self'",
-      // Next.js inlines scripts at runtime; GTM and Razorpay need 'unsafe-inline'
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com",
+      // Next.js inlines scripts at runtime; GTM and Razorpay need 'unsafe-inline'.
+      // *.razorpay.com covers checkout.razorpay.com, api.razorpay.com, cdn.razorpay.com, etc.
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
       "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
       // *.ufs.sh / utfs.io = UploadThing CDN (LMS course thumbnails + event banners)
-      "img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io",
-      "frame-src 'self' https://www.youtube.com https://checkout.razorpay.com",
-      "connect-src 'self' https://api.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com",
+      "img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com",
+      // Razorpay checkout modal is an iframe on api.razorpay.com → frame-src must allow *.razorpay.com
+      "frame-src 'self' https://www.youtube.com https://*.razorpay.com",
+      "connect-src 'self' https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com",
       "media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io",
       "object-src 'none'",
       "base-uri 'self'",
-      "form-action 'self'",
+      // *.razorpay.com so redirect-based methods (netbanking/UPI) can POST back
+      "form-action 'self' https://*.razorpay.com",
     ].join("; ");
 
     return [

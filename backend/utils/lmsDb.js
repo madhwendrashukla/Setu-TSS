@@ -35,9 +35,16 @@ const COURSE_COLUMNS = `
   level, category, slug, status, "fileKey", "createdAt"
 `;
 
+// Public website catalog (/events "Courses & Cohorts"). Only courses the admin
+// has made LIVE on the website (websiteLive = true) are listed — a course can
+// be PUBLISHED (sellable via its /courses/[slug] checkout) yet hidden from the
+// public catalog by leaving websiteLive off. Toggle it from the LMS course
+// editor's "Publish to website" card (Go live = show, Hide = hide).
 async function listPublishedCourses() {
   const { rows } = await lmsPool.query(
-    `SELECT ${COURSE_COLUMNS} FROM "Course" WHERE status = 'PUBLISHED' ORDER BY "createdAt" DESC`
+    `SELECT ${COURSE_COLUMNS} FROM "Course"
+     WHERE status = 'PUBLISHED' AND "websiteLive" = true
+     ORDER BY "createdAt" DESC`
   );
   return rows;
 }
@@ -50,4 +57,16 @@ async function getCourseBySlug(slug) {
   return rows[0] ?? null;
 }
 
-module.exports = { lmsPool, listPublishedCourses, getCourseBySlug };
+// Course bundles: if the given course is a bundle (has CourseBundleItem rows),
+// returns the ordered list of member course ids to enrol the buyer into.
+// Empty array = not a bundle (caller enrols in the course itself). Read-only
+// via website_ro (needs SELECT on CourseBundleItem).
+async function getBundleMemberCourseIds(bundleCourseId) {
+  const { rows } = await lmsPool.query(
+    `SELECT "courseId" FROM "CourseBundleItem" WHERE "bundleId" = $1 ORDER BY position ASC, "createdAt" ASC`,
+    [bundleCourseId]
+  );
+  return rows.map((r) => r.courseId);
+}
+
+module.exports = { lmsPool, listPublishedCourses, getCourseBySlug, getBundleMemberCourseIds };

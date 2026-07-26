@@ -191,6 +191,10 @@ export interface PricingTier {
   heading: string;
   title: string;
   key_features: string;
+  // LMS course this card sells. When set, its "Buy Now" routes to
+  // /courses/<course_slug> (that course's own checkout) instead of the
+  // event-level course — lets one event offer several courses + a bundle.
+  course_slug?: string;
   sessions?: WorkshopSession[];
   date_time_html?: string;
   pricing: {

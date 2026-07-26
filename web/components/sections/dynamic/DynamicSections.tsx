@@ -25,8 +25,17 @@ export function DynamicSections({ pageData, eventSlug, lmsCourseSlug }: { pageDa
         // Unified Events: an LMS-linked event sells through the COURSE checkout
         // (account + enrollment + welcome email), never the event-registration
         // modal — otherwise buyers pay without getting LMS access.
-        if (lmsCourseSlug) {
-            window.location.href = `/courses/${lmsCourseSlug}`;
+        //
+        // Per-card routing: a pricing card may name its OWN course (course_slug)
+        // so one event can offer several courses + a bundle — buying a card
+        // opens that specific course's checkout. Cards without a course_slug
+        // fall back to the event-level course.
+        const card =
+            pageData.pricing_options?.find((p: any) => p.id === workshopId) ||
+            pageData.workshops?.find((w: any) => w.id === workshopId);
+        const courseSlug = (card as any)?.course_slug || lmsCourseSlug;
+        if (courseSlug) {
+            window.location.href = `/courses/${courseSlug}`;
             return;
         }
         setSelectedWorkshopId(workshopId);

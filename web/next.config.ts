@@ -29,6 +29,15 @@ const nextConfig: NextConfig = {
         hostname: "bucket-rfbkoj.s3.ap-south-1.amazonaws.com",
       },
       {
+        // UploadThing CDN — the LMS stores course thumbnails + event banners here
+        protocol: "https",
+        hostname: "*.ufs.sh",
+      },
+      {
+        protocol: "https",
+        hostname: "utfs.io",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "5000",
@@ -56,10 +65,11 @@ const nextConfig: NextConfig = {
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
       "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
-      "img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com",
+      // *.ufs.sh / utfs.io = UploadThing CDN (LMS course thumbnails + event banners)
+      "img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io",
       "frame-src 'self' https://www.youtube.com https://checkout.razorpay.com",
       "connect-src 'self' https://api.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com",
-      "media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com",
+      "media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

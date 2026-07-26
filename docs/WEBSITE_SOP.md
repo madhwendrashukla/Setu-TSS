@@ -1950,5 +1950,105 @@ After saving, click **Page Builder** next to the event in the table. This opens 
 
 ---
 
+## 6. How to Manage Promo Bar & Contact Details
+
+### Step 6.1: Editing the Top Promo Bar
+1. Go to **Settings** in the sidebar.
+2. The very first panel is **Promo Bar Settings**. This controls the sticky banner at the very top of the website.
+3. **Fields:**
+   - **Main Text:** The big headline (e.g., "Flash Sale!").
+   - **Button Text:** What the button says (e.g., "Register Now").
+   - **Button Link:** Where they go when they click (paste the URL here).
+   - **Sub-text & Price:** Small text next to the button.
+4. **Is Active:** Uncheck this to completely hide the Promo Bar from the website.
+5. Click **Save Promo Bar**. It updates immediately.
+
+### Step 6.2: Updating Footer Contact Info
+1. Still in **Settings**, scroll to **Panel 2 — Site Contact Details**.
+2. Update your **Address**, **Contact Email**, or **Contact Phone**. 
+3. Click **Save Settings**. This updates the contact form and footer across the entire website.
+
+---
+
+## 7. How to Manage Galleries & Videos
+
+### Step 7.1: Updating the Image Gallery
+1. Go to **Gallery** in the sidebar. This manages the "Community Highlights" photo ticker on the homepage.
+2. Click **+ Add Image**.
+3. Upload a photo. Make sure it's a high-quality landscape (horizontal) photo.
+4. Give it a short **Caption** (e.g., "Delhi Meetup 2026").
+5. Use **Display Order** (1, 2, 3) to choose which image shows up first.
+6. Click **Save**.
+
+### Step 7.2: Adding YouTube Videos to the Grid
+1. Go to **Bottom Videos** in the sidebar. This manages the grid of 3-4 videos at the bottom of the homepage.
+2. Click **+ Add Video**.
+3. **YouTube URL:** Paste the normal YouTube link (like `https://www.youtube.com/watch?v=abcd`). Do NOT worry about "embed" codes—the system does it automatically!
+4. **Title:** Type the text that will appear right below the video player.
+5. Set the **Display Order** and click **Save**.
+
+---
+
+## 8. How to Manage Partners & Mentored Startups
+
+### Step 8.1: Adding Ecosystem Partners (Logos)
+1. Go to **Partners** in the sidebar. This controls the black-and-white scrolling logo ticker.
+2. Click **+ Add Partner**.
+3. Upload the company's logo. *Tip: Use a transparent PNG for best results.*
+4. Type the **Name** and paste their **Website URL**.
+5. Set **Is Active** to checked and hit **Save**.
+
+### Step 8.2: Adding Mentored Startups
+1. Go to **Mentored Startups** in the sidebar. This controls the colorful startup logos section.
+2. Click **+ Add Startup**.
+3. Upload the logo, fill in the Name, and click **Save**. It immediately joins the grid on the homepage.
+
+---
+
+## 9. How to Manage Programs & Coupons
+
+### Step 9.1: Adding Upcoming Programs
+1. Go to **Programs** in the sidebar.
+2. Click **+ Add Program**.
+3. Fill out the **Title** (e.g., "7 Days Sprint") and **Subtitle** (e.g., "The Spark").
+4. **Duration / Bullet Points:** Type a feature, add a comma, type another feature (e.g., "7 Days, Online, Free"). These will automatically turn into bullet points on the card!
+5. **CTA Text:** What the button should say (e.g., "Apply Now").
+6. Click **Save**.
+
+### Step 9.2: Creating Discount Coupons
+1. Go to **Coupons** in the sidebar.
+2. Click **+ Create Coupon**.
+3. **Code:** Type the promo code you want users to enter (e.g., `DIWALI50`). *Use ALL CAPS and no spaces.*
+4. **Discount Type:** Choose `Percentage` (e.g., 50%) or `Flat` (e.g., ₹500 off).
+5. **Discount Value:** Enter the number (50 or 500).
+6. **Expiry Date:** Pick when the code stops working. Leave blank if it lasts forever.
+7. Click **Save**. *Note: To actually apply this coupon to an event, go to the Event Builder and use the Coupon Dropdown in the Pricing Block!*
+
+---
+
+## 10. How to Manage Chat Widgets, Helpdesk & Mailer
+
+### Step 10.1: Managing Floating WhatsApp / Chat Buttons
+1. Go to **Chat Widgets** in the sidebar. This controls the floating buttons in the bottom right corner of the website.
+2. Click **+ Add New Widget**.
+3. **Title & Subtitle:** E.g., "WhatsApp Support" / "Replies in 5 mins".
+4. **Icon:** Type `fab fa-whatsapp` for the WhatsApp logo, or `fas fa-robot` for the AI bot.
+5. **Link:** Paste your WhatsApp API link (e.g., `https://wa.me/919999999999`) or the chatbot pop-up link.
+6. Click **Save**. 
+
+### Step 10.2: Viewing Support Tickets (Helpdesk)
+1. Go to **Helpdesk** in the sidebar.
+2. When a user fills out a support ticket, it appears here.
+3. You can read the issue, and change the **Status** from `Open` to `In Progress` or `Resolved` so your team knows it's being handled.
+
+### Step 10.3: Sending Mass Emails (Mailer)
+1. Go to **Mailer** in the sidebar.
+2. **Select Audience:** Choose if you want to email all `Leads`, all `Mentors`, or `Past Event Attendees`.
+3. **Subject:** Type the email subject line.
+4. **Body:** Use the text editor to write your email. You can make text bold, add links, and format it nicely.
+5. Click **Send Email Burst**. *Warning: This sends real emails instantly to everyone in that group. Double-check your spelling before clicking!*
+
+---
+
 *Document compiled from source code analysis of the Setu — TheStartupSchool platform as of July 2026.*  
 *Maintained by the development team. Keep this document updated when new sections or admin toggles are added.*

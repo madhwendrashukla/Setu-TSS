@@ -1822,5 +1822,133 @@ NEXT_PUBLIC_API_URL="http://localhost:5000"  # Changes to https://thestartupscho
 
 ---
 
+# PART 2: ADMIN OPERATIONS & USER MANUAL (Idiot-Proof Guide)
+
+This section is written for a non-technical administrator. It explains exactly what buttons to click, what fields to fill out, and how to manage the website step-by-step.
+
+## 1. How to Manage Events (Event Builder)
+
+The Event Builder allows you to create highly customized landing pages for your events and workshops. 
+
+### Step 1.1: Creating the Base Event
+1. Go to **Events & Workshops** in the left sidebar.
+2. Click the **+ New Event** button.
+3. **Fill out the Basics:**
+   - **Title:** The name of the event (e.g., "AI Masterclass").
+   - **Description:** A short 1-2 line summary.
+   - **Slug:** This forms the URL. If you type `ai-masterclass`, the link will be `thestartupschool.in/events/ai-masterclass`. *Do not use spaces.*
+   - **Banner Image:** Click to upload the cover photo.
+   - **Venue & City:** Where it’s happening.
+   - **Dates/Times:** Pick the start and end.
+   - **Registration URL:** Paste the link to your Razorpay/Instamojo payment page here.
+4. **Toggles:**
+   - **Is Active:** Check this to make the event visible on the public `/events` page.
+   - **Is Pinned:** Check this to make the event show up on the Homepage in the big "Upcoming Event" showcase.
+   - **Is Past:** Check this ONLY when the event is completely over to move it to the "Past Events" tab.
+5. Click **Save Event**.
+
+### Step 1.2: Building the Event Page (The Builder)
+After saving, click **Page Builder** next to the event in the table. This opens the dynamic drag-and-drop editor.
+
+1. **Adding a Block:** Click the dropdown that says "Select Block Type", choose a block, and click **+ Add Block**.
+2. **Reordering Blocks:** Use the **↑ Up** and **↓ Down** arrow buttons on any block to move it higher or lower on the page.
+3. **Deleting a Block:** Click the red **🗑️ Trash** icon in the top right of the block.
+
+### Step 1.3: Guide to Specific Blocks
+- **Hero Block:** Add this first. Type your main headline (e.g., "Learn AI in 2 Days"). Upload a high-quality background image.
+- **Schedule Block:**
+  - Click "+ Add Day".
+  - For each day, click "+ Add Timeline Event" to add rows like "10:00 AM - Opening Keynote".
+- **Speaker / Mentor Grid:**
+  - Click "+ Add Speaker".
+  - **Image:** Upload a square headshot.
+  - **Credentials:** Type a bullet point (e.g., "Ex-Google") and click "Add Item" to add more.
+- **Pricing Tier:**
+  - Add this to show ticket options.
+  - Set the Price (e.g., 999).
+  - Add features using the "Features List" (e.g., "Full 2 Day Access").
+  - Use the "Is Popular / Highlight" checkbox to make this card stand out with a purple border.
+- **Testimonials:**
+  - Choose between **Video** (paste a YouTube link) or **Text** (type the quote and author name).
+  - *Warning:* Do not type gibberish (like "asdfgh") into testimonials. The system will automatically detect fake text and hide it from the public site!
+- **FAQ Block:**
+  - Click "+ Add FAQ".
+  - Type the Question and the Answer. Set the "Order" number (1, 2, 3) to sort them.
+- **Save Your Work:** When you are done adding blocks, click the big **Save Page Builder** button at the bottom.
+
+---
+
+## 2. How to Manage the Homepage
+
+### Step 2.1: Changing the Hero (Top Auto-Sliding Text)
+1. Go to **Hero & Homepage** in the sidebar.
+2. In **Panel 1 (Hero Text)**, you will see 3 "Scenes". The homepage auto-types these scenes one after another.
+3. Change the **Heading** and **Tagline** for any scene.
+4. Set the **Time per slide (sec)** (e.g., 5 seconds).
+5. Click **Save Text Settings**. The homepage will update instantly.
+
+### Step 2.2: Changing Homepage Background Images
+1. Still in **Hero & Homepage**, scroll down to **Panel 3 (Hero Background Slides)**.
+2. **To Add:** Click "Choose File", select an image, and click "Upload Slide".
+3. **To Delete:** Hover over any existing image and click the red "Delete" button.
+4. **To Reorder:** Click the left (←) or right (→) arrows on the image to change which one shows up first.
+
+### Step 2.3: Turning Homepage Sections ON or OFF
+1. Go to **Site Settings** in the sidebar.
+2. Scroll to **Panel 3 — Section Toggles**.
+3. You will see switches for every part of the site (e.g., `show_mentors`, `show_video_gallery`, `show_testimonials`).
+4. Simply uncheck the box and click **Save Settings**. That section will instantly disappear from the live website. Check the box again to bring it back.
+
+---
+
+## 3. How to Manage Tools & Resources
+
+### Step 3.1: Hiding or Showing a Tool
+1. Go to **Site Settings** in the sidebar.
+2. Scroll to the bottom of the **Section Toggles** panel.
+3. You will see dropdowns for `tool_grants`, `tool_pitch_decks`, etc.
+4. Set it to **"true"** (Live and clickable), **"coming_soon"** (Shows a yellow badge, cannot be clicked), or **"disabled"** (Completely hidden).
+
+### Step 3.2: Adding a New Grant
+1. Go to **Tools & Resources** in the sidebar.
+2. Click **+ Add Grant**.
+3. Fill out the Name, Category, Description, and Eligibility.
+4. **Official URL:** Paste the government application link here.
+5. Click **Save**. It will immediately appear in the Grants Directory (`/tools/grants`).
+
+---
+
+## 4. How to Manage People (Mentors & Partners)
+
+### Step 4.1: Adding a Mentor
+1. Go to **Mentors** in the sidebar.
+2. Click **+ Add Mentor**.
+3. Fill in their Name, Title, and LinkedIn URL.
+4. Upload their photo.
+5. Check **Is Active** and click **Save**. They will now appear on the `/mentors` page and scrolling ticker.
+
+### Step 4.2: Managing Testimonials
+1. Go to **Testimonials** in the sidebar.
+2. When adding a Video Testimonial, go to YouTube, copy the standard link (e.g., `https://www.youtube.com/watch?v=abcd123`), and paste it in. The website will automatically convert it so it plays perfectly on the site.
+3. **Warning:** Do not test this page by typing random letters (like "jghgf"). The system's gibberish detector will block it from showing up.
+
+---
+
+## 5. How to View Sales and Leads
+
+### Step 5.1: Viewing Course Registrations
+1. Go to **Registrations** in the sidebar.
+2. Use the top dropdowns to filter by **Event Name** or **Ticket Tier**.
+3. You can see who paid, their email, and their Razorpay Order ID.
+4. Click **Export to Excel** to download the list for your team.
+
+### Step 5.2: Viewing Contact Form Leads
+1. Go to **Leads** in the sidebar.
+2. Anyone who fills out the "Contact Us" form or "Apply to be a Mentor" form appears here.
+3. You can search by their name or filter by where they applied from.
+4. Click **Export** to download the list as a spreadsheet.
+
+---
+
 *Document compiled from source code analysis of the Setu — TheStartupSchool platform as of July 2026.*  
 *Maintained by the development team. Keep this document updated when new sections or admin toggles are added.*

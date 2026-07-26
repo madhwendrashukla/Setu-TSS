@@ -1864,10 +1864,12 @@ After saving, click **Page Builder** next to the event in the table. This opens 
   - **Image:** Upload a square headshot.
   - **Credentials:** Type a bullet point (e.g., "Ex-Google") and click "Add Item" to add more.
 - **Pricing Tier:**
-  - Add this to show ticket options.
-  - Set the Price (e.g., 999).
-  - Add features using the "Features List" (e.g., "Full 2 Day Access").
-  - Use the "Is Popular / Highlight" checkbox to make this card stand out with a purple border.
+  - Add this block to show ticket options on your event page.
+  - **Tier Title:** (e.g., "General Admission" or "Premium").
+  - **Price:** Set the numeric Price (e.g., 999). Leave as 0 for Free events.
+  - **Features List:** Type a feature (e.g., "Full 2 Day Access"), press the "Add Item" button, and it will render as a bullet point.
+  - **Applicable Coupons:** Click the dropdown to select which discount codes can be used on this specific ticket. (You must create the coupons in the *Coupons* sidebar menu first!).
+  - **Is Popular / Highlight:** Check this box to make this pricing card stand out with a purple border.
 - **Testimonials:**
   - Choose between **Video** (paste a YouTube link) or **Text** (type the quote and author name).
   - *Warning:* Do not type gibberish (like "asdfgh") into testimonials. The system will automatically detect fake text and hide it from the public site!
@@ -1944,9 +1946,12 @@ After saving, click **Page Builder** next to the event in the table. This opens 
 
 ### Step 5.2: Viewing Contact Form Leads
 1. Go to **Leads** in the sidebar.
-2. Anyone who fills out the "Contact Us" form or "Apply to be a Mentor" form appears here.
+2. **Where Data Goes:** Anyone who fills out the "Contact Us" form or "Apply to be a Mentor" form has their data instantly saved to the secure Postgres database and it appears here in this table.
 3. You can search by their name or filter by where they applied from.
-4. Click **Export** to download the list as a spreadsheet.
+4. **How to Reply to Them:**
+   - **Option A (Manual):** Copy their email address from the table and reply using your own company Gmail/Outlook account.
+   - **Option B (Mass Email):** Use the **Mailer** tab (see Step 10.3) to send a mass email blast to all of your Leads at once.
+5. Click **Export** to download the full list as a spreadsheet.
 
 ---
 
@@ -2018,11 +2023,15 @@ After saving, click **Page Builder** next to the event in the table. This opens 
 ### Step 9.2: Creating Discount Coupons
 1. Go to **Coupons** in the sidebar.
 2. Click **+ Create Coupon**.
-3. **Code:** Type the promo code you want users to enter (e.g., `DIWALI50`). *Use ALL CAPS and no spaces.*
-4. **Discount Type:** Choose `Percentage` (e.g., 50%) or `Flat` (e.g., ₹500 off).
-5. **Discount Value:** Enter the number (50 or 500).
-6. **Expiry Date:** Pick when the code stops working. Leave blank if it lasts forever.
-7. Click **Save**. *Note: To actually apply this coupon to an event, go to the Event Builder and use the Coupon Dropdown in the Pricing Block!*
+3. **Code:** Type the promo code you want users to enter at checkout (e.g., `DIWALI50`). *Important: Use ALL CAPS and no spaces.*
+4. **Discount Type:** Choose `Percentage` (if you want 50% off) or `Flat` (if you want ₹500 off).
+5. **Discount Value:** Enter just the number (e.g., type 50 or 500).
+6. **Expiry Date:** Pick the exact calendar day when the code stops working. If it never expires, leave this blank.
+7. Click **Save**. *The coupon is now saved in the database.*
+8. **How to Link the Coupon to an Event:**
+   - Merely creating a coupon does not make it active.
+   - Go to **Events & Workshops** -> **Page Builder**.
+   - In your **Pricing Tier** block, click the **Applicable Coupons** dropdown and check the box next to `DIWALI50`. Now users can actually use it on that event!
 
 ---
 

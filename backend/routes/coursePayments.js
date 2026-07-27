@@ -332,10 +332,12 @@ async function dispatchEnrollment(order, extra = {}) {
   } catch (err) {
     console.error('Bundle member lookup failed (enrolling in the course itself):', err);
   }
-  const courseIds = memberIds.length > 0 ? memberIds : [order.lms_course_id];
+  const isBundle = memberIds.length > 0;
+  const courseIds = isBundle ? memberIds : [order.lms_course_id];
 
   (async () => {
-    for (const courseId of courseIds) {
+    for (let i = 0; i < courseIds.length; i++) {
+      const courseId = courseIds[i];
       try {
         await sendEnrollmentWebhook({
           id: order.id,
@@ -347,6 +349,16 @@ async function dispatchEnrollment(order, extra = {}) {
           utmSource: order.utm_source,
           utmMedium: order.utm_medium,
           utmCampaign: order.utm_campaign,
+          // Bundle context lets the LMS collapse the per-member fan-out into a
+          // single credentials email + one course summary (instead of N emails).
+          bundle: isBundle
+            ? {
+                title: order.course_title,
+                index: i,
+                total: courseIds.length,
+                memberCourseIds: courseIds,
+              }
+            : undefined,
         });
       } catch (err) {
         console.error(`Webhook dispatch error (course ${courseId}, order ${order.id}):`, err);

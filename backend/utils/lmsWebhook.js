@@ -35,6 +35,9 @@ async function sendOnce(order, attempt) {
     utmSource: order.utmSource ?? undefined,
     utmMedium: order.utmMedium ?? undefined,
     utmCampaign: order.utmCampaign ?? undefined,
+    // Present only for bundle fan-outs — the receiver uses it to send one
+    // credentials email + one summary instead of one email per member course.
+    bundle: order.bundle ?? undefined,
   };
   const rawBody = JSON.stringify(payload);
   const signature = signPayload(rawBody, process.env.LMS_WEBHOOK_SECRET);

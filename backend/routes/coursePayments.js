@@ -89,6 +89,35 @@ router.post('/capture-lead', async (req, res) => {
   }
 });
 
+// Ownership credit (Scenario #10 upgrade + #13 re-purchase): the buyer never
+// pays twice for content they already own. We credit the money they ALREADY
+// PAID for any course overlapping this purchase — bundles expand to their
+// member courses on BOTH sides — and cap the credit at the order total so the
+// payable is never negative. This never blocks: a fully-owned re-purchase just
+// nets to ₹0 (handled by the caller as a no-charge, access-granting order).
+async function computeOwnershipCreditPaise({ email, newGrantIds, amountPaise }) {
+  const priorPaid = await prisma.courseOrder.findMany({
+    where: { buyer_email: email, status: 'paid' },
+    select: { lms_course_id: true, amount: true },
+  });
+  let creditPaise = 0;
+  for (const p of priorPaid) {
+    if (!p.amount || p.amount <= 0) continue; // free/already-credited grants cost nothing to credit back
+    let grantSet;
+    try {
+      const members = await getBundleMemberCourseIds(p.lms_course_id);
+      grantSet = members.length > 0 ? members : [p.lms_course_id];
+    } catch {
+      grantSet = [p.lms_course_id];
+    }
+    const overlap = grantSet.filter((id) => newGrantIds.includes(id));
+    if (overlap.length === 0) continue;
+    // Attribute the prior payment to the share of its grant that overlaps.
+    creditPaise += Math.round((p.amount * overlap.length) / grantSet.length);
+  }
+  return Math.min(creditPaise, amountPaise);
+}
+
 // POST /api/course-payments/create-order
 // The price is always read from the LMS Course table server-side — the
 // client never supplies an amount. Free courses are rejected here: free
@@ -141,18 +170,76 @@ router.post('/create-order', async (req, res) => {
       ({ amount: amountPaise, discount: discountPaise } = applyCouponPaise(originalPaise, appliedCoupon));
     }
 
+    const buyerEmail = email.trim().toLowerCase();
+
+    // Expand this purchase to the member courses it grants (bundle → members,
+    // else the course itself), then credit anything the buyer already paid for.
+    let newGrantIds;
+    try {
+      const members = await getBundleMemberCourseIds(course.id);
+      newGrantIds = members.length > 0 ? members : [course.id];
+    } catch (err) {
+      console.error('Bundle expansion failed (treating as single course):', err);
+      newGrantIds = [course.id];
+    }
+    const creditPaise = await computeOwnershipCreditPaise({
+      email: buyerEmail,
+      newGrantIds,
+      amountPaise,
+    });
+    const payablePaise = amountPaise - creditPaise;
+
+    // Fully covered by credit (e.g. re-buying something already owned): grant
+    // access with no Razorpay charge — it can't take ₹0 — and never block.
+    if (payablePaise <= 0) {
+      const creditedOrder = await prisma.courseOrder.create({
+        data: {
+          lms_course_id: course.id,
+          course_slug: course.slug,
+          course_title: course.title,
+          amount: 0,
+          currency: 'INR',
+          buyer_email: buyerEmail,
+          buyer_name: name.trim(),
+          buyer_phone: phone?.trim() || null,
+          status: 'paid', // fully credited — nothing to collect
+          webhook_status: 'pending',
+          coupon_code: appliedCoupon ? appliedCoupon.code : null,
+          discount_amount: appliedCoupon ? discountPaise : null,
+          credit_amount: creditPaise,
+          utm_source: utmSource || null,
+          utm_medium: utmMedium || null,
+          utm_campaign: utmCampaign || null,
+        },
+      });
+      // Bundle-aware, idempotent: members already owned come back 409 from the
+      // LMS (no double enrollment); any not-yet-owned member gets provisioned.
+      await dispatchEnrollment(creditedOrder, {
+        razorpayOrderId: `credit_${creditedOrder.id}`,
+        paymentStatus: 'paid',
+      });
+      return res.json({
+        fullyCredited: true,
+        orderId: creditedOrder.id,
+        credit: creditPaise, // paise credited for already-owned courses
+        originalAmount: originalPaise, // paise, pre-coupon
+        courseTitle: course.title,
+      });
+    }
+
     const order = await prisma.courseOrder.create({
       data: {
         lms_course_id: course.id,
         course_slug: course.slug,
         course_title: course.title,
-        amount: amountPaise,
+        amount: payablePaise,
         currency: 'INR',
-        buyer_email: email.trim().toLowerCase(),
+        buyer_email: buyerEmail,
         buyer_name: name.trim(),
         buyer_phone: phone?.trim() || null,
         coupon_code: appliedCoupon ? appliedCoupon.code : null,
         discount_amount: appliedCoupon ? discountPaise : null,
+        credit_amount: creditPaise || null,
         utm_source: utmSource || null,
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
@@ -160,7 +247,7 @@ router.post('/create-order', async (req, res) => {
     });
 
     const razorpayOrder = await razorpay.orders.create({
-      amount: amountPaise,
+      amount: payablePaise,
       currency: 'INR',
       receipt: order.id,
       notes: { courseSlug: course.slug, orderId: order.id },
@@ -174,9 +261,10 @@ router.post('/create-order', async (req, res) => {
     res.json({
       orderId: order.id,
       razorpayOrderId: razorpayOrder.id,
-      amount: amountPaise, // paise — what Razorpay checkout expects
+      amount: payablePaise, // paise — what Razorpay checkout expects (post-coupon, post-credit)
       originalAmount: originalPaise, // paise, pre-coupon
       discount: discountPaise, // paise
+      credit: creditPaise, // paise credited for already-owned courses
       couponCode: appliedCoupon ? appliedCoupon.code : null,
       currency: 'INR',
       keyId: process.env.RAZORPAY_KEY_ID,

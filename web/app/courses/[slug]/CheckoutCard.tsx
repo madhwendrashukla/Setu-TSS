@@ -51,6 +51,9 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [status, setStatus] = useState<Status>("idle");
+    // Set when create-order returns fullyCredited: the buyer already owned this
+    // (fully covered by ownership credit), so access is granted with no charge.
+    const [credited, setCredited] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [couponInput, setCouponInput] = useState("");
     const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
@@ -223,6 +226,14 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
             }
             if (!orderRes.ok) throw new Error(order.error || "Could not start checkout");
 
+            // Already owned — fully covered by ownership credit. No Razorpay
+            // charge; the server has already granted access.
+            if (order.fullyCredited) {
+                setCredited(true);
+                setStatus("success");
+                return;
+            }
+
             if (!(await loadRazorpayScript()) || !window.Razorpay) {
                 throw new Error("Could not load the payment window — please retry");
             }
@@ -362,11 +373,20 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
         return (
             <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] lg:sticky lg:top-28 text-center">
                 <p className="text-2xl font-black text-green-600 mb-3">
-                    {price <= 0 ? "You're enrolled 🎉" : "Payment successful 🎉"}
+                    {credited ? "Access confirmed 🎉" : price <= 0 ? "You're enrolled 🎉" : "Payment successful 🎉"}
                 </p>
                 <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                    You&apos;re enrolled in <strong>{title}</strong>. Check <strong>{email}</strong> for
-                    your login details (new students receive a temporary password).
+                    {credited ? (
+                        <>
+                            You already own <strong>{title}</strong>, so there was nothing more to pay — it&apos;s
+                            on your account. Check <strong>{email}</strong> for your login details.
+                        </>
+                    ) : (
+                        <>
+                            You&apos;re enrolled in <strong>{title}</strong>. Check <strong>{email}</strong> for
+                            your login details (new students receive a temporary password).
+                        </>
+                    )}
                 </p>
                 {/* Until the domain + transactional-email cutover, welcome emails
                     can land in spam — never leave a paying student stranded. */}

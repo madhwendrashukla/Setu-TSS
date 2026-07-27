@@ -8,6 +8,29 @@ const prisma = new PrismaClient();
 const { getCourseBySlug, getBundleMemberCourseIds } = require('../utils/lmsDb');
 const { sendEnrollmentWebhook } = require('../utils/lmsWebhook');
 const { validateCouponForCourse, applyCouponPaise, recordCouponUsage } = require('../utils/coupons');
+const jwt = require('jsonwebtoken');
+
+// Email verification at checkout — reuses the existing OTP flow (/api/otp/send
+// + /api/otp/verify, which issues a 30-min guest token). Default ON; set
+// COURSE_EMAIL_VERIFICATION=false to disable instantly without a rebuild.
+const EMAIL_VERIFY_ON = process.env.COURSE_EMAIL_VERIFICATION !== 'false';
+
+// Returns null when the request carries a valid guest token matching `email`
+// (or when verification is disabled), otherwise a { status, body } to send.
+function requireEmailVerification(req, email) {
+  if (!EMAIL_VERIFY_ON) return null;
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (token) {
+    try {
+      const d = jwt.verify(token, process.env.GUEST_TOKEN_SECRET || 'tss_guest_otp_secret_2026');
+      if (d && d.guest && String(d.email).toLowerCase() === String(email).trim().toLowerCase()) {
+        return null; // verified
+      }
+    } catch { /* invalid/expired token → fall through to 403 */ }
+  }
+  return { status: 403, body: { error: 'Please verify your email to continue.', code: 'EMAIL_NOT_VERIFIED' } };
+}
 
 // Lazy so the backend still boots (and every non-payment route works) when
 // Razorpay keys aren't configured yet; payment routes then 503 cleanly.
@@ -35,6 +58,37 @@ const paymentLimiter = rateLimit({
 
 router.use(paymentLimiter);
 
+// POST /api/course-payments/capture-lead
+// Immature-lead capture: the visitor typed an email into the checkout but
+// hasn't paid (or even finished the form). Best-effort upsert into the CRM
+// leads so half-finished checkouts aren't lost. Never blocks the UI.
+router.post('/capture-lead', async (req, res) => {
+  try {
+    const { email, name, phone, slug } = req.body || {};
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'A valid email is required' });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const fullName = (name && String(name).trim()) || cleanEmail.split('@')[0];
+    const source = 'Course checkout (incomplete)';
+    const existing = await prisma.lead.findFirst({ where: { email: cleanEmail, source } });
+    if (existing) {
+      await prisma.lead.update({
+        where: { id: existing.id },
+        data: { full_name: fullName, phone: phone?.trim() || existing.phone, message: slug || existing.message },
+      });
+    } else {
+      await prisma.lead.create({
+        data: { full_name: fullName, email: cleanEmail, phone: phone?.trim() || null, source, status: 'new', message: slug || null },
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('capture-lead error:', err.message);
+    res.status(200).json({ success: false }); // best-effort — never break checkout UX
+  }
+});
+
 // POST /api/course-payments/create-order
 // The price is always read from the LMS Course table server-side — the
 // client never supplies an amount. Free courses are rejected here: free
@@ -52,6 +106,10 @@ router.post('/create-order', async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Invalid email address' });
     }
+
+    // Gate on a verified email (reuses the OTP guest token). Disabled ⇒ no-op.
+    const _gate = requireEmailVerification(req, email);
+    if (_gate) return res.status(_gate.status).json(_gate.body);
 
     const course = await getCourseBySlug(slug);
     if (!course) {
@@ -248,6 +306,10 @@ router.post('/enroll-free', async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Invalid email address' });
     }
+
+    // Gate on a verified email (reuses the OTP guest token). Disabled ⇒ no-op.
+    const _gate = requireEmailVerification(req, email);
+    if (_gate) return res.status(_gate.status).json(_gate.body);
 
     const course = await getCourseBySlug(slug);
     if (!course) {

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 // Razorpay checkout for a paid LMS course. Flow:
+//   (email verification via OTP — reuses /api/otp/send + /api/otp/verify)
 //   create-order (server fetches the real price from the LMS DB)
 //   → checkout.razorpay.com modal
 //   → verify (server-side signature check)
@@ -42,6 +43,9 @@ type AppliedCoupon = {
     originalAmount: number; // paise
 };
 
+const inputCls =
+    "w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet";
+
 export default function CheckoutCard({ slug, title, price }: { slug: string; title: string; price: number }) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -52,6 +56,92 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
     const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
     const [couponError, setCouponError] = useState<string | null>(null);
     const [couponChecking, setCouponChecking] = useState(false);
+
+    // Email verification (OTP) — reuses the existing /api/otp/send + /api/otp/verify.
+    const [guestToken, setGuestToken] = useState<string | null>(null);
+    const [otpMode, setOtpMode] = useState(false);
+    const [otp, setOtp] = useState("");
+    const [otpBusy, setOtpBusy] = useState(false);
+    const [otpError, setOtpError] = useState<string | null>(null);
+    const [resendIn, setResendIn] = useState(0);
+    const [pending, setPending] = useState<null | "pay" | "free">(null);
+
+    const utm = () => {
+        const q = new URLSearchParams(window.location.search);
+        return {
+            utmSource: q.get("utm_source") || undefined,
+            utmMedium: q.get("utm_medium") || undefined,
+            utmCampaign: q.get("utm_campaign") || undefined,
+        };
+    };
+
+    const authHeaders = (token?: string | null): Record<string, string> => {
+        const t = token ?? guestToken;
+        return t ? { Authorization: `Bearer ${t}` } : {};
+    };
+
+    // Immature-lead capture — grab the email the moment it's entered (on blur),
+    // even if the visitor never finishes. Best-effort; failures are ignored.
+    const captureLead = () => {
+        const e = email.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return;
+        fetch(`${API}/api/course-payments/capture-lead`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: e, name: name || undefined, phone: phone || undefined, slug }),
+        }).catch(() => { });
+    };
+
+    const sendOtp = async () => {
+        setOtpError(null);
+        setOtpBusy(true);
+        try {
+            const res = await fetch(`${API}/api/otp/send`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, name, phone: phone || undefined }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || "Could not send the code — please retry");
+            setOtpMode(true);
+            setStatus("idle");
+            setResendIn(60);
+            const t = setInterval(
+                () => setResendIn((r) => { if (r <= 1) { clearInterval(t); return 0; } return r - 1; }),
+                1000,
+            );
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Could not send the code");
+            setStatus("error");
+        } finally {
+            setOtpBusy(false);
+        }
+    };
+
+    const verifyOtp = async () => {
+        setOtpError(null);
+        setOtpBusy(true);
+        try {
+            const res = await fetch(`${API}/api/otp/verify`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, otp }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.guestToken) throw new Error(data.error || "Incorrect code — please try again");
+            setGuestToken(data.guestToken);
+            setOtpMode(false);
+            setOtp("");
+            const action = pending;
+            setPending(null);
+            if (action === "pay") pay(undefined, data.guestToken);
+            else if (action === "free") enrollFree(undefined, data.guestToken);
+        } catch (err) {
+            setOtpError(err instanceof Error ? err.message : "Verification failed");
+        } finally {
+            setOtpBusy(false);
+        }
+    };
 
     const applyCoupon = async () => {
         const code = couponInput.trim();
@@ -84,25 +174,22 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
         }
     };
 
-    const enrollFree = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const enrollFree = async (e?: React.FormEvent, token?: string) => {
+        e?.preventDefault();
         setError(null);
         setStatus("paying");
         try {
             const res = await fetch(`${API}/api/course-payments/enroll-free`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    slug,
-                    name,
-                    email,
-                    phone: phone || undefined,
-                    utmSource: new URLSearchParams(window.location.search).get("utm_source") || undefined,
-                    utmMedium: new URLSearchParams(window.location.search).get("utm_medium") || undefined,
-                    utmCampaign: new URLSearchParams(window.location.search).get("utm_campaign") || undefined,
-                }),
+                headers: { "Content-Type": "application/json", ...authHeaders(token) },
+                body: JSON.stringify({ slug, name, email, phone: phone || undefined, ...utm() }),
             });
             const body = await res.json().catch(() => ({}));
+            if (res.status === 403 && body.code === "EMAIL_NOT_VERIFIED") {
+                setPending("free");
+                await sendOtp();
+                return;
+            }
             if (!res.ok) throw new Error(body.error || "Could not enroll — please retry");
             setStatus("success");
         } catch (err) {
@@ -110,6 +197,122 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
             setStatus("error");
         }
     };
+
+    const pay = async (e?: React.FormEvent, token?: string) => {
+        e?.preventDefault();
+        setError(null);
+        setStatus("paying");
+        try {
+            const orderRes = await fetch(`${API}/api/course-payments/create-order`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...authHeaders(token) },
+                body: JSON.stringify({
+                    slug,
+                    name,
+                    email,
+                    phone: phone || undefined,
+                    couponCode: coupon?.code || undefined,
+                    ...utm(),
+                }),
+            });
+            const order = await orderRes.json();
+            if (orderRes.status === 403 && order.code === "EMAIL_NOT_VERIFIED") {
+                setPending("pay");
+                await sendOtp();
+                return;
+            }
+            if (!orderRes.ok) throw new Error(order.error || "Could not start checkout");
+
+            if (!(await loadRazorpayScript()) || !window.Razorpay) {
+                throw new Error("Could not load the payment window — please retry");
+            }
+
+            const rzp = new window.Razorpay({
+                key: order.keyId,
+                amount: order.amount,
+                currency: order.currency,
+                name: "The Startup School",
+                description: title,
+                order_id: order.razorpayOrderId,
+                prefill: { name, email, contact: phone },
+                theme: { color: "#6B21FB" },
+                modal: { ondismiss: () => setStatus("idle") },
+                handler: async (response: {
+                    razorpay_order_id: string;
+                    razorpay_payment_id: string;
+                    razorpay_signature: string;
+                }) => {
+                    const verifyRes = await fetch(`${API}/api/course-payments/verify`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(response),
+                    });
+                    if (verifyRes.ok) {
+                        setStatus("success");
+                    } else {
+                        const body = await verifyRes.json().catch(() => ({}));
+                        setError(body.error || "Payment verification failed — contact support with your payment ID");
+                        setStatus("error");
+                    }
+                },
+            });
+            rzp.open();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Something went wrong");
+            setStatus("error");
+        }
+    };
+
+    // ── Email verification step (shared by the free + paid flows) ──────────────
+    if (otpMode) {
+        return (
+            <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] lg:sticky lg:top-28">
+                <p className="text-xl font-black text-[#0B1120] mb-1">Verify your email</p>
+                <p className="text-sm text-slate-600 leading-relaxed mb-1">
+                    We sent a 6-digit code to <strong>{email}</strong>.
+                </p>
+                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-5">
+                    Can&apos;t find it? Check your <strong>spam folder</strong> — it sometimes lands there.
+                </p>
+                <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    autoFocus
+                    placeholder="Enter 6-digit code"
+                    value={otp}
+                    onChange={(e) => { setOtp(e.target.value.replace(/\D/g, "").slice(0, 6)); setOtpError(null); }}
+                    className={`${inputCls} tracking-[0.4em] text-center text-lg font-bold`}
+                />
+                {otpError && <p className="mt-3 text-sm text-red-600">{otpError}</p>}
+                <button
+                    type="button"
+                    onClick={verifyOtp}
+                    disabled={otpBusy || otp.length !== 6}
+                    className="mt-4 w-full rounded-full bg-accent-violet text-white font-bold py-3 transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                >
+                    {otpBusy ? "Verifying…" : "Verify & continue"}
+                </button>
+                <div className="mt-4 flex items-center justify-between text-xs">
+                    <button
+                        type="button"
+                        onClick={() => { setOtpMode(false); setOtp(""); setOtpError(null); setStatus("idle"); }}
+                        className="font-semibold text-slate-500 hover:underline"
+                    >
+                        ← Change email
+                    </button>
+                    <button
+                        type="button"
+                        onClick={sendOtp}
+                        disabled={otpBusy || resendIn > 0}
+                        className="font-semibold text-accent-blue hover:underline disabled:text-slate-400 disabled:no-underline"
+                    >
+                        {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend code"}
+                    </button>
+                </div>
+            </aside>
+        );
+    }
 
     if (price <= 0 && status !== "success") {
         return (
@@ -125,7 +328,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                         placeholder="Full name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
+                        className={inputCls}
                     />
                     <input
                         type="email"
@@ -133,7 +336,8 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                         placeholder="Email (your LMS login)"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
+                        onBlur={captureLead}
+                        className={inputCls}
                     />
                     <button
                         type="submit"
@@ -179,68 +383,6 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
         );
     }
 
-    const pay = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setStatus("paying");
-        try {
-            const orderRes = await fetch(`${API}/api/course-payments/create-order`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    slug,
-                    name,
-                    email,
-                    phone: phone || undefined,
-                    couponCode: coupon?.code || undefined,
-                    utmSource: new URLSearchParams(window.location.search).get("utm_source") || undefined,
-                    utmMedium: new URLSearchParams(window.location.search).get("utm_medium") || undefined,
-                    utmCampaign: new URLSearchParams(window.location.search).get("utm_campaign") || undefined,
-                }),
-            });
-            const order = await orderRes.json();
-            if (!orderRes.ok) throw new Error(order.error || "Could not start checkout");
-
-            if (!(await loadRazorpayScript()) || !window.Razorpay) {
-                throw new Error("Could not load the payment window — please retry");
-            }
-
-            const rzp = new window.Razorpay({
-                key: order.keyId,
-                amount: order.amount,
-                currency: order.currency,
-                name: "The Startup School",
-                description: title,
-                order_id: order.razorpayOrderId,
-                prefill: { name, email, contact: phone },
-                theme: { color: "#6B21FB" },
-                modal: { ondismiss: () => setStatus("idle") },
-                handler: async (response: {
-                    razorpay_order_id: string;
-                    razorpay_payment_id: string;
-                    razorpay_signature: string;
-                }) => {
-                    const verifyRes = await fetch(`${API}/api/course-payments/verify`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(response),
-                    });
-                    if (verifyRes.ok) {
-                        setStatus("success");
-                    } else {
-                        const body = await verifyRes.json().catch(() => ({}));
-                        setError(body.error || "Payment verification failed — contact support with your payment ID");
-                        setStatus("error");
-                    }
-                },
-            });
-            rzp.open();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Something went wrong");
-            setStatus("error");
-        }
-    };
-
     return (
         <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] lg:sticky lg:top-28">
             {coupon ? (
@@ -265,7 +407,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     placeholder="Full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
+                    className={inputCls}
                 />
                 <input
                     type="email"
@@ -273,14 +415,15 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     placeholder="Email (your LMS login)"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
+                    onBlur={captureLead}
+                    className={inputCls}
                 />
                 <input
                     type="tel"
                     placeholder="Phone (optional)"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
+                    className={inputCls}
                 />
                 {coupon ? (
                     <div className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3">
@@ -323,8 +466,8 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
             </form>
             {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
             <p className="mt-4 text-xs text-slate-500 leading-relaxed">
-                Secure payment via Razorpay. After payment you&apos;ll get LMS access with
-                credentials sent to your email.
+                Secure payment via Razorpay. We verify your email first, then after payment
+                you&apos;ll get LMS access with credentials sent to your email.
             </p>
         </aside>
     );

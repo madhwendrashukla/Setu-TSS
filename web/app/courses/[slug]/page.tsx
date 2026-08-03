@@ -112,9 +112,11 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                         </span>
                         {course.duration > 0 && (
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 px-3.5 py-1.5">
-                                {course.duration >= 60
-                                    ? `${Math.round(course.duration / 60)} hrs content`
-                                    : `${course.duration} min`}
+                                {/* Course.duration is stored in HOURS (the LMS admin field is
+                                    labelled "Duration: (hours)" and the LMS renders it as "13h").
+                                    This used to divide by 60 and fall back to "min", so a 13-hour
+                                    programme advertised itself as "13 min" on its own sales page. */}
+                                {course.duration === 1 ? '1 hour of content' : `${course.duration} hours of content`}
                             </span>
                         )}
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 border border-green-200 text-green-700 px-3.5 py-1.5">

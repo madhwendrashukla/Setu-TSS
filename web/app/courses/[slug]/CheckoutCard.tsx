@@ -438,9 +438,15 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     onBlur={captureLead}
                     className={inputCls}
                 />
+                {/* Not optional: /api/otp/send (shared with the event flow) rejects a
+                    missing phone with "Name, email and phone are required", so the old
+                    "(optional)" label produced an error the buyer could not explain.
+                    Labelled and enforced honestly here rather than relaxing the shared
+                    backend validation, which the event registration flow also relies on. */}
                 <input
                     type="tel"
-                    placeholder="Phone (optional)"
+                    required
+                    placeholder="Phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className={inputCls}

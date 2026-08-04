@@ -347,56 +347,62 @@ app.post('/api/admin/upload', upload.single('file'), compressImage, async (req, 
 });
 
 // EVENTS
+//
+// Columns on tss_events that the admin form is allowed to write. The body is
+// filtered against this list rather than spread straight into Prisma: the
+// multipart form posts fields that are NOT columns (most notably `banner`,
+// which is the file input's own name and arrives as an empty string when no
+// image is chosen), and Prisma rejects the whole write with
+// "Unknown argument `banner`" -> a 500 and no event created.
+// Whitelisting also means a new form field can never break event saving again.
+const EVENT_FIELDS = [
+  'title', 'description', 'banner_url', 'venue', 'city',
+  'start_date', 'start_time', 'end_date', 'end_time',
+  'registration_url', 'is_past', 'is_pinned', 'is_active',
+  'slug', 'page_blocks', 'lms_course_slug',
+];
+
+function buildEventData(body, file) {
+  const data = {};
+  for (const key of EVENT_FIELDS) {
+    if (body[key] !== undefined) data[key] = body[key];
+  }
+  if (file) data.banner_url = file.url;
+
+  // multipart sends everything as strings
+  for (const flag of ['is_past', 'is_pinned', 'is_active']) {
+    if (data[flag] !== undefined) data[flag] = (data[flag] === 'true' || data[flag] === true);
+  }
+  if (data.start_date) data.start_date = new Date(data.start_date);
+  if (data.end_date) data.end_date = new Date(data.end_date);
+  if (data.page_blocks && typeof data.page_blocks === 'string') {
+    try { data.page_blocks = JSON.parse(data.page_blocks); } catch (e) {}
+  }
+  // Optional unique columns: an empty string would collide on the second
+  // event that also leaves them blank, so store NULL instead.
+  for (const uniq of ['slug', 'lms_course_slug']) {
+    if (data[uniq] === '') data[uniq] = null;
+  }
+  return data;
+}
+
 app.post('/api/admin/events', upload.single('banner'), compressImage, async (req, res) => {
   try {
-    const data = { ...req.body };
-    if (req.file) data.banner_url = req.file.url;
-    
-    data.is_pinned = (data.is_pinned === 'true' || data.is_pinned === true);
-    delete data.display_order;
-
-    
-    if (data.is_past !== undefined) {
-      data.is_past = (data.is_past === 'true' || data.is_past === true);
-    }
-    
-    if (data.start_date) data.start_date = new Date(data.start_date);
-    if (data.end_date) data.end_date = new Date(data.end_date);
-    
-    if (data.page_blocks && typeof data.page_blocks === 'string') {
-      try { data.page_blocks = JSON.parse(data.page_blocks); } catch (e) {}
-    }
+    const data = buildEventData(req.body, req.file);
+    data.is_pinned = data.is_pinned === true;
 
     const newEvent = await prisma.event.create({ data });
     res.json(newEvent);
-  } catch (error) { 
+  } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to create event' }); 
+    res.status(500).json({ error: 'Failed to create event' });
   }
 });
 
 app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (req, res) => {
   try {
-    const data = { ...req.body };
-    if (req.file) data.banner_url = req.file.url;
-    
-    if (data.is_pinned !== undefined) {
-      data.is_pinned = (data.is_pinned === 'true' || data.is_pinned === true);
-    }
-    
-    delete data.display_order;
-
-    
-    if (data.is_past !== undefined) {
-      data.is_past = (data.is_past === 'true' || data.is_past === true);
-    }
-    
-    if (data.start_date) data.start_date = new Date(data.start_date);
-    if (data.end_date) data.end_date = new Date(data.end_date);
-    
-    if (data.page_blocks && typeof data.page_blocks === 'string') {
-      try { data.page_blocks = JSON.parse(data.page_blocks); } catch (e) {}
-    }
+    // Same whitelist as create — see EVENT_FIELDS above.
+    const data = buildEventData(req.body, req.file);
 
     const updated = await prisma.event.update({ where: { id: req.params.id }, data });
     res.json(updated);

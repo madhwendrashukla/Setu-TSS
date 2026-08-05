@@ -11,9 +11,13 @@ export function middleware(req: NextRequest) {
 
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   
-  // The Strict Admin CSP uses the nonce to allow Next.js hydration scripts 
+  // The Strict Admin CSP uses the nonce to allow Next.js hydration scripts
   // without needing 'unsafe-inline' or 'unsafe-eval', fully mitigating XSS risks.
-  const adminCsp = `default-src 'self'; script-src 'self' 'nonce-${nonce}' 'strict-dynamic'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; frame-src 'self'; connect-src 'self' http://localhost:5000 https://*.razorpay.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self'`;
+  //
+  // YouTube is allowed in frame-src/img-src because /admin/bottom-videos previews
+  // each entry with a <iframe src="https://www.youtube.com/embed/...">; under a bare
+  // frame-src 'self' those previews render as a blocked frame.
+  const adminCsp = `default-src 'self'; script-src 'self' 'nonce-${nonce}' 'strict-dynamic'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; frame-src 'self' https://www.youtube.com; connect-src 'self' http://localhost:5000 https://*.razorpay.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self'`;
 
   const isProtectedAdminPath =
     pathname.startsWith('/admin') &&

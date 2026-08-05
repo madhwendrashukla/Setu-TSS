@@ -9,8 +9,12 @@ router.get('/', async (req, res) => {
     let widgets = await prisma.chatWidget.findMany({
       orderBy: { display_order: 'asc' },
     });
-    // Temporary programmatic guard to strip the known QA debug row
-    widgets = widgets.filter(w => w.title !== 'THIS IS TITLE' && w.subtitle !== 'YES');
+    // Temporary programmatic guard to strip the known QA debug row and dummy links
+    widgets = widgets.filter(w => 
+        w.title !== 'THIS IS TITLE' && 
+        w.subtitle !== 'YES' &&
+        (!w.link || !w.link.includes('google.com'))
+    );
     res.json(widgets);
   } catch (error) {
     console.error("Error fetching chat widgets:", error);

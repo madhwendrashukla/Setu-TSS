@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Edge Middleware — Admin Route Protection
+ * Edge Middleware — Admin Route Protection & Global CSP
  *
  * All /admin/* paths except the login page itself (/admin) and the SSO handoff
  * (/admin/handoff-exchange) require an adminToken cookie to be present.
- *
- * Why a cookie?  JWT is stored in localStorage (client-only) which is invisible
- * to the Edge runtime. On login we now also set a same-site cookie so this
- * middleware can read it at request time and redirect unauthenticated users
- * before the page HTML is ever served (fixes the "200 OK + full SPA shell"
- * issue reported in QA).
  */
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  
+  // The Strict Admin CSP uses the nonce to allow Next.js hydration scripts 
+  // without needing 'unsafe-inline' or 'unsafe-eval', fully mitigating XSS risks.
+  const adminCsp = `default-src 'self'; script-src 'self' 'nonce-${nonce}' 'strict-dynamic'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; frame-src 'self'; connect-src 'self' http://localhost:5000 https://*.razorpay.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self'`;
+
   const isProtectedAdminPath =
     pathname.startsWith('/admin') &&
     pathname !== '/admin' &&
-    !pathname.startsWith('/admin/handoff-exchange');
+    !pathname.startsWith('/admin/handoff');
 
   if (isProtectedAdminPath) {
     const token = req.cookies.get('adminToken')?.value;
@@ -27,21 +27,38 @@ export function middleware(req: NextRequest) {
       loginUrl.searchParams.set('next', pathname);
       
       const redirectResponse = NextResponse.redirect(loginUrl);
-      const csp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com; frame-src 'self' https://www.youtube.com https://*.razorpay.com; connect-src 'self' https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self' https://*.razorpay.com";
-      redirectResponse.headers.set('Content-Security-Policy', csp);
+      // For the 307 redirect, a completely restrictive CSP is perfectly safe since there is no body to render
+      const strictRedirectCsp = "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';";
+      redirectResponse.headers.set('Content-Security-Policy', strictRedirectCsp);
       redirectResponse.headers.set('X-Content-Type-Options', 'nosniff');
       
       return redirectResponse;
     }
   }
 
-  // We intercept the response to guarantee CSP headers are injected at the Edge level
-  // because next.config.ts static headers are sometimes dropped during middleware evaluation.
-  const response = NextResponse.next();
+  // Pass the nonce to Next.js App Router for automatic <script> tagging
+  const requestHeaders = new Headers(req.headers);
+  if (pathname.startsWith('/admin')) {
+    requestHeaders.set('x-nonce', nonce);
+  }
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    }
+  });
   
-  const csp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com; frame-src 'self' https://www.youtube.com https://*.razorpay.com; connect-src 'self' https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self' https://*.razorpay.com";
+  const frontendCsp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com; frame-src 'self' https://www.youtube.com https://*.razorpay.com; connect-src 'self' https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self' https://*.razorpay.com";
+  const apiCsp = "default-src 'none'; base-uri 'self'; font-src 'none'; form-action 'self'; frame-ancestors 'none'; img-src 'none'; object-src 'none'; script-src 'none'; script-src-attr 'none'; style-src 'none'; upgrade-insecure-requests; connect-src 'self'";
   
-  response.headers.set('Content-Security-Policy', csp);
+  if (pathname.startsWith('/api/')) {
+    response.headers.set('Content-Security-Policy', apiCsp);
+  } else if (pathname.startsWith('/admin')) {
+    response.headers.set('Content-Security-Policy', adminCsp);
+  } else {
+    response.headers.set('Content-Security-Policy', frontendCsp);
+  }
+  
   response.headers.set('X-Content-Type-Options', 'nosniff');
   
   return response;

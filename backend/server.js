@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
 const { PrismaClient } = require('@prisma/client');
 const path = require('path');
 require('dotenv').config();
@@ -12,25 +11,6 @@ const bcrypt = require('bcryptjs');
 
 const app = express();
 app.disable('x-powered-by'); // Production hygiene: remove Express signature
-
-// Hardened HTTP Headers for API layer
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'none'"],
-      scriptSrc: ["'none'"],
-      styleSrc: ["'none'"],
-      fontSrc: ["'none'"],
-      imgSrc: ["'none'"],
-      objectSrc: ["'none'"],
-      connectSrc: ["'self'"], // API only serves JSON data
-      frameAncestors: ["'none'"]
-    }
-  },
-  // Ensure we allow cross-origin requests from the decoupled frontend SPA
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-  hsts: { maxAge: 63072000, includeSubDomains: true, preload: true }
-}));
 
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;

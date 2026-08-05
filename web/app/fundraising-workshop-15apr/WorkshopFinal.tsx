@@ -63,7 +63,7 @@ export function WorkshopFinal() {
                     <div className="space-y-4 max-w-4xl mx-auto">
                         {faqs.map((faq, i) => (
                             <details key={i} className="group bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-xl overflow-hidden">
-                                <summary className="flex justify-between items-center font-medium cursor-pointer list-none p-5 text-text-primary hover:text-[#d946ef] transition-colors">
+                                <summary className="flex justify-between items-center font-medium cursor-pointer list-none p-5 text-white hover:text-[#d946ef] transition-colors">
                                     <span>{faq.q}</span>
                                     <span className="transition group-open:rotate-180">
                                         <i className="fa-solid fa-chevron-down text-slate-300" />
@@ -101,9 +101,9 @@ export function WorkshopFinal() {
                             <div className="w-16 h-16 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform relative z-10 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
                                 <i className="fa-brands fa-whatsapp text-3xl" />
                             </div>
-                            <h4 className="text-text-primary font-bold text-xl mb-2 relative z-10">WhatsApp Us</h4>
+                            <h4 className="text-white font-bold text-xl mb-2 relative z-10">WhatsApp Us</h4>
                             <p className="text-sm text-slate-300 mb-6 font-light relative z-10">Get instant replies for your queries directly from our team.</p>
-                            <a href="https://chat.whatsapp.com/DsWZ7dyfz4C5bB4QydtNqH?mode=gi_t" target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3 rounded-lg bg-green-500/10 border border-green-500/30 text-sm font-bold text-green-400 hover:bg-green-500 hover:text-text-primary transition-all relative z-10">
+                            <a href="https://chat.whatsapp.com/DsWZ7dyfz4C5bB4QydtNqH?mode=gi_t" target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3 rounded-lg bg-green-500/10 border border-green-500/30 text-sm font-bold text-green-400 hover:bg-green-500 hover:text-white transition-all relative z-10">
                                 Message Now <i className="fa-solid fa-arrow-up-right-from-square ml-1 text-xs" />
                             </a>
                         </div>
@@ -111,33 +111,33 @@ export function WorkshopFinal() {
                         <div className="bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border rounded-2xl p-6 md:p-8 relative overflow-hidden">
                             <div className="relative z-10">
                                 <div className="mb-6 text-center">
-                                    <h3 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">Or Drop a Message</h3>
+                                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Or Drop a Message</h3>
                                 </div>
                                 <form className="space-y-4" onSubmit={handleQuerySubmit}>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-1.5">
                                             <label className="text-xs font-medium text-slate-300">Name</label>
-                                            <input type="text" required placeholder="Your Full Name" value={queryForm.name} onChange={e => setQueryForm(p => ({ ...p, name: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
+                                            <input type="text" required placeholder="Your Full Name" value={queryForm.name} onChange={e => setQueryForm(p => ({ ...p, name: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-400" />
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="text-xs font-medium text-slate-300">City</label>
-                                            <input type="text" required placeholder="e.g. Mumbai, Delhi" value={queryForm.city} onChange={e => setQueryForm(p => ({ ...p, city: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
+                                            <input type="text" required placeholder="e.g. Mumbai, Delhi" value={queryForm.city} onChange={e => setQueryForm(p => ({ ...p, city: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-400" />
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-xs font-medium text-slate-300">Email Address</label>
-                                        <input type="email" required placeholder="you@example.com" value={queryForm.email} onChange={e => setQueryForm(p => ({ ...p, email: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
+                                        <input type="email" required placeholder="you@example.com" value={queryForm.email} onChange={e => setQueryForm(p => ({ ...p, email: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-400" />
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-xs font-medium text-slate-300">Contact Number</label>
-                                        <input type="tel" required placeholder="+91 XXXXXXXXXX" value={queryForm.phone} onChange={e => setQueryForm(p => ({ ...p, phone: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-text-primary text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
+                                        <input type="tel" required placeholder="+91 XXXXXXXXXX" value={queryForm.phone} onChange={e => setQueryForm(p => ({ ...p, phone: e.target.value }))} className="w-full bg-[#161e31] border border-functional-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-400" />
                                     </div>
-                                    <button type="submit" disabled={status === 'loading'} className="w-full mt-6 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-text-primary font-bold py-3.5 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(217,70,239,0.3)] flex items-center justify-center gap-2 disabled:opacity-50">
+                                    <button type="submit" disabled={status === 'loading'} className="w-full mt-6 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white font-bold py-3.5 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(217,70,239,0.3)] flex items-center justify-center gap-2 disabled:opacity-50">
                                         {status === 'loading' ? 'Submitting...' : <><i className="fa-regular fa-paper-plane" /> Send Inquiry</>}
                                     </button>
                                     {status === 'success' && <p className="text-center text-green-400 font-bold text-sm mt-3">Thank you! We have received your inquiry.</p>}
                                     {status === 'error' && <p className="text-center text-red-400 font-bold text-sm mt-3">Something went wrong. Please try again later.</p>}
-                                    <p className="text-center text-[10px] text-slate-500 mt-3 font-light">We respect your privacy. No spam, ever.</p>
+                                    <p className="text-center text-[10px] text-slate-400 mt-3 font-light">We respect your privacy. No spam, ever.</p>
                                 </form>
                             </div>
                         </div>

@@ -38,8 +38,9 @@ const compressImage = async (req, res, next) => {
   const filename = `${Date.now()}-${safeOriginalName}.jpg`;
 
   try {
-    // Process image in memory
+    // Process image in memory: auto-rotate reads EXIF, then resize
     const compressedBuffer = await sharp(req.file.buffer)
+      .rotate()
       .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
       .toFormat('jpeg')
       .jpeg({ quality: 80 })
@@ -84,6 +85,7 @@ const compressMultipleImages = async (req, res, next) => {
         const filename = `${Date.now()}-${safeOriginalName}.jpg`;
 
         const compressedBuffer = await sharp(file.buffer)
+          .rotate()
           .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
           .toFormat('jpeg')
           .jpeg({ quality: 80 })

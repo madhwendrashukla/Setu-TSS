@@ -45,7 +45,7 @@ export function WorkshopWhyUs() {
                             ))}
                             <li className="flex items-start gap-3">
                                 <i className="fa-solid fa-plus text-[#d946ef] shrink-0 text-lg" />
-                                <span className="font-medium text-text-primary text-base md:text-lg">...and a lot more!</span>
+                                <span className="font-medium text-white text-base md:text-lg">...and a lot more!</span>
                             </li>
                         </ul>
                     </div>

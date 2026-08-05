@@ -28,12 +28,12 @@ export function WorkshopHero() {
 
                 <p className="mt-6 md:mt-8 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl text-slate-300 mb-8 md:mb-12 leading-relaxed font-light px-2">
                     Stop guessing what investors want. Join the live, cohort-based program that transforms passionate
-                    builders into <span className="text-text-primary font-medium">investable founders.</span>
+                    builders into <span className="text-white font-medium">investable founders.</span>
                 </p>
 
                 <div className="flex flex-col items-center justify-center gap-4 md:gap-6 w-full max-w-md mx-auto sm:max-w-none">
                     <div className="relative group w-full sm:w-auto">
-                        <button disabled className="relative w-full sm:w-auto px-6 py-4 md:px-8 md:py-5 text-base md:text-lg font-bold rounded-xl text-text-primary bg-slate-800 border border-functional-border cursor-not-allowed flex items-center justify-center">
+                        <button disabled className="relative w-full sm:w-auto px-6 py-4 md:px-8 md:py-5 text-base md:text-lg font-bold rounded-xl text-white bg-slate-800 border border-functional-border cursor-not-allowed flex items-center justify-center">
                             <i className="fa-solid fa-lock mr-2" /> Registrations Closed
                         </button>
                     </div>

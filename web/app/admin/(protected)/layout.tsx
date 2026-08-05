@@ -63,17 +63,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     useEffect(() => {
         const verifyToken = async () => {
-            // SSO-lite handoff (Unified Events): /admin/handoff must render for
-            // anonymous visitors — it EXCHANGES its one-time token for the session.
-            if (pathname === "/admin/handoff") {
-                setIsLoading(false);
-                return;
-            }
             const token = localStorage.getItem("adminToken");
             if (!token) {
                 setIsAuthenticated(false);
                 setIsLoading(false);
-                if (pathname !== "/admin") router.push("/admin");
+                router.push("/admin");
                 return;
             }
 
@@ -83,20 +77,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 });
                 if (res.ok) {
                     setIsAuthenticated(true);
-                    if (pathname === "/admin") {
-                        router.push("/admin/dashboard");
-                        return; // keep loading true to prevent flashing the login form with sidebar
-                    }
                 } else {
                     localStorage.removeItem("adminToken");
                     document.cookie = 'adminToken=; path=/; max-age=0; SameSite=Strict';
                     setIsAuthenticated(false);
-                    if (pathname !== "/admin") router.push("/admin");
+                    router.push("/admin");
                 }
             } catch (err) {
                 console.error("Token verification failed:", err);
                 setIsAuthenticated(false);
-                if (pathname !== "/admin") router.push("/admin");
+                router.push("/admin");
             }
             setIsLoading(false);
         };
@@ -104,7 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         verifyToken();
     }, [pathname, router]);
 
-    if (pathname === "/admin/handoff") return <>{children}</>;
+
 
     if (isLoading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
@@ -115,7 +105,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
     );
 
-    if (!isAuthenticated && typeof window !== "undefined" && window.location.pathname !== "/admin") {
+    if (!isAuthenticated && typeof window !== "undefined") {
         return null;
     }
 

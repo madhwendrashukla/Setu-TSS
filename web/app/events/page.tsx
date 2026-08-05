@@ -82,11 +82,13 @@ export default async function EventsPage() {
                         <div className="grid lg:grid-cols-2 gap-8">
                             {courses.map((course) => (
                                 <div key={course.id} className="rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
-                                    <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
+                                    <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845]">
                                         {course.fileKey ? (
                                             <img src={course.fileKey} alt={course.title} className="w-full h-full object-cover" />
                                         ) : (
-                                            <img src="/ai-workshop-banner.webp" alt={course.title} className="w-full h-full object-contain opacity-50" />
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <i className="fas fa-graduation-cap text-4xl text-white/20"></i>
+                                            </div>
                                         )}
                                     </div>
                                     <div className="flex items-center gap-2 mb-4 text-xs font-bold uppercase tracking-widest">
@@ -136,19 +138,19 @@ export default async function EventsPage() {
                             upcoming.map((event: any) => (
                                 <div key={event.id} className="rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
                                     {event.banner_url ? (
-                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
+                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845]">
                                             <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain" />
                                         </div>
                                     ) : (
-                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
-                                            <img src="/ai-workshop-banner.webp" alt="Event Banner" className="w-full h-full object-contain opacity-50" />
+                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845] flex items-center justify-center">
+                                            <i className="fas fa-calendar-alt text-4xl text-white/20"></i>
                                         </div>
                                     )}
                                     <h3 className="text-2xl font-bold text-white mb-4">{event.title}</h3>
                                     <p className="text-gray-400 mb-6 flex-grow">{event.description}</p>
                                     <div className="flex gap-4 text-sm text-gray-400 mb-6">
                                         <span><i className="fas fa-map-marker-alt text-gray-400 w-4"></i> {event.venue}</span>
-                                        <span><i className="far fa-calendar text-gray-400 w-4"></i> {new Date(event.start_date).toLocaleDateString()}</span>
+                                        <span><i className="far fa-calendar text-gray-400 w-4"></i> {event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'}</span>
                                     </div>
                                     {(event.slug || event.registration_url) && (
                                         <Link 
@@ -174,12 +176,12 @@ export default async function EventsPage() {
                         {past.map((event: any) => (
                             <div key={event.id} className="hover-glow rounded-3xl p-8 md:p-10 border border-functional-border/20 relative group h-full flex flex-col bg-[#13113B] shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
                                 {event.banner_url ? (
-                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
+                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845]">
                                         <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
                                     </div>
                                 ) : (
-                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#A855F7]">
-                                        <img src="/ai-workshop-banner.webp" alt="Past Event" className="w-full h-full object-contain opacity-50 group-hover:scale-105 transition-transform duration-500" />
+                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845] flex items-center justify-center">
+                                        <i className="fas fa-calendar-alt text-4xl text-white/20 group-hover:scale-110 transition-transform duration-500"></i>
                                     </div>
                                 )}
                                 <div className="flex justify-between items-start mb-6">
@@ -194,7 +196,7 @@ export default async function EventsPage() {
                                 <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/10">
                                     <div className="space-y-2">
                                         <div className="flex items-center text-gray-400 font-medium tracking-wide">
-                                            <i className="far fa-calendar text-gray-400 w-6"></i> {new Date(event.start_date).toLocaleDateString()} (Past)
+                                            <i className="far fa-calendar text-gray-400 w-6"></i> {event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'} (Past)
                                         </div>
                                         <div className="flex items-center text-gray-400 font-medium tracking-wide">
                                             <i className="fas fa-map-marker-alt text-gray-400 w-6"></i> {event.venue}

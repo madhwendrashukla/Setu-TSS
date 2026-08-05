@@ -61,14 +61,14 @@ export function WorkshopGuestMentors() {
 
                             <div className="flex-grow">
                                 <div className="flex justify-between items-start mb-2">
-                                    <h3 className="text-xl md:text-2xl font-bold text-text-primary group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#8b5cf6] group-hover:to-[#d946ef] transition-all leading-tight">
+                                    <h3 className="text-xl md:text-2xl font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#8b5cf6] group-hover:to-[#d946ef] transition-all leading-tight">
                                         {mentor.name}
                                     </h3>
                                     <a 
                                         href={mentor.linkedin} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="w-8 h-8 rounded-lg bg-[#0077b5]/10 flex items-center justify-center border border-[#0077b5]/30 hover:bg-[#0077b5] text-[#0077b5] hover:text-text-primary transition-all shadow-[0_0_10px_rgba(0,119,181,0.2)]"
+                                        className="w-8 h-8 rounded-lg bg-[#0077b5]/10 flex items-center justify-center border border-[#0077b5]/30 hover:bg-[#0077b5] text-[#0077b5] hover:text-white transition-all shadow-[0_0_10px_rgba(0,119,181,0.2)]"
                                         aria-label={`${mentor.name}'s LinkedIn Profile`}
                                     >
                                         <i className="fa-brands fa-linkedin-in text-sm" />

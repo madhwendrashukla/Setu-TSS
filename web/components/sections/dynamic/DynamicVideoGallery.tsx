@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { PageData } from '@/types/cms';
+import { getEmbedUrl } from '@/lib/video';
 
 export function DynamicVideoGallery({ data }: { data: PageData }) {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -15,18 +16,7 @@ export function DynamicVideoGallery({ data }: { data: PageData }) {
 
     // Get current video and format URL securely to bypass SAMEORIGIN policy
     const videoUrl = videos[currentIndex];
-    let embedUrl = videoUrl;
-    if (videoUrl.includes('youtube.com/watch')) {
-        try {
-            const urlObj = new URL(videoUrl);
-            const videoId = urlObj.searchParams.get('v');
-            if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        } catch (e) {
-            embedUrl = `https://www.youtube.com/embed/${videoUrl.split('v=')[1]?.split('&')[0]}`;
-        }
-    } else if (videoUrl.includes('youtu.be/')) {
-        embedUrl = `https://www.youtube.com/embed/${videoUrl.split('youtu.be/')[1]?.split('?')[0]}`;
-    }
+    const embedUrl = getEmbedUrl(videoUrl);
 
     return (
         <section className="py-24 bg-slate-900 relative overflow-hidden">

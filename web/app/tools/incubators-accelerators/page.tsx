@@ -5,23 +5,13 @@ import Link from 'next/link';
 import { Search, Filter, MapPin, ExternalLink, ArrowLeft, Globe, Building2, Zap } from 'lucide-react';
 import { incubatorsData, Incubator } from '@/lib/data/Incubators and Accelerators/incubators';
 
-function IncubatorLogo({ domain, name }: { domain: string, name: string }) {
-    const [errorStage, setErrorStage] = useState(0);
-
-    if (!domain || errorStage >= 2) {
-        return <span className="text-xl font-bold text-accent-blue">{name.charAt(0)}</span>;
-    }
-
-    const src = errorStage === 0
-        ? `https://logo.clearbit.com/${domain}`
-        : `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128`;
-
+function IncubatorLogo({ name }: { domain: string, name: string }) {
     return (
         <img
-            src={src}
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0A0A0A&color=508cff&bold=true&size=128`}
             alt={name}
-            className="w-full h-full object-contain p-2.5"
-            onError={() => setErrorStage(prev => prev + 1)}
+            className="w-full h-full object-contain p-2.5 rounded-2xl"
+            loading="lazy"
         />
     );
 }

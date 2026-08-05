@@ -1,4 +1,4 @@
-﻿export interface Incubator {
+export interface Incubator {
     id: string;
     name: string;
     type: string;
@@ -430,7 +430,7 @@ export const incubatorsData: Incubator[] = [
         "name":  "Amity Innovation Incubator",
         "type":  "Virtual / Academic Incubator",
         "address":  "Amity Global Business School, Malad West",
-        "website":  "info@aii.amity.edu",
+        "website":  "https://www.amity.edu/aii/",
         "startupsIncubated":  "Student Prototypes",
         "focusSector":  "Tech \u0026 Business Services",
         "equityTaken":  "NIL",

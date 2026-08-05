@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
+import { unstable_noStore as noStore } from 'next/cache';
 import { PageData } from '@/types/cms';
 import { DynamicSections } from '@/components/sections/dynamic/DynamicSections';
 
@@ -46,6 +47,7 @@ export default async function DynamicEventPage({ params, searchParams }: { param
     const event = await getEventBySlug(resolvedParams.slug, preview);
 
     if (!event) {
+        noStore();
         notFound();
     }
 

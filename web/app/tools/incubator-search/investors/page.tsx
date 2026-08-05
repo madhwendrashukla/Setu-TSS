@@ -122,7 +122,7 @@ export default function InvestorsPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`http://localhost:5000/api/tools/investors`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tools/investors`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {

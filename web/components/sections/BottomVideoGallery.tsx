@@ -1,3 +1,5 @@
+import { getEmbedUrl } from '@/lib/video';
+
 export const BottomVideoGallery = ({ data = [] }: { data?: any[] }) => {
     const videos = data || [];
     
@@ -11,32 +13,23 @@ export const BottomVideoGallery = ({ data = [] }: { data?: any[] }) => {
                     {videos.map((video) => (
                         <div key={video.id} className="w-full flex flex-col group">
                             <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-white/10 bg-black relative">
-                                {video.youtube_url.includes('youtube.com') || video.youtube_url.includes('youtu.be') ? (() => {
-                                    let embedUrl = video.youtube_url;
-                                    if (video.youtube_url.includes('youtube.com/watch')) {
-                                        try {
-                                            const urlObj = new URL(video.youtube_url);
-                                            const videoId = urlObj.searchParams.get('v');
-                                            if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
-                                        } catch (e) {
-                                            embedUrl = `https://www.youtube.com/embed/${video.youtube_url.split('v=')[1]?.split('&')[0]}`;
-                                        }
-                                    } else if (video.youtube_url.includes('youtu.be/')) {
-                                        embedUrl = `https://www.youtube.com/embed/${video.youtube_url.split('youtu.be/')[1]?.split('?')[0]}`;
+                                {(() => {
+                                    const embedUrl = getEmbedUrl(video.youtube_url || video.url);
+                                    if (embedUrl) {
+                                        return (
+                                            <iframe 
+                                                className="w-full h-full absolute inset-0"
+                                                src={embedUrl} 
+                                                title={video.title || "Video"}
+                                                frameBorder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowFullScreen
+                                            ></iframe>
+                                        );
+                                    } else {
+                                        return <div className="w-full h-full flex items-center justify-center text-white/50">Invalid Video URL</div>;
                                     }
-                                    return (
-                                        <iframe 
-                                            className="w-full h-full absolute inset-0"
-                                            src={embedUrl} 
-                                            title={video.title || "Video"}
-                                            frameBorder="0" 
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                            allowFullScreen
-                                        ></iframe>
-                                    );
-                                })() : (
-                                    <div className="w-full h-full flex items-center justify-center text-white/50">Invalid Video URL</div>
-                                )}
+                                })()}
                             </div>
                             {video.title && (
                                 <h3 className="text-white font-semibold text-lg mt-4 px-2 group-hover:text-accent-blue transition-colors">

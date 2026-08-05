@@ -33,6 +33,8 @@ export async function generateStaticParams() {
     }));
 }
 
+export const dynamicParams = false;
+
 export default async function PitchDeckDetailPage({ params }: Props) {
     const resolvedParams = await params;
     const deck = globalPitchDecksData.find((d) => d.id.toLowerCase() === resolvedParams.id.toLowerCase());

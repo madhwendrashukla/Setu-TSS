@@ -49,6 +49,7 @@ const inputCls =
 export default function CheckoutCard({ slug, title, price }: { slug: string; title: string; price: number }) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [phone, setPhone] = useState("");
     const [status, setStatus] = useState<Status>("idle");
     // Set when create-order returns fullyCredited: the buyer already owned this
@@ -91,7 +92,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
         fetch(`${API}/api/course-payments/capture-lead`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: e, name: name || undefined, phone: phone || undefined, slug }),
+            body: JSON.stringify({ email: e, name: name || undefined, phone: phone || undefined, password: password || undefined, slug }),
         }).catch(() => { });
     };
 
@@ -132,6 +133,11 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok || !data.guestToken) throw new Error(data.error || "Incorrect code — please try again");
+            if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
+                setOtpError("Name, email, password, and phone are required");
+                setOtpBusy(false);
+                return;
+            }
             setGuestToken(data.guestToken);
             setOtpMode(false);
             setOtp("");
@@ -214,6 +220,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     name,
                     email,
                     phone: phone || undefined,
+                    password: password || undefined,
                     couponCode: coupon?.code || undefined,
                     ...utm(),
                 }),
@@ -436,6 +443,15 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={captureLead}
+                    className={inputCls}
+                />
+                <input
+                    type="password"
+                    required
+                    placeholder="Create a Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    minLength={6}
                     className={inputCls}
                 />
                 {/* Not optional: /api/otp/send (shared with the event flow) rejects a

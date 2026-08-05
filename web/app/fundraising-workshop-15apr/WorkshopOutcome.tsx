@@ -14,19 +14,19 @@ export function WorkshopOutcome() {
 
                     {/* Founder 1 */}
                     <div className="rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 relative overflow-hidden z-10 border-t-0 border-l-0 border-r-0 border-b-4 border-b-slate-700 hover:border-b-slate-500 transition-colors bg-[rgba(15,23,42,0.6)] backdrop-blur-[16px] border border-functional-border shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
-                        <div className="absolute top-0 right-0 p-4 md:p-6 opacity-5 text-slate-500">
+                        <div className="absolute top-0 right-0 p-4 md:p-6 opacity-5 text-slate-400">
                             <i className="fa-solid fa-xmark text-6xl md:text-8xl" />
                         </div>
                         <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-800 rounded-2xl flex items-center justify-center mb-6 md:mb-8 border border-functional-border">
                             <i className="fa-solid fa-user-astronaut text-slate-300 text-xl md:text-2xl" />
                         </div>
-                        <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-text-primary">Founder 1: Passionate but Unprepared</h3>
+                        <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-white">Founder 1: Passionate but Unprepared</h3>
                         <p className="text-sm md:text-base text-slate-300 mb-6 md:mb-8 font-light">Builds relentlessly but feels completely lost when it&apos;s time to raise capital.</p>
                         <ul className="space-y-4 md:space-y-5">
                             {['Walks into investor meetings armed with a vision, but no structured narrative.', 'Stumbles over basic unit economics and dreads the "Data Room" request.', "Often faces rejection or signs restrictive deals because they don't know the rules of the game."].map((item, i) => (
                                 <li key={i} className="flex items-start gap-3 md:gap-4">
                                     <div className="mt-1 w-5 h-5 md:w-6 md:h-6 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-functional-border">
-                                        <i className="fa-solid fa-xmark text-slate-500 text-[10px] md:text-xs" />
+                                        <i className="fa-solid fa-xmark text-slate-400 text-[10px] md:text-xs" />
                                     </div>
                                     <span className="text-sm md:text-base text-slate-300 font-light leading-relaxed">{item}</span>
                                 </li>
@@ -41,17 +41,17 @@ export function WorkshopOutcome() {
                         </div>
                         <div className="absolute -top-16 -right-16 md:-top-24 md:-right-24 w-32 h-32 md:w-48 md:h-48 bg-[#d946ef] rounded-full mix-blend-screen filter blur-[60px] md:blur-[80px] opacity-40" />
                         <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-2xl flex items-center justify-center mb-6 md:mb-8 shadow-lg shadow-[#8b5cf6]/50">
-                            <i className="fa-solid fa-user-tie text-text-primary text-xl md:text-2xl" />
+                            <i className="fa-solid fa-user-tie text-white text-xl md:text-2xl" />
                         </div>
-                        <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-text-primary">Founder 2: The Prepared Architect</h3>
+                        <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-white">Founder 2: The Prepared Architect</h3>
                         <p className="text-sm md:text-base text-[#d946ef] mb-6 md:mb-8 font-medium">Builds an investable company structure, not just a great product.</p>
                         <ul className="space-y-4 md:space-y-5">
-                            {["Understands Term Sheets and uses financial models to prove growth.", <span key="b">Walks into the room knowing <strong className="text-text-primary">90% of what investors will ask</strong> before they open their mouths.</span>, "Doesn't just ask for money—they negotiate a strategic partnership from a place of leverage."].map((item, i) => (
+                            {["Understands Term Sheets and uses financial models to prove growth.", <span key="b">Walks into the room knowing <strong className="text-white">90% of what investors will ask</strong> before they open their mouths.</span>, "Doesn't just ask for money—they negotiate a strategic partnership from a place of leverage."].map((item, i) => (
                                 <li key={i} className="flex items-start gap-3 md:gap-4">
                                     <div className="mt-1 w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#8b5cf6]/20 flex items-center justify-center shrink-0 border border-[#8b5cf6]/30">
                                         <i className="fa-solid fa-check text-[#d946ef] text-[10px] md:text-xs" />
                                     </div>
-                                    <span className="text-sm md:text-base text-text-primary font-light leading-relaxed">{item}</span>
+                                    <span className="text-sm md:text-base text-white font-light leading-relaxed">{item}</span>
                                 </li>
                             ))}
                         </ul>

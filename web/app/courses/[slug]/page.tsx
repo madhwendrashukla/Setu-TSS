@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { unstable_noStore as noStore } from "next/cache";
 import CheckoutCard from "./CheckoutCard";
 import { courseDescriptionToHtml } from "@/lib/rich-text";
 
@@ -53,7 +54,10 @@ const INCLUDED = [
 export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const course = await getCourse(slug);
-    if (!course) notFound();
+    if (!course) {
+        noStore();
+        notFound();
+    }
 
     const descriptionHtml = courseDescriptionToHtml(course.description);
 

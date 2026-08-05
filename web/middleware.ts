@@ -36,10 +36,19 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  // Pass the nonce to Next.js App Router for automatic <script> tagging
+  // Pass the nonce to Next.js App Router for automatic <script> tagging.
+  //
+  // ⚠️ BOTH headers are required. Next.js only auto-nonces its own bootstrap and
+  // hydration scripts when it can read the CSP from the REQUEST headers; setting
+  // it on the response alone is not enough. Because the admin CSP uses
+  // 'strict-dynamic' — which makes 'self' and every host allowlist be IGNORED for
+  // script-src — an un-nonced page means NO script executes on /admin/*, so the
+  // admin panel renders HTML and then silently fails to hydrate (no login, no
+  // navigation). Do not remove the Content-Security-Policy request header.
   const requestHeaders = new Headers(req.headers);
   if (pathname.startsWith('/admin')) {
     requestHeaders.set('x-nonce', nonce);
+    requestHeaders.set('Content-Security-Policy', adminCsp);
   }
 
   const response = NextResponse.next({

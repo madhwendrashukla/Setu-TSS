@@ -72,7 +72,7 @@ export function ToolsShowcase({ toggles = {}, headings = {} }: { toggles?: any, 
             <div className="max-w-7xl mx-auto px-6 relative z-10 mb-16 text-center">
 
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight mb-4" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Tools & <span class="text-[#A855F7]">Resources.</span>' }} />
-                <p className="text-sm md:text-lg text-text-secondary font-medium max-w-2xl mx-auto leading-relaxed" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Access our curated suite of tools designed to help you raise capital, <br class="hidden md:block" /> build your product, and scale your startup.' }} />
+                <div className="text-sm md:text-lg text-text-secondary font-medium max-w-2xl mx-auto leading-relaxed" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Access our curated suite of tools designed to help you raise capital, <br class="hidden md:block" /> build your product, and scale your startup.' }} />
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-wrap justify-center gap-6">

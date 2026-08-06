@@ -147,7 +147,7 @@ export function DynamicStoryline({ data }: { data: PageData }) {
 
                                     <h3 className={`text-xl md:text-[22px] font-bold mb-3 relative z-10 ${getTitleClasses()}`}>{box.title}</h3>
                                     
-                                    <p className={`text-sm md:text-[15px] mb-8 relative z-10 ${getDescriptionClasses()}`} dangerouslySetInnerHTML={{__html: box.description}}></p>
+                                    <div className={`text-sm md:text-[15px] mb-8 relative z-10 ${getDescriptionClasses()}`} dangerouslySetInnerHTML={{__html: box.description}}></div>
                                     
                                     <ul className="space-y-5 flex-1 relative z-10">
                                         {box.bullets && box.bullets.map((bullet: any, bIdx: number) => (

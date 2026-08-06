@@ -38,7 +38,7 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
             <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-text-primary tracking-tight mb-2" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'What <span class="text-[#A855F7]">Founders Say</span>' }} />
-                    <p className="text-text-secondary" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Real stories from our community members.' }} />
+                    <div className="text-text-secondary" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Real stories from our community members.' }} />
                 </div>
                 {videoTestimonials.length > 4 && (
                     <div className="flex gap-3 shrink-0">

@@ -47,7 +47,13 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                             {(item.pricing?.strike_price || 0) > 0 && (
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-lg text-slate-400 line-through font-medium">₹{item.pricing.strike_price}</span>
-                                                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-sm uppercase tracking-wider">Early Bird</span>
+                                                    {/* Was a hardcoded "Early Bird", which claimed a time-limited
+                                                        introductory price on ANY card with a strike price. On the
+                                                        Launchpad bundle the strike is simply the sum of the three
+                                                        workshops, so that was untrue. State the actual saving. */}
+                                                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                                                        Save ₹{item.pricing.strike_price - (item.pricing?.actual_price || 0)}
+                                                    </span>
                                                 </div>
                                             )}
                                             <div className="flex items-end gap-1 mt-1">

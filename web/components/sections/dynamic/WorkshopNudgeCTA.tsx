@@ -1,8 +1,15 @@
 import React from 'react';
 
 export function WorkshopNudgeCTA({ text = "Reserve Your Seat Now" }: { text?: string }) {
+    // The section this used to target ('workshops') does not exist — the rendered
+    // id is 'workshop-breakdown' — so both nudge CTAs ("Reserve Your Seat Now" and
+    // "Limited Seats - Book Now") were dead: clicking them did nothing at all.
+    // Falls through to the pricing section, which is where a buyer actually enrols.
     const scrollToWorkshops = () => {
-        const el = document.getElementById('workshops');
+        const el =
+            document.getElementById('workshop-breakdown') ||
+            document.getElementById('workshops') ||
+            document.getElementById('pricing');
         if (el) {
             el.scrollIntoView({ behavior: 'smooth' });
         }

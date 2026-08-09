@@ -106,6 +106,10 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                 body: JSON.stringify({
                     eventId: eventSlug,
                     ticketTier: (workshop as any).heading ? `${(workshop as any).heading} - ${workshop.title}` : workshop.title,
+                    // The stable builder-card id. The server prices the order
+                    // from this; matching on the display title breaks the
+                    // moment an admin renames a card.
+                    pricingCardId: workshop.id,
                     workshopId: eventSlug || workshop.id,
                     workshopTitle: workshop.title,
                     basePrice: basePrice,

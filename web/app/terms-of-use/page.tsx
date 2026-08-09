@@ -84,7 +84,7 @@ export default function TermsOfUsePage() {
                         <p className="mb-2">If you have any questions about these Terms, please contact us at:</p>
                         <p className="font-medium text-text-primary">
                             Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD.) <br />
-                            <a href="mailto:info@thestartupschool.in" className="text-accent-violet hover:underline">info@thestartupschool.in</a>
+                            <a href="mailto:info@setustartupschool.com" className="text-accent-violet hover:underline">info@setustartupschool.com</a>
                         </p>
                     </section>
                 </div>

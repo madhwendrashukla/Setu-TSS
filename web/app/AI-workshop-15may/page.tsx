@@ -87,7 +87,7 @@ export default function AIWorkshopPage() {
                         <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
                             <Link href="/privacy-policy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
                             <Link href="/terms-of-use" className="hover:text-slate-300 transition-colors">Terms of Use</Link>
-                            <a href="mailto:info@thestartupschool.in" className="hover:text-slate-300 transition-colors">info@thestartupschool.in</a>
+                            <a href="mailto:info@setustartupschool.com" className="hover:text-slate-300 transition-colors">info@setustartupschool.com</a>
                         </div>
                         <p className="text-xs text-slate-600">© 2026 Setu - TheStartupSchool. All rights reserved.</p>
                     </div>

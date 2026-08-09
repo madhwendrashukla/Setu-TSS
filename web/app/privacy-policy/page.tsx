@@ -114,7 +114,7 @@ export default function PrivacyPolicyPage() {
                     <section>
                         <h2 className="text-xl font-bold text-text-primary mb-4">9. Contact Us</h2>
                         <p className="mb-2">If you have any questions about this Privacy Policy, please contact us at:</p>
-                        <p className="mb-4">Email: <a href="mailto:info@thestartupschool.in" className="text-accent-blue hover:underline">info@thestartupschool.in</a></p>
+                        <p className="mb-4">Email: <a href="mailto:info@setustartupschool.com" className="text-accent-blue hover:underline">info@setustartupschool.com</a></p>
                         <p className="mb-2">Or Write to us at:</p>
                         <p className="font-medium text-text-primary">
                             RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD <br />

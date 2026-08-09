@@ -442,6 +442,22 @@ const PricingEditor = ({ options, onChange }: { options: any[], onChange: (o: an
                                     <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.course_slug || ""} onChange={e => handleChange(index, 'course_slug', e.target.value)} placeholder="e.g. startup-ideation-and-validation" />
                                     <p className="text-[11px] text-gray-400 mt-1">Buy Now opens <code>/courses/&lt;slug&gt;</code>. Leave blank to use this event&apos;s course. Use the bundle course&apos;s slug for an all-in-one card.</p>
                                 </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-bold mb-1 text-gray-500">Delivered through the LMS?</label>
+                                    <select
+                                        className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none"
+                                        value={typeof o.uses_lms === 'boolean' ? String(o.uses_lms) : ''}
+                                        onChange={e => handleChange(index, 'uses_lms', e.target.value === '' ? undefined : e.target.value === 'true')}
+                                    >
+                                        <option value="">Use the event&apos;s setting</option>
+                                        <option value="true">Yes — course page + LMS account</option>
+                                        <option value="false">No — pay on this page, no LMS</option>
+                                    </select>
+                                    <p className="text-[11px] text-gray-400 mt-1">
+                                        <strong>Yes:</strong> Enroll opens the course page; the buyer gets an LMS account and credentials by email.{' '}
+                                        <strong>No:</strong> Enroll collects name, email and phone, verifies the email and charges on this page — no course page, no LMS account.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -454,6 +470,7 @@ const PricingEditor = ({ options, onChange }: { options: any[], onChange: (o: an
 
 const initialPageData = {
     registrations_open: true,
+    uses_lms: true,
     section_visibility: { hero: true, story: true, output: true, workshops: true, pricing: true, mentors: true, video_gallery: true, testimonials: true, faqs: true, contact: true },
     hero: { 
         headline: "Master The Art of <span class='text-purple-500'>Startup Success</span>", 
@@ -659,6 +676,7 @@ export default function EventBuilderPage() {
                             lead_gen: { ...initialPageData.contact?.lead_gen, ...(parsedData.contact?.lead_gen || {}) }
                         },
                         applicable_coupons: parsedData.applicable_coupons || initialPageData.applicable_coupons,
+                        uses_lms: typeof parsedData.uses_lms === 'boolean' ? parsedData.uses_lms : true,
                         coupon: { ...initialPageData.coupon, ...(parsedData.coupon || {}) }
                     });
                 }
@@ -800,6 +818,22 @@ export default function EventBuilderPage() {
                                     <div>
                                         <span className="font-bold text-blue-900 block text-lg">Registrations Open (Global)</span>
                                         <span className="text-sm text-blue-700/80">If disabled, all CTA buttons will change to "Sold Out" or "Registrations Closed"</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div className="mb-8 p-5 bg-purple-50/50 border border-purple-100 rounded-xl">
+                                <label className="flex items-center gap-4 cursor-pointer">
+                                    <input type="checkbox" checked={pageData.uses_lms !== false} onChange={e => {
+                                        setPageData({...pageData, uses_lms: e.target.checked})
+                                    }} className="w-6 h-6 accent-purple-600 rounded" />
+                                    <div>
+                                        <span className="font-bold text-purple-900 block text-lg">Delivered through the LMS (Global)</span>
+                                        <span className="text-sm text-purple-700/80">
+                                            On: Enroll opens the course page and the buyer gets an LMS account with credentials by email.
+                                            Off: Enroll collects name, email and phone, verifies the email and charges on this page — no course page, no LMS account.
+                                            Individual pricing cards can override this.
+                                        </span>
                                     </div>
                                 </label>
                             </div>

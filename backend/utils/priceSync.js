@@ -107,30 +107,22 @@ function collectPricesFromPageBlocks(pageData, eventCourseSlug) {
 }
 
 /**
- * Push prices to the LMS. Signed exactly like the enrolment webhook in
- * reverse: x-tss-signature = HMAC-SHA256(rawBody, LMS_WEBHOOK_SECRET).
+ * POST a signed payload to one of the LMS's internal endpoints.
  *
- * Fire-and-forget by design: a builder save must not fail because the LMS is
- * momentarily unreachable. Failures are logged loudly so a silent drift is
- * still visible in the logs.
+ * Shared by the price and visibility syncs so the signing scheme lives in one
+ * place. Fire-and-forget by design: an admin save must never fail because the
+ * LMS is momentarily unreachable, so failures are logged loudly instead.
  */
-async function pushPricesToLms(prices) {
-  if (!Array.isArray(prices) || prices.length === 0) return { ok: true, skipped: true };
-
+async function postSignedToLms(endpoint, payload, tag) {
   const secret = process.env.LMS_WEBHOOK_SECRET;
   const base = process.env.LMS_WEBHOOK_URL;
   if (!secret || !base) {
-    console.warn('[priceSync] LMS_WEBHOOK_SECRET/LMS_WEBHOOK_URL not set — price not mirrored to the LMS');
+    console.warn(`[${tag}] LMS_WEBHOOK_SECRET/LMS_WEBHOOK_URL not set — not mirrored to the LMS`);
     return { ok: false, error: 'not configured' };
   }
-
-  // LMS_WEBHOOK_URL points at .../lms/api/webhooks/enrollment; the price
-  // endpoint is a sibling under the same basePath.
-  const url = base.replace(/\/api\/webhooks\/enrollment\/?$/, '/api/internal/course-price');
-
-  const rawBody = JSON.stringify({ ts: Date.now(), prices });
+  const url = base.replace(/\/api\/webhooks\/enrollment\/?$/, endpoint);
+  const rawBody = JSON.stringify({ ts: Date.now(), ...payload });
   const signature = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
-
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -139,23 +131,31 @@ async function pushPricesToLms(prices) {
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      console.error('[priceSync] LMS rejected the price push:', res.status, body);
+      console.error(`[${tag}] LMS rejected the push:`, res.status, body);
       return { ok: false, status: res.status, body };
     }
-    if (Array.isArray(body.updated) && body.updated.length) {
-      console.log('[priceSync] LMS prices updated:', body.updated.join(', '));
-    }
-    if (Array.isArray(body.missing) && body.missing.length) {
-      console.warn('[priceSync] no LMS course for slug(s):', body.missing.join(', '));
-    }
+    if (Array.isArray(body.updated) && body.updated.length) console.log(`[${tag}] LMS updated:`, body.updated.join(', '));
+    if (Array.isArray(body.missing) && body.missing.length) console.warn(`[${tag}] no LMS course for:`, body.missing.join(', '));
     return { ok: true, body };
   } catch (err) {
-    console.error('[priceSync] could not reach the LMS:', err.message);
+    console.error(`[${tag}] could not reach the LMS:`, err.message);
     return { ok: false, error: err.message };
   }
 }
 
+/** Mirror public visibility into Course.websiteLive. [{ slug, websiteLive }] */
+async function pushVisibilityToLms(visibility) {
+  if (!Array.isArray(visibility) || visibility.length === 0) return { ok: true, skipped: true };
+  return postSignedToLms('/api/internal/course-visibility', { visibility }, 'visibilitySync');
+}
+
+async function pushPricesToLms(prices) {
+  if (!Array.isArray(prices) || prices.length === 0) return { ok: true, skipped: true };
+  return postSignedToLms('/api/internal/course-price', { prices }, 'priceSync');
+}
+
 module.exports = {
+  pushVisibilityToLms,
   forEachPricingCard,
   applyPriceToPageBlocks,
   collectPricesFromPageBlocks,

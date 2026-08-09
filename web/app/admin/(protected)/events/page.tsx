@@ -97,6 +97,25 @@ export default function AdminEvents() {
         }
     };
 
+    // Public visibility. is_active is mirrored into the LMS (Course.websiteLive)
+    // by the backend, so hiding here also hides there — the two cannot diverge.
+    const toggleVisibility = async (event: any) => {
+        const token = localStorage.getItem("adminToken");
+        try {
+            const fd = new FormData();
+            fd.append('is_active', String(event.is_active === false));
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${event.id}`, {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}` },
+                body: fd
+            });
+            if (res.ok) fetchEvents();
+        } catch (error) {
+            console.error("Failed to toggle visibility", error);
+        }
+    };
+
     const togglePin = async (event: any) => {
         const token = localStorage.getItem("adminToken");
         try {
@@ -200,6 +219,7 @@ export default function AdminEvents() {
                                 <th className="p-5 font-bold">Event Details</th>
                                 <th className="p-5 font-bold">Date & Location</th>
                                 <th className="p-5 font-bold text-center">Status</th>
+                                <th className="p-5 font-bold text-center">Visible</th>
                                 <th className="p-5 font-bold text-center">Pinned</th>
                                 <th className="p-5 font-bold text-right">Actions</th>
                             </tr>
@@ -247,6 +267,18 @@ export default function AdminEvents() {
                                                 {event.is_past ? 
                                                     <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-200 hover:text-gray-700 transition-colors cursor-pointer">Past</span> : 
                                                     <span className="text-[10px] font-bold uppercase tracking-wider bg-green-50 text-green-600 px-3 py-1 rounded-full border border-green-200 hover:bg-green-100 hover:text-green-700 transition-colors cursor-pointer">Upcoming</span>
+                                                }
+                                            </button>
+                                        </td>
+                                        <td className="p-5 text-center">
+                                            <button
+                                                onClick={() => toggleVisibility(event)}
+                                                className="transition-transform hover:scale-110 active:scale-95 outline-none focus:outline-none"
+                                                title={event.is_active === false ? "Hidden — click to show on the site" : "Visible — click to hide"}
+                                            >
+                                                {event.is_active === false ?
+                                                    <span className="text-gray-300 hover:text-gray-500 text-lg transition-colors"><i className="fas fa-eye-slash"></i></span> :
+                                                    <span className="text-emerald-600 text-lg"><i className="fas fa-eye"></i></span>
                                                 }
                                             </button>
                                         </td>

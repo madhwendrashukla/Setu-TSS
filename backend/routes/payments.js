@@ -1,4 +1,5 @@
 const express = require('express');
+const { validateCouponForCourse } = require('../utils/coupons');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -277,20 +278,42 @@ router.post('/create-order', flexAuth, async (req, res) => {
     }
 
     // Coupon is applied SERVER-SIDE too, so the discount cannot be inflated.
+    //
+    // This used to check only `is_active`, which meant an EXPIRED or fully
+    // redeemed coupon still discounted an event order — end_date, max_uses and
+    // max_uses_per_user were never consulted. validateCouponForCourse is the
+    // same validator the course checkout uses, so both flows now enforce the
+    // identical rules. courseSlug is omitted deliberately: that argument only
+    // drives the per-course allowlist, and the event's own allowlist is
+    // checked below against the event we have already loaded.
     let expectedFinalPrice = serverBasePrice;
     if (couponCode) {
-      const coupon = await prisma.coupon.findUnique({
-        where: { code: String(couponCode).trim().toUpperCase() }
-      });
-      if (coupon && coupon.is_active) {
-        let discount = 0;
-        if (coupon.type === 'percentage') {
-          discount = Math.floor(serverBasePrice * (coupon.discount_value / 100));
-        } else {
-          discount = coupon.discount_value;
-        }
-        expectedFinalPrice = Math.max(0, serverBasePrice - discount);
+      const buyerEmail = (req.guestUser && req.guestUser.email) || req.body.email || null;
+      const result = await validateCouponForCourse({ code: couponCode, email: buyerEmail });
+      if (!result.ok) {
+        return res.status(400).json({ error: result.error });
       }
+      const coupon = result.coupon;
+
+      // Honour the builder's per-event allowlist (page_blocks.applicable_coupons):
+      // a non-empty array is a whitelist for this event.
+      try {
+        const pd = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+        const allowed = pd && pd.applicable_coupons;
+        if (Array.isArray(allowed) && allowed.length > 0 && !allowed.includes(coupon.code)) {
+          return res.status(400).json({ error: 'This coupon code is not valid for this event' });
+        }
+      } catch (err) {
+        console.error('[pricing] could not read applicable_coupons:', err.message);
+      }
+
+      let discount = 0;
+      if (coupon.type === 'percentage') {
+        discount = Math.floor(serverBasePrice * (coupon.discount_value / 100));
+      } else {
+        discount = coupon.discount_value;
+      }
+      expectedFinalPrice = Math.max(0, serverBasePrice - discount);
     }
 
     // From here on this is the ONLY amount used — for Razorpay and for the

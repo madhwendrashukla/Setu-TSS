@@ -1,4 +1,4 @@
-# Price sync — heads-up for whoever owns the builder
+# Sync notes — heads-up for whoever owns the builder and the CMS
 
 **Added 9 August 2026.** Same spirit as `prisma/SCHEMA_DRIFT_NOTE.md`: a short note about a
 change that touches something you own, so it does not surprise you later.
@@ -63,6 +63,52 @@ it is one function (`applyPriceToPageBlocks` in `utils/priceSync.js`) and easy t
 - **A price of `0` makes a course unbuyable.** `create-order` rejects `price <= 0`; free
   access is granted by admin enrolment instead. The sync accepts `0`, the storefront will not.
 - **Non-integer prices are dropped, not rounded.** `Course.price` is an `Int` in rupees.
+
+## Visibility is now controlled from the CMS too (9 Aug)
+
+The events list showed a HIDDEN pill with no way to change it — visibility was
+only ever set by the LMS. There is now a **Visible** toggle on each row, beside Pin.
+`is_active` was already writable through `PUT /api/admin/events`, so this is a UI
+addition rather than a change of ownership.
+
+Flipping it pushes `Course.websiteLive` to the LMS, so the two panels agree.
+
+> 🔴 **The trap here, and why the push is narrow.**
+>
+> `is_active` and `Course.websiteLive` look like the same flag. They are not:
+>
+> | Field | Question |
+> |---|---|
+> | `tss_events.is_active` | is this **event** listed on `/events`? |
+> | `Course.websiteLive` | is this **course** in the `/events` catalogue grid? |
+>
+> **AI Startup Launchpad deliberately runs `is_active=true` with
+> `websiteLive=false`** so the event card shows while the course stays out of the
+> grid. Remove that and `/events` lists the same offering twice — the duplicate
+> fixed on 6 August.
+>
+> The first version of this pushed on every event save, which would have set
+> `websiteLive=true` the next time anyone edited that builder page for an
+> unrelated reason and silently re-created the duplicate. It now pushes **only
+> when the request actually flips `is_active`**, and `POST /api/admin/events`
+> never pushes at all.
+
+## "Uses the LMS" is now an explicit toggle (9 Aug)
+
+Whether a pricing card sold through `/courses/<slug>` or the on-page modal used to
+depend on whether it happened to carry a `course_slug` — invisible to the admin
+and impossible to set deliberately.
+
+It is now a real setting, resolved in `web/lib/lms-routing.ts`:
+
+- **Event level** — a checkbox beside *Registrations Open* in the builder.
+- **Per card** — a select beside *Course Slug*: inherit / force LMS / force non-LMS.
+- Card beats event; absent means LMS, so **every existing event is unchanged**.
+
+Non-LMS buyers previously got `alert("Payment Successful!")` and nothing else.
+They now land on `/events/<slug>/success`, which shows the event title and payment
+reference and **no personal data** — echoing a name or email out of the query
+string would let anyone craft a URL displaying someone else's details.
 
 ## Also changed in your flow — please review (9 Aug)
 

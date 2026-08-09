@@ -1,4 +1,5 @@
 const express = require('express');
+const { validateCouponForCourse } = require('../utils/coupons');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -154,26 +155,46 @@ router.post('/capture-lead', async (req, res) => {
   }
 });
 
-function getPriceFromEvent(event, workshopId, workshopTitle) {
-  if (!event || !event.page_blocks) return null;
+/**
+ * Resolve a card's price from the event's builder page, SERVER-SIDE.
+ *
+ * Returns { price, matchedBy } — matchedBy is 'cardId' | 'legacyId' | 'title' |
+ * null. Callers must treat a null price as "cannot price this order" and
+ * refuse it; there is deliberately no fallback to a client-supplied amount.
+ *
+ * Match order matters. `cardId` is the stable identifier from the builder
+ * (e.g. "pt_ideation"); `title` is display text an admin can rename at any
+ * time, so it is a last resort and is logged when used.
+ */
+function getPriceFromEvent(event, workshopId, workshopTitle, cardId) {
+  if (!event || !event.page_blocks) return { price: null, matchedBy: null };
   
   let pageData;
   try {
     pageData = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
   } catch (err) {
     console.error('Error parsing page_blocks:', err);
-    return null;
+    return { price: null, matchedBy: null };
   }
 
   let serverBasePrice = null;
 
+  let matchedBy = null;
   const findPrice = (items) => {
     if (!items || !Array.isArray(items)) return null;
+    // Strongest identifier first: an explicit card id from the checkout.
     for (const item of items) {
-      if ((workshopId && item.id === workshopId) || (workshopTitle && item.title === workshopTitle)) {
-        if (item.pricing && item.pricing.actual_price != null) {
-          return Number(item.pricing.actual_price);
-        }
+      if (cardId && item.id === cardId && item.pricing && item.pricing.actual_price != null) {
+        matchedBy = 'cardId';
+        return Number(item.pricing.actual_price);
+      }
+    }
+    for (const item of items) {
+      const byLegacyId = workshopId && item.id === workshopId;
+      const byTitle = workshopTitle && item.title === workshopTitle;
+      if ((byLegacyId || byTitle) && item.pricing && item.pricing.actual_price != null) {
+        matchedBy = byLegacyId ? 'legacyId' : 'title';
+        return Number(item.pricing.actual_price);
       }
     }
     return null;
@@ -184,39 +205,38 @@ function getPriceFromEvent(event, workshopId, workshopTitle) {
     for (const block of pageData) {
       if (block.type === 'pricing' && block.data && block.data.pricing_options) {
         serverBasePrice = findPrice(block.data.pricing_options);
-        if (serverBasePrice != null) return serverBasePrice;
+        if (serverBasePrice != null) return { price: serverBasePrice, matchedBy };
       }
       if (block.type === 'workshops' && block.data && block.data.items) {
         serverBasePrice = findPrice(block.data.items);
-        if (serverBasePrice != null) return serverBasePrice;
+        if (serverBasePrice != null) return { price: serverBasePrice, matchedBy };
       }
     }
   } else if (pageData && typeof pageData === 'object') {
     // Unified JSON format
     if (pageData.pricing_options) {
       serverBasePrice = findPrice(pageData.pricing_options);
-      if (serverBasePrice != null) return serverBasePrice;
+      if (serverBasePrice != null) return { price: serverBasePrice, matchedBy };
     }
     if (pageData.workshops) {
       serverBasePrice = findPrice(pageData.workshops);
-      if (serverBasePrice != null) return serverBasePrice;
+      if (serverBasePrice != null) return { price: serverBasePrice, matchedBy };
     }
   }
   
-  return serverBasePrice;
+  return { price: serverBasePrice, matchedBy };
 }
 
 // Create Order Route — accepts guest token OR regular JWT
 router.post('/create-order', flexAuth, async (req, res) => {
   try {
-    const { eventId, ticketTier, workshopId, basePrice, couponCode, discountApplied, finalPrice, workshopTitle } = req.body;
+    // NOTE: basePrice / discountApplied / finalPrice may still arrive from older
+    // clients. They are deliberately IGNORED — every rupee figure is computed
+    // server-side below. The client supplies identifiers only.
+    const { eventId, ticketTier, workshopId, couponCode, workshopTitle, pricingCardId } = req.body;
 
     const actualEventId = eventId || workshopId;
     const actualTicketTier = ticketTier || workshopTitle;
-
-    if (finalPrice == null || isNaN(finalPrice)) {
-      return res.status(400).json({ error: 'Invalid final price' });
-    }
 
     // --- SECURE PRICING CHECK ---
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(actualEventId);
@@ -233,38 +253,76 @@ router.post('/create-order', flexAuth, async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    let serverBasePrice = getPriceFromEvent(event, workshopId, workshopTitle);
-    
-    if (serverBasePrice !== null) {
-      let expectedFinalPrice = serverBasePrice;
-      
-      if (couponCode) {
-        const coupon = await prisma.coupon.findUnique({
-          where: { code: couponCode.toUpperCase() }
-        });
-        if (coupon && coupon.is_active) {
-          let discount = 0;
-          if (coupon.type === 'percentage') {
-            discount = Math.floor(serverBasePrice * (coupon.discount_value / 100));
-          } else {
-            discount = coupon.discount_value;
-          }
-          expectedFinalPrice = Math.max(0, serverBasePrice - discount);
-        }
-      }
-      
-      if (expectedFinalPrice !== finalPrice) {
-        return res.status(400).json({ 
-          error: `Price mismatch. Expected ₹${expectedFinalPrice} but got ₹${finalPrice}. Please refresh the page and try again.` 
-        });
-      }
-    } else {
-      console.warn(`Could not find server price for event ${actualEventId}, workshop ${workshopTitle}. Falling back to client price.`);
+    const { price: serverBasePrice, matchedBy } = getPriceFromEvent(
+      event, workshopId, workshopTitle, pricingCardId
+    );
+
+    // FAIL CLOSED. Previously an unresolvable price fell through to the
+    // client-supplied amount, and because the lookup keys on values the client
+    // sends (workshopId / workshopTitle), an attacker could force the miss on
+    // purpose and then name their own price. The guard only ever caught honest
+    // browsers. There is no fallback now: if we cannot price it, we do not
+    // sell it.
+    if (serverBasePrice === null) {
+      console.warn(
+        `[pricing] refused: no server price for event=${actualEventId} card=${pricingCardId || '-'} title=${workshopTitle || '-'}`
+      );
+      return res.status(400).json({
+        error: 'We could not verify the price for this ticket. Please refresh the page and try again.',
+      });
     }
+    if (matchedBy === 'title' || matchedBy === 'legacyId') {
+      // Works, but breaks the moment an admin renames the card. The checkout
+      // should be sending pricingCardId.
+      console.warn(`[pricing] matched by ${matchedBy} for event=${actualEventId}; client should send pricingCardId`);
+    }
+
+    // Coupon is applied SERVER-SIDE too, so the discount cannot be inflated.
+    //
+    // This used to check only `is_active`, which meant an EXPIRED or fully
+    // redeemed coupon still discounted an event order — end_date, max_uses and
+    // max_uses_per_user were never consulted. validateCouponForCourse is the
+    // same validator the course checkout uses, so both flows now enforce the
+    // identical rules. courseSlug is omitted deliberately: that argument only
+    // drives the per-course allowlist, and the event's own allowlist is
+    // checked below against the event we have already loaded.
+    let expectedFinalPrice = serverBasePrice;
+    if (couponCode) {
+      const buyerEmail = (req.guestUser && req.guestUser.email) || req.body.email || null;
+      const result = await validateCouponForCourse({ code: couponCode, email: buyerEmail });
+      if (!result.ok) {
+        return res.status(400).json({ error: result.error });
+      }
+      const coupon = result.coupon;
+
+      // Honour the builder's per-event allowlist (page_blocks.applicable_coupons):
+      // a non-empty array is a whitelist for this event.
+      try {
+        const pd = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+        const allowed = pd && pd.applicable_coupons;
+        if (Array.isArray(allowed) && allowed.length > 0 && !allowed.includes(coupon.code)) {
+          return res.status(400).json({ error: 'This coupon code is not valid for this event' });
+        }
+      } catch (err) {
+        console.error('[pricing] could not read applicable_coupons:', err.message);
+      }
+
+      let discount = 0;
+      if (coupon.type === 'percentage') {
+        discount = Math.floor(serverBasePrice * (coupon.discount_value / 100));
+      } else {
+        discount = coupon.discount_value;
+      }
+      expectedFinalPrice = Math.max(0, serverBasePrice - discount);
+    }
+
+    // From here on this is the ONLY amount used — for Razorpay and for the
+    // stored registration. Nothing the client sent influences it.
+    const chargeableRupees = expectedFinalPrice;
     // ----------------------------
 
     const options = {
-      amount: Math.round(finalPrice * 100), // paise
+      amount: Math.round(chargeableRupees * 100), // paise
       currency: 'INR',
       receipt: `rcpt_${Date.now()}`,
     };
@@ -292,7 +350,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
           data: {
             ticket_tier: actualTicketTier,
             razorpay_order_id: order.id,
-            amount: Math.round(finalPrice)
+            amount: Math.round(chargeableRupees)
           }
         });
       } else {
@@ -303,7 +361,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
             ticket_tier: actualTicketTier,
             razorpay_order_id: order.id,
             status: 'PENDING',
-            amount: Math.round(finalPrice),
+            amount: Math.round(chargeableRupees),
           }
         });
       }
@@ -326,7 +384,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
           data: {
             ticket_tier: actualTicketTier,
             razorpay_order_id: order.id,
-            amount: Math.round(finalPrice),
+            amount: Math.round(chargeableRupees),
             guest_name: req.guestUser.name || pendingLead.guest_name,
             guest_email: req.guestUser.email || pendingLead.guest_email,
             guest_phone: req.guestUser.phone || pendingLead.guest_phone,
@@ -340,7 +398,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
             ticket_tier: actualTicketTier,
             razorpay_order_id: order.id,
             status: 'PENDING',
-            amount: Math.round(finalPrice),
+            amount: Math.round(chargeableRupees),
             guest_name: req.guestUser.name || null,
             guest_email: req.guestUser.email || null,
             guest_phone: req.guestUser.phone || null,

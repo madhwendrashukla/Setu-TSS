@@ -372,21 +372,9 @@ app.post('/api/admin/events', upload.single('banner'), compressImage, async (req
     data.is_pinned = data.is_pinned === true;
 
     const newEvent = await prisma.event.create({ data });
-
-    // ── Visibility mirroring (website → LMS) ───────────────────────────
-    // tss_events.is_active and Course.websiteLive are the same fact. Push any
-    // change so an event hidden in the CMS is not still "live" in the LMS.
-    // Skipped when the event names no course. Fire-and-forget; the LMS ignores
-    // values that already match, so this cannot bounce back.
-    try {
-      if (newEvent.lms_course_slug && typeof newEvent.is_active === 'boolean') {
-        void pushVisibilityToLms([
-          { slug: newEvent.lms_course_slug, websiteLive: newEvent.is_active },
-        ]);
-      }
-    } catch (err) {
-      console.error('[visibilitySync] could not mirror visibility:', err.message);
-    }
+    // No visibility push on create: a new event's LMS link is established by
+    // the LMS's own sync, and asserting visibility here would state something
+    // nobody asked us to change.
 
     // ── Price mirroring (website → LMS) ─────────────────────────────────
     // The builder card is what the buyer SEES; Course.price in the LMS is what
@@ -414,15 +402,30 @@ app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (
     // Same whitelist as create — see EVENT_FIELDS above.
     const data = buildEventData(req.body, req.file);
 
+    // Needed to tell an actual visibility change from an unrelated save.
+    const before = await prisma.event.findUnique({
+      where: { id: req.params.id },
+      select: { is_active: true },
+    });
+
     const updated = await prisma.event.update({ where: { id: req.params.id }, data });
 
     // ── Visibility mirroring (website → LMS) ───────────────────────────
-    // tss_events.is_active and Course.websiteLive are the same fact. Push any
-    // change so an event hidden in the CMS is not still "live" in the LMS.
-    // Skipped when the event names no course. Fire-and-forget; the LMS ignores
-    // values that already match, so this cannot bounce back.
+    // ONLY when this request actually flipped is_active.
+    //
+    // is_active and Course.websiteLive are related but NOT identical:
+    //   is_active   — is this EVENT listed on /events?
+    //   websiteLive — is this COURSE listed in the /events catalogue grid?
+    //
+    // They legitimately differ. The AI Startup Launchpad runs is_active=true
+    // with websiteLive=false on purpose, so the event card shows while the
+    // course stays out of the grid — without that, /events lists the same
+    // offering twice. Mirroring on every save would silently undo it the next
+    // time anyone edited the page for an unrelated reason.
     try {
-      if (updated.lms_course_slug && typeof updated.is_active === 'boolean') {
+      const flipped =
+        typeof data.is_active === 'boolean' && before && before.is_active !== updated.is_active;
+      if (flipped && updated.lms_course_slug) {
         void pushVisibilityToLms([
           { slug: updated.lms_course_slug, websiteLive: updated.is_active },
         ]);

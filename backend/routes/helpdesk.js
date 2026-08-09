@@ -107,7 +107,11 @@ router.post('/', uploadWithGuard, async (req, res) => {
     }
 
     const mailOptions = {
-      from: '"Helpdesk Chatbot" <no-reply@yourcompany.com>',
+      // Must be a domain our SMTP server is authorised to relay for. This was
+      // hardcoded to a placeholder (no-reply@yourcompany.com); Gmail quietly
+      // rewrote it, but a real mail host rejects the whole message with
+      // 550 "your domain is not allowed", so every helpdesk enquiry was lost.
+      from: process.env.SMTP_FROM || '"Helpdesk" <no-reply@setustartupschool.com>',
       to: process.env.CONTACT_EMAIL || 'support@yourcompany.com',
       subject: 'New Helpdesk Request via Chat Widget',
       text: emailText,

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { resolveCheckoutTarget } from '@/lib/lms-routing';
 import dynamic from 'next/dynamic';
 import { PageData, WorkshopData } from '@/types/cms';
 
@@ -22,20 +23,21 @@ export function DynamicSections({ pageData, eventSlug, lmsCourseSlug }: { pageDa
     const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
 
     const handleCheckoutClick = (workshopId: string) => {
-        // Unified Events: an LMS-linked event sells through the COURSE checkout
-        // (account + enrollment + welcome email), never the event-registration
-        // modal — otherwise buyers pay without getting LMS access.
-        //
-        // Per-card routing: a pricing card may name its OWN course (course_slug)
-        // so one event can offer several courses + a bundle — buying a card
-        // opens that specific course's checkout. Cards without a course_slug
-        // fall back to the event-level course.
+        // An LMS-backed card sells through the COURSE checkout (account +
+        // enrolment + credentials email); a non-LMS one sells through the
+        // on-page modal (details + OTP + payment, no LMS account). A card may
+        // name its own course_slug so one event can offer several courses plus
+        // a bundle; cards without one inherit the event's course.
         const card =
             pageData.pricing_options?.find((p: any) => p.id === workshopId) ||
             pageData.workshops?.find((w: any) => w.id === workshopId);
-        const courseSlug = (card as any)?.course_slug || lmsCourseSlug;
-        if (courseSlug) {
-            window.location.href = `/courses/${courseSlug}`;
+
+        // Explicit per-card / per-event toggle, most specific wins. See
+        // lib/lms-routing.ts — this used to be decided implicitly by whether a
+        // course_slug happened to be filled in.
+        const target = resolveCheckoutTarget(card as any, pageData as any, lmsCourseSlug);
+        if (target.mode === 'course') {
+            window.location.href = `/courses/${target.slug}`;
             return;
         }
         setSelectedWorkshopId(workshopId);
@@ -44,7 +46,12 @@ export function DynamicSections({ pageData, eventSlug, lmsCourseSlug }: { pageDa
 
     const handleCheckoutSuccess = (response: any) => {
         setIsCheckoutOpen(false);
-        alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
+        // Non-LMS buyers get no account and no course page, so a browser alert
+        // was the entire confirmation they received after paying. Send them to
+        // a real success page instead; only the payment reference travels in
+        // the URL, never their personal details.
+        const ref = encodeURIComponent(response?.razorpay_payment_id || '');
+        window.location.href = `/events/${eventSlug}/success?ref=${ref}`;
     };
 
     const selectedWorkshop = selectedWorkshopId 

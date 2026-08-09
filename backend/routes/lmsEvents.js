@@ -1,4 +1,5 @@
 const express = require('express');
+const { applyPriceToPageBlocks } = require('../utils/priceSync');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client');
@@ -91,6 +92,7 @@ router.post('/publish', async (req, res) => {
       courseSlug,
       title,
       description,
+      price,
       bannerUrl,
       startDate,
       endDate,
@@ -160,6 +162,41 @@ router.post('/publish', async (req, res) => {
     }
 
     const previewToken = makePreviewToken(event.slug, getInternalSecret());
+    // ── Price mirroring (LMS → website) ──────────────────────────────────
+    // Everything above writes delivery-derived fields only; page_blocks is
+    // otherwise never touched here because the landing-page design belongs to
+    // the website admin. The single exception is the price leaf: the builder
+    // card used to hold an independent copy of the number, so the page could
+    // advertise one price while checkout charged another. We rewrite
+    // `pricing.actual_price` on cards that sell THIS course and nothing else.
+    if (event && typeof price === 'number' && Number.isFinite(price)) {
+      try {
+        const raw = event.page_blocks;
+        const pageData = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        if (pageData) {
+          const { changed, cards } = applyPriceToPageBlocks(
+            pageData,
+            courseSlug,
+            price,
+            event.lms_course_slug || null
+          );
+          // Only write when something actually moved — this is what stops the
+          // two admins echoing the same value back and forth.
+          if (changed) {
+            await prisma.event.update({
+              where: { id: event.id },
+              data: { page_blocks: pageData },
+            });
+            console.log(`[priceSync] ${courseSlug}: ${cards} builder card(s) set to ₹${price}`);
+          }
+        }
+      } catch (err) {
+        // Never fail the sync over the display price — the charged amount is
+        // Course.price and is already correct by definition here.
+        console.error('[priceSync] could not mirror price into page_blocks:', err.message);
+      }
+    }
+
     res.json({
       eventId: event.id,
       slug: event.slug,

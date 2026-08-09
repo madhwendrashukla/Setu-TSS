@@ -372,6 +372,21 @@ app.post('/api/admin/events', upload.single('banner'), compressImage, async (req
     data.is_pinned = data.is_pinned === true;
 
     const newEvent = await prisma.event.create({ data });
+
+    // ── Price mirroring (website → LMS) ─────────────────────────────────
+    // The builder card is what the buyer SEES; Course.price in the LMS is what
+    // checkout actually CHARGES. Push any price typed here into the LMS so the
+    // two cannot disagree. Fire-and-forget: a save must not fail because the
+    // LMS is briefly unreachable, and the LMS skips values that already match,
+    // so this cannot bounce back and forth.
+    try {
+      const raw = newEvent.page_blocks;
+      const pageData = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      const prices = collectPricesFromPageBlocks(pageData, newEvent.lms_course_slug || null);
+      if (prices.length) void pushPricesToLms(prices);
+    } catch (err) {
+      console.error('[priceSync] could not read prices from the builder page:', err.message);
+    }
     res.json(newEvent);
   } catch (error) {
     console.error(error);
@@ -385,6 +400,21 @@ app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (
     const data = buildEventData(req.body, req.file);
 
     const updated = await prisma.event.update({ where: { id: req.params.id }, data });
+
+    // ── Price mirroring (website → LMS) ─────────────────────────────────
+    // The builder card is what the buyer SEES; Course.price in the LMS is what
+    // checkout actually CHARGES. Push any price typed here into the LMS so the
+    // two cannot disagree. Fire-and-forget: a save must not fail because the
+    // LMS is briefly unreachable, and the LMS skips values that already match,
+    // so this cannot bounce back and forth.
+    try {
+      const raw = updated.page_blocks;
+      const pageData = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      const prices = collectPricesFromPageBlocks(pageData, updated.lms_course_slug || null);
+      if (prices.length) void pushPricesToLms(prices);
+    } catch (err) {
+      console.error('[priceSync] could not read prices from the builder page:', err.message);
+    }
     res.json(updated);
   } catch (error) { 
     console.error(error);
@@ -951,6 +981,7 @@ app.delete('/api/admin/bottom_videos/:id', authMiddleware, async (req, res) => {
 
 // ─── OTP ROUTES ──────────────────────────────────────────────────────────────
 const { sendMail, sendBulkMail, otpEmailHtml } = require('./utils/mailer');
+const { collectPricesFromPageBlocks, pushPricesToLms } = require('./utils/priceSync');
 
 // In-memory OTP store: { email -> { otp, name, phone, expiresAt } }
 // In production, replace with Redis or a short-lived DB table.

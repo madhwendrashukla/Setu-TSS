@@ -373,6 +373,21 @@ app.post('/api/admin/events', upload.single('banner'), compressImage, async (req
 
     const newEvent = await prisma.event.create({ data });
 
+    // ── Visibility mirroring (website → LMS) ───────────────────────────
+    // tss_events.is_active and Course.websiteLive are the same fact. Push any
+    // change so an event hidden in the CMS is not still "live" in the LMS.
+    // Skipped when the event names no course. Fire-and-forget; the LMS ignores
+    // values that already match, so this cannot bounce back.
+    try {
+      if (newEvent.lms_course_slug && typeof newEvent.is_active === 'boolean') {
+        void pushVisibilityToLms([
+          { slug: newEvent.lms_course_slug, websiteLive: newEvent.is_active },
+        ]);
+      }
+    } catch (err) {
+      console.error('[visibilitySync] could not mirror visibility:', err.message);
+    }
+
     // ── Price mirroring (website → LMS) ─────────────────────────────────
     // The builder card is what the buyer SEES; Course.price in the LMS is what
     // checkout actually CHARGES. Push any price typed here into the LMS so the
@@ -400,6 +415,21 @@ app.put('/api/admin/events/:id', upload.single('banner'), compressImage, async (
     const data = buildEventData(req.body, req.file);
 
     const updated = await prisma.event.update({ where: { id: req.params.id }, data });
+
+    // ── Visibility mirroring (website → LMS) ───────────────────────────
+    // tss_events.is_active and Course.websiteLive are the same fact. Push any
+    // change so an event hidden in the CMS is not still "live" in the LMS.
+    // Skipped when the event names no course. Fire-and-forget; the LMS ignores
+    // values that already match, so this cannot bounce back.
+    try {
+      if (updated.lms_course_slug && typeof updated.is_active === 'boolean') {
+        void pushVisibilityToLms([
+          { slug: updated.lms_course_slug, websiteLive: updated.is_active },
+        ]);
+      }
+    } catch (err) {
+      console.error('[visibilitySync] could not mirror visibility:', err.message);
+    }
 
     // ── Price mirroring (website → LMS) ─────────────────────────────────
     // The builder card is what the buyer SEES; Course.price in the LMS is what
@@ -981,7 +1011,7 @@ app.delete('/api/admin/bottom_videos/:id', authMiddleware, async (req, res) => {
 
 // ─── OTP ROUTES ──────────────────────────────────────────────────────────────
 const { sendMail, sendBulkMail, otpEmailHtml } = require('./utils/mailer');
-const { collectPricesFromPageBlocks, pushPricesToLms } = require('./utils/priceSync');
+const { collectPricesFromPageBlocks, pushPricesToLms, pushVisibilityToLms } = require('./utils/priceSync');
 
 // In-memory OTP store: { email -> { otp, name, phone, expiresAt } }
 // In production, replace with Redis or a short-lived DB table.

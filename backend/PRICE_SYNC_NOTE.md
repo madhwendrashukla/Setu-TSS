@@ -64,12 +64,31 @@ it is one function (`applyPriceToPageBlocks` in `utils/priceSync.js`) and easy t
   access is granted by admin enrolment instead. The sync accepts `0`, the storefront will not.
 - **Non-integer prices are dropped, not rounded.** `Course.price` is an `Int` in rupees.
 
-## Unrelated, but found while doing this — worth your attention
+## Also changed in your flow — please review (9 Aug)
 
-**`routes/payments.js` falls back to the client-supplied price.** In the event-registration
-flow, when `getPriceFromEvent()` cannot resolve a server price it logs *"Falling back to
-client price"* and accepts whatever the browser sent. A crafted request could pay ₹1 for an
-event. Our course checkout does not have this (the price is always read server-side).
+**`routes/payments.js` used to charge the client-supplied price. It has been fixed.**
 
-Left alone because it is your flow and the fix is a product decision: reject the order, or
-fall back to a stored event price.
+The old code resolved a server price and compared it to `finalPrice` — but the lookup keys on
+`workshopId` / `workshopTitle`, **both sent by the client**. A request naming a card that does
+not exist made the lookup miss, skipped the comparison entirely, and fell through to
+*"Falling back to client price"*. The guard only ever caught honest browsers; an attacker
+turned it off by making the lookup fail, then named their own amount.
+
+What it does now:
+
+1. **Fails closed.** If the price cannot be resolved, the order is refused. No fallback.
+2. **Charges its own figure.** `basePrice` / `discountApplied` / `finalPrice` are still
+   accepted from older clients but ignored — Razorpay and the stored registration both use
+   the server's number.
+3. **Prefers a stable card id.** The checkout now sends `pricingCardId` (the builder card's
+   `id`). Title matching still works but is logged, because a rename would otherwise turn
+   into failed purchases now that there is no fallback.
+4. **Validates coupons properly.** It previously checked only `is_active`, so an expired or
+   fully redeemed coupon still discounted an event order. It now uses
+   `validateCouponForCourse` — the same validator the course checkout uses — and honours the
+   builder's `applicable_coupons` allowlist.
+
+Verified on the live server: a request with a bogus card and `finalPrice: 1` is refused,
+while a legitimate one prices at ₹290 (29000 paise) **even when the body claims ₹1**.
+
+Revert as one unit with `git revert -m 1 b0877dd` if you disagree with the approach.

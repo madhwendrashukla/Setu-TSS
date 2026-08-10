@@ -90,6 +90,12 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api/course-payments', coursePaymentsRoutes);
 
 // --- PUBLIC API ENDPOINTS ---
+// Fields safe to hand to a browser. Deliberately WITHOUT `page_blocks` — it is
+// ~13 KB per event and carries `coupon` / `applicable_coupons`, which the
+// by-slug endpoint strips before responding. Do not add them here.
+//
+// The admin event builder needs the full row, so `GET /api/events?all=true`
+// skips this projection for an authenticated admin — see the note there.
 const eventListSelection = {
   id: true, title: true, description: true, banner_url: true,
   venue: true, city: true, start_date: true, start_time: true,
@@ -138,13 +144,20 @@ app.get('/api/events', async (req, res) => {
   try {
     const { upcoming, past, all } = req.query;
     let whereClause = { is_active: true };
-    if (all === 'true' && hasValidAdminToken(req)) whereClause = {};
+    const isAdminList = all === 'true' && hasValidAdminToken(req);
+    if (isAdminList) whereClause = {};
     if (upcoming === 'true') whereClause.is_past = false;
     if (past === 'true') whereClause.is_past = true;
-    const events = await prisma.event.findMany({ 
-      where: whereClause, 
+    // An authenticated admin gets the WHOLE row. The event builder loads from
+    // this endpoint and edits `page_blocks`; under the public projection it
+    // received a row with no `page_blocks` at all, silently fell back to its
+    // empty defaults, and every section rendered blank — with a Save button
+    // that would then write those defaults over the live page.
+    // Public callers keep the lean projection.
+    const events = await prisma.event.findMany({
+      where: whereClause,
       orderBy: { start_date: 'asc' },
-      select: eventListSelection
+      ...(isAdminList ? {} : { select: eventListSelection })
     });
     res.json(events);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch events' }); }

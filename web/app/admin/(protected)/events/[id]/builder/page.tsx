@@ -392,8 +392,29 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
     );
 };
 
-const PricingEditor = ({ options, onChange }: { options: any[], onChange: (o: any[] | ((prev: any[]) => any[])) => void }) => {
-    const handleAdd = () => onChange((prev) => [...(Array.isArray(prev) ? prev : []), { id: "p_"+Date.now(), priority_order: (prev?.length || 0)+1, heading: "OFFER", title: "", key_features: "", pricing: { strike_price: 0, actual_price: 0, date_time_bullets: [], mode: "online", address: "" }, cta: { text: "Book Now", active: true }, visible: true }]);
+/** A blank pricing card, seeded from the LMS course price when there is one.
+ *  For an LMS-linked event that price is what checkout actually charges, so
+ *  starting a new card at 0 guarantees the displayed figure disagrees with
+ *  the real one until someone notices the mismatch warning. */
+const blankPricingCard = (count: number, lmsPrice: number | null, title = "") => ({
+    id: "p_" + Date.now(),
+    priority_order: count + 1,
+    heading: "OFFER",
+    title,
+    key_features: "",
+    pricing: {
+        strike_price: 0,
+        actual_price: lmsPrice ?? 0,
+        date_time_bullets: [],
+        mode: "online",
+        address: "",
+    },
+    cta: { text: "Book Now", active: true },
+    visible: true,
+});
+
+const PricingEditor = ({ options, onChange, lmsCoursePrice }: { options: any[], onChange: (o: any[] | ((prev: any[]) => any[])) => void, lmsCoursePrice?: number | null }) => {
+    const handleAdd = () => onChange((prev) => [...(Array.isArray(prev) ? prev : []), blankPricingCard((prev?.length || 0), lmsCoursePrice ?? null)]);
     const handleRemove = (index: number) => { onChange(prev => { const newArr = [...(Array.isArray(prev) ? prev : [])]; newArr.splice(index, 1); return newArr; }); };
     const handleChange = (index: number, field: string, val: any) => { onChange(prev => { const newArr = [...(Array.isArray(prev) ? prev : [])]; newArr[index] = { ...newArr[index], [field]: val }; return newArr; }); };
     
@@ -592,6 +613,10 @@ export default function EventBuilderPage() {
     const [adminSources, setAdminSources] = useState<any[]>([]);
     const [globalCoupons, setGlobalCoupons] = useState<any[]>([]);
     const [lmsCoursePrice, setLmsCoursePrice] = useState<number | null>(null); // rupees — authoritative charge for LMS-linked events
+    // null until the event has been fetched. False means the API returned a row
+    // with no `page_blocks`, so what is on screen is the empty default — NOT
+    // the event's real content, and must never be written over it.
+    const [loadedPageBlocks, setLoadedPageBlocks] = useState<boolean | null>(null);
 
     useEffect(() => {
         const fetchSourcesAndCoupons = async () => {
@@ -643,6 +668,11 @@ export default function EventBuilderPage() {
                             .catch(() => {});
                     }
                     
+                    // A brand-new event legitimately has no page_blocks yet; a
+                    // response that omitted the column does not. Distinguish
+                    // them, because only the first is safe to save from.
+                    setLoadedPageBlocks(Object.prototype.hasOwnProperty.call(found, 'page_blocks'));
+
                     let parsedData = typeof found.page_blocks === 'string' ? JSON.parse(found.page_blocks) : (found.page_blocks || {});
                     if (Array.isArray(parsedData)) {
                         parsedData = initialPageData;
@@ -727,6 +757,24 @@ export default function EventBuilderPage() {
     };
 
     const savePageData = async () => {
+        // Refuse to save what we never loaded. Saving here PUTs the whole
+        // in-memory pageData over page_blocks, so if the fetch came back
+        // without that column the screen holds empty defaults and one click
+        // would destroy the live page's pricing, mentors, FAQs and workshops.
+        // This exact regression shipped on 26 Jul 2026 (b89db37) and went
+        // unnoticed for two weeks, because a blank builder looks like an
+        // unfinished event rather than a failure.
+        if (loadedPageBlocks === false) {
+            alert(
+                "Can't save — this event's content didn't load.\n\n" +
+                "The API returned the event without its page_blocks, so every " +
+                "section on screen is showing empty defaults, not your real " +
+                "content. Saving now would overwrite the live page.\n\n" +
+                "Reload the page. If it stays empty, the backend is serving the " +
+                "cut-down event list to admins — see GET /api/events in server.js."
+            );
+            return;
+        }
         setSaving(true);
         const token = localStorage.getItem("adminToken");
         try {
@@ -782,6 +830,21 @@ export default function EventBuilderPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Loud, unmissable: a blank builder is indistinguishable from an
+                unfinished event, which is why the 26 Jul regression sat for
+                two weeks. Say so before anyone starts typing into it. */}
+            {loadedPageBlocks === false && (
+                <div className="max-w-7xl mx-auto px-8 pt-6">
+                    <div className="rounded-xl border-2 border-red-300 bg-red-50 p-4 text-sm text-red-800">
+                        <strong className="block font-bold">This event&apos;s content didn&apos;t load — don&apos;t edit or save.</strong>
+                        The API returned this event without its <code className="font-mono">page_blocks</code>, so every
+                        section below is showing empty defaults rather than the real page. Saving would overwrite the
+                        live event. Reload; if it stays empty, <code className="font-mono">GET /api/events</code> is
+                        serving admins the cut-down list projection.
+                    </div>
+                </div>
+            )}
 
             <div className="p-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
                 {/* Sidebar */}
@@ -909,7 +972,40 @@ export default function EventBuilderPage() {
                                     Update the pricing card{(pageData.pricing_options || []).length > 1 ? 's' : ''} here, or change the course price in the LMS — the checkout always charges the LMS price.
                                 </div>
                             )}
-                            <PricingEditor options={pageData.pricing_options || []} onChange={v => setPageData((prev: any) => ({...prev, pricing_options: typeof v === 'function' ? v(prev.pricing_options || []) : v}))} />
+                            {/* An LMS-linked event with a price but no card sells at a
+                                price the page never states. Offer to create the card
+                                rather than writing one silently — an implicit write here
+                                is what the visibility mirror was deliberately built to
+                                avoid (see 90c3fd8). */}
+                            {lmsCoursePrice !== null && (pageData.pricing_options || []).length === 0 && (
+                                <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                                    <p className="font-medium">
+                                        This event is linked to an LMS course priced at{' '}
+                                        <strong>₹{lmsCoursePrice.toLocaleString('en-IN')}</strong>, but it has no pricing
+                                        card — so the page never tells buyers what they will pay, while checkout still
+                                        charges them that amount.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPageData((prev: any) => ({
+                                            ...prev,
+                                            pricing_options: [
+                                                ...(prev.pricing_options || []),
+                                                blankPricingCard(0, lmsCoursePrice, event?.title || ''),
+                                            ],
+                                        }))}
+                                        className="mt-3 rounded-lg bg-amber-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-amber-700"
+                                    >
+                                        Create a card at ₹{lmsCoursePrice.toLocaleString('en-IN')}
+                                    </button>
+                                    <span className="ml-3 text-xs text-amber-800">Nothing is saved until you press Save Changes.</span>
+                                </div>
+                            )}
+                            <PricingEditor
+                                options={pageData.pricing_options || []}
+                                lmsCoursePrice={lmsCoursePrice}
+                                onChange={v => setPageData((prev: any) => ({...prev, pricing_options: typeof v === 'function' ? v(prev.pricing_options || []) : v}))}
+                            />
                         </div>
                     )}
 

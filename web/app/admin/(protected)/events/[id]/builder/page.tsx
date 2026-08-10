@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
+import { resolveCheckoutTarget } from "@/lib/lms-routing";
 import 'react-quill-new/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
@@ -612,7 +613,11 @@ export default function EventBuilderPage() {
     const [testimonialTab, setTestimonialTab] = useState("text");
     const [adminSources, setAdminSources] = useState<any[]>([]);
     const [globalCoupons, setGlobalCoupons] = useState<any[]>([]);
-    const [lmsCoursePrice, setLmsCoursePrice] = useState<number | null>(null); // rupees — authoritative charge for LMS-linked events
+    const [lmsCoursePrice, setLmsCoursePrice] = useState<number | null>(null); // rupees — the EVENT-level course price, used to seed a first card
+    // course slug -> price in rupees, for every course any pricing card points at.
+    // A card can name its own course_slug, so the event's course price is not
+    // the right yardstick for all of them — see the mismatch check below.
+    const [coursePrices, setCoursePrices] = useState<Record<string, number>>({});
     // null until the event has been fetched. False means the API returned a row
     // with no `page_blocks`, so what is on screen is the empty default — NOT
     // the event's real content, and must never be written over it.
@@ -799,6 +804,54 @@ export default function EventBuilderPage() {
         }
     };
 
+    // Fetch the LMS price of every course the pricing cards point at.
+    // Cheap and idempotent: only slugs we have not already priced are fetched.
+    useEffect(() => {
+        const referenced: string[] = (pageData?.pricing_options || [])
+            .map((c: any) => c?.course_slug || event?.lms_course_slug)
+            .filter((s: any) => typeof s === 'string' && s.length > 0);
+        const slugs = Array.from(new Set<string>(referenced)).filter((s) => !(s in coursePrices));
+        if (slugs.length === 0) return;
+
+        let cancelled = false;
+        Promise.all(slugs.map(async (slug) => {
+            try {
+                const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/courses/${slug}`);
+                if (!r.ok) return null;
+                const c = await r.json();
+                return typeof c?.price === 'number' ? ([slug, c.price] as const) : null;
+            } catch { return null; }
+        })).then((pairs) => {
+            if (cancelled) return;
+            const found = pairs.filter(Boolean) as (readonly [string, number])[];
+            if (found.length) setCoursePrices((prev) => ({ ...prev, ...Object.fromEntries(found) }));
+        });
+        return () => { cancelled = true; };
+    }, [pageData?.pricing_options, event?.lms_course_slug, coursePrices]);
+
+    /**
+     * Cards whose displayed price is not what the buyer would actually be charged.
+     *
+     * Only a card routed to /courses/<slug> can mismatch: that checkout charges
+     * Course.price and ignores the number typed here. A card that opens the
+     * on-page modal is charged from its own actual_price, so it cannot disagree
+     * with itself.
+     *
+     * Each card is compared against ITS OWN course. Comparing every card to the
+     * event's course price raised a false alarm on any event selling more than
+     * one thing — AI Startup Launchpad has four cards (three workshops plus the
+     * bundle), all correctly priced, and the old check flagged three of them and
+     * advised setting them all to the bundle price.
+     */
+    const priceMismatches = (pageData?.pricing_options || []).flatMap((card: any) => {
+        const target = resolveCheckoutTarget(card, { uses_lms: pageData?.uses_lms }, event?.lms_course_slug);
+        if (target.mode !== 'course') return [];
+        const charged = coursePrices[target.slug];
+        if (typeof charged !== 'number') return [];
+        const shown = Number(card?.pricing?.actual_price ?? 0);
+        return shown === charged ? [] : [{ title: card?.title || '(untitled card)', slug: target.slug, shown, charged }];
+    });
+
     const tabs = [
         { id: 'visibility', label: 'Visibility & Toggles' },
         { id: 'hero', label: 'Hero Section' },
@@ -963,13 +1016,28 @@ export default function EventBuilderPage() {
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">Pricing</h2>
                             <p className="text-sm text-gray-600 mb-4 bg-yellow-50 border border-yellow-200 p-4 rounded-xl font-medium">Create independent pricing options.</p>
-                            {/* Unified Events: display-vs-charge mismatch warning for LMS-linked events */}
-                            {lmsCoursePrice !== null && (pageData.pricing_options || []).some((o: any) => (o.pricing?.actual_price || 0) !== lmsCoursePrice) && (
+                            {/* Display-vs-charge mismatch, checked per card against the
+                                course THAT card sells. Cards selling different courses at
+                                different prices are normal and are not flagged. */}
+                            {priceMismatches.length > 0 && (
                                 <div className="text-sm text-red-800 bg-red-50 border border-red-200 p-4 rounded-xl font-medium">
                                     <i className="fas fa-triangle-exclamation mr-2"></i>
-                                    This page shows a price that differs from what buyers are actually charged:
-                                    the linked LMS course costs <strong>₹{lmsCoursePrice.toLocaleString('en-IN')}</strong>.
-                                    Update the pricing card{(pageData.pricing_options || []).length > 1 ? 's' : ''} here, or change the course price in the LMS — the checkout always charges the LMS price.
+                                    {priceMismatches.length === 1 ? 'This card shows' : `${priceMismatches.length} cards show`}{' '}
+                                    a price the buyer will not be charged. Buying through a card that opens
+                                    <code className="mx-1 font-mono text-xs">/courses/…</code> charges the LMS course price,
+                                    and the figure typed here is only displayed.
+                                    <ul className="mt-2 list-disc space-y-1 pl-5 font-normal">
+                                        {priceMismatches.map((m: any) => (
+                                            <li key={m.slug + m.title}>
+                                                <strong>{m.title}</strong> — page shows ₹{m.shown.toLocaleString('en-IN')},
+                                                buyer pays <strong>₹{m.charged.toLocaleString('en-IN')}</strong>{' '}
+                                                (<code className="font-mono text-xs">{m.slug}</code>)
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <span className="mt-2 block font-normal">
+                                        Fix the price on the card, or change that course&apos;s price in the LMS.
+                                    </span>
                                 </div>
                             )}
                             {/* An LMS-linked event with a price but no card sells at a

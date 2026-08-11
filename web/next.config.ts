@@ -85,6 +85,7 @@ const nextConfig: NextConfig = {
       "base-uri 'self'",
       // *.razorpay.com so redirect-based methods (netbanking/UPI) can POST back
       "form-action 'self' https://*.razorpay.com",
+      "upgrade-insecure-requests",
     ].join("; ");
 
     return [
@@ -95,7 +96,22 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options",   value: "nosniff" },
           { key: "Permissions-Policy",        value: "camera=(), microphone=(), geolocation=()" },
           { key: "Content-Security-Policy",   value: csp },
-          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          // Deliberately SHORT while the site settles after the 11 Aug 2026 cutover.
+          //
+          // This header only started taking effect when HTTPS went live — over plain
+          // http browsers ignore it — and the previous value (max-age=63072000,
+          // i.e. two years, plus `preload`) silently broke the documented rollback:
+          // once a browser has seen it, that hostname CANNOT be served over http
+          // again for the lifetime of the max-age, so falling back to the old server
+          // would fail for every visitor who had already loaded the site.
+          //
+          // `preload` was also removed. It is an application to the browsers' built-in
+          // preload list; getting removed from that list takes months and is out of
+          // our hands, so it is not something to carry by accident.
+          //
+          // Raise this to a year once the site has been stable on https for a week or
+          // two, and only add `preload` as a deliberate, separate decision.
+          { key: "Strict-Transport-Security", value: "max-age=86400; includeSubDomains" },
         ],
       },
       // ── Cache headers for static assets ──────────────────────────────────

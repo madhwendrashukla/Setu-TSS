@@ -343,6 +343,7 @@ async function dispatchEnrollment(order, extra = {}) {
           id: order.id,
           buyerEmail: order.buyer_email,
           buyerName: order.buyer_name,
+          buyerPhone: order.buyer_phone,
           lmsCourseId: courseId,
           razorpayOrderId: extra.razorpayOrderId || order.razorpay_order_id,
           paymentStatus: extra.paymentStatus,

@@ -31,6 +31,7 @@ async function main() {
     id: order.id,
     buyerEmail: order.buyer_email,
     buyerName: order.buyer_name,
+    buyerPhone: order.buyer_phone,
     lmsCourseId: order.lms_course_id,
     razorpayOrderId: order.razorpay_order_id,
     utmSource: order.utm_source,

@@ -27,6 +27,10 @@ async function sendOnce(order, attempt) {
   const payload = {
     email: order.buyerEmail,
     name: order.buyerName,
+    // Item 6a: the buyer's phone was collected at checkout and never passed on,
+    // so every LMS account had a blank number. The receiver treats it as
+    // optional and never overwrites a number the student set themselves.
+    phone: order.buyerPhone || undefined,
     courseId: order.lmsCourseId,
     paymentId: order.razorpayOrderId,
     // 'free' only for the self-serve free flow; omitted for paid orders

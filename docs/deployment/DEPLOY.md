@@ -1,6 +1,14 @@
 # Deploy Runbook — Setu-TSS Website (+ single-domain integration)
 
-How the website is deployed on the AWS Lightsail VPS, and the invariants that keep deploys safe. The website (this repo) and the LMS ([The-Startup-School-LMS](https://github.com/monarchsolanki/The-Startup-School-LMS)) are served under one domain by Nginx. This runbook is the **website** side; the LMS ships as a pre-built Docker image (see that repo's README).
+> 🔴 **Updated 13 Aug 2026 — the server moved.** The platform now runs on **SETU's own AWS
+> account** at **<https://setuthestartupschool.in>** (EC2 `setu-prod` `13.200.49.118` + RDS + S3,
+> ap-south-1), not the Lightsail box at `65.1.142.47`. **There is no inbound SSH port** — shell
+> access is tunnelled through AWS Systems Manager, so connect with **`ssh setu-prod`**; the old
+> `ssh -i …pem ubuntu@<ip>` form times out by design. Full detail and setup:
+> `N073/imp-docs/4 - Deployment Runbooks/MIGRATION - Lightsail to SETU AWS account.md` (§4.1a for
+> access).
+
+How the website is deployed on the production server, and the invariants that keep deploys safe. The website (this repo) and the LMS ([The-Startup-School-LMS](https://github.com/monarchsolanki/The-Startup-School-LMS)) are served under one domain by Nginx. This runbook is the **website** side; the LMS ships as a pre-built Docker image (see that repo's README).
 
 ## Topology
 
@@ -10,8 +18,8 @@ Browser ─HTTP:80─ Nginx ┌─ /        → Next.js frontend (PM2 tss-fronte
                         └─ /lms      → LMS Docker container (:3001, loopback)
 ```
 
-- **VPS:** `65.1.142.47` (Lightsail, Ubuntu 24.04, Node 20, 911 MB RAM, ap-south-1).
-- **SSH:** `ssh -i ~/N073/.secrets/LightsailDefaultKey-ap-south-1.pem ubuntu@65.1.142.47`
+- **Server:** EC2 `setu-prod` `13.200.49.118` (SETU's AWS account, Ubuntu 24.04, Node 20, **4 GB RAM**, ap-south-1).
+- **Shell:** `ssh setu-prod` (SSM tunnel — no inbound SSH port; `scp`/`rsync` work over it)
 - **Branch deployed:** `main` (checked out in `~/Setu-TSS`). *(The `integration/single-domain` branch was retired 2026-07-13 — everyone commits to `main` directly now.)*
 - **DB:** AWS RDS Postgres — website uses the `postgres` DB (Prisma); reads LMS courses from the `jjlms` DB via a SELECT-only `website_ro` role.
 - **Reverse read (2026-07-19):** the LMS reads THIS database's `course_orders` + `coupons` tables (nothing else) via a SELECT-only **`lms_ro`** role — it powers the LMS admin's coupon-revenue dashboard. Conn string lives in `/opt/jj-lms/.env` as `WEBSITE_DB_URL_RO` (VPS backup: `~/lms-ro.txt`). Writes are denied at the Postgres level; if the role is ever dropped, only that dashboard degrades (shows "not connected").
@@ -27,7 +35,7 @@ Applied to the shared nginx (backup at `/etc/nginx/sites-available/tss.bak-20260
 ## Standard deploy
 
 ```bash
-ssh -i ~/N073/.secrets/LightsailDefaultKey-ap-south-1.pem ubuntu@65.1.142.47
+ssh setu-prod
 cd ~/Setu-TSS
 git pull --ff-only
 
@@ -82,7 +90,7 @@ Bare `KEY=value`. Beyond the standard `DATABASE_URL`/`JWT_SECRET`/`AWS_*`/`SMTP_
 ## Post-deploy smoke test
 
 ```bash
-B=http://65.1.142.47
+B=https://setuthestartupschool.in
 for p in / /events /courses /courses/ai-startup-bootcamp /api/courses /api/homepage /lms/login; do
   printf "%-32s %s\n" "$p" "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$B$p")"
 done

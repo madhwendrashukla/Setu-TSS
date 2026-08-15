@@ -21,8 +21,12 @@ app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', cred
 // express.json() because their HMAC signatures cover the exact raw body.
 const lmsEventsSync = require('./routes/lmsEvents');
 const adminHandoff = require('./routes/adminHandoff');
+const internalCoupons = require('./routes/internalCoupons');
 app.use('/api/internal/lms-events', lmsEventsSync.router);
 app.use('/api/internal/admin-handoff', adminHandoff.internalRouter);
+// Coupon writes for the LMS admin panel (item 11). The LMS reads coupons over
+// the SELECT-only lms_ro role, so every write arrives here instead.
+app.use('/api/internal/coupons', internalCoupons.router);
 
 // Limit request body to 1 MB to prevent large JSON string attacks
 app.use(express.json({ limit: '1mb' }));

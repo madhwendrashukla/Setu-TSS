@@ -127,16 +127,28 @@ function validateCouponInput(payload) {
   const maxPerUser = optionalPositiveInt(payload.max_uses_per_user, 'The per-person limit');
   if (!maxPerUser.ok) return maxPerUser;
 
-  // Trimmed but NOT case-folded: checkout compares the buyer's email against
-  // this list with a plain includes(), so changing the case here would silently
-  // stop an existing allowlist from matching.
+  // LOWER-CASED, and that is load-bearing — verified against production 15 Aug.
+  //
+  // Course checkout lower-cases the buyer's address before comparing
+  // (`routes/coursePayments.js` → `String(email).trim().toLowerCase()`) and then
+  // tests it with a plain `includes()` against what is stored here. So a stored
+  // address with ANY capital letter can never match, and the coupon is dead for
+  // everybody — including the one person it was written for. Proven on the live
+  // site: "QA.Check@Setu.test" stored, the same address typed at checkout in
+  // either case, refused both times; stored lower-case, accepted both times.
+  //
+  // ⚠️ Event checkout (`routes/coupons.js`, Madhwendra's) compares the raw
+  // address instead, so it matches only a buyer who types lower-case. Storing
+  // lower-case is still strictly better there than the status quo — it works for
+  // the common case rather than for no case at all. Fixing that route to fold
+  // case on both sides is his call, not something to change from here.
   let emails = [];
   if (payload.applicable_emails !== undefined && payload.applicable_emails !== null) {
     if (!Array.isArray(payload.applicable_emails)) {
       return { ok: false, error: 'The email allowlist must be a list.' };
     }
     emails = payload.applicable_emails
-      .map((e) => (typeof e === 'string' ? e.trim() : ''))
+      .map((e) => (typeof e === 'string' ? e.trim().toLowerCase() : ''))
       .filter((e) => e.length > 0);
     if (emails.length > MAX_ALLOWLIST) {
       return { ok: false, error: `The email allowlist cannot hold more than ${MAX_ALLOWLIST} addresses.` };

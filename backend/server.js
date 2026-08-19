@@ -27,6 +27,9 @@ app.use('/api/internal/admin-handoff', adminHandoff.internalRouter);
 // Coupon writes for the LMS admin panel (item 11). The LMS reads coupons over
 // the SELECT-only lms_ro role, so every write arrives here instead.
 app.use('/api/internal/coupons', internalCoupons.router);
+const internalAdmins = require('./routes/internalAdmins');
+// Mounted BEFORE express.json() — the signature covers the raw bytes.
+app.use('/api/internal/admins', internalAdmins.router);
 
 // Limit request body to 1 MB to prevent large JSON string attacks
 app.use(express.json({ limit: '1mb' }));

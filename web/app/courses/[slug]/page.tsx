@@ -107,7 +107,9 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 .course-prose li{margin:.35rem 0}
                 .course-prose a{color:#7C3AED;font-weight:600;text-decoration:underline}
                 .course-prose strong{color:#0B1120;font-weight:700}
-                .course-prose blockquote{border-left:3px solid #A855F7;padding-left:1rem;margin:1.2rem 0;color:#475569;font-style:italic}
+                .course-prose blockquote{border-left:3px solid #A855F7;padding-left:1rem;margin:1.2rem 0;color:#475569;font-style:italic;quotes:"\\201C""\\201D""\\2018""\\2019"}
+                .course-prose blockquote p:first-of-type::before{content:open-quote}
+                .course-prose blockquote p:last-of-type::after{content:close-quote}
                 .course-prose code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:.35rem;padding:.1rem .4rem;font-size:.9em}
                 .course-prose pre{background:#0B1120;color:#e2e8f0;border-radius:.75rem;padding:1rem 1.2rem;overflow-x:auto;margin:1.2rem 0}
                 .course-prose pre code{background:none;border:0;color:inherit;padding:0}

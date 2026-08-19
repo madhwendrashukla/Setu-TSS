@@ -39,13 +39,23 @@ app.use('/api/admin/handoff-exchange', adminHandoff.exchangeRouter);
 
 // --- AUTH API ---
 app.post('/api/admin/login', async (req, res) => {
-  const { email, password } = req.body;
+  // 🔴 SECURITY FIX, 19 Aug 2026. This used to verify the password and nothing
+  // else — no role check — so any account in `users` could log into the CMS,
+  // and public signup (/api/auth/signup) hands out accounts to anyone.
+  //
+  // The role check is deliberately AFTER the password check and returns the
+  // same 401 with the same message: telling a non-admin "you are not an admin"
+  // confirms the password was right, which is a free credential oracle.
+  const { email, password } = req.body || {};
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
   const user = await prisma.user.findUnique({ where: { email } });
   const isValid = user && await bcrypt.compare(password, user.password);
-  if (!isValid) {
+  if (!isValid || user.role !== 'admin') {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
   res.json({ token });
 });
 

@@ -48,6 +48,10 @@ async function findAdminUser() {
   }
   const byRole = await prisma.user.findFirst({ where: { role: 'admin' } });
   if (byRole) return byRole;
+  // ⚠️ The two fallbacks below predate the 19 Aug role fix, when NO row had
+  // role='admin' and any account could reach the CMS. They are kept so an
+  // existing deployment does not break, but both now hit the role check above
+  // and fail loudly rather than handing out a token that does not work.
   const seeded = await prisma.user.findUnique({
     where: { email: 'admin@thestartupschool.in' },
   });
@@ -100,8 +104,19 @@ exchangeRouter.post('/', async (req, res) => {
       return res.status(503).json({ error: 'No admin account available for handoff' });
     }
 
+    // 🔴 Since 19 Aug 2026 the admin middleware checks role against the DB, so a
+    // handoff into an account that is not role='admin' would mint a token that
+    // is refused on the very next request — a confusing "logged in but nothing
+    // works" state. Fail loudly here instead.
+    if (admin.role !== 'admin') {
+      console.error(`[admin-handoff] refused: ${admin.email} is role='${admin.role}', not 'admin'`);
+      return res.status(503).json({
+        error: 'The website admin account is not configured correctly — ask a developer to check ADMIN_HANDOFF_EMAIL',
+      });
+    }
+
     // Same shape /api/admin/login issues, but time-bounded.
-    const adminJwt = jwt.sign({ id: admin.id, handoff: true }, process.env.JWT_SECRET, {
+    const adminJwt = jwt.sign({ id: admin.id, role: admin.role, handoff: true }, process.env.JWT_SECRET, {
       expiresIn: '12h',
     });
     console.log(`[admin-handoff] token exchanged → admin session for ${admin.email} at ${new Date().toISOString()}`);

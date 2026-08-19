@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Calendar } from 'lucide-react';
+import { formatEventWhen } from '@/lib/event-date';
 export function WorkshopPreview() {
     const [events, setEvents] = useState<any[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -55,14 +56,7 @@ export function WorkshopPreview() {
     return (
         <div className="relative w-full max-w-7xl mx-auto mt-10">
             {events.map((event, index) => {
-                const start = new Date(event.start_date);
-                const end = new Date(event.end_date);
-                const dateStr = start.getTime() === end.getTime() 
-                    ? start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                    : `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${end.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
-                
-                const timeStr = event.start_time ? (event.end_time ? ` @ ${event.start_time} - ${event.end_time}` : ` @ ${event.start_time}`) : '';
-                const fullDateStr = dateStr + timeStr;
+                const fullDateStr = formatEventWhen(event);
                     
                 const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
                 const locationStr = isOnline ? "Online" : `Offline • Venue: ${event.venue}${event.city ? `, ${event.city}` : ''}`;

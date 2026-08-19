@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatEventDateRange } from '@/lib/event-date';
 
 export function EventsGallery({ headings = {} }: { headings?: any }) {
     const [events, setEvents] = useState<any[]>([]);
@@ -69,14 +70,9 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {displayEvents.map((event) => {
-                            const start = new Date(event.start_date);
-                            const end = new Date(event.end_date);
-                            const dateStr = start.getTime() === end.getTime() 
-                                ? start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                                : `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${end.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
-                            
-                            const timeStr = event.start_time ? (event.end_time ? ` @ ${event.start_time} - ${event.end_time}` : ` @ ${event.start_time}`) : '';
-                            const fullDateStr = dateStr + timeStr;
+                            // This card shows the date only — no time. (fullDateStr was
+                            // computed here and never rendered, even before the helper.)
+                            const dateStr = formatEventDateRange(event.start_date, event.end_date);
                             
                             const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
                             const locationStr = isOnline ? "Live Cohort (Online)" : `${event.venue}${event.city ? `, ${event.city}` : ''}`;

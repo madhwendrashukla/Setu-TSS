@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatEventWhen } from '@/lib/event-date';
 
 async function getPastEvents() {
     try {
@@ -19,15 +20,7 @@ export const PastWorkshopsRolling = async () => {
     }
 
     const renderCard = (event: any, keySuffix: string) => {
-        const start = new Date(event.start_date);
-        const end = event.end_date ? new Date(event.end_date) : start;
-        
-        const dateStr = start.getTime() === end.getTime() 
-            ? start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-            : `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}–${end.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
-            
-        const timeStr = event.start_time ? (event.end_time ? ` @ ${event.start_time} - ${event.end_time}` : ` @ ${event.start_time}`) : '';
-        const fullDateStr = dateStr + timeStr;
+        const fullDateStr = formatEventWhen(event);
         
         return (
             <div key={event.id + keySuffix} className="inline-block w-[300px] md:w-[400px] glass-card rounded-2xl overflow-hidden border border-functional-border group flex-shrink-0">

@@ -17,6 +17,7 @@ const NAV_CATEGORIES = [
             { href: "/admin/hero", label: "Hero & Homepage", icon: "fas fa-home" },
             { href: "/admin/events", label: "Events & Workshops", icon: "fas fa-calendar-alt" },
             { href: "/admin/programs", label: "Programs", icon: "fas fa-rocket" },
+            { href: "/admin/course-page", label: "Course Page", icon: "fas fa-graduation-cap" },
         ]
     },
     {

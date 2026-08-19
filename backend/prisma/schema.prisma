@@ -442,3 +442,49 @@ model HelpdeskTicket {
 
   @@map("helpdesk_tickets")
 }
+
+/// Course sales page builder (/courses/[slug]) — issue 1, 19 Aug 2026.
+///
+/// The page was hardcoded: three pills, a thumbnail, an About block and a
+/// five-item "What's included" list, none of them changeable without a
+/// developer. Every one of those is now a row here, INCLUDING the defaults —
+/// an admin can reword, hide, reorder or delete any of them, and add their own.
+///
+/// `scope` is the course slug, or '*' for "every course". If a course has its
+/// own rows for a kind, they replace the '*' rows for that kind entirely — so
+/// the shared default lives in one place and a single course can differ without
+/// re-listing everything.
+///
+/// `builtin` marks a row that renders LIVE COURSE DATA rather than its own text:
+///   pills    — 'level', 'duration'
+///   sections — 'thumbnail', 'about', 'included'
+/// Its `label` is still the heading/prefix the admin controls. Admin-created
+/// rows have builtin = NULL and render their own label/body.
+///
+/// ⚠️ This repo has NO prisma migrations; it deploys with `db push`. Creating a
+/// table is additive, but run the drop-check FIRST — `db push` against this
+/// database once reported it would DROP four columns holding live data (see
+/// SCHEMA_DRIFT_NOTE.md).
+model CoursePageItem {
+  id      String  @id @default(uuid()) @db.Uuid
+  /// Course slug, or '*' for every course.
+  scope   String  @default("*")
+  /// 'pill' | 'section' | 'included'
+  kind    String
+  /// Renders live course data when set; NULL means the row renders its own text.
+  builtin String?
+  /// Pill text, or a section heading.
+  label   String
+  /// Body copy for a custom section. Unused by pills and included rows.
+  body    String?
+  /// Pill colour only: 'violet' | 'slate' | 'green' | 'amber'.
+  tone    String?
+
+  position   Int      @default(0)
+  hidden     Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([scope, kind, position])
+  @@map("course_page_items")
+}

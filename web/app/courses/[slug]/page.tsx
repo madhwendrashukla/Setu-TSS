@@ -20,6 +20,45 @@ type Course = {
     fileKey: string | null; // full CDN URL of the course thumbnail
 };
 
+type PageItem = {
+    id: string;
+    kind: 'pill' | 'section' | 'included';
+    builtin: string | null;
+    label: string;
+    body: string | null;
+    tone: string | null;
+};
+type PageItems = { pill: PageItem[]; section: PageItem[]; included: PageItem[] };
+
+// Pill colours. A closed map, not free-form CSS from the database — an admin
+// picks a tone by name and cannot inject class names into the page.
+const TONES: Record<string, string> = {
+    violet: 'bg-accent-violet/10 border-accent-violet/30 text-accent-blue',
+    slate: 'bg-slate-100 border-slate-200 text-slate-600',
+    green: 'bg-green-50 border-green-200 text-green-700',
+    amber: 'bg-amber-50 border-amber-200 text-amber-700',
+};
+
+// Everything on this page below the title is admin-built (CMS -> Course Page).
+// An empty result renders a bare page rather than resurrecting the old
+// hardcoded content: deleting a default is a supported action, so silently
+// putting it back would make the builder feel broken.
+const NO_ITEMS: PageItems = { pill: [], section: [], included: [] };
+
+async function getPageItems(slug: string): Promise<PageItems> {
+    try {
+        const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/course-page-items/${encodeURIComponent(slug)}`,
+            { cache: 'no-store' }
+        );
+        if (!res.ok) return NO_ITEMS;
+        const data = await res.json();
+        return { pill: data.pill ?? [], section: data.section ?? [], included: data.included ?? [] };
+    } catch {
+        return NO_ITEMS;
+    }
+}
+
 async function getCourse(slug: string): Promise<Course | null> {
     try {
         const res = await fetch(
@@ -42,18 +81,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-// Generic LMS benefits — true for every paid course on the platform.
-const INCLUDED = [
-    { icon: 'M15 10l-4 4-2-2', label: 'Full access in your LMS learning portal' },
-    { icon: 'M8 5v14l11-7z', label: 'Recorded video lessons you can revisit anytime' },
-    { icon: 'M4 4h16v12H5.17L4 17.17V4z', label: 'Downloadable notes, slides & resources' },
-    { icon: 'M12 8v4l3 2M12 3a9 9 0 100 18 9 9 0 000-18z', label: 'Live session reminders + calendar invites' },
-    { icon: 'M12 15l-2 5 2-1 2 1-2-5M12 3l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 8.7l5.4-.8z', label: 'Certificate of completion' },
-];
 
 export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const course = await getCourse(slug);
+    const [course, items] = await Promise.all([getCourse(slug), getPageItems(slug)]);
     if (!course) {
         noStore();
         notFound();
@@ -109,59 +140,101 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                         </p>
                     )}
 
-                    {/* Meta chips */}
-                    <div className="mt-6 flex flex-wrap items-center gap-2.5 text-xs font-bold uppercase tracking-wide">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-violet/10 border border-accent-violet/30 text-accent-blue px-3.5 py-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-accent-violet" /> {course.level}
-                        </span>
-                        {course.duration > 0 && (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 px-3.5 py-1.5">
-                                {/* Course.duration is stored in HOURS (the LMS admin field is
-                                    labelled "Duration: (hours)" and the LMS renders it as "13h").
-                                    This used to divide by 60 and fall back to "min", so a 13-hour
-                                    programme advertised itself as "13 min" on its own sales page. */}
-                                {course.duration === 1 ? '1 hour of content' : `${course.duration} hours of content`}
-                            </span>
-                        )}
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 border border-green-200 text-green-700 px-3.5 py-1.5">
-                            Enrolling now
-                        </span>
-                    </div>
-
-                    {course.fileKey && (
-                        <div className="mt-8 rounded-3xl overflow-hidden border border-slate-200 shadow-[0_20px_60px_rgba(11,17,32,0.12)]">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={course.fileKey}
-                                alt={course.title}
-                                className="w-full aspect-video object-cover"
-                            />
-                        </div>
-                    )}
-
-                    {descriptionHtml && (
-                        <div className="mt-12">
-                            <h2 className="text-2xl font-black text-[#0B1120] tracking-tight mb-4">About this course</h2>
-                            <div className="course-prose" dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
-                        </div>
-                    )}
-
-                    {/* What's included */}
-                    <div className="mt-12">
-                        <h2 className="text-2xl font-black text-[#0B1120] tracking-tight mb-5">What&apos;s included</h2>
-                        <ul className="grid sm:grid-cols-2 gap-3">
-                            {INCLUDED.map((item) => (
-                                <li key={item.label} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/70 backdrop-blur px-4 py-3.5">
-                                    <span className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-full bg-accent-violet/10 flex items-center justify-center">
-                                        <svg viewBox="0 0 24 24" className="w-4.5 h-4.5" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M20 6L9 17l-5-5" />
-                                        </svg>
+                    {/* Pills — admin-built (CMS → Course Page). A `builtin` row
+                        renders live course data; anything else renders its own text.
+                        A builtin whose data is missing (no duration set) renders
+                        nothing rather than an empty pill. */}
+                    {items.pill.length > 0 && (
+                        <div className="mt-6 flex flex-wrap items-center gap-2.5 text-xs font-bold uppercase tracking-wide">
+                            {items.pill.map((pill) => {
+                                let text: string | null = pill.label;
+                                let dot = false;
+                                if (pill.builtin === 'level') {
+                                    text = course.level || null;
+                                    dot = true;
+                                } else if (pill.builtin === 'duration') {
+                                    // Course.duration is stored in HOURS. It used to read
+                                    // "13 hours of content"; shortened to "13 hours" on
+                                    // request, 19 Aug.
+                                    text = course.duration > 0
+                                        ? (course.duration === 1 ? '1 hour' : `${course.duration} hours`)
+                                        : null;
+                                }
+                                if (!text) return null;
+                                return (
+                                    <span key={pill.id} className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 border ${TONES[pill.tone ?? 'slate'] ?? TONES.slate}`}>
+                                        {dot && <span className="w-1.5 h-1.5 rounded-full bg-accent-violet" />}
+                                        {text}
                                     </span>
-                                    <span className="text-sm font-medium text-slate-700 leading-snug">{item.label}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {/* Sections — admin-built, in the order set in the CMS. A
+                        `builtin` section renders live course content; anything else
+                        renders the admin's own heading and body, which is how a new
+                        section (e.g. "Mentors") gets added without a developer.
+                        Deleting a section removes it outright — including the
+                        thumbnail or the About block. */}
+                    {items.section.map((section) => {
+                        if (section.builtin === 'thumbnail') {
+                            if (!course.fileKey) return null;
+                            return (
+                                <div key={section.id} className="mt-8 rounded-3xl overflow-hidden border border-slate-200 shadow-[0_20px_60px_rgba(11,17,32,0.12)]">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={course.fileKey} alt={course.title} className="w-full aspect-video object-cover" />
+                                </div>
+                            );
+                        }
+
+                        if (section.builtin === 'about') {
+                            if (!descriptionHtml) return null;
+                            return (
+                                <div key={section.id} className="mt-12">
+                                    <h2 className="text-2xl font-black text-[#0B1120] tracking-tight mb-4">{section.label}</h2>
+                                    <div className="course-prose" dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+                                </div>
+                            );
+                        }
+
+                        if (section.builtin === 'included') {
+                            if (items.included.length === 0) return null;
+                            return (
+                                <div key={section.id} className="mt-12">
+                                    <h2 className="text-2xl font-black text-[#0B1120] tracking-tight mb-5">{section.label}</h2>
+                                    <ul className="grid sm:grid-cols-2 gap-3">
+                                        {items.included.map((row) => (
+                                            <li key={row.id} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/70 backdrop-blur px-4 py-3.5">
+                                                <span className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-full bg-accent-violet/10 flex items-center justify-center">
+                                                    <svg viewBox="0 0 24 24" className="w-4.5 h-4.5" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M20 6L9 17l-5-5" />
+                                                    </svg>
+                                                </span>
+                                                <span className="text-sm font-medium text-slate-700 leading-snug">{row.label}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            );
+                        }
+
+                        // Admin-created section: heading + body. Plain text, rendered
+                        // as paragraphs — NOT dangerouslySetInnerHTML, because this
+                        // field is typed into a CMS form and rendering it as HTML
+                        // would make the sales page an injection surface.
+                        if (!section.body) return null;
+                        return (
+                            <div key={section.id} className="mt-12">
+                                <h2 className="text-2xl font-black text-[#0B1120] tracking-tight mb-4">{section.label}</h2>
+                                <div className="text-slate-600 leading-relaxed space-y-3">
+                                    {section.body.split(/\n{2,}/).map((para, i) => (
+                                        <p key={i}>{para}</p>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
 
                     <p className="mt-12 text-sm text-slate-500">
                         Already enrolled?{' '}

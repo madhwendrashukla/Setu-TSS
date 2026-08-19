@@ -349,7 +349,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                     <input
                         type="email"
                         required
-                        placeholder="Email (your LMS login)"
+                        placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         onBlur={captureLead}
@@ -437,7 +437,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                 <input
                     type="email"
                     required
-                    placeholder="Email (your LMS login)"
+                    placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={captureLead}
@@ -496,10 +496,6 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                 </button>
             </form>
             {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-            <p className="mt-4 text-xs text-slate-500 leading-relaxed">
-                Secure payment via Razorpay. We verify your email first, then after payment
-                you&apos;ll get LMS access with credentials sent to your email.
-            </p>
         </aside>
     );
 }

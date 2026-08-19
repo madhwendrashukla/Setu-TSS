@@ -31,6 +31,11 @@ const internalAdmins = require('./routes/internalAdmins');
 // Mounted BEFORE express.json() — the signature covers the raw bytes.
 app.use('/api/internal/admins', internalAdmins.router);
 
+// Course sales page builder (issue 1). The admin half sits under /api/admin so
+// it inherits authMiddleware; the public read is open, being page content.
+const coursePageItems = require('./routes/coursePageItems');
+app.use('/api/course-page-items', coursePageItems.publicRouter);
+
 // Limit request body to 1 MB to prevent large JSON string attacks
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
@@ -342,6 +347,7 @@ app.post('/api/leads', async (req, res) => {
 
 // --- ADMIN API ENDPOINTS (Protected) ---
 app.use('/api/admin', authMiddleware);
+app.use('/api/admin/course-page-items', coursePageItems.adminRouter);
 
 const adminHelpdeskRoutes = require('./routes/adminHelpdesk');
 app.use('/api/admin/helpdesk', adminHelpdeskRoutes);

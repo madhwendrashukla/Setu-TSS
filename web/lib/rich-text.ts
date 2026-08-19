@@ -86,6 +86,11 @@ function renderNode(node: TipTapNode): string {
     case 'listItem':
       return `<li>${children()}</li>`;
     case 'blockquote':
+      // 🔴 See `.course-prose blockquote` in app/courses/[slug]/page.tsx: the
+      // quotation marks are CSS generated content (quotes + content:open-quote),
+      // copied from Tailwind Typography so this page matches what the LMS admin
+      // sees in the `prose`-styled editor. They were missing here until
+      // 20 Aug 2026 and the bug read as "quote marks do not render".
       return `<blockquote>${children()}</blockquote>`;
     case 'codeBlock':
       return `<pre><code>${children()}</code></pre>`;

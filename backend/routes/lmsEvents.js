@@ -16,6 +16,7 @@ const prisma = new PrismaClient();
 //
 // Payload: { action, ts, courseSlug, eventId?, title, description?,
 //            bannerUrl?, startDate?, endDate?, startTime?, endTime?,
+//            deliveryMode?, city?,
 //            allSessionsCompleted? }
 //   action "publish"   → create the Event hidden (is_active=false) or update
 //                        delivery-derived fields on the linked one.
@@ -98,6 +99,8 @@ router.post('/publish', async (req, res) => {
       endDate,
       startTime,
       endTime,
+      deliveryMode,
+      city,
       allSessionsCompleted,
     } = payload;
 
@@ -146,6 +149,19 @@ router.post('/publish', async (req, res) => {
         ...(startTime !== undefined ? { start_time: startTime || null } : {}),
         ...(endTime !== undefined ? { end_time: endTime || null } : {}),
         ...(typeof allSessionsCompleted === 'boolean' ? { is_past: allSessionsCompleted } : {}),
+        // LMS item 19 — how and where the course runs, typed once in the LMS.
+        // `venue` is what the public cards read to decide "Live Cohort (Online)"
+        // versus a place, so map the mode onto it.
+        //
+        // ⚠️ ONLY WHEN THE LMS ACTUALLY SAID SOMETHING. A course that states no
+        // mode sends no field, and an absent field must never blank a venue an
+        // admin set by hand here — the website owns the landing page once the
+        // stub exists, and a sync that quietly erased it would be the same class
+        // of bug as a blind `db push`.
+        ...(deliveryMode
+          ? { venue: deliveryMode === 'online' ? 'Online' : (city ? String(city) : 'In person') }
+          : {}),
+        ...(city ? { city: String(city).trim().slice(0, 120) } : {}),
       };
 
       if (event) {

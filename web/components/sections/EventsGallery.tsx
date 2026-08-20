@@ -87,15 +87,20 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                                             className={`object-contain rounded-xl ${activeTab === 'upcoming' ? 'group-hover:scale-105 transition duration-500' : ''}`} 
                                             unoptimized={true}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#13113B] to-transparent opacity-40"></div>
-                                        <div className="absolute bottom-4 left-4 right-4">
-                                            {activeTab === 'concluded' && (
-                                                <span className="bg-white/10 backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded-md mb-2 inline-block font-bold">CONCLUDED</span>
-                                            )}
-                                            <h3 className="text-white font-black text-xl whitespace-normal leading-tight line-clamp-2 drop-shadow-md">{event.title}</h3>
-                                        </div>
+                                        {/* 🔴 THE POSTER IS LEFT ALONE. The title used to sit on top of
+                                            it under a darkening scrim, which fought the artwork — worst on
+                                            posters that already carry their own title, where the two
+                                            collided — and `line-clamp-2` cut long titles mid-word
+                                            ("…before hittin…"). Title and scrim both moved off the image;
+                                            the title now reads in full below, and the artwork is shown as
+                                            designed. Only the small CONCLUDED status chip stays, pinned to
+                                            a corner where it covers almost nothing. */}
+                                        {activeTab === 'concluded' && (
+                                            <span className="absolute top-3 left-3 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded-md font-bold">CONCLUDED</span>
+                                        )}
                                     </div>
-                                    <div className="p-5 bg-white flex flex-col justify-center items-start grow text-left rounded-b-[24px]">
+                                    <div className="p-5 bg-white flex flex-col justify-center items-start grow text-left rounded-b-[24px] gap-2">
+                                        <h3 className="text-[#0B1120] font-black text-lg leading-tight tracking-tight text-balance">{event.title}</h3>
                                         <div className="text-gray-600 text-sm font-semibold flex items-center gap-4 flex-wrap">
                                             <span className="flex items-center gap-1.5 whitespace-nowrap">📍 {locationStr}</span>
                                             <span className="flex items-center gap-1.5 whitespace-nowrap" suppressHydrationWarning>📅 {dateStr}</span>

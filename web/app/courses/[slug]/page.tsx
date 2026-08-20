@@ -16,6 +16,10 @@ type Course = {
     duration: number;
     level: string;
     category: string | null;
+    /** Topics this course covers (LMS course tags). Absent on older payloads. */
+    tags?: string[] | null;
+    deliveryMode?: string | null;
+    city?: string | null;
     slug: string;
     fileKey: string | null; // full CDN URL of the course thumbnail
 };
@@ -136,6 +140,20 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                     <h1 className="mt-3 text-4xl md:text-5xl font-black text-[#0B1120] tracking-[-0.04em] leading-[1.05]">
                         {course.title}
                     </h1>
+                    {/* What the course covers, from the LMS course tags. Decoration
+                        with a job: a visitor scanning the page learns the syllabus
+                        without reading the description. Renders nothing when
+                        untagged, so it never leaves an empty strip. */}
+                    {course.tags && course.tags.length > 0 && (
+                        <ul className="mt-5 flex flex-wrap gap-2">
+                            {course.tags.map((t) => (
+                                <li key={t}
+                                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                                    {t}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                     {course.smallDescription && (
                         <p className="mt-5 text-xl text-slate-600 font-light leading-relaxed max-w-2xl">
                             {course.smallDescription}

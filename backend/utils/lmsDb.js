@@ -32,7 +32,8 @@ lmsPool.on('error', (err) => {
 
 const COURSE_COLUMNS = `
   id, title, "smallDescription", description, price, duration,
-  level, category, slug, status, "fileKey", "createdAt"
+  level, category, slug, status, "fileKey", "createdAt",
+  "deliveryMode", city
 `;
 
 // Public website catalog (/events "Courses & Cohorts"). Only courses the admin
@@ -54,7 +55,36 @@ async function getCourseBySlug(slug) {
     `SELECT ${COURSE_COLUMNS} FROM "Course" WHERE slug = $1 AND status = 'PUBLISHED' LIMIT 1`,
     [slug]
   );
-  return rows[0] ?? null;
+  const course = rows[0] ?? null;
+  if (!course) return null;
+  course.tags = await getCourseTags(course.id);
+  return course;
+}
+
+// The topics a course covers (LMS item 18) — the micro tags only. Hidden tags
+// are left out, which is how an admin retires one without deleting it.
+//
+// 🔴 NEEDS `GRANT SELECT` ON "Tag" AND "_CourseMicroTags" TO website_ro.
+// This role is SELECT-only and grants are per table, so a new table is
+// invisible to it until granted — the symptom is a 500 from /api/courses/:slug
+// in production while everything works locally as the owner. Failing soft here
+// on purpose: tags are decoration on a sales page, and losing them must never
+// take the page down.
+async function getCourseTags(courseId) {
+  try {
+    const { rows } = await lmsPool.query(
+      `SELECT t.name
+         FROM "_CourseMicroTags" j
+         JOIN "Tag" t ON t.id = j."B"
+        WHERE j."A" = $1 AND t.hidden = false
+        ORDER BY t.position ASC, t.name ASC`,
+      [courseId]
+    );
+    return rows.map((r) => r.name);
+  } catch (error) {
+    console.error('Course tags unavailable (check website_ro grants):', error.message);
+    return [];
+  }
 }
 
 // Course bundles: if the given course is a bundle (has CourseBundleItem rows),
@@ -69,4 +99,4 @@ async function getBundleMemberCourseIds(bundleCourseId) {
   return rows.map((r) => r.courseId);
 }
 
-module.exports = { lmsPool, listPublishedCourses, getCourseBySlug, getBundleMemberCourseIds };
+module.exports = { lmsPool, listPublishedCourses, getCourseBySlug, getCourseTags, getBundleMemberCourseIds };

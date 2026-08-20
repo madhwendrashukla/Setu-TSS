@@ -241,7 +241,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                     <p className="mt-12 text-sm text-slate-500">
                         Already enrolled?{' '}
                         <a href="/lms/login" className="text-accent-blue font-semibold hover:underline">
-                            Log in to the LMS →
+                            Log in to your learning portal →
                         </a>
                     </p>
                 </div>

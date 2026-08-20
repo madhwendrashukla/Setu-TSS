@@ -388,21 +388,23 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                         </>
                     ) : (
                         <>
-                            You&apos;re enrolled in <strong>{title}</strong>. Check <strong>{email}</strong> for
-                            your login details (new students receive a temporary password).
+                            You are enrolled in <strong>{title}</strong>. We have sent your login
+                            details to <strong>{email}</strong>. If this is your first course, the
+                            email contains a temporary password you can change once you sign in.
                         </>
                     )}
                 </p>
                 {/* Until the domain + transactional-email cutover, welcome emails
                     can land in spam — never leave a paying student stranded. */}
                 <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-6">
-                    Can&apos;t find the email? Check your <strong>spam folder</strong> — it sometimes lands there.
+                    Not in your inbox? Please check your <strong>spam folder</strong>, where it
+                    occasionally lands.
                 </p>
                 <a
                     href="/lms/login"
                     className="block w-full rounded-full bg-accent-violet text-white text-center font-bold py-3 transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5"
                 >
-                    Log in to the LMS →
+                    Go to your learning portal →
                 </a>
             </aside>
         );

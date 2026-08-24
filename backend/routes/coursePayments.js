@@ -9,6 +9,7 @@ const { getCourseBySlug, getBundleMemberCourseIds } = require('../utils/lmsDb');
 const { sendEnrollmentWebhook } = require('../utils/lmsWebhook');
 const { validateCouponForCourse, applyCouponPaise, recordCouponUsage } = require('../utils/coupons');
 const jwt = require('jsonwebtoken');
+const { requiredEnv } = require('../utils/requiredEnv');
 
 // Email verification at checkout — reuses the existing OTP flow (/api/otp/send
 // + /api/otp/verify, which issues a 30-min guest token). Default ON; set
@@ -23,7 +24,7 @@ function requireEmailVerification(req, email) {
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
   if (token) {
     try {
-      const d = jwt.verify(token, process.env.GUEST_TOKEN_SECRET || 'tss_guest_otp_secret_2026');
+      const d = jwt.verify(token, requiredEnv('GUEST_TOKEN_SECRET'));
       if (d && d.guest && String(d.email).toLowerCase() === String(email).trim().toLowerCase()) {
         return null; // verified
       }

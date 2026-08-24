@@ -6,10 +6,11 @@ const prisma = new PrismaClient();
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const { requiredEnv } = require('../utils/requiredEnv');
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_123',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret123',
+  key_id: requiredEnv('RAZORPAY_KEY_ID'),
+  key_secret: requiredEnv('RAZORPAY_KEY_SECRET'),
 });
 
 /**
@@ -23,7 +24,7 @@ function flexAuth(req, res, next) {
 
   // Try guest token first
   try {
-    const decoded = jwt.verify(token, process.env.GUEST_TOKEN_SECRET || 'tss_guest_otp_secret_2026');
+    const decoded = jwt.verify(token, requiredEnv('GUEST_TOKEN_SECRET'));
     if (decoded.guest) {
       req.guestUser = decoded; // { guest: true, name, email, phone }
       return next();
@@ -419,17 +420,32 @@ router.post('/create-order', flexAuth, async (req, res) => {
 });
 
 // Verify Payment Route
+/** Constant-time compare of two hex strings, length-checked first. */
+function safeEqualHex(expected, incoming) {
+  if (typeof incoming !== 'string') return false;
+  const a = Buffer.from(expected, 'hex');
+  const b = Buffer.from(incoming, 'hex');
+  if (a.length !== b.length || a.length === 0) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
 router.post('/verify-payment', async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'secret123')
+      .createHmac('sha256', requiredEnv('RAZORPAY_KEY_SECRET'))
       .update(body.toString())
       .digest('hex');
 
-    const isAuthentic = expectedSignature === razorpay_signature;
+    // 🔴 CONSTANT-TIME, NOT `===`. A plain string comparison returns as soon
+    // as two characters differ, so the time it takes leaks how much of the
+    // signature was correct — which is exactly how a signature gets guessed a
+    // byte at a time. This is the money path; it gets the same treatment the
+    // LMS already gives its webhooks (lib/hmac.ts, which says in as many words
+    // "never use !== directly").
+    const isAuthentic = safeEqualHex(expectedSignature, razorpay_signature);
 
     if (isAuthentic) {
       await prisma.eventRegistration.updateMany({

@@ -34,6 +34,7 @@ app.use('/api/internal/admins', internalAdmins.router);
 // Course sales page builder (issue 1). The admin half sits under /api/admin so
 // it inherits authMiddleware; the public read is open, being page content.
 const coursePageItems = require('./routes/coursePageItems');
+const { requiredEnv } = require('./utils/requiredEnv');
 app.use('/api/course-page-items', coursePageItems.publicRouter);
 
 // Limit request body to 1 MB to prevent large JSON string attacks
@@ -1111,7 +1112,7 @@ app.post('/api/otp/verify', async (req, res) => {
     otpStore.delete(email);
     const guestToken = jwt.sign(
       { guest: true, name: stored.name, email, phone: stored.phone },
-      process.env.GUEST_TOKEN_SECRET || 'tss_guest_otp_secret_2026',
+      requiredEnv('GUEST_TOKEN_SECRET'),
       { expiresIn: '30m' }
     );
 

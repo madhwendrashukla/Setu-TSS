@@ -107,7 +107,11 @@ async function getTransporter() {
 
 router.post('/', uploadWithGuard, async (req, res) => {
   try {
-    const { message, email } = req.body;
+    // ⚠️ `req.body` is undefined, not {}, when a POST arrives with no body at all
+    // — multer only populates it for multipart requests. Destructuring it threw
+    // and surfaced as a 500, so a malformed request looked like a server fault
+    // in the logs and told the caller to retry. It is a 400: they sent nothing.
+    const { message, email } = req.body || {};
     if (!message) return res.status(400).json({ error: 'Message is required' });
     if (message.length > 10000) return res.status(400).json({ error: 'Message too long. Maximum 10,000 characters allowed.' });
 

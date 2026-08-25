@@ -50,6 +50,20 @@ export function middleware(req: NextRequest) {
   // admin panel renders HTML and then silently fails to hydrate (no login, no
   // navigation). Do not remove the Content-Security-Policy request header.
   const requestHeaders = new Headers(req.headers);
+
+  // The current path, exposed to SERVER components. Next.js gives server
+  // components no way to read the pathname, so anything that needs to decide
+  // "should this route load this data at all?" has to be told from here.
+  //
+  // 🔴 WITHOUT THIS, THE ONLY PLACE TO MAKE THAT DECISION IS A CLIENT COMPONENT
+  // — AND BY THEN IT IS TOO LATE. A client component that returns null still
+  // received its props, and props crossing the server/client boundary are
+  // serialized into the RSC flight payload and shipped to the browser. That is
+  // exactly how siteSettings was reaching unauthenticated /admin viewers: the
+  // footer was fetched on the server for every route and merely *hidden* on
+  // /admin in the browser. See components/layout/FooterLoader.tsx.
+  requestHeaders.set('x-pathname', pathname);
+
   if (pathname.startsWith('/admin')) {
     requestHeaders.set('x-nonce', nonce);
     requestHeaders.set('Content-Security-Policy', adminCsp);

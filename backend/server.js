@@ -12,6 +12,28 @@ const bcrypt = require('bcryptjs');
 const app = express();
 app.disable('x-powered-by'); // Production hygiene: remove Express signature
 
+// 🔴 EVERY RATE LIMITER IN THIS APP WAS GLOBAL, NOT PER-IP, UNTIL THIS LINE.
+//
+// nginx sits in front and sets X-Forwarded-For, but Express's `trust proxy`
+// defaults to false, so `req.ip` was 127.0.0.1 for EVERY request. All five
+// existing limiters (coursePayments, lmsEvents, adminHandoff, internalAdmins,
+// internalCoupons) therefore keyed every visitor to the same bucket.
+//
+// The practical effect was the opposite of protection: coursePayments allows 30
+// requests per 15 minutes, so 30 checkout attempts from ANY mix of customers
+// locked out EVERY OTHER CUSTOMER from paying. A rate limiter that cannot tell
+// users apart is a denial-of-service switch with a friendly error message.
+//
+// express-rate-limit had been warning about exactly this in the production logs
+// (ERR_ERL_UNEXPECTED_X_FORWARDED_FOR, 112 times in the last 400 lines) and the
+// warning went unread.
+//
+// `1` = trust exactly one proxy hop (our nginx on 127.0.0.1) and take the
+// client IP from the last entry of X-Forwarded-For. NOT `true`: that trusts the
+// whole chain, letting a caller forge X-Forwarded-For and mint a fresh identity
+// per request, which defeats per-IP limiting just as thoroughly.
+app.set('trust proxy', 1);
+
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 

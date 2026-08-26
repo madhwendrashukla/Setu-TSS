@@ -17,7 +17,23 @@ export function middleware(req: NextRequest) {
   // YouTube is allowed in frame-src/img-src because /admin/bottom-videos previews
   // each entry with a <iframe src="https://www.youtube.com/embed/...">; under a bare
   // frame-src 'self' those previews render as a blocked frame.
-  const adminCsp = `default-src 'self'; script-src 'self' 'nonce-${nonce}' 'strict-dynamic'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; frame-src 'self' https://www.youtube.com https://player.vimeo.com; connect-src 'self' http://localhost:5000 https://*.razorpay.com; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`;
+  // 🔴 bucket-rfbkoj IS GONE FROM THIS CSP ON PURPOSE — DO NOT ADD IT BACK.
+  // It is the OLD Lightsail bucket, on Madhwendra's PERSONAL AWS account. It was
+  // kept solely so the pre-migration stack still worked as a rollback, with a
+  // note in next.config.ts to remove it "at Phase 8 decommission, once the old
+  // server is gone". That server was decommissioned on 11 Aug 2026, so the
+  // reason expired; the entry just outlived it.
+  //
+  // Verified before removing: the hostname appears ZERO times in the served HTML
+  // and ZERO times in any text column of the database. Nothing in production
+  // points at it — production writes to setu-tss-uploads.
+  //
+  // ⚠️ setu-tss-uploads STAYS, and listing it is not a leak. It appears ~60 times
+  // in the homepage HTML as image src attributes, because the browser has to
+  // fetch those images from it. img-src exists to name the hosts a page loads
+  // from — removing it would break every image and hide nothing, since the name
+  // is already in the markup.
+  const adminCsp = `default-src 'self'; script-src 'self' 'nonce-${nonce}' 'strict-dynamic'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; frame-src 'self' https://www.youtube.com https://player.vimeo.com; connect-src 'self' http://localhost:5000 https://*.razorpay.com; media-src 'self' blob: https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`;
 
   const isProtectedAdminPath =
     pathname.startsWith('/admin') &&
@@ -104,7 +120,7 @@ export function middleware(req: NextRequest) {
   // "violates the following Content Security Policy" before assuming a tracking problem is
   // upstream. Vimeo is in frame-src because lib/video.ts normalises Vimeo URLs to
   // player.vimeo.com embeds.
-  const frontendCsp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://www.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.in https://googleads.g.doubleclick.net https://stats.g.doubleclick.net; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://*.razorpay.com; connect-src 'self' https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://stats.g.doubleclick.net https://ad.doubleclick.net https://t.counter.dev; media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self' https://*.razorpay.com; upgrade-insecure-requests";
+  const frontendCsp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.razorpay.com https://www.googletagmanager.com https://cdn.counter.dev https://cdnjs.cloudflare.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://www.googleadservices.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.in https://googleads.g.doubleclick.net https://stats.g.doubleclick.net; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://*.razorpay.com; connect-src 'self' https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://stats.g.doubleclick.net https://ad.doubleclick.net https://t.counter.dev; media-src 'self' blob: https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io; object-src 'none'; base-uri 'self'; form-action 'self' https://*.razorpay.com; upgrade-insecure-requests";
   const apiCsp = "default-src 'none'; base-uri 'self'; font-src 'none'; form-action 'self'; frame-ancestors 'none'; img-src 'none'; object-src 'none'; script-src 'none'; script-src-attr 'none'; style-src 'none'; upgrade-insecure-requests; connect-src 'self'";
   
   if (pathname.startsWith('/api/')) {

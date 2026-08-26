@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
+const { randomUUID } = require('crypto');
 const { S3Client } = require('@aws-sdk/client-s3');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -41,22 +42,73 @@ const s3Client = new S3Client({
   }
 });
 
+// 🔴 THESE OBJECTS ARE PUBLICLY READABLE. Until the bucket policy is changed
+// (see "S3 attachments" in the deployment runbook), anyone holding the URL can
+// fetch a helpdesk attachment with no credentials. Everything below is written
+// on that assumption: the key must be unguessable and the object must never
+// render in a browser. Those are the two things code can control from here.
+//
+// ⚠️ Extension -> the ONLY Content-Type we will ever serve it as. Never trust
+// file.mimetype for this: it is a header the client writes, so an .html file
+// simply declares "text/plain" and passes any check based on it. That is how
+// .docx and .js files ended up in this bucket despite neither being allowed.
+const ALLOWED_TYPES = {
+  jpg:  'image/jpeg',
+  jpeg: 'image/jpeg',
+  png:  'image/png',
+  webp: 'image/webp',
+  gif:  'image/gif',
+  pdf:  'application/pdf',
+  txt:  'text/plain',
+};
+
+function extensionOf(filename) {
+  const m = /\.([A-Za-z0-9]{1,8})$/.exec(filename || '');
+  return m ? m[1].toLowerCase() : '';
+}
+
 // Hardened multer: Stream to S3, 5MB file cap, 20 fields, 20KB per field
 const _upload = multer({
   storage: multerS3({
     s3: s3Client,
     bucket: process.env.AWS_S3_BUCKET_NAME,
-    contentType: multerS3.AUTO_CONTENT_TYPE,
+
+    // Set from the VALIDATED extension, not from AUTO_CONTENT_TYPE. The old
+    // behaviour was accidental: AUTO_CONTENT_TYPE sniffs magic bytes, HTML has
+    // none, so uploads happened to land as application/octet-stream. Anything
+    // it *could* identify was labelled accordingly - which is why an .html
+    // uploaded before this filter existed is still served as text/html today,
+    // and still renders.
+    contentType: (req, file, cb) => cb(null, ALLOWED_TYPES[extensionOf(file.originalname)] || 'application/octet-stream'),
+
+    // 🔴 ALWAYS ATTACHMENT, INCLUDING FOR IMAGES. While the object is public,
+    // "renders in a browser tab" means anyone with the URL gets a page hosted on
+    // our own storage domain. Content-Disposition beats Content-Type, so this
+    // closes the inline-render vector by decision rather than by luck.
+    // The original filename is preserved HERE rather than in the key, so a
+    // download still arrives sensibly named without making the key guessable.
+    contentDisposition: (req, file, cb) => {
+      const safe = String(file.originalname || 'attachment').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 100);
+      cb(null, `attachment; filename="${safe}"`);
+    },
+
     key: function (req, file, cb) {
-      const safeOriginalName = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "-");
-      const ext = file.originalname.includes('.') ? file.originalname.split('.').pop() : 'bin';
-      cb(null, `helpdesk/${Date.now()}-${safeOriginalName}.${ext}`);
+      // 🔴 Date.now() WAS THE KEY, AND A TIMESTAMP IS NOT A SECRET. The old key
+      // was `<epoch-ms>-<original-filename>`, so anyone who could guess roughly
+      // when a ticket was filed and what the file was called - "screenshot.png",
+      // "invoice.pdf" - could brute-force a real student's attachment without
+      // ever needing bucket-listing permission. A random UUID has no such
+      // relationship to anything observable.
+      cb(null, `helpdesk/${randomUUID()}.${extensionOf(file.originalname) || 'bin'}`);
     }
   }),
   limits: { fileSize: 5 * 1024 * 1024, fields: 20, fieldSize: 20 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf', 'text/plain'];
-    if (allowedMimes.includes(file.mimetype)) {
+    // Both must agree: a permitted extension, AND a declared type consistent
+    // with it. Either alone is bypassable.
+    const ext = extensionOf(file.originalname);
+    const expected = ALLOWED_TYPES[ext];
+    if (expected && (file.mimetype === expected || file.mimetype === 'application/octet-stream')) {
       cb(null, true);
     } else {
       const err = new Error('Unsupported file type');

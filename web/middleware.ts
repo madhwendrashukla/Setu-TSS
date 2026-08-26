@@ -24,11 +24,33 @@ export function middleware(req: NextRequest) {
     pathname !== '/admin' &&
     !pathname.startsWith('/admin/handoff');
 
+  // A `next` value worth echoing back: /admin, optionally followed by path
+  // segments of ordinary URL characters. Permits the real routes including the
+  // UUID in /admin/events/<id>/builder, and nothing else.
+  const PLAUSIBLE_ADMIN_PATH = /^\/admin(?:\/[A-Za-z0-9_-]+)*\/?$/;
+
   if (isProtectedAdminPath) {
     const token = req.cookies.get('adminToken')?.value;
     if (!token) {
       const loginUrl = new URL('/admin', req.url);
-      loginUrl.searchParams.set('next', pathname);
+
+      // ⚠️ ONLY ECHO `next` BACK IF IT LOOKS LIKE A REAL ADMIN ROUTE.
+      //
+      // This is defence in depth, not a fix for an exploitable bug: the value is
+      // URL-encoded on the way out, and app/admin/handoff/page.tsx already
+      // refuses to navigate anywhere that fails startsWith('/admin'), so it was
+      // never an open redirect or an XSS vector.
+      //
+      // 🔴 IT IS HERE BECAUSE ARBITRARY ATTACKER-CONTROLLED TEXT WAS BEING
+      // REFLECTED INTO THE LOGIN PAGE'S RSC PAYLOAD. Fuzzing /admin/ with
+      // punctuation produced a 307 whose target echoed the junk straight back,
+      // and a payload containing attacker input *looks* like a disclosure to
+      // anyone reading it — which is why the same finding was raised three
+      // times. A garbage path now simply loses its `next`, and the user lands
+      // on the login page with no query string at all.
+      if (PLAUSIBLE_ADMIN_PATH.test(pathname)) {
+        loginUrl.searchParams.set('next', pathname);
+      }
       
       const redirectResponse = NextResponse.redirect(loginUrl);
       // For the 307 redirect, a completely restrictive CSP is perfectly safe since there is no body to render

@@ -1,11 +1,37 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
+const { randomUUID } = require('crypto');
 const { S3Client } = require('@aws-sdk/client-s3');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+
+// 🔴 THIS IS THE ONLY UNAUTHENTICATED UPLOAD ENDPOINT IN THE APPLICATION, AND
+// IT WAS THE ONLY ONE WITHOUT A RATE LIMIT. express-rate-limit was already a
+// dependency guarding five routes — coursePayments, lmsEvents, adminHandoff,
+// internalAdmins, internalCoupons — every one of which requires either a
+// signature or a login. The endpoint that needs it most had nothing, and nginx
+// alone was the whole defence.
+//
+// ⚠️ THIS ONLY WORKS BECAUSE `app.set('trust proxy', 1)` IS NOW SET in
+// server.js. Without it `req.ip` is 127.0.0.1 behind nginx and this limiter
+// would be a single global bucket — one visitor could lock out everyone.
+//
+// Deliberately tighter than the other routes: a human opening a support widget
+// sends one message, not ten a minute. The limit is on the ATTEMPT, so it also
+// covers requests rejected later for size or file type.
+const helpdeskLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many support requests. Please wait a minute and try again.' },
+});
+
+router.use(helpdeskLimiter);
 
 // Configure AWS S3 Client
 const s3Client = new S3Client({
@@ -16,22 +42,73 @@ const s3Client = new S3Client({
   }
 });
 
+// 🔴 THESE OBJECTS ARE PUBLICLY READABLE. Until the bucket policy is changed
+// (see "S3 attachments" in the deployment runbook), anyone holding the URL can
+// fetch a helpdesk attachment with no credentials. Everything below is written
+// on that assumption: the key must be unguessable and the object must never
+// render in a browser. Those are the two things code can control from here.
+//
+// ⚠️ Extension -> the ONLY Content-Type we will ever serve it as. Never trust
+// file.mimetype for this: it is a header the client writes, so an .html file
+// simply declares "text/plain" and passes any check based on it. That is how
+// .docx and .js files ended up in this bucket despite neither being allowed.
+const ALLOWED_TYPES = {
+  jpg:  'image/jpeg',
+  jpeg: 'image/jpeg',
+  png:  'image/png',
+  webp: 'image/webp',
+  gif:  'image/gif',
+  pdf:  'application/pdf',
+  txt:  'text/plain',
+};
+
+function extensionOf(filename) {
+  const m = /\.([A-Za-z0-9]{1,8})$/.exec(filename || '');
+  return m ? m[1].toLowerCase() : '';
+}
+
 // Hardened multer: Stream to S3, 5MB file cap, 20 fields, 20KB per field
 const _upload = multer({
   storage: multerS3({
     s3: s3Client,
     bucket: process.env.AWS_S3_BUCKET_NAME,
-    contentType: multerS3.AUTO_CONTENT_TYPE,
+
+    // Set from the VALIDATED extension, not from AUTO_CONTENT_TYPE. The old
+    // behaviour was accidental: AUTO_CONTENT_TYPE sniffs magic bytes, HTML has
+    // none, so uploads happened to land as application/octet-stream. Anything
+    // it *could* identify was labelled accordingly - which is why an .html
+    // uploaded before this filter existed is still served as text/html today,
+    // and still renders.
+    contentType: (req, file, cb) => cb(null, ALLOWED_TYPES[extensionOf(file.originalname)] || 'application/octet-stream'),
+
+    // 🔴 ALWAYS ATTACHMENT, INCLUDING FOR IMAGES. While the object is public,
+    // "renders in a browser tab" means anyone with the URL gets a page hosted on
+    // our own storage domain. Content-Disposition beats Content-Type, so this
+    // closes the inline-render vector by decision rather than by luck.
+    // The original filename is preserved HERE rather than in the key, so a
+    // download still arrives sensibly named without making the key guessable.
+    contentDisposition: (req, file, cb) => {
+      const safe = String(file.originalname || 'attachment').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 100);
+      cb(null, `attachment; filename="${safe}"`);
+    },
+
     key: function (req, file, cb) {
-      const safeOriginalName = file.originalname.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "-");
-      const ext = file.originalname.includes('.') ? file.originalname.split('.').pop() : 'bin';
-      cb(null, `helpdesk/${Date.now()}-${safeOriginalName}.${ext}`);
+      // 🔴 Date.now() WAS THE KEY, AND A TIMESTAMP IS NOT A SECRET. The old key
+      // was `<epoch-ms>-<original-filename>`, so anyone who could guess roughly
+      // when a ticket was filed and what the file was called - "screenshot.png",
+      // "invoice.pdf" - could brute-force a real student's attachment without
+      // ever needing bucket-listing permission. A random UUID has no such
+      // relationship to anything observable.
+      cb(null, `helpdesk/${randomUUID()}.${extensionOf(file.originalname) || 'bin'}`);
     }
   }),
   limits: { fileSize: 5 * 1024 * 1024, fields: 20, fieldSize: 20 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf', 'text/plain'];
-    if (allowedMimes.includes(file.mimetype)) {
+    // Both must agree: a permitted extension, AND a declared type consistent
+    // with it. Either alone is bypassable.
+    const ext = extensionOf(file.originalname);
+    const expected = ALLOWED_TYPES[ext];
+    if (expected && (file.mimetype === expected || file.mimetype === 'application/octet-stream')) {
       cb(null, true);
     } else {
       const err = new Error('Unsupported file type');
@@ -82,7 +159,11 @@ async function getTransporter() {
 
 router.post('/', uploadWithGuard, async (req, res) => {
   try {
-    const { message, email } = req.body;
+    // ⚠️ `req.body` is undefined, not {}, when a POST arrives with no body at all
+    // — multer only populates it for multipart requests. Destructuring it threw
+    // and surfaced as a 500, so a malformed request looked like a server fault
+    // in the logs and told the caller to retry. It is a 400: they sent nothing.
+    const { message, email } = req.body || {};
     if (!message) return res.status(400).json({ error: 'Message is required' });
     if (message.length > 10000) return res.status(400).json({ error: 'Message too long. Maximum 10,000 characters allowed.' });
 
@@ -99,32 +180,65 @@ router.post('/', uploadWithGuard, async (req, res) => {
       }
     });
 
-    const transporter = await getTransporter();
-
-    let emailText = `New helpdesk request.\n\nFrom: ${email || 'Anonymous'}\n\nMessage:\n${message}`;
-    if (attachmentUrl) {
-      emailText += `\n\nAttachment: ${attachmentUrl}`;
-    }
-
-    const mailOptions = {
-      // Must be a domain our SMTP server is authorised to relay for. This was
-      // hardcoded to a placeholder (no-reply@yourcompany.com); Gmail quietly
-      // rewrote it, but a real mail host rejects the whole message with
-      // 550 "your domain is not allowed", so every helpdesk enquiry was lost.
-      from: process.env.SMTP_FROM || '"Helpdesk" <no-reply@setustartupschool.com>',
-      to: process.env.CONTACT_EMAIL || 'support@yourcompany.com',
-      subject: 'New Helpdesk Request via Chat Widget',
-      text: emailText,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[helpdesk] sent:', info.messageId);
-    if (!process.env.SMTP_HOST) console.log('[helpdesk] preview:', nodemailer.getTestMessageUrl(info));
-
+    // 🔴 THE SMTP ROUND-TRIP USED TO HAPPEN BEFORE THIS RESPONSE, AND IT IS WHY
+    // THE LOAD TEST KEPT FAILING AFTER THE STORAGE FIX.
+    //
+    // Caching the transporter (below) stopped Ethereal being re-provisioned per
+    // request, but the `await transporter.sendMail(...)` itself still sat in the
+    // request path. Every helpdesk POST held its socket open for a full
+    // connect-and-send to an EXTERNAL mail host before replying. Under 50
+    // concurrent uploads that is 50 sockets parked on a third party we do not
+    // control, which is exactly the "latency escalating to 23.32s" in the
+    // 11-Aug retest.
+    //
+    // ⚠️ THE TICKET ROW IS THE DURABLE RECORD, NOT THE EMAIL. It is committed
+    // above, before we answer. That is what makes replying early honest rather
+    // than optimistic: if the mail later fails, the enquiry is still in the
+    // database and visible at Admin → Helpdesk. The email is a notification,
+    // not the system of record — so it must never decide how fast we answer,
+    // and it must never be able to fail the request.
     res.status(200).json({ success: true, message: 'Message sent successfully' });
+
+    // Fire-and-forget, AFTER responding. Errors are logged, never thrown: an
+    // unhandled rejection here would take the whole process down and turn a
+    // failed notification into an outage.
+    void (async () => {
+      try {
+        const transporter = await getTransporter();
+
+        let emailText = `New helpdesk request.\n\nFrom: ${email || 'Anonymous'}\n\nMessage:\n${message}`;
+        if (attachmentUrl) {
+          emailText += `\n\nAttachment: ${attachmentUrl}`;
+        }
+
+        const mailOptions = {
+          // Must be a domain our SMTP server is authorised to relay for. This was
+          // hardcoded to a placeholder (no-reply@yourcompany.com); Gmail quietly
+          // rewrote it, but a real mail host rejects the whole message with
+          // 550 "your domain is not allowed", so every helpdesk enquiry was lost.
+          from: process.env.SMTP_FROM || '"Helpdesk" <no-reply@setustartupschool.com>',
+          to: process.env.CONTACT_EMAIL || 'support@yourcompany.com',
+          subject: 'New Helpdesk Request via Chat Widget',
+          text: emailText,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('[helpdesk] sent:', info.messageId);
+        if (!process.env.SMTP_HOST) console.log('[helpdesk] preview:', nodemailer.getTestMessageUrl(info));
+      } catch (mailErr) {
+        // Deliberately loud: the ticket is safe, but somebody has to notice that
+        // notifications stopped arriving.
+        console.error('[helpdesk] NOTIFICATION FAILED (ticket was saved):', mailErr.message);
+      }
+    })();
   } catch (error) {
     console.error('[helpdesk] error:', error.message);
-    res.status(500).json({ error: 'Failed to send helpdesk message' });
+    // ⚠️ Guard against a double send: everything after res.status(200) above is
+    // detached, but a throw between the response and the end of the handler
+    // would otherwise try to reply a second time and crash on ERR_HTTP_HEADERS_SENT.
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to send helpdesk message' });
+    }
   }
 });
 

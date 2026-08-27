@@ -12,6 +12,28 @@ const bcrypt = require('bcryptjs');
 const app = express();
 app.disable('x-powered-by'); // Production hygiene: remove Express signature
 
+// 🔴 EVERY RATE LIMITER IN THIS APP WAS GLOBAL, NOT PER-IP, UNTIL THIS LINE.
+//
+// nginx sits in front and sets X-Forwarded-For, but Express's `trust proxy`
+// defaults to false, so `req.ip` was 127.0.0.1 for EVERY request. All five
+// existing limiters (coursePayments, lmsEvents, adminHandoff, internalAdmins,
+// internalCoupons) therefore keyed every visitor to the same bucket.
+//
+// The practical effect was the opposite of protection: coursePayments allows 30
+// requests per 15 minutes, so 30 checkout attempts from ANY mix of customers
+// locked out EVERY OTHER CUSTOMER from paying. A rate limiter that cannot tell
+// users apart is a denial-of-service switch with a friendly error message.
+//
+// express-rate-limit had been warning about exactly this in the production logs
+// (ERR_ERL_UNEXPECTED_X_FORWARDED_FOR, 112 times in the last 400 lines) and the
+// warning went unread.
+//
+// `1` = trust exactly one proxy hop (our nginx on 127.0.0.1) and take the
+// client IP from the last entry of X-Forwarded-For. NOT `true`: that trusts the
+// whole chain, letting a caller forge X-Forwarded-For and mint a fresh identity
+// per request, which defeats per-IP limiting just as thoroughly.
+app.set('trust proxy', 1);
+
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 
@@ -34,6 +56,7 @@ app.use('/api/internal/admins', internalAdmins.router);
 // Course sales page builder (issue 1). The admin half sits under /api/admin so
 // it inherits authMiddleware; the public read is open, being page content.
 const coursePageItems = require('./routes/coursePageItems');
+const { requiredEnv } = require('./utils/requiredEnv');
 app.use('/api/course-page-items', coursePageItems.publicRouter);
 
 // Limit request body to 1 MB to prevent large JSON string attacks
@@ -291,14 +314,55 @@ app.get('/api/homepage', async (req, res) => {
 // Utility: strip HTML/script injection chars and enforce max length
 function sanitizeField(str, maxLen = 200) {
   if (!str || typeof str !== 'string') return null;
+  // ⚠️ The .slice() here is now a BACKSTOP, not the boundary control. Anything
+  // over the limit is rejected by checkLength() before it reaches this function.
+  // It stays because a silent truncation is a better failure than an unbounded
+  // write if a future caller forgets the check.
   return str.replace(/[<>"'`]/g, '').trim().slice(0, maxLen);
+}
+
+// 🔴 SILENTLY TRUNCATING AN OVERSIZED FIELD IS NOT VALIDATION — IT IS DATA LOSS
+// REPORTED AS SUCCESS.
+//
+// This endpoint used to hand every field to sanitizeField(), whose .slice() cut
+// the value to length and carried on. An 827-character name therefore returned
+// HTTP 200 {"success":true} while 727 characters were thrown away, and the
+// submitter was told it worked. That is worse than a rejection: the caller
+// cannot tell that their data was edited.
+//
+// ⚠️ maxLength on the <input> does NOT cover this. It constrains typing and
+// pasting in a browser and is invisible to anything posting to the API directly,
+// which is exactly how the QA retest got 827 characters through.
+//
+// Length is measured on the RAW value, before sanitising. Stripping <>"'` must
+// never be able to shrink an oversized payload into a passing one.
+function checkLength(value, maxLen, label) {
+  if (value === null || value === undefined) return null;
+  const len = String(value).trim().length;
+  if (len > maxLen) {
+    return `${label} is too long — ${len} characters submitted, maximum is ${maxLen}.`;
+  }
+  return null;
 }
 
 app.post('/api/leads', async (req, res) => {
   try {
-    const { name, email, phone, city, message, source } = req.body;
+    const { name, email, phone, city, message, source } = req.body || {};
 
-    // Server-side sanitisation (XSS + length guards)
+    // Reject anything over the limit BEFORE sanitising, and say which field and
+    // by how much — "too long" without a number is not actionable.
+    const lengthError =
+      checkLength(name,     100, 'Name')    ||
+      checkLength(email,    200, 'Email')   ||
+      checkLength(phone,     20, 'Phone')   ||
+      checkLength(city,     100, 'City')    ||
+      checkLength(message, 2000, 'Message') ||
+      checkLength(source,    80, 'Source');
+    if (lengthError) {
+      return res.status(400).json({ error: lengthError });
+    }
+
+    // Server-side sanitisation (XSS strip; the length cap is now a backstop)
     const cleanName    = sanitizeField(name,    100);
     const cleanEmail   = sanitizeField(email,   200);
     const cleanPhone   = sanitizeField(phone,    20);
@@ -1111,7 +1175,7 @@ app.post('/api/otp/verify', async (req, res) => {
     otpStore.delete(email);
     const guestToken = jwt.sign(
       { guest: true, name: stored.name, email, phone: stored.phone },
-      process.env.GUEST_TOKEN_SECRET || 'tss_guest_otp_secret_2026',
+      requiredEnv('GUEST_TOKEN_SECRET'),
       { expiresIn: '30m' }
     );
 

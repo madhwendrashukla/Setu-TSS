@@ -53,6 +53,13 @@ const LEGAL_LINKS = [
     { label: 'Terms of Use', href: '/terms-of-use' },
 ];
 
+// Fallbacks for the footer's contact block, used when the CMS field is empty.
+// Both are taken from the company's OWN published Privacy Policy at /privacy-policy,
+// which is the authoritative source — not from anybody's memory.
+const REGISTERED_ADDRESS =
+    '98-103, Aditya Industrial Estate, Co-Op. Premises Ltd, behind Evershine Mall, Chincholi Bunder, Malad West, Mumbai, Maharashtra 400064';
+const CONTACT_EMAIL = 'hello@foundersschool.in';
+
 export function Footer({ siteSettings }: { siteSettings?: any }) {
     let certs: any[] = [];
     if (siteSettings?.certifications) {
@@ -85,10 +92,40 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                         <div className="flex flex-col gap-1 mt-4 mb-6 text-center md:text-left text-sm text-gray-300">
                             <p>An Alternate B-School for Aspiring Founders</p>
                             <p className="font-bold text-white mt-1 tracking-wide uppercase">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>
-                            <p className="mt-2 text-gray-400">123 Startup Ave, Innovation City</p>
+                            {/* 🔴 THESE THREE WERE HARDCODED, AND ALL THREE WERE WRONG IN PUBLIC.
+                                The footer published "123 Startup Ave, Innovation City",
+                                "+91 98765 43210" and "hello@thestartupschool.in" — two
+                                lorem-ipsum placeholders and a contact address on a domain
+                                this company does not own — directly beside the real
+                                registered company name, on every page, for every visitor.
+
+                                They also made Admin → Site Settings a lie: the CMS has
+                                address / contact_email / contact_phone fields, siteSettings
+                                was already being passed into this component, and editing
+                                those fields changed nothing on the site. Reading them here
+                                is what makes that screen mean something.
+
+                                The fallbacks are the real values, taken from the company's
+                                own published Privacy Policy — so an empty CMS field degrades
+                                to something true rather than to a placeholder. */}
+                            {(siteSettings?.address ?? REGISTERED_ADDRESS) && (
+                                <p className="mt-2 text-gray-400">{siteSettings?.address || REGISTERED_ADDRESS}</p>
+                            )}
                             <p className="mt-1 text-gray-400">
-                                <a href="mailto:hello@foundersschool.in" className="hover:text-white transition-colors">hello@foundersschool.in</a>
-                                <span className="mx-3">+91 98765 43210</span>
+                                <a
+                                    href={`mailto:${siteSettings?.contact_email || CONTACT_EMAIL}`}
+                                    className="hover:text-white transition-colors"
+                                >
+                                    {siteSettings?.contact_email || CONTACT_EMAIL}
+                                </a>
+                                {/* ⚠️ Rendered ONLY when a number actually exists. There is no
+                                    fallback on purpose: nobody has supplied a real phone number,
+                                    and a published number that reaches a stranger is worse than
+                                    no number at all. Fill contact_phone in Admin → Site Settings
+                                    and it appears here. */}
+                                {siteSettings?.contact_phone && (
+                                    <span className="mx-3">{siteSettings.contact_phone}</span>
+                                )}
                             </p>
                         </div>
 

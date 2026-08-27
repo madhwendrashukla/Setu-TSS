@@ -24,13 +24,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ui-avatars.com",
       },
-      {
-        // Old Lightsail bucket, on Madhwendra's account. Kept only so the old
-        // stack still works as the migration rollback — remove at Phase 8
-        // decommission, once the old server is gone.
-        protocol: "https",
-        hostname: "bucket-rfbkoj.s3.ap-south-1.amazonaws.com",
-      },
+      // 🔴 The old Lightsail bucket (bucket-rfbkoj, on Madhwendra's PERSONAL AWS
+      // account) was listed here and in the CSP as a migration rollback. This
+      // note used to say "remove at Phase 8 decommission, once the old server is
+      // gone" — that happened on 11 Aug 2026, so it has been removed. Verified
+      // first: zero references in the served HTML and zero in the database.
       {
         // Current uploads bucket, on SETU's own account (migrated 11 Aug 2026).
         // Without this entry /_next/image answers 400 for every S3 image.
@@ -76,11 +74,11 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
       "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
       // *.ufs.sh / utfs.io = UploadThing CDN (LMS course thumbnails + event banners)
-      "img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.in https://googleads.g.doubleclick.net https://stats.g.doubleclick.net",
+      "img-src 'self' data: blob: https://img.youtube.com https://ui-avatars.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.in https://googleads.g.doubleclick.net https://stats.g.doubleclick.net",
       // Razorpay checkout modal is an iframe on api.razorpay.com → frame-src must allow *.razorpay.com
       "frame-src 'self' https://www.youtube.com https://player.vimeo.com https://*.razorpay.com",
       "connect-src 'self' https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://stats.g.doubleclick.net https://ad.doubleclick.net https://t.counter.dev",
-      "media-src 'self' blob: https://bucket-rfbkoj.s3.ap-south-1.amazonaws.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io",
+      "media-src 'self' blob: https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.ufs.sh https://utfs.io",
       "object-src 'none'",
       "base-uri 'self'",
       // *.razorpay.com so redirect-based methods (netbanking/UPI) can POST back

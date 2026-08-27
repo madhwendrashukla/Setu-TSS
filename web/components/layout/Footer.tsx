@@ -58,7 +58,19 @@ const LEGAL_LINKS = [
 // which is the authoritative source — not from anybody's memory.
 const REGISTERED_ADDRESS =
     '98-103, Aditya Industrial Estate, Co-Op. Premises Ltd, behind Evershine Mall, Chincholi Bunder, Malad West, Mumbai, Maharashtra 400064';
-const CONTACT_EMAIL = 'hello@foundersschool.in';
+// 🔴 DO NOT "FIX" THIS TO @foundersschool.in. THAT DOMAIN HAS NO MX RECORDS —
+// it cannot receive email at all, so anything sent there bounces silently.
+//
+// The mailboxes are on setustartupschool.com (no-reply@ sends, support@ takes
+// LMS issue reports, info@ is the published human address). info@ is what the
+// Terms of Use and Privacy Policy publish, which makes it the authoritative
+// value — the footer and the legal pages must not disagree about how to reach
+// the company.
+//
+// This line was briefly `hello@foundersschool.in`, the artefact of a
+// find-and-replace across the codebase when the SITE domain was renamed. The
+// site domain moved; the mail domain did not.
+const CONTACT_EMAIL = 'info@setustartupschool.com';
 
 export function Footer({ siteSettings }: { siteSettings?: any }) {
     let certs: any[] = [];

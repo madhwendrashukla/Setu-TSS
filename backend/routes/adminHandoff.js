@@ -53,7 +53,7 @@ async function findAdminUser() {
   // existing deployment does not break, but both now hit the role check above
   // and fail loudly rather than handing out a token that does not work.
   const seeded = await prisma.user.findUnique({
-    where: { email: 'admin@foundersschool.in' },
+    where: { email: 'admin@thestartupschool.in' },   // the actual seeded row; NOT the site domain
   });
   if (seeded) return seeded;
   return prisma.user.findFirst({ orderBy: { created_at: 'asc' } });

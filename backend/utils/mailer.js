@@ -19,7 +19,12 @@ const transporter = nodemailer.createTransport({
  */
 async function sendMail(to, subject, html, text) {
   const info = await transporter.sendMail({
-    from: process.env.SMTP_FROM || '"The Startup School" <noreply@foundersschool.in>',
+    // ⚠️ foundersschool.in has NO MX and no sender records — mail "from" there is
+    // rejected or spam-foldered. The sending mailbox is on setustartupschool.com.
+    // Unused in production (SMTP_FROM is set on the box); correct anyway, because
+    // a fallback that only fires when something else broke is the worst place to
+    // hide a second bug.
+    from: process.env.SMTP_FROM || '"The Startup School" <no-reply@setustartupschool.com>',
     to,
     subject,
     html,

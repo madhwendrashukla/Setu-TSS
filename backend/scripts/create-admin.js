@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = 'admin@foundersschool.in';
+  const email = 'admin@thestartupschool.in';   // matches the existing seeded admin row
   const passwordHash = await bcrypt.hash('admin', 10);
   
   const admin = await prisma.user.upsert({

@@ -21,7 +21,7 @@ export function IcsDownloadButton({ event }: { event: FounderEvent }) {
 VERSION:2.0
 PRODID:-//Setu - TheStartupSchool//Founder Calendar//EN
 BEGIN:VEVENT
-UID:${Math.random().toString(36).substring(2, 10)}@thestartupschool.in
+UID:${Math.random().toString(36).substring(2, 10)}@foundersschool.in
 DTSTAMP:${now}
 ${dateParams.trim()}
 SUMMARY:${event.eventName}

@@ -103,7 +103,7 @@ export default function AdminSettings() {
                                 value={formData.contact_email}
                                 onChange={e => setFormData({...formData, contact_email: e.target.value})}
                                 className="w-full bg-white border border-gray-200 rounded px-4 py-3 text-gray-900 focus:outline-none focus:border-accent-blue"
-                                placeholder="hello@thestartupschool.in"
+                                placeholder="hello@foundersschool.in"
                             />
                         </div>
                         <div>

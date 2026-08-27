@@ -21,8 +21,8 @@ export default function GauravBansalProfile() {
             "ORG:Setu - TheStartupSchool\n" +
             "TITLE:Founder\n" +
             "TEL;TYPE=CELL:+919289121121\n" +
-            "EMAIL:Gauravbansal@thestartupschool.in\n" +
-            "URL:https://thestartupschool.in\n" +
+            "EMAIL:Gauravbansal@foundersschool.in\n" +
+            "URL:https://foundersschool.in\n" +
             "ADR;TYPE=WORK:;;Malad West;Mumbai;;;\n" +
             "END:VCARD";
 
@@ -186,14 +186,14 @@ export default function GauravBansalProfile() {
                             </div>
 
                             {/* Main Website CTA */}
-                            <a href="https://thestartupschool.in/" target="_blank" rel="noreferrer" className="reveal delay-3 primary-cta flex items-center justify-between p-6 md:p-8 rounded-full group transition-all duration-300 hover:scale-[1.02] shadow-xl shadow-[#8b5cf6]/20">
+                            <a href="https://foundersschool.in/" target="_blank" rel="noreferrer" className="reveal delay-3 primary-cta flex items-center justify-between p-6 md:p-8 rounded-full group transition-all duration-300 hover:scale-[1.02] shadow-xl shadow-[#8b5cf6]/20">
                                 <div className="flex items-center gap-5 ml-2">
                                     <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/20 flex items-center justify-center text-xl md:text-3xl text-text-primary">
                                         <i className="fas fa-globe"></i>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="font-black text-xl md:text-3xl text-text-primary">Visit Website</span>
-                                        <span className="text-[10px] md:text-[11px] text-text-primary/70 font-bold uppercase tracking-widest">thestartupschool.in</span>
+                                        <span className="text-[10px] md:text-[11px] text-text-primary/70 font-bold uppercase tracking-widest">foundersschool.in</span>
                                     </div>
                                 </div>
                                 <div className="mr-2 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-white/20 text-text-primary group-hover:bg-white group-hover:text-[#8b5cf6] transition-all">

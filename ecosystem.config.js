@@ -92,7 +92,7 @@ module.exports = {
                 PORT: 3000,
                 // NEXT_PUBLIC_API_URL is baked into the build at `npm run build` time.
                 // If you need to change it post-build, set it here AND rebuild.
-                // NEXT_PUBLIC_API_URL: 'https://thestartupschool.in',
+                // NEXT_PUBLIC_API_URL: 'https://foundersschool.in',
             },
 
             // Logging

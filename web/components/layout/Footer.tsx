@@ -87,7 +87,7 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                             <p className="font-bold text-white mt-1 tracking-wide uppercase">RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD</p>
                             <p className="mt-2 text-gray-400">123 Startup Ave, Innovation City</p>
                             <p className="mt-1 text-gray-400">
-                                <a href="mailto:hello@thestartupschool.in" className="hover:text-white transition-colors">hello@thestartupschool.in</a>
+                                <a href="mailto:hello@foundersschool.in" className="hover:text-white transition-colors">hello@foundersschool.in</a>
                                 <span className="mx-3">+91 98765 43210</span>
                             </p>
                         </div>

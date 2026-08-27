@@ -10,7 +10,7 @@ export default function PaymentSuccessAv() {
         // Prevent returning to the success page via browser back button
         window.history.pushState(null, '', window.location.href);
         const handlePopState = () => {
-            window.location.replace('https://thestartupschool.in');
+            window.location.replace('https://foundersschool.in');
         };
         window.addEventListener('popstate', handlePopState);
 
@@ -126,8 +126,8 @@ export default function PaymentSuccessAv() {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 md:h-20">
                             <a 
-                                href="https://thestartupschool.in" 
-                                onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in'); }} 
+                                href="https://foundersschool.in" 
+                                onClick={(e) => { e.preventDefault(); window.location.replace('https://foundersschool.in'); }} 
                                 className="flex-shrink-0 font-extrabold text-lg md:text-2xl tracking-tight flex items-center gap-2 md:gap-3 hover:opacity-90 transition-opacity"
                             >
                                 <img 
@@ -142,8 +142,8 @@ export default function PaymentSuccessAv() {
                                 <div className="relative group">
                                     <div className="absolute -inset-0.5 brand-gradient rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-300"></div>
                                     <a 
-                                        href="https://thestartupschool.in" 
-                                        onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in'); }} 
+                                        href="https://foundersschool.in" 
+                                        onClick={(e) => { e.preventDefault(); window.location.replace('https://foundersschool.in'); }} 
                                         className="relative inline-flex items-center justify-center px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold rounded-lg text-text-primary bg-[#0f172a] border border-functional-border hover:bg-transparent transition-all gap-1.5 md:gap-2"
                                     >
                                         <i className="fa-solid fa-arrow-left"></i> <span className="hidden xs:inline sm:inline">Return</span> Home

@@ -5,7 +5,7 @@ async function main() {
         where: { slug: 'claude-workshop-dummy' },
         data: {
             is_past: false,
-            registration_url: 'https://thestartupschool.in/register'
+            registration_url: 'https://foundersschool.in/register'
         }
     });
     console.log('Event updated to allow registration');

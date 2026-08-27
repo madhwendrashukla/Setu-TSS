@@ -35,6 +35,42 @@ export default function HelpdeskAdminPage() {
     fetchTickets();
   }, []);
 
+  const downloadAttachment = async (ticketId: string, url: string) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/helpdesk/${ticketId}/attachment`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to fetch attachment');
+      }
+      
+      const blob = await res.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      
+      // Extract filename from URL or header
+      let fileName = 'attachment';
+      try {
+        const urlObj = new URL(url);
+        fileName = urlObj.pathname.split('/').pop() || 'attachment';
+      } catch (e) {
+        console.error("Invalid URL format:", e);
+      }
+
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(objectUrl);
+      a.remove();
+    } catch (error) {
+      console.error("Failed to download attachment:", error);
+      alert("Failed to download attachment. It may no longer be available.");
+    }
+  };
+
   const updateStatus = async (id: string, status: string) => {
     try {
       const token = localStorage.getItem("adminToken");
@@ -117,14 +153,12 @@ export default function HelpdeskAdminPage() {
                     </td>
                     <td className="px-6 py-4">
                       {ticket.attachment_url ? (
-                        <a 
-                          href={ticket.attachment_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-accent-blue hover:underline flex items-center gap-1 font-medium"
+                        <button 
+                          onClick={() => downloadAttachment(ticket.id, ticket.attachment_url!)}
+                          className="text-accent-blue hover:underline flex items-center gap-1 font-medium bg-transparent border-none cursor-pointer"
                         >
                           <i className="fas fa-paperclip"></i> View
-                        </a>
+                        </button>
                       ) : (
                         <span className="text-gray-400">-</span>
                       )}

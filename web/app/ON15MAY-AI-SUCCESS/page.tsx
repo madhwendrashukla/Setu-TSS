@@ -64,7 +64,7 @@ function SuccessContent() {
     useEffect(() => {
         if (!workshopKey) {
             const timer = setTimeout(() => {
-                window.location.replace('https://thestartupschool.in/AI-workshop-15may');
+                window.location.replace('https://foundersschool.in/AI-workshop-15may');
             }, 1000);
             return () => clearTimeout(timer);
         }
@@ -114,8 +114,8 @@ function SuccessContent() {
                     </p>
                     
                     <a 
-                        href="https://thestartupschool.in/AI-workshop-15may"
-                        onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in/AI-workshop-15may'); }}
+                        href="https://foundersschool.in/AI-workshop-15may"
+                        onClick={(e) => { e.preventDefault(); window.location.replace('https://foundersschool.in/AI-workshop-15may'); }}
                         className="inline-flex items-center text-violet-400 hover:text-violet-300 font-bold text-sm transition-all gap-2 group"
                     >
                         go to ai startup launchpad page
@@ -131,7 +131,7 @@ function SuccessContent() {
     useEffect(() => {
         window.history.pushState(null, '', window.location.href);
         const handlePopState = () => {
-            window.location.replace('https://thestartupschool.in/AI-workshop-15may');
+            window.location.replace('https://foundersschool.in/AI-workshop-15may');
         };
         window.addEventListener('popstate', handlePopState);
 
@@ -218,8 +218,8 @@ function SuccessContent() {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 md:h-20">
                             <a
-                                href="https://thestartupschool.in"
-                                onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in'); }}
+                                href="https://foundersschool.in"
+                                onClick={(e) => { e.preventDefault(); window.location.replace('https://foundersschool.in'); }}
                                 className="flex-shrink-0 font-extrabold text-lg md:text-2xl tracking-tight flex items-center gap-2 md:gap-3 hover:opacity-90 transition-opacity"
                             >
                                 <img
@@ -233,8 +233,8 @@ function SuccessContent() {
                             <div className="relative group">
                                 <div className="absolute -inset-0.5 brand-gradient rounded-lg blur opacity-30 group-hover:opacity-70 transition duration-300" />
                                 <a
-                                    href="https://thestartupschool.in/AI-workshop-15may"
-                                    onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in/AI-workshop-15may'); }}
+                                    href="https://foundersschool.in/AI-workshop-15may"
+                                    onClick={(e) => { e.preventDefault(); window.location.replace('https://foundersschool.in/AI-workshop-15may'); }}
                                     className="relative inline-flex items-center justify-center px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold rounded-lg text-text-primary bg-[#0f172a] border border-functional-border hover:bg-transparent transition-all gap-1.5 md:gap-2"
                                 >
                                     <i className="fa-solid fa-arrow-left" /> Back to Workshop
@@ -342,8 +342,8 @@ function SuccessContent() {
                             {/* Return link */}
                             <div className="mt-8">
                                 <a
-                                    href="https://thestartupschool.in"
-                                    onClick={(e) => { e.preventDefault(); window.location.replace('https://thestartupschool.in'); }}
+                                    href="https://foundersschool.in"
+                                    onClick={(e) => { e.preventDefault(); window.location.replace('https://foundersschool.in'); }}
                                     className="text-xs sm:text-sm text-slate-500 hover:text-text-secondary transition-colors underline underline-offset-2"
                                 >
                                     Return to Setu - TheStartupSchool Homepage

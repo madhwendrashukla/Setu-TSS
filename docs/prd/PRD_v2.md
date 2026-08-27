@@ -2,7 +2,7 @@
 ## Dynamic Workshop Landing Page CMS
 **VERSION 2.0**
 **Setu — The Startup School**
-**Reference page:** thestartupschool.in/AI-workshop-15may
+**Reference page:** foundersschool.in/AI-workshop-15may
 **Date:** July 6, 2026
 **Prepared for:** Gaurav Bansal, Sai, Monarch
 **Author:** Madhwendra Shukla
@@ -37,7 +37,7 @@
 15. Rollout Plan
 
 ## 1. Overview & Version History
-This document defines the requirements to convert the AI Entrepreneurship Workshop landing page (thestartupschool.in/AI-workshop-15may) from a fully hardcoded, single-use page into a reusable, data-driven template. Every future cohort — new dates, mentors, pricing, workshops, coupons — should be publishable by editing structured content, not by rebuilding the page in code.
+This document defines the requirements to convert the AI Entrepreneurship Workshop landing page (foundersschool.in/AI-workshop-15may) from a fully hardcoded, single-use page into a reusable, data-driven template. Every future cohort — new dates, mentors, pricing, workshops, coupons — should be publishable by editing structured content, not by rebuilding the page in code.
 
 Version 2 supersedes Version 1 in full. It replaces the earlier general module descriptions with an exact field-by-field specification (per stakeholder walkthrough), adds explicit input-type classification for every field, and introduces two new capabilities not present in v1: Razorpay payment integration and a global coupon-code discount system.
 

@@ -7,10 +7,10 @@ async function main() {
   if (!adminPassword) throw new Error('ADMIN_PASSWORD is required in .env — seed aborted');
   const hashedPassword = await bcrypt.hash(adminPassword, 12);
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@thestartupschool.in' },
+    where: { email: 'admin@foundersschool.in' },
     update: {},
     create: {
-      email: 'admin@thestartupschool.in',
+      email: 'admin@foundersschool.in',
       password: hashedPassword,
     },
   });
@@ -30,7 +30,7 @@ async function main() {
   await prisma.siteSetting.create({
     data: {
       address: '123 Startup Ave, Innovation City',
-      contact_email: 'hello@thestartupschool.in',
+      contact_email: 'hello@foundersschool.in',
       contact_phone: '+91 98765 43210',
       certifications: '[]'
     }

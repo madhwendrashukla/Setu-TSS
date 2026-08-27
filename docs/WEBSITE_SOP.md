@@ -1,7 +1,7 @@
 # 📘 Setu — The Startup School: Standard Operating Procedure (SOP)
 ### Website Platform — Complete Functional Reference
 
-**Domain:** `thestartupschool.in`  
+**Domain:** `foundersschool.in`  
 **Stack:** Next.js (Frontend, Port 3000) + Express.js (Backend API, Port 5000) + PostgreSQL via Prisma (AWS RDS)  
 **Architecture:** Single-domain path-based reverse proxy via NGINX (`/api/*` → Express, `/*` → Next.js)
 
@@ -604,7 +604,7 @@ This page has **three independent save panels**. Each panel has its own Save but
 |---|---|---|---|---|---|
 | Title | `text` input | `title` | ✅ Yes | Unlimited (TEXT) | Event name shown on cards and detail page. |
 | Description | Rich-text textarea | `description` | ✅ Yes | Unlimited (TEXT) | Full description. HTML supported. |
-| Slug | `text` input | `slug` | ❌ Optional | Must be **unique** across all events; URL-safe characters only (letters, numbers, hyphens). No spaces. | Used in the URL: `thestartupschool.in/events/{slug}`. If blank, the event links to `registration_url` externally instead. |
+| Slug | `text` input | `slug` | ❌ Optional | Must be **unique** across all events; URL-safe characters only (letters, numbers, hyphens). No spaces. | Used in the URL: `foundersschool.in/events/{slug}`. If blank, the event links to `registration_url` externally instead. |
 | Banner Image | `<input type="file">` | `banner_url` (stores S3 URL) | ❌ Optional | Any image format; recommended ≥ 1200×600px for best display | Uploaded to S3. URL stored in DB. Falls back to `/ai-workshop-banner.webp` on frontend if missing. |
 | Venue | `text` input | `venue` | ❌ Optional | Unlimited (TEXT) | Physical venue name or "Online". |
 | City | `text` input | `city` | ❌ Optional | Unlimited (TEXT) | City displayed on the event card. |
@@ -1044,7 +1044,7 @@ Saved via `PUT /api/admin/site_settings`. Stored in `SiteSetting` table.
 | Field | Input Type | DB Column | Required | Constraint | Notes |
 |---|---|---|---|---|---|
 | Registered Address | `<textarea>` (min-height 100px) | `address` | ❌ Optional | Unlimited (TEXT) | The company's official address. Displayed in the website footer and/or contact section. Multi-line text supported. Example: "123 Startup Lane, Bengaluru, Karnataka — 560001" |
-| Contact Email | `<input type="email">` | `contact_email` | ❌ Optional | Valid email format enforced by browser | Displayed in the footer and may be used in email headers. Example: `hello@thestartupschool.in` |
+| Contact Email | `<input type="email">` | `contact_email` | ❌ Optional | Valid email format enforced by browser | Displayed in the footer and may be used in email headers. Example: `hello@foundersschool.in` |
 | Contact Phone | `<input type="text">` | `contact_phone` | ❌ Optional | No format enforced — free-text. Include country code for international display: `+91 98765 43210` | Displayed in footer. |
 
 **"Save Settings" Button:** `PUT /api/admin/site_settings` with `{ address, contact_email, contact_phone, section_toggles, section_headings }` (all in one payload).
@@ -1660,7 +1660,7 @@ A grid of **ON/OFF toggle switches** controlling visibility of every major homep
 
 ## 10. Backend API Reference
 
-**Base URL (Production):** `https://thestartupschool.in/api`  
+**Base URL (Production):** `https://foundersschool.in/api`  
 **Source:** `backend/server.js` (Express.js)
 
 ### Public Endpoints
@@ -1812,7 +1812,7 @@ S3_BUCKET_NAME="setu-assets"
 
 **Frontend (`web/.env.local`):**
 ```
-NEXT_PUBLIC_API_URL="http://localhost:5000"  # Changes to https://thestartupschool.in/api in production
+NEXT_PUBLIC_API_URL="http://localhost:5000"  # Changes to https://foundersschool.in/api in production
 ```
 
 ### Deployment Steps
@@ -1836,7 +1836,7 @@ The Event Builder allows you to create highly customized landing pages for your 
 3. **Fill out the Basics:**
    - **Title:** The name of the event (e.g., "AI Masterclass").
    - **Description:** A short 1-2 line summary.
-   - **Slug:** This forms the URL. If you type `ai-masterclass`, the link will be `thestartupschool.in/events/ai-masterclass`. *Do not use spaces.*
+   - **Slug:** This forms the URL. If you type `ai-masterclass`, the link will be `foundersschool.in/events/ai-masterclass`. *Do not use spaces.*
    - **Banner Image:** Click to upload the cover photo.
    - **Venue & City:** Where it’s happening.
    - **Dates/Times:** Pick the start and end.

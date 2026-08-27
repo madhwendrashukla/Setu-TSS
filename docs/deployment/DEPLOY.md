@@ -1,7 +1,7 @@
 # Deploy Runbook — Setu-TSS Website (+ single-domain integration)
 
 > 🔴 **Updated 13 Aug 2026 — the server moved.** The platform now runs on **SETU's own AWS
-> account** at **<https://setuthestartupschool.in>** (EC2 `setu-prod` `13.200.49.118` + RDS + S3,
+> account** at **<https://setufoundersschool.in>** (EC2 `setu-prod` `13.200.49.118` + RDS + S3,
 > ap-south-1), not the Lightsail box at `65.1.142.47`. **There is no inbound SSH port** — shell
 > access is tunnelled through AWS Systems Manager, so connect with **`ssh setu-prod`**; the old
 > `ssh -i …pem ubuntu@<ip>` form times out by design. Full detail and setup:
@@ -90,7 +90,7 @@ Bare `KEY=value`. Beyond the standard `DATABASE_URL`/`JWT_SECRET`/`AWS_*`/`SMTP_
 ## Post-deploy smoke test
 
 ```bash
-B=https://setuthestartupschool.in
+B=https://setufoundersschool.in
 for p in / /events /courses /courses/ai-startup-bootcamp /api/courses /api/homepage /lms/login; do
   printf "%-32s %s\n" "$p" "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$B$p")"
 done
@@ -112,7 +112,7 @@ The website deploy is code-only when `db push` is a no-op (the usual case). To r
 
 ## At DNS + SSL cutover (later)
 
-Point DNS to the VPS, run Certbot, then: set the LMS `COOKIE_SECURE=true`; switch `NEXTAUTH_URL`/`NEXT_PUBLIC_APP_URL`/`WEBSITE_BASE_URL` and the frontend `NEXT_PUBLIC_API_URL` to the `https://thestartupschool.in` domain; rebuild the frontend and the LMS image; swap in **live** Razorpay keys; move SMTP to a transactional provider with a domain sender.
+Point DNS to the VPS, run Certbot, then: set the LMS `COOKIE_SECURE=true`; switch `NEXTAUTH_URL`/`NEXT_PUBLIC_APP_URL`/`WEBSITE_BASE_URL` and the frontend `NEXT_PUBLIC_API_URL` to the `https://foundersschool.in` domain; rebuild the frontend and the LMS image; swap in **live** Razorpay keys; move SMTP to a transactional provider with a domain sender.
 
 ## Unified Events (feature/unified-events, 2026-07-15)
 
@@ -121,5 +121,5 @@ One offering = a website Event (marketing half, builder landing page) + an LMS C
 - **New internal endpoints** (HMAC `x-tss-signature` over the raw body with `LMS_WEBHOOK_SECRET`, signed `ts` ≤5 min): `POST /api/internal/lms-events/publish` (publish/golive/unpublish from the LMS; creates stubs HIDDEN until Go live; never touches `page_blocks`) and `POST /api/internal/admin-handoff` (one-time 60 s tokens for the LMS→builder jump; exchange at `POST /api/admin/handoff-exchange`, page `/admin/handoff`).
 - **Coupons on course checkout**: `create-order` accepts `couponCode` (server-side validation against the shared coupon tables; `CouponUsage` recorded after payment); `POST /api/course-payments/validate-coupon` powers the checkout UI. `POST /api/course-payments/enroll-free` = self-serve ₹0 enrollment through the same enrollment webhook (`paymentStatus: 'free'`).
 - **Additive schema** (drop-check before `db push`, as always): `tss_events.lms_course_slug`, `course_orders.coupon_code`, `course_orders.discount_amount`.
-- **Optional env**: `ADMIN_HANDOFF_EMAIL` pins which account the handoff signs in as (default: role `admin` → `admin@thestartupschool.in` → oldest user).
+- **Optional env**: `ADMIN_HANDOFF_EMAIL` pins which account the handoff signs in as (default: role `admin` → `admin@foundersschool.in` → oldest user).
 - LMS-linked events sell ONLY via `/courses/[slug]` (all landing CTAs route there); his `/api/payments` event checkout is untouched for pure marketing events.

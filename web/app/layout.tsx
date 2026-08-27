@@ -25,25 +25,25 @@ const merriweather = Merriweather({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://foundersschool.in"),
-  title: "Setu - The startup school !!",
+  title: "Setu Startup School",
   description: "An alternate B-School for all Aspiring Founders. Bridging the 4 deadly gaps of Learning, Access, Mentoring, and Community.",
-  keywords: ["Startup School India", "Entrepreneurship Program India", "Founder Community", "Startup Mentorship", "B-School for Founders", "Startup Incubator India", "Learn Fundraising", "Angel Investors India", "Startup Education", "Setu - The startup school !!", "Aspiring Founders", "Startup Cohort India", "Business School Alternative"],
+  keywords: ["Startup School India", "Entrepreneurship Program India", "Founder Community", "Startup Mentorship", "B-School for Founders", "Startup Incubator India", "Learn Fundraising", "Angel Investors India", "Startup Education", "Setu Startup School", "Aspiring Founders", "Startup Cohort India", "Business School Alternative"],
   authors: [{ name: "Gaurav Bansal" }],
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: "Setu - The startup school !!",
+    title: "Setu Startup School",
     description: "An alternate B-School for all Aspiring Founders. Bridging the 4 deadly gaps of Learning, Access, Mentoring, and Community.",
     url: "https://foundersschool.in",
-    siteName: "Setu - The startup school !!",
+    siteName: "Setu Startup School",
     images: [
       {
         url: "/icon.png",
         width: 512,
         height: 512,
-        alt: "Setu - The startup school !! Logo",
+        alt: "Setu Startup School Logo",
       },
     ],
     locale: "en_IN",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Setu - The startup school !!",
+    title: "Setu Startup School",
     description: "An alternate B-School for all Aspiring Founders.",
     creator: "@TheStartupSchool",
   },
@@ -70,7 +70,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         {/* Google Tag Manager */}
         <Script id="google-tag-manager" strategy="afterInteractive">

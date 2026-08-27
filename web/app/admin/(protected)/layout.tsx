@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -56,9 +56,166 @@ const NAV_CATEGORIES = [
     }
 ];
 
+const PANEL_INFO: Record<string, string> = {
+    "/admin/dashboard": "View overall platform metrics, total revenue, and high-level statistics at a glance.",
+    "/admin/hero": "Update the main homepage hero banner, central title, and primary call-to-action button.",
+    "/admin/events": "Create and manage upcoming events, workshops, their dates, and ticketing details.",
+    "/admin/programs": "Manage long-term programs, bootcamps, and their associated modules.",
+    "/admin/course-page": "Edit the curriculum, syllabus, and promotional details for the main course offering.",
+    "/admin/registrations": "View all user event registrations, attendee details, and their payment statuses.",
+    "/admin/leads": "Manage contact inquiries, newsletter signups, and potential leads collected from the site.",
+    "/admin/helpdesk": "Review, assign status, and respond to support tickets submitted by users via the chat widget.",
+    "/admin/coupons": "Generate and track discount codes applied to courses and events.",
+    "/admin/mailer": "Send bulk emails to specific user segments (like leads or attendees) and track delivery.",
+    "/admin/mentors": "Add or remove mentors showcased on the platform, including their photos and designations.",
+    "/admin/partners": "Manage community partners, hiring partners, and their logos displayed on the site.",
+    "/admin/mentored-startups": "Highlight successful startups and companies mentored by the program.",
+    "/admin/gallery": "Upload and organize images for the public event gallery and timeline.",
+    "/admin/bottom-videos": "Configure promotional YouTube videos shown at the bottom of the landing pages.",
+    "/admin/testimonials": "Manage student and partner testimonials, ratings, and feedback.",
+    "/admin/tools": "Add useful downloadable resources, ICS files, and tools for students.",
+    "/admin/chat-widgets": "Configure floating chat widgets or external help integrations like WhatsApp.",
+    "/admin/settings": "Update global site settings like contact emails, physical addresses, and phone numbers."
+};
+
+function AdminTopBar({ onToggleMenu, pathname }: { onToggleMenu: () => void, pathname: string }) {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [showInfo, setShowInfo] = useState(false);
+    const [searchResults, setSearchResults] = useState<{href: string, label: string, category: string}[]>([]);
+    const router = useRouter();
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setSearchResults([]);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        
+        if (!query.trim()) {
+            setSearchResults([]);
+            return;
+        }
+        
+        const q = query.toLowerCase();
+        const results: {href: string, label: string, category: string}[] = [];
+        
+        NAV_CATEGORIES.forEach(cat => {
+            cat.links.forEach(link => {
+                const infoText = PANEL_INFO[link.href] || "";
+                if (link.label.toLowerCase().includes(q) || cat.title.toLowerCase().includes(q) || infoText.toLowerCase().includes(q)) {
+                    results.push({ ...link, category: cat.title });
+                }
+            });
+        });
+        
+        setSearchResults(results);
+    };
+
+    const handleResultClick = (href: string) => {
+        setSearchQuery("");
+        setSearchResults([]);
+        router.push(href);
+    };
+
+    const infoText = PANEL_INFO[pathname];
+    const currentLink = NAV_CATEGORIES.flatMap(c => c.links).find(l => l.href === pathname);
+
+    return (
+        <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 md:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+            <div className="flex items-center gap-4 flex-1">
+                <button 
+                    onClick={onToggleMenu}
+                    className="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none p-2 -ml-2"
+                >
+                    <i className="fas fa-bars text-xl"></i>
+                </button>
+                
+                <div className="hidden md:flex items-center gap-2">
+                    <span className="text-gray-400 font-medium">Admin Panel</span>
+                    <span className="text-gray-300">/</span>
+                    <span className="text-gray-900 font-bold">{currentLink?.label || 'Dashboard'}</span>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-3 md:gap-6 flex-1 justify-end">
+                {/* Global Search */}
+                <div className="relative w-full max-w-md" ref={searchRef}>
+                    <div className="relative flex items-center">
+                        <i className="fas fa-search absolute left-3 text-gray-400"></i>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={handleSearch}
+                            onFocus={handleSearch}
+                            placeholder="Search admin panels (e.g., 'tickets')"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all"
+                        />
+                    </div>
+                    
+                    {searchResults.length > 0 && (
+                        <div className="absolute top-full mt-2 left-0 right-0 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden max-h-[60vh] overflow-y-auto">
+                            {searchResults.map(result => (
+                                <button
+                                    key={result.href}
+                                    onClick={() => handleResultClick(result.href)}
+                                    className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 flex flex-col gap-1"
+                                >
+                                    <span className="text-sm font-bold text-gray-900">{result.label}</span>
+                                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">{result.category}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Info Button */}
+                {infoText && (
+                    <div className="relative">
+                        <button 
+                            onClick={() => setShowInfo(!showInfo)}
+                            className="w-9 h-9 shrink-0 rounded-full bg-blue-50 text-accent-blue hover:bg-accent-blue hover:text-white flex items-center justify-center transition-colors focus:outline-none shadow-sm"
+                            title="Panel Information"
+                        >
+                            <i className="fas fa-info"></i>
+                        </button>
+                        
+                        {showInfo && (
+                            <>
+                                <div className="fixed inset-0 z-40 md:hidden" onClick={() => setShowInfo(false)}></div>
+                                <div className="absolute right-0 top-full mt-3 w-72 md:w-80 bg-white border border-gray-100 rounded-2xl shadow-2xl p-5 z-50 transform origin-top-right">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <h4 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                                            <i className="fas fa-info-circle text-accent-blue"></i> About this Panel
+                                        </h4>
+                                        <button onClick={() => setShowInfo(false)} className="text-gray-400 hover:text-gray-600">
+                                            <i className="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <p className="text-sm text-gray-600 leading-relaxed">
+                                        {infoText}
+                                    </p>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -95,7 +252,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         verifyToken();
     }, [pathname, router]);
 
-
+    // Close mobile menu on route change
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [pathname]);
 
     if (isLoading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
@@ -115,10 +275,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Subtle background ambient glow */}
             <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-accent-blue/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
+            {/* Mobile Sidebar Backdrop */}
+            {isMobileMenuOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/20 z-40 md:hidden backdrop-blur-sm transition-opacity"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                ></div>
+            )}
+
             {isAuthenticated && (
-                <aside className="w-full md:w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200 p-6 flex flex-col z-10 sticky top-0 h-screen overflow-y-auto shadow-[4px_0_24px_rgba(0,0,0,0.02)] scrollbar-hide">
+                <aside className={`fixed inset-y-0 left-0 z-50 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 w-64 md:w-72 bg-white/95 backdrop-blur-xl border-r border-gray-200 p-6 flex flex-col h-screen overflow-y-auto shadow-[4px_0_24px_rgba(0,0,0,0.02)] scrollbar-hide`}>
+                    <button 
+                        onClick={() => setIsMobileMenuOpen(false)} 
+                        className="md:hidden absolute top-6 right-6 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    >
+                        <i className="fas fa-times text-xl"></i>
+                    </button>
+                    
                     <div className="mb-8 shrink-0">
-                        <Link href="/" className="block group mb-3">
+                        <Link href="/" className="block group mb-3" onClick={() => setIsMobileMenuOpen(false)}>
                             <div className="flex flex-col gap-3">
                                 <Image 
                                     src="/setu-logo-nav.png" 
@@ -129,7 +304,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     priority
                                 />
                                 <div className="h-px w-full bg-gray-200"></div>
-                                <span className="text-[10px] md:text-[11px] font-black tracking-[0.2em] text-[#0B1120] uppercase">The <span className="text-accent-blue">Startup</span> School</span>
+                                <span className="text-[10px] md:text-[11px] font-black tracking-[0.2em] text-[#0B1120] uppercase"><span className="text-accent-blue">Startup</span> School</span>
                             </div>
                         </Link>
                         <span className="text-[10px] font-bold tracking-[0.2em] uppercase bg-gray-100 px-2 py-1 rounded text-gray-600 shadow-inner">Admin Panel</span>
@@ -144,7 +319,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     return (
                                         <Link 
                                             key={link.href} 
-                                            href={link.href} 
+                                            href={link.href}
+                                            onClick={() => setIsMobileMenuOpen(false)}
                                             className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group ${
                                                 isActive 
                                                     ? 'bg-gradient-to-r from-accent-blue/10 to-purple-500/10 text-gray-900 shadow-[inset_2px_0_0_#8b5cf6] border border-gray-200/50' 
@@ -176,8 +352,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </aside>
             )}
             
-            <main className="flex-1 p-6 md:p-10 overflow-y-auto bg-transparent z-10 relative min-h-screen">
-                <div className="max-w-7xl mx-auto">
+            <main className="flex-1 overflow-y-auto bg-transparent z-10 relative min-h-screen flex flex-col">
+                {isAuthenticated && (
+                    <AdminTopBar 
+                        onToggleMenu={() => setIsMobileMenuOpen(true)} 
+                        pathname={pathname}
+                    />
+                )}
+                <div className="p-4 md:p-8 max-w-7xl mx-auto w-full flex-grow">
                     {children}
                 </div>
             </main>

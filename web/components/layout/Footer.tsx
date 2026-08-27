@@ -81,10 +81,10 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                     <div>
                         <Link href="/" className="flex items-center gap-3 mb-4">
                             <Image 
-                                src="/setu-logo-footer-new.png" 
+                                src="/setu-logo-footer-transparent.png" 
                                 alt="Setu Logo" 
                                 width={120} 
-                                height={40} 
+                                height={130} 
                                 className="object-contain"
                             />
                         </Link>

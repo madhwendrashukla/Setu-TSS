@@ -57,7 +57,7 @@ export default function AdminLogin() {
                             priority
                         />
                         <div className="h-6 w-px bg-gray-300"></div>
-                        <span className="text-xs md:text-sm font-black tracking-[0.2em] text-[#0B1120] uppercase mt-0.5">The <span className="text-accent-blue">Startup</span> School</span>
+                        <span className="text-xs md:text-sm font-black tracking-[0.2em] text-[#0B1120] uppercase mt-0.5"><span className="text-accent-blue">Startup</span> School</span>
                     </div>
                 </Link>
 

@@ -152,7 +152,7 @@ const eventListSelection = {
 app.get('/api/events/pinned', async (req, res) => {
   try {
     const pinnedEvents = await prisma.event.findMany({ 
-      where: { is_pinned: true, is_past: false, is_active: true },
+      where: { is_pinned: true, is_active: true },
       orderBy: { start_date: 'asc' },
       select: eventListSelection
     });

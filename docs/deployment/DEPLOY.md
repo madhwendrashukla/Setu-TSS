@@ -1,7 +1,7 @@
 # Deploy Runbook — Setu-TSS Website (+ single-domain integration)
 
 > 🔴 **Updated 13 Aug 2026 — the server moved.** The platform now runs on **SETU's own AWS
-> account** at **<https://setufoundersschool.in>** (EC2 `setu-prod` `13.200.49.118` + RDS + S3,
+> account** at **<https://foundersschool.in>** (EC2 `setu-prod` `13.200.49.118` + RDS + S3,
 > ap-south-1), not the Lightsail box at `65.1.142.47`. **There is no inbound SSH port** — shell
 > access is tunnelled through AWS Systems Manager, so connect with **`ssh setu-prod`**; the old
 > `ssh -i …pem ubuntu@<ip>` form times out by design. Full detail and setup:
@@ -90,7 +90,7 @@ Bare `KEY=value`. Beyond the standard `DATABASE_URL`/`JWT_SECRET`/`AWS_*`/`SMTP_
 ## Post-deploy smoke test
 
 ```bash
-B=https://setufoundersschool.in
+B=https://foundersschool.in
 for p in / /events /courses /courses/ai-startup-bootcamp /api/courses /api/homepage /lms/login; do
   printf "%-32s %s\n" "$p" "$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$B$p")"
 done

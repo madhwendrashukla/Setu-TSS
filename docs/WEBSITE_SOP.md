@@ -1,7 +1,7 @@
 # 📘 Setu — The Startup School: Standard Operating Procedure (SOP)
 ### Website Platform — Complete Functional Reference
 
-**Domain:** `foundersschool.in`  
+**Domain:** `foundersschool.in`  *(renamed 25 Aug 2026; was `setuthestartupschool.in`. ⚠️ `thestartupschool.in` is a DIFFERENT, unrelated domain — not this platform.)*  
 **Stack:** Next.js (Frontend, Port 3000) + Express.js (Backend API, Port 5000) + PostgreSQL via Prisma (AWS RDS)  
 **Architecture:** Single-domain path-based reverse proxy via NGINX (`/api/*` → Express, `/*` → Next.js)
 

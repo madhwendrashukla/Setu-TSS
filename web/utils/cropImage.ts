@@ -33,7 +33,7 @@ export const createImage = (url: string): Promise<HTMLImageElement> =>
     pixelCrop: { x: number; y: number; width: number; height: number },
     rotation = 0,
     flip = { horizontal: false, vertical: false }
-  ): Promise<string | null> {
+  ): Promise<File | null> {
     const image = await createImage(imageSrc);
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -88,7 +88,16 @@ export const createImage = (url: string): Promise<HTMLImageElement> =>
       pixelCrop.height
     );
   
-    // As Base64 string
-    return croppedCanvas.toDataURL('image/jpeg');
+    // Return a File object instead of a Base64 string
+    return new Promise((resolve) => {
+      croppedCanvas.toBlob((blob) => {
+        if (!blob) {
+          resolve(null);
+          return;
+        }
+        const file = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
+        resolve(file);
+      }, 'image/jpeg');
+    });
   }
   

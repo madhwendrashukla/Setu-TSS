@@ -290,15 +290,15 @@ export default function AdminHero() {
                                 subtitle: 'Access our curated suite of tools designed to help you raise capital, <br class="hidden md:block" /> build your product, and scale your startup.'
                             },
                             'mentors_preview': {
-                                prefix: 'Learn from <br class="hidden md:block" /> people who\'ve <span style="color: #A855F7">built.</span>',
-                                subtitle: ''
+                                prefix: 'Learn From <span style="color: #A855F7">Masters.</span>',
+                                subtitle: 'Get Mentored by industry experts'
                             },
                             'events_gallery': {
-                                prefix: 'Events Gallery',
+                                prefix: 'Events <span style="color: #A855F7">Gallery.</span>',
                                 subtitle: ''
                             },
                             'community_gallery': {
-                                prefix: 'Community Gallery, <span style="color: #A855F7">Connect Offline</span>',
+                                prefix: 'Community Gallery, <span style="color: #A855F7">Connect Offline.</span>',
                                 subtitle: 'Engage with other learners, alumni, and mentors and attend community sessions to learn from each other in our curated community.'
                             },
                             'video_gallery': {
@@ -306,11 +306,11 @@ export default function AdminHero() {
                                 subtitle: ''
                             },
                             'programs': {
-                                prefix: 'Programs Launching Soon',
+                                prefix: 'Programmes Launching <span style="color: #A855F7">Soon.</span>',
                                 subtitle: `For all those who have <span style="color: #A855F7">'KEEDA'</span> and <span style="color: #A855F7">'HIMMAT'</span>`
                             },
                             'founder_manifesto': {
-                                prefix: 'The Founder\'s Manifesto',
+                                prefix: 'The Founder\'s Manifesto.',
                                 subtitle: ''
                             },
                             'startups_mentored': {

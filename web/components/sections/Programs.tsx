@@ -22,7 +22,7 @@ export function Programs({ data = [], headings = {} }: { data?: any[], headings?
                 {/* Header */}
                 <div className="text-center mb-16">
                     <div className="mb-4 text-base md:text-lg font-bold tracking-tight text-text-secondary" dangerouslySetInnerHTML={{ __html: headings?.subtitle || `For all those who have <span class="text-[#A855F7]">'KEEDA'</span> and <span class="text-[#A855F7]">'HIMMAT'</span>` }} />
-                    <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-6" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Programs Launching Soon' }} />
+                    <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-6" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Programs Launching <span style="color: #A855F7">Soon.</span>' }} />
                     <div className="w-12 h-0.5 bg-[#A855F7] mx-auto rounded-full"></div>
                 </div>
 

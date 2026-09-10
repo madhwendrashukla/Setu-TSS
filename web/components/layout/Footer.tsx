@@ -42,7 +42,7 @@ const SOCIAL_LINKS = [
 const NAV_LINKS = [
     { label: 'Home', href: '/' },
     { label: 'Mentors', href: '/mentors' },
-    { label: 'Events', href: '/events' },
+    { label: 'Programmes', href: '/events' },
     { label: 'Tools', href: '/tools' },
     { label: 'Workshop', href: '/fundraising-workshop-15apr' },
     { label: 'Contact', href: '/#contact' },

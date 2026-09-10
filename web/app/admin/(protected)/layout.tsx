@@ -16,7 +16,7 @@ const NAV_CATEGORIES = [
         links: [
             { href: "/admin/hero", label: "Hero & Homepage", icon: "fas fa-home" },
             { href: "/admin/events", label: "Events & Workshops", icon: "fas fa-calendar-alt" },
-            { href: "/admin/programs", label: "Programs", icon: "fas fa-rocket" },
+            { href: "/admin/programs", label: "Programmes", icon: "fas fa-rocket" },
             { href: "/admin/course-page", label: "Course Page", icon: "fas fa-graduation-cap" },
         ]
     },
@@ -60,7 +60,7 @@ const PANEL_INFO: Record<string, string> = {
     "/admin/dashboard": "View overall platform metrics, total revenue, and high-level statistics at a glance.",
     "/admin/hero": "Update the main homepage hero banner, central title, and primary call-to-action button.",
     "/admin/events": "Create and manage upcoming events, workshops, their dates, and ticketing details.",
-    "/admin/programs": "Manage long-term programs, bootcamps, and their associated modules.",
+    "/admin/programs": "Manage long-term programmes, bootcamps, and their associated modules.",
     "/admin/course-page": "Edit the curriculum, syllabus, and promotional details for the main course offering.",
     "/admin/registrations": "View all user event registrations, attendee details, and their payment statuses.",
     "/admin/leads": "Manage contact inquiries, newsletter signups, and potential leads collected from the site.",

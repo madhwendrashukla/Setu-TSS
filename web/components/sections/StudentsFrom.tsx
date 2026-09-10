@@ -17,7 +17,7 @@ export const StudentsFrom = ({ data, headings = {} }: { data?: any[], headings?:
         <section className="card-section py-16 md:py-24 border-t border-functional-border relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 text-center">
                 <span className="text-text-secondary text-xs font-bold tracking-[0.2em] uppercase mb-4 block" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'NETWORK' }} />
-                <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-12" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Our Students Come From' }} />
+                <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-12" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Our Students Come <span style="color: #A855F7">From.</span>' }} />
 
                 <div className="relative flex overflow-x-hidden py-4">
                     

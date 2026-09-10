@@ -96,8 +96,8 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
         <section className="w-full bg-bg-main py-12 md:py-24 relative overflow-x-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-8 md:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
                 <div className="max-w-2xl">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-text-primary tracking-tight mb-3 md:mb-4 whitespace-normal break-words" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Community Gallery, <span class="text-[#A855F7]">Connect Offline</span>' }} />
-                    <div className="text-text-secondary text-base sm:text-lg md:text-xl font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Engage with other learners, alumni, and mentors and attend community sessions to learn from each other in our curated community.' }} />
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-text-primary tracking-tight mb-3 md:mb-4 whitespace-normal break-words [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Community Gallery, <span style="color: #A855F7">Connect Offline.</span>' }} />
+                    <div className="text-text-secondary text-base sm:text-lg md:text-xl font-medium leading-relaxed [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Engage with other learners, alumni, and mentors and attend community sessions to learn from each other in our curated community.' }} />
                 </div>
                 
                 {/* Navigation Arrows */}

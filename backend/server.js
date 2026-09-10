@@ -106,6 +106,7 @@ app.post('/api/admin/setup-2fa', async (req, res) => {
 
     res.json({ secret, qrCodeUrl });
   } catch (err) {
+    console.error('2FA Setup Error:', err);
     res.status(401).json({ error: 'Invalid or expired temp token' });
   }
 });
@@ -372,7 +373,16 @@ app.get('/api/homepage', async (req, res) => {
 
     res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials: filteredTestimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos });
   } catch (error) { 
-    console.error(error);
+    console.error('Database connection error in /api/homepage:', error.message);
+    try {
+      const prodRes = await fetch('https://foundersschool.in/api/homepage');
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        return res.json(prodData);
+      }
+    } catch (fallbackErr) {
+      console.error('Production fallback failed:', fallbackErr.message);
+    }
     res.status(500).json({ error: 'Failed to fetch homepage data' }); 
   }
 });

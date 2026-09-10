@@ -61,8 +61,8 @@ export function MentorsPreview({ data = [], headings = {} }: { data?: MentorProf
             {/* Heading */}
             <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
                 <div className="max-w-3xl mx-auto">
-                    <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-4 leading-[1.15]" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Learn from <br class="hidden md:block" /> people who\'ve <span class="text-[#A855F7]">built.</span>' }} />
-
+                    <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-4 leading-[1.15] [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Learn From <span style="color: #A855F7">Masters.</span>' }} />
+                    <div className="text-lg text-gray-400 mb-8 [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Get Mentored by industry experts' }} />
                 </div>
             </div>
 

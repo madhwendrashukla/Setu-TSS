@@ -13,7 +13,7 @@ export const EcosystemPartners = ({ data, headings = {} }: { data?: any[], headi
         <section className="card-section pt-8 md:pt-12 pb-0">
             <div className="max-w-7xl mx-auto px-6 text-center">
                 <span className="text-text-secondary text-xs font-bold tracking-[0.2em] uppercase mb-4 block" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'NETWORK' }} />
-                <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-12" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Ecosystem Partners' }} />
+                <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-12" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Ecosystem <span style="color: #A855F7">Partners.</span>' }} />
 
                 <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
                     {partners.map(partner => (

@@ -35,7 +35,10 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
     return (
         <section className="card-section py-16 md:py-24 bg-bg-main relative" id="events-gallery">
             <div className="max-w-7xl mx-auto px-6 mb-12 text-center md:text-left">
-                <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-8" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Events Gallery' }} />
+                <h2 className="text-3xl md:text-5xl font-bold text-text-primary tracking-tight mb-4 [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Events <span style="color: #A855F7">Gallery.</span>' }} />
+                {headings?.subtitle && (
+                    <div className="text-sm md:text-lg text-text-secondary font-medium max-w-2xl mb-8 leading-relaxed [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings.subtitle }} />
+                )}
                 
                 {/* Tabs */}
                 <div className="flex items-center justify-center md:justify-start gap-4 mb-8 border-b border-functional-border pb-4">

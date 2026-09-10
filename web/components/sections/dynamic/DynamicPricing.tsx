@@ -109,9 +109,15 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                     {data.registrations_open !== false ? (
                                         <button 
                                             onClick={() => onCheckoutClick && onCheckoutClick(item.id)}
-                                            className="w-full py-3.5 rounded-xl font-bold text-base bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
+                                            className={`w-full py-3.5 rounded-xl font-bold text-base shadow-md hover:shadow-lg transition-all ${
+                                                (item.pricing?.actual_price ?? 0) === 0
+                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                            }`}
                                         >
-                                            {item.cta?.text || "Book Your Seat Now"}
+                                            {(item.pricing?.actual_price ?? 0) === 0
+                                                ? (item.cta?.text || 'Register Free →')
+                                                : (item.cta?.text || 'Book Your Seat Now')}
                                         </button>
                                     ) : (
                                         <div className="flex flex-col items-center">

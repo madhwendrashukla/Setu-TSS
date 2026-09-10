@@ -7,6 +7,7 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { requiredEnv } = require('../utils/requiredEnv');
+const { sendMail } = require('../utils/mailer');
 
 const razorpay = new Razorpay({
   key_id: requiredEnv('RAZORPAY_KEY_ID'),
@@ -499,6 +500,182 @@ router.post('/verify-payment', async (req, res) => {
   } catch (error) {
     console.error('Error verifying payment:', error);
     res.status(500).json({ error: 'Error verifying payment' });
+  }
+});
+
+
+// ---------------------------------------------------------------------------
+// POST /api/payments/register-free
+// Zero-cost event registration — no Razorpay involved.
+// The server re-reads actual_price from the DB; if it's > 0 we reject.
+// ---------------------------------------------------------------------------
+function freeRegistrationEmailHtml(name, eventTitle, eventDate, eventVenue) {
+  const dateStr = eventDate ? `<p style="margin:0 0 8px;color:#6b7280;font-size:14px;">📅 <strong>${eventDate}</strong></p>` : '';
+  const venueStr = eventVenue ? `<p style="margin:0 0 8px;color:#6b7280;font-size:14px;">📍 <strong>${eventVenue}</strong></p>` : '';
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+    <body style="margin:0;padding:0;background:#f8fafc;font-family:'Segoe UI',Arial,sans-serif;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.08);">
+        <tr>
+          <td style="background:linear-gradient(135deg,#8b5cf6,#d946ef);padding:32px;text-align:center;">
+            <p style="margin:0;color:#fff;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;opacity:0.8;">The Startup School</p>
+            <h1 style="margin:8px 0 0;color:#fff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">You're Registered! 🎉</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px 36px;">
+            <p style="margin:0 0 16px;color:#374151;font-size:15px;">Hi <strong>${name || 'there'}</strong>,</p>
+            <p style="margin:0 0 24px;color:#6b7280;font-size:14px;line-height:1.7;">
+              You're successfully registered for <strong style="color:#1f2937;">${eventTitle}</strong>. We're excited to have you!
+            </p>
+            <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;padding:20px;margin-bottom:28px;">
+              <p style="margin:0 0 12px;color:#7c3aed;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Event Details</p>
+              ${dateStr}
+              ${venueStr}
+              <p style="margin:0;color:#6b7280;font-size:13px;">Keep an eye on your email for further updates.</p>
+            </div>
+            <p style="margin:0;color:#9ca3af;font-size:12px;">If you have any questions, reply to this email or contact us at <a href="mailto:support@setustartupschool.com" style="color:#8b5cf6;">support@setustartupschool.com</a></p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 36px;border-top:1px solid #f3f4f6;text-align:center;">
+            <p style="margin:0;color:#d1d5db;font-size:11px;">© 2026 The Startup School. All rights reserved.</p>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
+router.post('/register-free', flexAuth, async (req, res) => {
+  try {
+    const { eventId, ticketTier } = req.body;
+    if (!eventId) return res.status(400).json({ error: 'eventId is required' });
+
+    // Resolve identity from auth middleware (guest token or user JWT)
+    const guestEmail = req.guestUser?.email || null;
+    const guestName  = req.guestUser?.name  || null;
+    const guestPhone = req.guestUser?.phone || null;
+    const userId     = req.userId || null;
+
+    const email = guestEmail;
+    if (!email && !userId) {
+      return res.status(400).json({ error: 'Email verification required' });
+    }
+
+    // --- SERVER-SIDE PRICE GATE ---
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId);
+    const event = await prisma.event.findFirst({
+      where: {
+        OR: [
+          { slug: eventId },
+          ...(isUuid ? [{ id: eventId }] : [])
+        ]
+      }
+    });
+
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+
+    // Re-read ALL pricing cards and check if at least one free card exists.
+    // We accept a free registration if the event has ANY pricing card with price 0,
+    // OR if the entire event has no pricing cards (open/free by nature).
+    let pageData;
+    try {
+      pageData = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+    } catch (e) {
+      pageData = null;
+    }
+
+    const allCards = [];
+    if (pageData && typeof pageData === 'object' && !Array.isArray(pageData)) {
+      if (pageData.pricing_options) allCards.push(...pageData.pricing_options);
+      if (pageData.workshops) allCards.push(...pageData.workshops);
+    }
+
+    const hasPaidCards = allCards.some(c => c.pricing?.actual_price > 0);
+    const hasFreeCards = allCards.some(c => (c.pricing?.actual_price ?? 0) === 0);
+
+    if (hasPaidCards && !hasFreeCards) {
+      return res.status(400).json({ error: 'This is a paid event — please use the checkout.' });
+    }
+
+    // --- DUPLICATE CHECK (idempotent) ---
+    const where = userId
+      ? { user_id: userId, event_id: event.id, status: 'COMPLETED' }
+      : {
+          event_id: event.id,
+          status: 'COMPLETED',
+          OR: [
+            ...(email ? [{ guest_email: email }] : [])
+          ]
+        };
+
+    const existing = await prisma.eventRegistration.findFirst({ where });
+    if (existing) {
+      return res.json({ success: true, alreadyRegistered: true, registrationId: existing.id });
+    }
+
+    // --- CREATE REGISTRATION (directly COMPLETED, amount 0) ---
+    const registration = await prisma.eventRegistration.create({
+      data: {
+        user_id: userId || null,
+        event_id: event.id,
+        ticket_tier: ticketTier || 'Free Pass',
+        status: 'COMPLETED',
+        amount: 0,
+        guest_name:  guestName  || null,
+        guest_email: email      || null,
+        guest_phone: guestPhone || null,
+      }
+    });
+
+    // --- CRM: upsert lead as converted ---
+    if (email) {
+      const leadSource = `free_registration_${event.id}`;
+      const existingLead = await prisma.lead.findFirst({ where: { email, source: leadSource } });
+      if (existingLead) {
+        await prisma.lead.update({ where: { id: existingLead.id }, data: { status: 'converted' } });
+      } else {
+        await prisma.lead.create({
+          data: {
+            full_name: guestName || 'Guest',
+            email,
+            phone: guestPhone || null,
+            source: leadSource,
+            status: 'converted',
+          }
+        });
+      }
+    }
+
+    // --- SEND CONFIRMATION EMAIL (non-blocking) ---
+    if (email) {
+      // Parse event details for the email
+      let eventDate = null;
+      let eventVenue = null;
+      try {
+        if (event.start_date) {
+          eventDate = new Date(event.start_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+          if (event.start_time) eventDate += ` at ${event.start_time}`;
+        }
+        eventVenue = event.venue || event.city || null;
+      } catch (_) {}
+
+      sendMail(
+        email,
+        `You're registered for ${event.title}! 🎉`,
+        freeRegistrationEmailHtml(guestName, event.title, eventDate, eventVenue)
+      ).catch(err => console.error('[register-free] email failed (non-fatal):', err.message));
+    }
+
+    return res.json({ success: true, registrationId: registration.id });
+
+  } catch (error) {
+    console.error('[register-free] error:', error);
+    res.status(500).json({ error: 'Failed to register. Please try again.' });
   }
 });
 

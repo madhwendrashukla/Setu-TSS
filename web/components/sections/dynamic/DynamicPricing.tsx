@@ -13,8 +13,14 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
         <section className="py-24 bg-slate-50 relative" id="pricing">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">Pricing & Registration</h2>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">Select the option that fits your goals and reserve your seat today. Limited spots available.</p>
+                    <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">
+                        {data.registrations_open !== false ? 'Pricing & Registration' : 'Workshop Details'}
+                    </h2>
+                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                        {data.registrations_open !== false
+                            ? 'Select the option that fits your goals and reserve your seat today. Limited spots available.'
+                            : 'Registrations for this event are now closed.'}
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
@@ -42,6 +48,7 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                         <h3 className="text-2xl font-bold text-slate-900 leading-tight">{item.title}</h3>
                                     </div>
 
+                                    {data.registrations_open !== false && (
                                     <div className="mb-6 pb-6 border-b border-slate-100">
                                         <div className="flex flex-col gap-1">
                                             {(item.pricing?.strike_price || 0) > 0 && (
@@ -61,6 +68,7 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                             </div>
                                         </div>
                                     </div>
+                                    )}
 
                                     <div className="mb-6 text-slate-700 border-b border-slate-100 pb-6">
                                         {item.date_time_html ? (

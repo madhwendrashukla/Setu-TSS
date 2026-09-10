@@ -68,18 +68,19 @@ export function DynamicSections({ pageData, eventSlug, lmsCourseSlug }: { pageDa
             {pageData.section_visibility?.story && <DynamicStoryline data={pageData} />}
             {pageData.section_visibility?.output && <DynamicOutcomes data={pageData} />}
             
-            {hasWorkshops && (pageData.section_visibility?.story || pageData.section_visibility?.output) && (
+            {hasWorkshops && pageData.registrations_open !== false && (pageData.section_visibility?.story || pageData.section_visibility?.output) && (
                 <WorkshopNudgeCTA />
             )}
 
             {pageData.section_visibility?.workshops && <DynamicWorkshopBreakdown data={pageData} onCheckoutClick={handleCheckoutClick} />}
             {pageData.section_visibility?.pricing && <DynamicPricing data={pageData} onCheckoutClick={handleCheckoutClick} />}
+
             
             {pageData.section_visibility?.mentors && <DynamicMentors data={pageData} />}
             {pageData.section_visibility?.video_gallery && <DynamicVideoGallery data={pageData} />}
             {pageData.section_visibility?.testimonials && <DynamicTestimonials data={pageData} />}
             
-            {hasWorkshops && (pageData.section_visibility?.mentors || pageData.section_visibility?.testimonials) && (
+            {hasWorkshops && pageData.registrations_open !== false && (pageData.section_visibility?.mentors || pageData.section_visibility?.testimonials) && (
                 <WorkshopNudgeCTA text="Limited Seats - Book Now" />
             )}
 

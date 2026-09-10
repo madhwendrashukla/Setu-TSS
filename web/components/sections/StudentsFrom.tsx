@@ -24,22 +24,20 @@ export const StudentsFrom = ({ data, headings = {} }: { data?: any[], headings?:
                     
                     <div className="animate-marquee-slow flex whitespace-nowrap space-x-12 px-4 items-center">
                         {studentLogos.map((logo, index) => (
-                            <div key={`logo-1-${index}`} className="flex items-center justify-center shrink-0 w-40 h-20 bg-bg-surface border border-functional-border rounded-xl">
-                                {logo.logo_url ? (
-                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-                                ) : (
-                                    <span className="text-text-secondary font-bold text-lg opacity-70">{logo.label || logo.name}</span>
+                            <div key={`logo-1-${index}`} className="flex flex-col items-center justify-center shrink-0 w-48 h-32 bg-bg-surface border border-functional-border rounded-xl p-4">
+                                {logo.logo_url && (
+                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100 mb-3" />
                                 )}
+                                <span className="text-text-secondary font-bold text-sm text-center opacity-90">{logo.label || logo.name}</span>
                             </div>
                         ))}
                         {/* Duplicate for marquee */}
                         {studentLogos.map((logo, index) => (
-                            <div key={`logo-2-${index}`} className="flex items-center justify-center shrink-0 w-40 h-20 bg-bg-surface border border-functional-border rounded-xl">
-                                {logo.logo_url ? (
-                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-                                ) : (
-                                    <span className="text-text-secondary font-bold text-lg opacity-70">{logo.label || logo.name}</span>
+                            <div key={`logo-2-${index}`} className="flex flex-col items-center justify-center shrink-0 w-48 h-32 bg-bg-surface border border-functional-border rounded-xl p-4">
+                                {logo.logo_url && (
+                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100 mb-3" />
                                 )}
+                                <span className="text-text-secondary font-bold text-sm text-center opacity-90">{logo.label || logo.name}</span>
                             </div>
                         ))}
                     </div>

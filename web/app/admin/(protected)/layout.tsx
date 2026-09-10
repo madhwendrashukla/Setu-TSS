@@ -37,6 +37,7 @@ const NAV_CATEGORIES = [
             { href: "/admin/partners", label: "Partners", icon: "fas fa-handshake" },
             { href: "/admin/mentored-startups", label: "Mentored Startups", icon: "fas fa-lightbulb" },
             { href: "/admin/students-from", label: "Students From", icon: "fas fa-building" },
+            { href: "/admin/certifications", label: "Certifications", icon: "fas fa-certificate" },
         ]
     },
     {

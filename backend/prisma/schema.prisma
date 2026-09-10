@@ -501,3 +501,14 @@ model CoursePageItem {
   @@index([scope, kind, position])
   @@map("course_page_items")
 }
+
+model CertificationLogo {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  logo_url      String?
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  @@map("certification_logos")
+}

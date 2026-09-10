@@ -8,6 +8,8 @@ const authMiddleware = require('./middleware/auth');
 const { upload, compressImage } = require('./utils/upload');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { authenticator } = require('otplib');
+const qrcode = require('qrcode');
 
 const app = express();
 app.disable('x-powered-by'); // Production hygiene: remove Express signature
@@ -70,13 +72,6 @@ app.use('/api/admin/handoff-exchange', adminHandoff.exchangeRouter);
 
 // --- AUTH API ---
 app.post('/api/admin/login', async (req, res) => {
-  // 🔴 SECURITY FIX, 19 Aug 2026. This used to verify the password and nothing
-  // else — no role check — so any account in `users` could log into the CMS,
-  // and public signup (/api/auth/signup) hands out accounts to anyone.
-  //
-  // The role check is deliberately AFTER the password check and returns the
-  // same 401 with the same message: telling a non-admin "you are not an admin"
-  // confirms the password was right, which is a free credential oracle.
   const { email, password } = req.body || {};
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
@@ -86,8 +81,79 @@ app.post('/api/admin/login', async (req, res) => {
   if (!isValid || user.role !== 'admin') {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
-  res.json({ token });
+
+  // Issue a short-lived temporary token for the next 2FA step
+  const tempToken = jwt.sign({ id: user.id, email: user.email, tempRole: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+  if (!user.two_factor_enabled) {
+    return res.json({ requireSetup: true, tempToken });
+  } else {
+    return res.json({ requireOtp: true, tempToken });
+  }
+});
+
+app.post('/api/admin/setup-2fa', async (req, res) => {
+  const { tempToken } = req.body || {};
+  if (!tempToken) return res.status(401).json({ error: 'Missing temp token' });
+  
+  try {
+    const decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    if (decoded.tempRole !== 'admin') return res.status(403).json({ error: 'Not an admin' });
+
+    const secret = authenticator.generateSecret();
+    const otpauth = authenticator.keyuri(decoded.email, 'Setu Startup School', secret);
+    const qrCodeUrl = await qrcode.toDataURL(otpauth);
+
+    res.json({ secret, qrCodeUrl });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid or expired temp token' });
+  }
+});
+
+app.post('/api/admin/verify-2fa-setup', async (req, res) => {
+  const { tempToken, token, secret } = req.body || {};
+  if (!tempToken || !token || !secret) return res.status(400).json({ error: 'Missing required fields' });
+
+  try {
+    const decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    if (decoded.tempRole !== 'admin') return res.status(403).json({ error: 'Not an admin' });
+
+    const isValid = authenticator.verify({ token, secret });
+    if (!isValid) return res.status(400).json({ error: 'Invalid OTP' });
+
+    await prisma.user.update({
+      where: { id: decoded.id },
+      data: { two_factor_secret: secret, two_factor_enabled: true }
+    });
+
+    const finalToken = jwt.sign({ id: decoded.id, role: decoded.tempRole }, process.env.JWT_SECRET);
+    res.json({ token: finalToken });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid or expired temp token' });
+  }
+});
+
+app.post('/api/admin/verify-otp', async (req, res) => {
+  const { tempToken, token } = req.body || {};
+  if (!tempToken || !token) return res.status(400).json({ error: 'Missing temp token or OTP' });
+
+  try {
+    const decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    if (decoded.tempRole !== 'admin') return res.status(403).json({ error: 'Not an admin' });
+
+    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+    if (!user || !user.two_factor_enabled || !user.two_factor_secret) {
+      return res.status(400).json({ error: '2FA not fully setup' });
+    }
+
+    const isValid = authenticator.verify({ token, secret: user.two_factor_secret });
+    if (!isValid) return res.status(400).json({ error: 'Invalid OTP' });
+
+    const finalToken = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
+    res.json({ token: finalToken });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid or expired temp token' });
+  }
 });
 
 app.get('/api/admin/verify', authMiddleware, (req, res) => {

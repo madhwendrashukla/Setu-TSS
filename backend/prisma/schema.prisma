@@ -170,13 +170,15 @@ model BottomVideoGallery {
 }
 
 model User {
-  id         String   @id @default(uuid()) @db.Uuid
-  name       String?
-  email      String   @unique
-  password   String
-  role       String   @default("user")
-  created_at DateTime @default(now())
-  registrations EventRegistration[]
+  id                 String   @id @default(uuid()) @db.Uuid
+  name               String?
+  email              String   @unique
+  password           String
+  role               String   @default("user")
+  two_factor_secret  String?
+  two_factor_enabled Boolean  @default(false)
+  created_at         DateTime @default(now())
+  registrations      EventRegistration[]
 
   @@map("users")
 }

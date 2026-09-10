@@ -32,8 +32,8 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
 
                     {/* Content Overlay */}
                     <div className="relative z-20 mt-auto w-full transform translate-y-4 group-hover:-translate-y-2 transition-transform duration-500 pointer-events-none">
-                        <h4 className="text-2xl font-black text-text-primary mb-1 tracking-tight drop-shadow-lg">{mentor.name}</h4>
-                        <p className="text-accent-blue font-bold text-xs tracking-widest uppercase truncate drop-shadow-md">{mentor.title}</p>
+                        <h4 className="text-2xl font-black text-white mb-1 tracking-tight drop-shadow-lg">{mentor.name}</h4>
+                        <p className="text-[#A855F7] font-bold text-xs tracking-widest uppercase truncate drop-shadow-md">{mentor.title}</p>
                     </div>
 
                     {/* Hover Cue / Mobile Flip Button */}

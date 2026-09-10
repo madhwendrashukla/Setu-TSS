@@ -36,6 +36,7 @@ const NAV_CATEGORIES = [
             { href: "/admin/mentors", label: "Mentors", icon: "fas fa-users" },
             { href: "/admin/partners", label: "Partners", icon: "fas fa-handshake" },
             { href: "/admin/mentored-startups", label: "Mentored Startups", icon: "fas fa-lightbulb" },
+            { href: "/admin/students-from", label: "Students From", icon: "fas fa-building" },
         ]
     },
     {
@@ -70,6 +71,7 @@ const PANEL_INFO: Record<string, string> = {
     "/admin/mentors": "Add or remove mentors showcased on the platform, including their photos and designations.",
     "/admin/partners": "Manage community partners, hiring partners, and their logos displayed on the site.",
     "/admin/mentored-startups": "Highlight successful startups and companies mentored by the program.",
+    "/admin/students-from": "Manage the companies and colleges that students come from, displayed on the homepage.",
     "/admin/gallery": "Upload and organize images for the public event gallery and timeline.",
     "/admin/bottom-videos": "Configure promotional YouTube videos shown at the bottom of the landing pages.",
     "/admin/testimonials": "Manage student and partner testimonials, ratings, and feedback.",

@@ -44,7 +44,10 @@ app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', cred
 // LMS→website internal endpoints for Unified Events. Mounted BEFORE
 // express.json() because their HMAC signatures cover the exact raw body.
 const lmsEventsSync = require('./routes/lmsEvents');
-const adminHandoff = require('./routes/adminHandoff');
+const adminHandoffRoutes = require('./routes/adminHandoff');
+const adminHandoff = adminHandoffRoutes;
+const studentNetworkLogosRoutes = require('./routes/studentNetworkLogos');
+
 const internalCoupons = require('./routes/internalCoupons');
 app.use('/api/internal/lms-events', lmsEventsSync.router);
 app.use('/api/internal/admin-handoff', adminHandoff.internalRouter);
@@ -352,7 +355,7 @@ app.get('/api/promo-bar', async (req, res) => {
 });
 app.get('/api/homepage', async (req, res) => {
   try {
-    const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos] = await Promise.all([
+    const [heroSlides, homepageContent, programs, galleryItems, testimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos, studentsFrom] = await Promise.all([
       prisma.heroSlide.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.homepageContent.findFirst(),
       prisma.program.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
@@ -362,7 +365,8 @@ app.get('/api/homepage', async (req, res) => {
       prisma.siteSetting.findFirst(),
       prisma.mentor.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
       prisma.mentoredStartup.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
-      prisma.bottomVideoGallery.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
+      prisma.bottomVideoGallery.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }}),
+      prisma.studentNetworkLogo.findMany({ where: { is_active: true }, orderBy: { display_order: 'asc' }})
     ]);
     
     const isGibberish = (str) => str && (str.includes('jghgf') || str.includes('sdfgh') || str.includes('asdf') || str === 'jhg');
@@ -371,7 +375,7 @@ app.get('/api/homepage', async (req, res) => {
           isGibberish(t.quote) || isGibberish(t.name) || isGibberish(t.video_heading))
     );
 
-    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials: filteredTestimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos });
+    res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials: filteredTestimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos, studentsFrom });
   } catch (error) { 
     console.error('Database connection error in /api/homepage:', error.message);
     try {
@@ -491,6 +495,7 @@ app.use('/api/admin/course-page-items', coursePageItems.adminRouter);
 
 const adminHelpdeskRoutes = require('./routes/adminHelpdesk');
 app.use('/api/admin/helpdesk', adminHelpdeskRoutes);
+app.use('/api/admin/student-network-logos', studentNetworkLogosRoutes);
 
 app.post('/api/admin/upload', upload.single('file'), compressImage, async (req, res) => {
   try {

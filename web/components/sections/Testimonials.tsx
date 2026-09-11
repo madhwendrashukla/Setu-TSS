@@ -51,11 +51,11 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
             {videoTestimonials.length > 0 && (
                 <div 
                     ref={videoRef}
-                    className="max-w-7xl mx-auto px-6 mb-16 flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4"
+                    className="max-w-7xl mx-auto px-6 mb-16 flex items-stretch gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4"
                 >
                     {videoTestimonials.map(t => (
-                        <div key={t.id} className={`w-[85vw] md:w-[400px] shrink-0 snap-start rounded-2xl overflow-hidden border border-functional-border bg-bg-surface flex flex-col ${!t.show_description ? 'self-start' : 'h-full'}`}>
-                            <div className="relative w-full pt-[56.25%] bg-accent-blue hover:bg-accent-royal text-white">
+                        <div key={t.id} className="w-[85vw] md:w-[400px] shrink-0 snap-start rounded-2xl overflow-hidden border border-functional-border bg-bg-surface flex flex-col h-full">
+                            <div className="relative w-full pt-[56.25%] shrink-0 bg-accent-blue hover:bg-accent-royal text-white">
                                 <iframe 
                                     src={t.youtube_url.includes('embed/') ? t.youtube_url : `https://www.youtube.com/embed/${t.youtube_url.split('v=')[1]?.split('&')[0] || t.youtube_url.split('youtu.be/')[1]}`} 
                                     title={t.video_heading || 'Testimonial Video'}
@@ -71,7 +71,7 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
                                     )}
                                     <h3 className="text-text-primary font-bold text-lg mb-1 leading-tight">{t.video_heading}</h3>
                                     {t.name && <h4 className="text-text-secondary font-semibold text-sm mb-2">{t.name}</h4>}
-                                    <p className="text-text-secondary text-sm">{t.video_description}</p>
+                                    <p className="text-text-secondary text-sm font-normal mt-auto">{t.video_description}</p>
                                 </div>
                             )}
                         </div>
@@ -84,9 +84,9 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
                 <div className="relative flex overflow-x-hidden py-4">
                     
                     
-                    <div className="animate-marquee-slow flex whitespace-nowrap space-x-6 px-4">
+                    <div className="animate-marquee-slow flex items-stretch whitespace-nowrap space-x-6 px-4">
                         {textTestimonials.map(text => (
-                            <div key={text.id} className="inline-block w-[300px] md:w-[450px] p-8 rounded-xl border border-[#3b4a7a] bg-[#1f3160] flex flex-col flex-shrink-0 shadow-lg whitespace-normal">
+                            <div key={text.id} className="w-[300px] md:w-[450px] p-8 rounded-xl border border-[#3b4a7a] bg-[#1f3160] flex flex-col shrink-0 shadow-lg whitespace-normal h-full">
                                 <p className="text-white text-base md:text-lg mb-8 leading-relaxed font-light">"{text.quote}"</p>
                                 <div className="mt-auto">
                                     <h4 className="text-white font-bold text-lg mb-1 tracking-tight">{text.name}</h4>
@@ -99,7 +99,7 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
                         ))}
                         {/* Duplicate for marquee */}
                         {textTestimonials.map(text => (
-                            <div key={text.id + 'dup'} className="inline-block w-[300px] md:w-[450px] p-8 rounded-xl border border-[#3b4a7a] bg-[#1f3160] flex flex-col flex-shrink-0 shadow-lg whitespace-normal">
+                            <div key={text.id + 'dup'} className="w-[300px] md:w-[450px] p-8 rounded-xl border border-[#3b4a7a] bg-[#1f3160] flex flex-col shrink-0 shadow-lg whitespace-normal h-full">
                                 <p className="text-white text-base md:text-lg mb-8 leading-relaxed font-light">"{text.quote}"</p>
                                 <div className="mt-auto">
                                     <h4 className="text-white font-bold text-lg mb-1 tracking-tight">{text.name}</h4>

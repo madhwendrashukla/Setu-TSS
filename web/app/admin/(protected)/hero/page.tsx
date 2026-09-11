@@ -486,7 +486,7 @@ export default function AdminHero() {
                         )}
                     </div>
                 </div>
-            </section>
+            </div>
 
             {imageSrc && (
                 <ImageCropperModal

@@ -19,11 +19,12 @@ export const Certifications = ({ data }: { data?: any[] }) => {
                 <h2 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-12">Certifications</h2>
                 <div className="flex flex-col md:flex-row items-center justify-center gap-8">
                 {certs.map((cert, index) => (
-                    <div key={`cert-${index}`} className="flex items-center justify-center shrink-0 h-16 opacity-70 hover:opacity-100 transition-opacity">
-                        {cert.logo_url && cert.logo_url !== '/gallery/startup-india.png' && cert.logo_url !== '/gallery/udyam.png' ? (
-                            <img src={encodeURI(cert.logo_url)} alt={cert.name} className="max-h-full max-w-full object-contain grayscale hover:grayscale-0 transition-all" />
-                        ) : (
-                            <span className="text-text-secondary font-bold text-sm tracking-wider uppercase">{cert.label || cert.name}</span>
+                    <div key={`cert-${index}`} className="flex flex-col items-center justify-center shrink-0 h-24 md:h-28 transition-opacity p-2">
+                        {cert.logo_url && cert.logo_url !== '/gallery/startup-india.png' && cert.logo_url !== '/gallery/udyam.png' && (
+                            <img src={encodeURI(cert.logo_url)} alt={cert.name} className="max-h-12 md:max-h-16 max-w-full object-contain transition-all mb-2" />
+                        )}
+                        {(cert.label || cert.name) && (
+                            <span className="text-text-secondary font-bold text-xs md:text-sm tracking-wider uppercase text-center">{cert.label || cert.name}</span>
                         )}
                     </div>
                 ))}

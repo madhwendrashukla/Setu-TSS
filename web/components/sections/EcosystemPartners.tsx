@@ -24,7 +24,7 @@ export const EcosystemPartners = ({ data, headings = {} }: { data?: any[], headi
                             rel="noopener noreferrer"
                             className="group flex flex-col items-center gap-3 block transition-transform hover:scale-105"
                         >
-                            <div className="relative w-32 h-16 md:w-40 md:h-20 filter grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition duration-300 bg-bg-surface flex items-center justify-center rounded-xl overflow-hidden border border-functional-border">
+                            <div className="relative w-32 h-16 md:w-40 md:h-20 bg-bg-surface flex items-center justify-center rounded-xl overflow-hidden border border-functional-border">
                                 {partner.logo_url ? (
                                     <img 
                                         src={encodeURI(partner.logo_url)} 

@@ -1,5 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
+import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
+
+function readFile(file: File): Promise<string> {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => resolve(reader.result as string), false);
+        reader.readAsDataURL(file);
+    });
+}
 
 export default function AdminPartners() {
     const [partners, setPartners] = useState<any[]>([]);
@@ -7,6 +16,9 @@ export default function AdminPartners() {
     const [editing, setEditing] = useState<any>(null);
     const [file, setFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({ name: "", website_url: "", display_order: 0, is_active: true });
+    
+    // Cropper State
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
 
     const token = () => localStorage.getItem("adminToken");
     const API = process.env.NEXT_PUBLIC_API_URL;
@@ -22,7 +34,18 @@ export default function AdminPartners() {
 
     const openEdit = (p: any) => {
         setFormData({ name: p.name, website_url: p.website_url ?? "", display_order: p.display_order ?? 0, is_active: p.is_active });
-        setEditing(p); setIsModalOpen(true);
+        setEditing(p);
+        setImageSrc(null);
+        setIsModalOpen(true);
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const f = e.target.files[0];
+            const dataUrl = await readFile(f);
+            setImageSrc(dataUrl);
+        }
+        e.target.value = '';
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -32,7 +55,38 @@ export default function AdminPartners() {
         if (file) data.append("logo", file);
         const url = editing ? `${API}/api/admin/community_partners/${editing.id}` : `${API}/api/admin/community_partners`;
         const method = editing ? "PUT" : "POST";
-        await fetch(url, { method, headers: { "Authorization": `Bearer ${token()}` }, body: data });
+        
+        let logoUrl = editing?.logo_url || "";
+        if (file) {
+            const uploadData = new FormData();
+            uploadData.append("file", file);
+            const uploadRes = await fetch(`${API}/api/admin/upload`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token()}` },
+                body: uploadData
+            }).then(r => r.json());
+            if (uploadRes.url) {
+                logoUrl = uploadRes.url;
+            }
+        }
+
+        const payload = {
+            name: formData.name,
+            website_url: formData.website_url,
+            display_order: formData.display_order,
+            is_active: formData.is_active,
+            logo_url: logoUrl
+        };
+
+        await fetch(url, { 
+            method, 
+            headers: { 
+                "Authorization": `Bearer ${token()}`,
+                "Content-Type": "application/json"
+            }, 
+            body: JSON.stringify(payload) 
+        });
+        
         setIsModalOpen(false); resetForm(); fetchPartners();
     };
 
@@ -99,9 +153,13 @@ export default function AdminPartners() {
                                 <input value={formData.website_url} onChange={e => setFormData({...formData, website_url: e.target.value})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" placeholder="https://partner.com" />
                             </div>
                             <div>
-                                <label className="block text-sm text-gray-500 mb-1">Logo Image</label>
-                                <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="w-full text-gray-900 text-sm" />
-                                {editing?.logo_url && <p className="text-xs text-gray-500 mt-1">Current: {editing.logo_url}</p>}
+                                <label className="block text-sm text-gray-500 mb-1">Logo Image (Will be cropped to 1:1)</label>
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="w-full text-gray-900 text-sm" />
+                                {file ? (
+                                    <p className="text-xs text-green-500 mt-1">Selected cropped image ready to upload.</p>
+                                ) : editing?.logo_url ? (
+                                    <p className="text-xs text-gray-500 mt-1">Current: {editing.logo_url}</p>
+                                ) : null}
                             </div>
                             <div>
                                 <label className="block text-sm text-gray-500 mb-1">Display Order</label>
@@ -118,6 +176,20 @@ export default function AdminPartners() {
                         </form>
                     </div>
                 </div>
+            )}
+            
+            {imageSrc && (
+                <ImageCropperModal
+                    imageSrc={imageSrc}
+                    aspect={1}
+                    onCropComplete={(croppedFile) => {
+                        setFile(croppedFile);
+                        setImageSrc(null);
+                    }}
+                    onCancel={() => {
+                        setImageSrc(null);
+                    }}
+                />
             )}
         </div>
     );

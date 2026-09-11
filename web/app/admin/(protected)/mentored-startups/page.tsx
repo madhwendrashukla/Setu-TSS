@@ -1,6 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
+
+function readFile(file: File): Promise<string> {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => resolve(reader.result as string), false);
+        reader.readAsDataURL(file);
+    });
+}
 
 export default function AdminMentoredStartups() {
     const [startups, setStartups] = useState<any[]>([]);
@@ -8,6 +17,9 @@ export default function AdminMentoredStartups() {
     const [editing, setEditing] = useState<any>(null);
     const [formData, setFormData] = useState({ name: "", website_url: "", display_order: 0, is_active: true });
     const [logoFile, setLogoFile] = useState<File | null>(null);
+    
+    // Cropper State
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
 
     const token = () => localStorage.getItem("adminToken");
     const API = process.env.NEXT_PUBLIC_API_URL;
@@ -25,13 +37,24 @@ export default function AdminMentoredStartups() {
         setFormData({ name: "", website_url: "", display_order: 0, is_active: true });
         setLogoFile(null);
         setEditing(null);
+        setImageSrc(null);
     };
 
     const openEdit = (s: any) => {
         setFormData({ name: s.name, website_url: s.website_url ?? "", display_order: s.display_order ?? 0, is_active: s.is_active });
         setLogoFile(null);
         setEditing(s);
+        setImageSrc(null);
         setIsModalOpen(true);
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const f = e.target.files[0];
+            const dataUrl = await readFile(f);
+            setImageSrc(dataUrl);
+        }
+        e.target.value = '';
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -39,14 +62,37 @@ export default function AdminMentoredStartups() {
         const url = editing ? `${API}/api/admin/mentored-startups/${editing.id}` : `${API}/api/admin/mentored-startups`;
         const method = editing ? "PUT" : "POST";
 
-        const fd = new FormData();
-        fd.append("name", formData.name);
-        fd.append("website_url", formData.website_url);
-        fd.append("display_order", formData.display_order.toString());
-        fd.append("is_active", formData.is_active.toString());
-        if (logoFile) fd.append("logo", logoFile);
+        
+        let logoUrl = editing?.logo_url || "";
+        if (logoFile) {
+            const uploadData = new FormData();
+            uploadData.append("file", logoFile);
+            const uploadRes = await fetch(`${API}/api/admin/upload`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token()}` },
+                body: uploadData
+            }).then(r => r.json());
+            if (uploadRes.url) {
+                logoUrl = uploadRes.url;
+            }
+        }
 
-        await fetch(url, { method, headers: { "Authorization": `Bearer ${token()}` }, body: fd });
+        const payload = {
+            name: formData.name,
+            website_url: formData.website_url,
+            display_order: formData.display_order,
+            is_active: formData.is_active,
+            logo_url: logoUrl
+        };
+
+        await fetch(url, { 
+            method, 
+            headers: { 
+                "Authorization": `Bearer ${token()}`,
+                "Content-Type": "application/json"
+            }, 
+            body: JSON.stringify(payload) 
+        });
         setIsModalOpen(false);
         resetForm();
         fetchStartups();
@@ -119,11 +165,13 @@ export default function AdminMentoredStartups() {
                                 <input type="url" value={formData.website_url} onChange={e => setFormData({...formData, website_url: e.target.value})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" placeholder="https://example.com" />
                             </div>
                             <div>
-                                <label className="block text-sm text-gray-500 mb-1">Logo Image</label>
-                                {editing && editing.logo_url && !logoFile && (
-                                    <div className="mb-2 text-xs text-gray-500">Current logo: <a href={editing.logo_url} target="_blank" className="text-accent-blue underline">View</a></div>
-                                )}
-                                <input type="file" accept="image/*" onChange={e => setLogoFile(e.target.files?.[0] || null)} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-gray-100 file:text-gray-900 hover:file:bg-white/20" />
+                                <label className="block text-sm text-gray-500 mb-1">Logo Image (Will be cropped to 1:1)</label>
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-gray-100 file:text-gray-900 hover:file:bg-white/20" />
+                                {logoFile ? (
+                                    <p className="text-xs text-green-500 mt-1">Selected cropped image ready to upload.</p>
+                                ) : editing && editing.logo_url ? (
+                                    <div className="mt-2 text-xs text-gray-500">Current logo: <a href={editing.logo_url} target="_blank" className="text-accent-blue underline">View</a></div>
+                                ) : null}
                             </div>
                             <div>
                                 <label className="block text-sm text-gray-500 mb-1">Display Order</label>
@@ -140,6 +188,20 @@ export default function AdminMentoredStartups() {
                         </form>
                     </div>
                 </div>
+            )}
+            
+            {imageSrc && (
+                <ImageCropperModal
+                    imageSrc={imageSrc}
+                    aspect={1}
+                    onCropComplete={(croppedFile) => {
+                        setLogoFile(croppedFile);
+                        setImageSrc(null);
+                    }}
+                    onCancel={() => {
+                        setImageSrc(null);
+                    }}
+                />
             )}
         </div>
     );

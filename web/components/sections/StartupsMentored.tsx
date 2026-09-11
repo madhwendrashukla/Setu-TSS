@@ -32,16 +32,17 @@ export function StartupsMentored({ data = [], headings = {} }: { data?: any[], h
                                 href={startup.website_url || undefined}
                                 target={startup.website_url ? "_blank" : undefined}
                                 rel={startup.website_url ? "noopener noreferrer" : undefined}
-                                className={`flex-shrink-0 flex items-center justify-center w-48 h-24 md:w-64 md:h-32 bg-bg-surface border border-functional-border rounded-2xl hover:bg-white/10 hover:shadow-[0_8px_40px_rgba(168,85,247,0.1)] transition duration-300 group ${startup.website_url ? 'cursor-pointer hover:-translate-y-1' : ''}`}
+                                className={`flex-shrink-0 flex flex-col items-center justify-center w-48 h-32 md:w-64 md:h-40 bg-bg-surface border border-functional-border rounded-2xl hover:bg-white/10 hover:shadow-[0_8px_40px_rgba(168,85,247,0.1)] transition duration-300 group p-4 ${startup.website_url ? 'cursor-pointer hover:-translate-y-1' : ''}`}
                             >
-                                {startup.logo_url ? (
+                                {startup.logo_url && (
                                     <img 
                                         src={encodeURI(startup.logo_url)} 
                                         alt={startup.name} 
-                                        className="max-w-[80%] max-h-[70%] object-contain opacity-70 group-hover:opacity-100 transition duration-300 filter grayscale group-hover:grayscale-0"
+                                        className="max-w-full max-h-[60%] object-contain transition duration-300 mb-2"
                                     />
-                                ) : (
-                                    <span className="text-xl md:text-2xl font-bold text-text-secondary group-hover:text-text-primary transition duration-300">
+                                )}
+                                {startup.name && (
+                                    <span className="text-sm font-bold text-text-secondary group-hover:text-text-primary transition duration-300 text-center line-clamp-2">
                                         {startup.name}
                                     </span>
                                 )}

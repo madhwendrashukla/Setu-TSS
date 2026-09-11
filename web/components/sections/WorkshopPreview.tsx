@@ -98,7 +98,7 @@ export function WorkshopPreview() {
                             </div>
 
                             {/* Image Column */}
-                            <div className="w-full md:w-1/2 h-64 md:h-auto relative order-1 md:order-2 shrink-0 bg-gray-50/50 flex items-center justify-center p-4">
+                            <div className="w-full md:w-1/2 h-64 md:h-auto relative order-1 md:order-2 shrink-0 flex items-center justify-center p-4">
                                 {event.banner_url ? (
                                     <img 
                                         src={encodeURI(event.banner_url)} 
@@ -109,10 +109,9 @@ export function WorkshopPreview() {
                                     <img 
                                         src="/ai-workshop-banner.webp" 
                                         alt={event.title} 
-                                        className="w-full h-full object-contain opacity-60 mix-blend-multiply"
+                                        className="w-full h-full object-contain rounded-xl shadow-sm"
                                     />
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-white/80 to-transparent pointer-events-none"></div>
                             </div>
                         </div>
                     </Link>

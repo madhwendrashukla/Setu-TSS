@@ -26,7 +26,7 @@ export const StudentsFrom = ({ data, headings = {} }: { data?: any[], headings?:
                         {studentLogos.map((logo, index) => (
                             <div key={`logo-1-${index}`} className="flex flex-col items-center justify-center shrink-0 w-48 h-32 bg-bg-surface border border-functional-border rounded-xl p-4">
                                 {logo.logo_url && (
-                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100 mb-3" />
+                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain transition-all mb-3" />
                                 )}
                                 <span className="text-text-secondary font-bold text-sm text-center opacity-90">{logo.label || logo.name}</span>
                             </div>
@@ -35,7 +35,7 @@ export const StudentsFrom = ({ data, headings = {} }: { data?: any[], headings?:
                         {studentLogos.map((logo, index) => (
                             <div key={`logo-2-${index}`} className="flex flex-col items-center justify-center shrink-0 w-48 h-32 bg-bg-surface border border-functional-border rounded-xl p-4">
                                 {logo.logo_url && (
-                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100 mb-3" />
+                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain transition-all mb-3" />
                                 )}
                                 <span className="text-text-secondary font-bold text-sm text-center opacity-90">{logo.label || logo.name}</span>
                             </div>

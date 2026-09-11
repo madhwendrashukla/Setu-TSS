@@ -3,6 +3,15 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
+import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
+
+function readFile(file: File): Promise<string> {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => resolve(reader.result as string), false);
+        reader.readAsDataURL(file);
+    });
+}
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
@@ -38,6 +47,9 @@ export default function AdminHero() {
     const [uploadingSlide, setUploadingSlide] = useState(false);
     const [slideFile, setSlideFile] = useState<File | null>(null);
     const [slideDisplayOrder, setSlideDisplayOrder] = useState(1);
+    
+    // Cropper State
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
 
     const token = () => localStorage.getItem("adminToken");
     const API = process.env.NEXT_PUBLIC_API_URL;
@@ -411,9 +423,17 @@ export default function AdminHero() {
                                     type="file" 
                                     accept="image/*" 
                                     required
-                                    onChange={e => setSlideFile(e.target.files?.[0] ?? null)} 
+                                    onChange={async (e) => {
+                                        if (e.target.files && e.target.files.length > 0) {
+                                            const f = e.target.files[0];
+                                            const dataUrl = await readFile(f);
+                                            setImageSrc(dataUrl);
+                                        }
+                                        e.target.value = '';
+                                    }} 
                                     className="w-full text-gray-500 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-900 hover:file:bg-white/20 transition-all cursor-pointer" 
                                 />
+                                {slideFile && <p className="text-xs text-green-500 mt-1 truncate">Selected cropped image ready to upload.</p>}
                             </div>
                             <button type="submit" disabled={uploadingSlide || !slideFile} className="w-full bg-gray-100 text-gray-900 font-bold px-4 py-2 rounded-lg hover:bg-white/20 disabled:opacity-50 transition-colors mt-2 border border-gray-200">
                                 {uploadingSlide ? 'Uploading...' : 'Upload Slide'}
@@ -466,7 +486,21 @@ export default function AdminHero() {
                         )}
                     </div>
                 </div>
-            </div>
+            </section>
+
+            {imageSrc && (
+                <ImageCropperModal
+                    imageSrc={imageSrc}
+                    aspect={16 / 9}
+                    onCropComplete={(croppedFile) => {
+                        setSlideFile(croppedFile);
+                        setImageSrc(null);
+                    }}
+                    onCancel={() => {
+                        setImageSrc(null);
+                    }}
+                />
+            )}
         </div>
     );
 }

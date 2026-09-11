@@ -36,6 +36,7 @@ function getYouTubeData(url: string) {
 
 export function Gallery({ data = [], headings = {} }: { data?: any[], headings?: any }) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
     const scroll = (direction: 'left' | 'right') => {
         if (scrollContainerRef.current) {
@@ -64,29 +65,44 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
 
         // Fallback for unconfigured domains in Next.js Image
         const isExternal = thumbnailUrl.startsWith('http');
+        const isCurrentlyPlaying = activeVideo === src;
 
         return (
             <div className={`relative overflow-hidden rounded-2xl group border border-functional-border bg-[#1e293b] ${className}`}>
-                {isExternal ? (
-                    <img
-                        src={thumbnailUrl}
-                        alt="Gallery image"
-                        className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${isRotated ? '-rotate-90 scale-[1.35]' : ''}`}
+                {isCurrentlyPlaying ? (
+                    <iframe
+                        src={`${getYouTubeData(src).embedUrl}?autoplay=1`}
+                        className="w-full h-full object-cover"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
                     />
                 ) : (
-                    <Image
-                        src={encodeURI(thumbnailUrl)}
-                        alt="Gallery image"
-                        fill
-                        className={`object-cover transition-transform duration-700 group-hover:scale-110 ${isRotated ? '-rotate-90 scale-[1.35]' : ''}`}
-                    />
-                )}
-                {isVideo && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
-                        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                            <svg className="w-6 h-6 text-[#6B21FB] ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                    </div>
+                    <>
+                        {isExternal ? (
+                            <img
+                                src={thumbnailUrl}
+                                alt="Gallery image"
+                                className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${isRotated ? '-rotate-90 scale-[1.35]' : ''}`}
+                            />
+                        ) : (
+                            <Image
+                                src={encodeURI(thumbnailUrl)}
+                                alt="Gallery image"
+                                fill
+                                className={`object-cover transition-transform duration-700 group-hover:scale-110 ${isRotated ? '-rotate-90 scale-[1.35]' : ''}`}
+                            />
+                        )}
+                        {isVideo && (
+                            <div 
+                                className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors cursor-pointer"
+                                onClick={() => setActiveVideo(src)}
+                            >
+                                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <svg className="w-6 h-6 text-[#6B21FB] ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         );

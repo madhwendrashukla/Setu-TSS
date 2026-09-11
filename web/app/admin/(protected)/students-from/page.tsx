@@ -1,5 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
+import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
+
+function readFile(file: File): Promise<string> {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => resolve(reader.result as string), false);
+        reader.readAsDataURL(file);
+    });
+}
 
 export default function AdminStudentsFrom() {
     const [logos, setLogos] = useState<any[]>([]);
@@ -7,6 +16,9 @@ export default function AdminStudentsFrom() {
     const [editing, setEditing] = useState<any>(null);
     const [file, setFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({ name: "", display_order: 0, is_active: true });
+    
+    // Cropper State
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
 
     const token = () => localStorage.getItem("adminToken");
     const API = process.env.NEXT_PUBLIC_API_URL;
@@ -18,11 +30,25 @@ export default function AdminStudentsFrom() {
 
     useEffect(() => { fetchLogos(); }, []);
 
-    const resetForm = () => { setFormData({ name: "", display_order: 0, is_active: true }); setFile(null); setEditing(null); };
+    const resetForm = () => { 
+        setFormData({ name: "", display_order: 0, is_active: true }); 
+        setFile(null); 
+        setEditing(null); 
+        setImageSrc(null);
+    };
 
     const openEdit = (p: any) => {
         setFormData({ name: p.name, display_order: p.display_order ?? 0, is_active: p.is_active });
         setEditing(p); setIsModalOpen(true);
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const f = e.target.files[0];
+            const dataUrl = await readFile(f);
+            setImageSrc(dataUrl);
+        }
+        e.target.value = ''; // reset so same file can trigger change again
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -32,10 +58,6 @@ export default function AdminStudentsFrom() {
         if (file) data.append("logo", file);
         const url = editing ? `${API}/api/admin/student-network-logos/${editing.id}` : `${API}/api/admin/student-network-logos`;
         const method = editing ? "PUT" : "POST";
-        // Assuming upload is handled generically on the backend, or we can use the /upload endpoint 
-        // if the model doesn't support generic form data. 
-        // Wait, the backend route I created expects JSON (`req.body`). 
-        // Let's use the existing `/api/admin/upload` endpoint first, then submit JSON.
         
         let logoUrl = editing?.logo_url || "";
         if (file) {
@@ -125,9 +147,13 @@ export default function AdminStudentsFrom() {
                                 <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-white border border-gray-200 rounded px-3 py-2 text-gray-900 focus:outline-none focus:border-accent-blue" />
                             </div>
                             <div>
-                                <label className="block text-sm text-gray-500 mb-1">Logo Image</label>
-                                <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="w-full text-gray-900 text-sm" />
-                                {editing?.logo_url && <p className="text-xs text-gray-500 mt-1 truncate">Current: {editing.logo_url}</p>}
+                                <label className="block text-sm text-gray-500 mb-1">Logo Image (Will be cropped to 1:1)</label>
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="w-full text-gray-900 text-sm" />
+                                {file ? (
+                                    <p className="text-xs text-green-500 mt-1 truncate">Selected cropped image ready to upload.</p>
+                                ) : editing?.logo_url ? (
+                                    <p className="text-xs text-gray-500 mt-1 truncate">Current: {editing.logo_url}</p>
+                                ) : null}
                             </div>
                             <div>
                                 <label className="block text-sm text-gray-500 mb-1">Display Order</label>
@@ -144,6 +170,24 @@ export default function AdminStudentsFrom() {
                         </form>
                     </div>
                 </div>
+            )}
+            
+            {imageSrc && (
+                <ImageCropperModal
+                    imageSrc={imageSrc}
+                    aspect={1}
+                    onCropComplete={(croppedFile) => {
+                        setFile(croppedFile);
+                        setImageSrc(null);
+                    }}
+                    onCancel={() => {
+                        setImageSrc(null);
+                        if (!file) {
+                            // Optionally reset file input value here if we could reference it, 
+                            // but onChange event clearing is already handled
+                        }
+                    }}
+                />
             )}
         </div>
     );

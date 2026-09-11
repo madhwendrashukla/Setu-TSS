@@ -1,6 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
+
+function readFile(file: File): Promise<string> {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => resolve(reader.result as string), false);
+        reader.readAsDataURL(file);
+    });
+}
 
 export default function AdminMentors() {
     const [mentors, setMentors] = useState<any[]>([]);
@@ -10,6 +19,9 @@ export default function AdminMentors() {
     const [file, setFile] = useState<File | null>(null);
     const [globalLinkedin, setGlobalLinkedin] = useState(true);
     const [fullSettings, setFullSettings] = useState<any>(null);
+
+    // Cropper State
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
 
     const fetchMentors = () => {
         const token = localStorage.getItem("adminToken");
@@ -154,7 +166,17 @@ export default function AdminMentors() {
         setEditingMentor(mentor);
         setFormData({ name: mentor.name, title: mentor.title, bio: mentor.bio || "", linkedin_url: mentor.linkedin_url || "", show_linkedin: mentor.show_linkedin !== false });
         setFile(null);
+        setImageSrc(null);
         setIsModalOpen(true);
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const f = e.target.files[0];
+            const dataUrl = await readFile(f);
+            setImageSrc(dataUrl);
+        }
+        e.target.value = '';
     };
 
     return (
@@ -318,9 +340,9 @@ export default function AdminMentors() {
                                 <textarea placeholder="Short description about the mentor..." value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all outline-none h-24 resize-none custom-scrollbar" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Profile Photo</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Profile Photo (Will be cropped to 1:1)</label>
                                 <div className="relative w-full">
-                                    <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                                     <div className="w-full bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">
                                         <i className="fas fa-cloud-upload-alt text-2xl text-gray-400 group-hover:text-accent-blue transition-colors"></i>
                                         <span className="text-gray-500 text-sm">{file ? file.name : (editingMentor && editingMentor.photo_url ? "Click to upload a new photo" : "Click to upload photo (Max 5MB)")}</span>
@@ -337,6 +359,20 @@ export default function AdminMentors() {
                         </form>
                     </div>
                 </div>
+            )}
+            
+            {imageSrc && (
+                <ImageCropperModal
+                    imageSrc={imageSrc}
+                    aspect={1}
+                    onCropComplete={(croppedFile) => {
+                        setFile(croppedFile);
+                        setImageSrc(null);
+                    }}
+                    onCancel={() => {
+                        setImageSrc(null);
+                    }}
+                />
             )}
         </div>
     );

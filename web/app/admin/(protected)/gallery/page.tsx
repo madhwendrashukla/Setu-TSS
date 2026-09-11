@@ -1,6 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
+
+function readFile(file: File): Promise<string> {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => resolve(reader.result as string), false);
+        reader.readAsDataURL(file);
+    });
+}
 
 export default function AdminGallery() {
     const [items, setItems] = useState<any[]>([]);
@@ -8,6 +17,9 @@ export default function AdminGallery() {
     const [file, setFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({ type: "image", caption: "", display_order: 0, media_url: "" });
     const [uploading, setUploading] = useState(false);
+    
+    // Cropper State
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
 
     const token = () => localStorage.getItem("adminToken");
     const API = process.env.NEXT_PUBLIC_API_URL;
@@ -34,6 +46,15 @@ export default function AdminGallery() {
             if (!res.ok) { alert(result.error || 'Upload failed'); return; }
             setIsModalOpen(false); setFile(null); setFormData({ type: "image", caption: "", display_order: 0, media_url: "" }); fetchItems();
         } finally { setUploading(false); }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const f = e.target.files[0];
+            const dataUrl = await readFile(f);
+            setImageSrc(dataUrl);
+        }
+        e.target.value = '';
     };
 
     const handleDelete = async (id: string) => {
@@ -94,7 +115,8 @@ export default function AdminGallery() {
                             {formData.type === 'image' ? (
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-1">Image File</label>
-                                    <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)} className="w-full text-gray-900 text-sm" />
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className="w-full text-gray-900 text-sm" />
+                                    {file && <p className="text-xs text-green-500 mt-1 truncate">Selected cropped image ready to upload.</p>}
                                 </div>
                             ) : (
                                 <div>
@@ -119,6 +141,20 @@ export default function AdminGallery() {
                         </form>
                     </div>
                 </div>
+            )}
+            
+            {imageSrc && (
+                <ImageCropperModal
+                    imageSrc={imageSrc}
+                    aspect={undefined}
+                    onCropComplete={(croppedFile) => {
+                        setFile(croppedFile);
+                        setImageSrc(null);
+                    }}
+                    onCancel={() => {
+                        setImageSrc(null);
+                    }}
+                />
             )}
         </div>
     );

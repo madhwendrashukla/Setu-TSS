@@ -41,19 +41,6 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Update a logo
-router.put('/:id', authMiddleware, async (req, res) => {
-  try {
-    const data = await prisma.studentNetworkLogo.update({
-      where: { id: req.params.id },
-      data: req.body
-    });
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update logo' });
-  }
-});
-
 // Reorder logos
 router.put('/reorder', authMiddleware, async (req, res) => {
   try {
@@ -68,6 +55,19 @@ router.put('/reorder', authMiddleware, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Failed to reorder logos' });
+  }
+});
+
+// Update a logo
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const data = await prisma.studentNetworkLogo.update({
+      where: { id: req.params.id },
+      data: req.body
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update logo' });
   }
 });
 

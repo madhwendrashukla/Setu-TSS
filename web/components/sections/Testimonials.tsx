@@ -13,12 +13,7 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
 
     let videoTestimonials = testimonials.filter(t => t.type === 'video').slice(0, 9);
     let textTestimonials = testimonials.filter(t => t.type === 'text')
-        .sort((a, b) => {
-            if (a.created_at && b.created_at) {
-                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-            }
-            return 0;
-        });
+        .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
 
     if (toggles.testi_video === false) videoTestimonials = [];
     if (toggles.testi_text === false) textTestimonials = [];

@@ -123,10 +123,7 @@ export default function AdminTestimonials() {
 
     const filteredTestimonials = testimonials
         .filter(t => t.type === activeTab)
-        .sort((a, b) => {
-            if (activeTab === 'text') return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-            return (a.display_order || 0) - (b.display_order || 0);
-        });
+        .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
 
     return (
         <div>

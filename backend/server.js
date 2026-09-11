@@ -733,6 +733,20 @@ app.post('/api/admin/testimonials', upload.single('photo'), compressImage, async
   } catch (error) { res.status(500).json({ error: 'Failed to create testimonial' }); }
 });
 
+app.put('/api/admin/testimonials/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+    await prisma.$transaction(
+      items.map(item => prisma.testimonial.update({
+        where: { id: item.id },
+        data: { display_order: item.display_order }
+      }))
+    );
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to reorder testimonials' }); }
+});
+
 app.put('/api/admin/testimonials/:id', upload.single('photo'), compressImage, async (req, res) => {
   try {
     const data = { ...req.body };
@@ -768,20 +782,6 @@ app.delete('/api/admin/testimonials/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to delete testimonial' }); }
 });
 
-app.put('/api/admin/testimonials/reorder', async (req, res) => {
-  try {
-    const { items } = req.body;
-    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
-    await prisma.$transaction(
-      items.map(item => prisma.testimonial.update({
-        where: { id: item.id },
-        data: { display_order: item.display_order }
-      }))
-    );
-    res.json({ success: true });
-  } catch (error) { res.status(500).json({ error: 'Failed to reorder testimonials' }); }
-});
-
 // COMMUNITY PARTNERS
 app.post('/api/admin/community_partners', upload.single('logo'), compressImage, async (req, res) => {
   try {
@@ -792,6 +792,20 @@ app.post('/api/admin/community_partners', upload.single('logo'), compressImage, 
     const newPartner = await prisma.communityPartner.create({ data });
     res.json(newPartner);
   } catch (error) { res.status(500).json({ error: 'Failed to create partner' }); }
+});
+
+app.put('/api/admin/community_partners/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+    await prisma.$transaction(
+      items.map(item => prisma.communityPartner.update({
+        where: { id: item.id },
+        data: { display_order: item.display_order }
+      }))
+    );
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to reorder partners' }); }
 });
 
 app.put('/api/admin/community_partners/:id', upload.single('logo'), compressImage, async (req, res) => {
@@ -810,20 +824,6 @@ app.delete('/api/admin/community_partners/:id', async (req, res) => {
     await prisma.communityPartner.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete partner' }); }
-});
-
-app.put('/api/admin/community_partners/reorder', async (req, res) => {
-  try {
-    const { items } = req.body;
-    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
-    await prisma.$transaction(
-      items.map(item => prisma.communityPartner.update({
-        where: { id: item.id },
-        data: { display_order: item.display_order }
-      }))
-    );
-    res.json({ success: true });
-  } catch (error) { res.status(500).json({ error: 'Failed to reorder partners' }); }
 });
 
 // MENTORS
@@ -988,6 +988,20 @@ app.post('/api/admin/mentored-startups', upload.single('logo'), compressImage, a
   } catch (error) { res.status(500).json({ error: 'Failed to create startup' }); }
 });
 
+app.put('/api/admin/mentored-startups/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+    await prisma.$transaction(
+      items.map(item => prisma.mentoredStartup.update({
+        where: { id: item.id },
+        data: { display_order: item.display_order }
+      }))
+    );
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to reorder startups' }); }
+});
+
 app.put('/api/admin/mentored-startups/:id', upload.single('logo'), compressImage, async (req, res) => {
   try {
     const data = { ...req.body };
@@ -1005,20 +1019,6 @@ app.delete('/api/admin/mentored-startups/:id', async (req, res) => {
     await prisma.mentoredStartup.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete startup' }); }
-});
-
-app.put('/api/admin/mentored-startups/reorder', async (req, res) => {
-  try {
-    const { items } = req.body;
-    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
-    await prisma.$transaction(
-      items.map(item => prisma.mentoredStartup.update({
-        where: { id: item.id },
-        data: { display_order: item.display_order }
-      }))
-    );
-    res.json({ success: true });
-  } catch (error) { res.status(500).json({ error: 'Failed to reorder startups' }); }
 });
 
 // ECOSYSTEM PARTNERS

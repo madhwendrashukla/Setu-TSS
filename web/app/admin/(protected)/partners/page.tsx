@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
+import { DraggableList } from "@/components/admin/DraggableList";
 
 function readFile(file: File): Promise<string> {
     return new Promise((resolve) => {
@@ -25,7 +26,9 @@ export default function AdminPartners() {
 
     const fetchPartners = () => {
         fetch(`${API}/api/admin/community_partners`, { headers: { "Authorization": `Bearer ${token()}` } })
-            .then(res => res.json()).then(data => setPartners(Array.isArray(data) ? data : [])).catch(console.error);
+            .then(res => res.json())
+            .then(data => setPartners(Array.isArray(data) ? data.sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0)) : []))
+            .catch(console.error);
     };
 
     useEffect(() => { fetchPartners(); }, []);
@@ -50,11 +53,6 @@ export default function AdminPartners() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const data = new FormData();
-        Object.entries(formData).forEach(([k, v]) => data.append(k, String(v)));
-        if (file) data.append("logo", file);
-        const url = editing ? `${API}/api/admin/community_partners/${editing.id}` : `${API}/api/admin/community_partners`;
-        const method = editing ? "PUT" : "POST";
         
         let logoUrl = editing?.logo_url || "";
         if (file) {
@@ -65,28 +63,14 @@ export default function AdminPartners() {
                 headers: { "Authorization": `Bearer ${token()}` },
                 body: uploadData
             }).then(r => r.json());
-            if (uploadRes.url) {
-                logoUrl = uploadRes.url;
-            }
+            if (uploadRes.url) logoUrl = uploadRes.url;
         }
 
-        const payload = {
-            name: formData.name,
-            website_url: formData.website_url,
-            display_order: formData.display_order,
-            is_active: formData.is_active,
-            logo_url: logoUrl
-        };
+        const payload = { name: formData.name, website_url: formData.website_url, display_order: formData.display_order, is_active: formData.is_active, logo_url: logoUrl };
+        const url = editing ? `${API}/api/admin/community_partners/${editing.id}` : `${API}/api/admin/community_partners`;
+        const method = editing ? "PUT" : "POST";
 
-        await fetch(url, { 
-            method, 
-            headers: { 
-                "Authorization": `Bearer ${token()}`,
-                "Content-Type": "application/json"
-            }, 
-            body: JSON.stringify(payload) 
-        });
-        
+        await fetch(url, { method, headers: { "Authorization": `Bearer ${token()}`, "Content-Type": "application/json" }, body: JSON.stringify(payload) });
         setIsModalOpen(false); resetForm(); fetchPartners();
     };
 
@@ -94,6 +78,16 @@ export default function AdminPartners() {
         if (!confirm("Delete this partner?")) return;
         await fetch(`${API}/api/admin/community_partners/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token()}` } });
         fetchPartners();
+    };
+
+    const handleReorder = async (newItems: any[]) => {
+        const reordered = newItems.map((item, index) => ({ ...item, display_order: index }));
+        setPartners(reordered);
+        await fetch(`${API}/api/admin/community_partners/reorder`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token()}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ items: reordered.map((p, i) => ({ id: p.id, display_order: i })) })
+        });
     };
 
     return (
@@ -109,6 +103,7 @@ export default function AdminPartners() {
                 <table className="w-full text-left">
                     <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm">
                         <tr>
+                            <th className="pl-4 py-3 font-normal w-8"></th>
                             <th className="p-4 font-normal">Logo</th>
                             <th className="p-4 font-normal">Partner Name</th>
                             <th className="p-4 font-normal">Website Link</th>
@@ -118,23 +113,29 @@ export default function AdminPartners() {
                     </thead>
                     <tbody>
                         {partners.length === 0 ? (
-                            <tr><td colSpan={5} className="p-8 text-center text-gray-500">No partners added yet</td></tr>
-                        ) : partners.map(p => (
-                            <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                <td className="p-4">
-                                    {p.logo_url && <img src={p.logo_url} alt={p.name} className="h-8 w-auto object-contain" />}
-                                </td>
-                                <td className="p-4 font-bold text-gray-900">{p.name}</td>
-                                <td className="p-4">
-                                    {p.website_url ? <a href={p.website_url} target="_blank" className="text-accent-blue hover:underline text-sm">{p.website_url}</a> : <span className="text-gray-500">—</span>}
-                                </td>
-                                <td className="p-4"><span className={`text-xs px-2 py-1 rounded ${p.is_active ? 'text-green-400 bg-green-400/10' : 'text-gray-400 bg-gray-50'}`}>{p.is_active ? 'Active' : 'Hidden'}</span></td>
-                                <td className="p-4 text-right flex gap-2 justify-end">
-                                    <button onClick={() => openEdit(p)} className="text-accent-blue hover:underline text-sm">Edit</button>
-                                    <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:underline text-sm">Delete</button>
-                                </td>
-                            </tr>
-                        ))}
+                            <tr><td colSpan={6} className="p-8 text-center text-gray-500">No partners added yet</td></tr>
+                        ) : (
+                            <DraggableList
+                                items={partners}
+                                onReorder={handleReorder}
+                                renderRow={(p) => (
+                                    <>
+                                        <td className="p-4">
+                                            {p.logo_url && <img src={p.logo_url} alt={p.name} className="h-8 w-auto object-contain" />}
+                                        </td>
+                                        <td className="p-4 font-bold text-gray-900">{p.name}</td>
+                                        <td className="p-4">
+                                            {p.website_url ? <a href={p.website_url} target="_blank" className="text-accent-blue hover:underline text-sm">{p.website_url}</a> : <span className="text-gray-500">—</span>}
+                                        </td>
+                                        <td className="p-4"><span className={`text-xs px-2 py-1 rounded ${p.is_active ? 'text-green-400 bg-green-400/10' : 'text-gray-400 bg-gray-50'}`}>{p.is_active ? 'Active' : 'Hidden'}</span></td>
+                                        <td className="p-4 text-right flex gap-2 justify-end">
+                                            <button onClick={() => openEdit(p)} className="text-accent-blue hover:underline text-sm">Edit</button>
+                                            <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:underline text-sm">Delete</button>
+                                        </td>
+                                    </>
+                                )}
+                            />
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -182,13 +183,8 @@ export default function AdminPartners() {
                 <ImageCropperModal
                     imageSrc={imageSrc}
                     aspect={1}
-                    onCropComplete={(croppedFile) => {
-                        setFile(croppedFile);
-                        setImageSrc(null);
-                    }}
-                    onCancel={() => {
-                        setImageSrc(null);
-                    }}
+                    onCropComplete={(croppedFile) => { setFile(croppedFile); setImageSrc(null); }}
+                    onCancel={() => { setImageSrc(null); }}
                 />
             )}
         </div>

@@ -24,20 +24,20 @@ export const StudentsFrom = ({ data, headings = {} }: { data?: any[], headings?:
                     
                     <div className="animate-marquee-slow flex whitespace-nowrap space-x-12 px-4 items-center">
                         {studentLogos.map((logo, index) => (
-                            <div key={`logo-1-${index}`} className="flex flex-col items-center justify-center shrink-0 w-48 h-32 bg-bg-surface border border-functional-border rounded-xl p-4">
+                            <div key={`logo-1-${index}`} className="flex flex-col items-center justify-center shrink-0 w-48 h-44 bg-bg-surface border border-functional-border rounded-xl p-4">
                                 {logo.logo_url && (
-                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain transition-all mb-3" />
+                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="w-20 h-20 rounded-full object-cover transition-all mb-3 shadow-sm border border-functional-border" />
                                 )}
-                                <span className="text-text-secondary font-bold text-sm text-center opacity-90">{logo.label || logo.name}</span>
+                                <span className="text-text-primary font-bold text-base text-center leading-tight">{logo.label || logo.name}</span>
                             </div>
                         ))}
                         {/* Duplicate for marquee */}
                         {studentLogos.map((logo, index) => (
-                            <div key={`logo-2-${index}`} className="flex flex-col items-center justify-center shrink-0 w-48 h-32 bg-bg-surface border border-functional-border rounded-xl p-4">
+                            <div key={`logo-2-${index}`} className="flex flex-col items-center justify-center shrink-0 w-48 h-44 bg-bg-surface border border-functional-border rounded-xl p-4">
                                 {logo.logo_url && (
-                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="max-h-12 max-w-full object-contain transition-all mb-3" />
+                                    <img src={encodeURI(logo.logo_url)} alt={logo.name} className="w-20 h-20 rounded-full object-cover transition-all mb-3 shadow-sm border border-functional-border" />
                                 )}
-                                <span className="text-text-secondary font-bold text-sm text-center opacity-90">{logo.label || logo.name}</span>
+                                <span className="text-text-primary font-bold text-base text-center leading-tight">{logo.label || logo.name}</span>
                             </div>
                         ))}
                     </div>

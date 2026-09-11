@@ -33,7 +33,7 @@ const SOCIAL_LINKS = [
     },
     {
         name: 'YouTube',
-        href: 'https://www.youtube.com/@The_Startup_School',
+        href: 'https://youtube.com/@setustartupschool?si=UPdcAl5qcCH9gzow',
         icon: 'fa-brands fa-youtube',
         color: 'hover:bg-[#FF0000] hover:border-[#FF0000]',
     },

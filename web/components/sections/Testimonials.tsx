@@ -51,10 +51,10 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
             {videoTestimonials.length > 0 && (
                 <div 
                     ref={videoRef}
-                    className="max-w-7xl mx-auto px-6 mb-16 flex items-stretch gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4"
+                    className="max-w-7xl mx-auto px-6 mb-16 grid grid-flow-col auto-cols-[85vw] md:auto-cols-[400px] items-stretch gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4"
                 >
                     {videoTestimonials.map(t => (
-                        <div key={t.id} className="w-[85vw] md:w-[400px] shrink-0 snap-start rounded-2xl overflow-hidden border border-functional-border bg-bg-surface flex flex-col h-full">
+                        <div key={t.id} className="snap-start rounded-2xl overflow-hidden border border-functional-border bg-bg-surface flex flex-col h-full">
                             <div className="relative w-full pt-[56.25%] shrink-0 bg-accent-blue hover:bg-accent-royal text-white">
                                 <iframe 
                                     src={t.youtube_url.includes('embed/') ? t.youtube_url : `https://www.youtube.com/embed/${t.youtube_url.split('v=')[1]?.split('&')[0] || t.youtube_url.split('youtu.be/')[1]}`} 
@@ -65,13 +65,15 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
                                 ></iframe>
                             </div>
                             {t.show_description && (
-                                <div className="p-4 flex flex-col grow">
-                                    {t.rating !== null && t.rating !== undefined && (
-                                        <div className="text-yellow-500 text-sm mb-2">{"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}</div>
-                                    )}
-                                    <h3 className="text-text-primary font-bold text-lg mb-1 leading-tight">{t.video_heading}</h3>
-                                    {t.name && <h4 className="text-text-secondary font-semibold text-sm mb-2">{t.name}</h4>}
-                                    <p className="text-text-secondary text-sm font-normal mt-auto">{t.video_description}</p>
+                                <div className="p-5 flex flex-col grow justify-between">
+                                    <div>
+                                        {t.rating !== null && t.rating !== undefined && (
+                                            <div className="text-yellow-500 text-sm mb-2">{"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}</div>
+                                        )}
+                                        <h3 className="text-text-primary font-bold text-lg mb-1 leading-tight">{t.video_heading}</h3>
+                                        {t.name && <h4 className="text-text-secondary font-semibold text-sm mb-2">{t.name}</h4>}
+                                    </div>
+                                    <p className="text-text-secondary text-sm font-normal mt-3">{t.video_description}</p>
                                 </div>
                             )}
                         </div>

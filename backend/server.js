@@ -709,6 +709,9 @@ app.post('/api/admin/testimonials', upload.single('photo'), compressImage, async
     } else {
       data.rating = parseInt(data.rating);
     }
+    if (data.is_active !== undefined) {
+      data.is_active = data.is_active === 'true' || data.is_active === true;
+    }
 
     if (data.type === 'video') {
       const activeVideos = await prisma.testimonial.count({ where: { type: 'video', is_active: true } });

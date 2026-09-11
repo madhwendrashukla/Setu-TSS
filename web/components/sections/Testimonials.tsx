@@ -40,7 +40,7 @@ export const Testimonials = ({ data, toggles = {}, headings = {} }: { data?: any
                     <h2 className="text-3xl font-bold text-text-primary tracking-tight mb-2" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'What <span style="color: #A855F7">Founders Say.</span>' }} />
                     <div className="text-text-secondary" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Real stories from our community members.' }} />
                 </div>
-                {videoTestimonials.length > 4 && (
+                {videoTestimonials.length > 1 && (
                     <div className="flex gap-3 shrink-0">
                         <button onClick={() => scrollVideo('left')} className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Previous testimonial videos">
                             <i className="fas fa-arrow-left text-text-primary text-lg"></i>

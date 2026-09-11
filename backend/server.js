@@ -373,7 +373,7 @@ app.get('/api/homepage', async (req, res) => {
     
     const isGibberish = (str) => str && (str.includes('jghgf') || str.includes('sdfgh') || str.includes('asdf') || str === 'jhg');
     const filteredTestimonials = testimonials.filter(t => 
-        !((t.youtube_url && (t.youtube_url.includes('dQw4w9WgXcQ') || t.youtube_url.includes('jNQXAC9IVRw'))) || 
+        !((t.youtube_url && (t.youtube_url.includes('dQw4w9WgXcQ'))) || 
           isGibberish(t.quote) || isGibberish(t.name) || isGibberish(t.video_heading))
     );
 
@@ -765,6 +765,20 @@ app.delete('/api/admin/testimonials/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to delete testimonial' }); }
 });
 
+app.put('/api/admin/testimonials/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+    await prisma.$transaction(
+      items.map(item => prisma.testimonial.update({
+        where: { id: item.id },
+        data: { display_order: item.display_order }
+      }))
+    );
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to reorder testimonials' }); }
+});
+
 // COMMUNITY PARTNERS
 app.post('/api/admin/community_partners', upload.single('logo'), compressImage, async (req, res) => {
   try {
@@ -974,6 +988,20 @@ app.delete('/api/admin/mentored-startups/:id', async (req, res) => {
     await prisma.mentoredStartup.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete startup' }); }
+});
+
+app.put('/api/admin/mentored-startups/reorder', async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+    await prisma.$transaction(
+      items.map(item => prisma.mentoredStartup.update({
+        where: { id: item.id },
+        data: { display_order: item.display_order }
+      }))
+    );
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ error: 'Failed to reorder startups' }); }
 });
 
 // ECOSYSTEM PARTNERS

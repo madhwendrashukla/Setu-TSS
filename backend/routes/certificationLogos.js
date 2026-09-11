@@ -54,6 +54,23 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// Reorder logos
+router.put('/reorder', authMiddleware, async (req, res) => {
+  try {
+    const { items } = req.body; // [{ id, display_order }]
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+    await prisma.$transaction(
+      items.map(item => prisma.certificationLogo.update({
+        where: { id: item.id },
+        data: { display_order: item.display_order }
+      }))
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to reorder logos' });
+  }
+});
+
 // Delete a logo
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { DraggableList } from "@/components/admin/DraggableList";
 
 export default function AdminTestimonials() {
     const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -106,6 +107,27 @@ export default function AdminTestimonials() {
         setIsModalOpen(true);
     };
 
+    const handleReorder = async (newItems: any[]) => {
+        const token = localStorage.getItem("adminToken");
+        const reordered = newItems.map((item, index) => ({ ...item, display_order: index }));
+        setTestimonials(prev => {
+            const otherType = prev.filter(t => t.type !== activeTab);
+            return [...otherType, ...reordered];
+        });
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/testimonials/reorder`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ items: reordered.map((t, i) => ({ id: t.id, display_order: i })) })
+        });
+    };
+
+    const filteredTestimonials = testimonials
+        .filter(t => t.type === activeTab)
+        .sort((a, b) => {
+            if (activeTab === 'text') return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+            return (a.display_order || 0) - (b.display_order || 0);
+        });
+
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
@@ -142,56 +164,53 @@ export default function AdminTestimonials() {
                 <table className="w-full text-left">
                     <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm">
                         <tr>
+                            <th className="pl-4 py-3 font-normal w-8"></th>
                             <th className="p-4 font-normal">Type</th>
                             <th className="p-4 font-normal">Details</th>
                             <th className="p-4 font-normal text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {testimonials.filter(t => t.type === activeTab).length === 0 ? (
-                            <tr><td colSpan={3} className="p-4 text-center text-gray-500">No testimonials found</td></tr>
+                        {filteredTestimonials.length === 0 ? (
+                            <tr><td colSpan={4} className="p-4 text-center text-gray-500">No testimonials found</td></tr>
                         ) : (
-                            testimonials
-                                .filter(t => t.type === activeTab)
-                                .sort((a, b) => {
-                                    if (activeTab === 'text') {
-                                        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-                                    }
-                                    return (a.display_order || 0) - (b.display_order || 0);
-                                })
-                                .map(t => (
-                                <tr key={t.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                    <td className="p-4 font-bold uppercase text-xs">
-                                        {t.type}
-                                        {t.type === 'video' && <div className="text-gray-400 font-normal mt-1">Order: {t.display_order}</div>}
-                                    </td>
-                                    <td className="p-4">
-                                        {t.type === 'text' ? (
-                                            <div>
-                                                <div className="font-bold">{t.name} <span className="text-gray-500 font-normal text-sm">({t.designation}{t.designation && t.city ? ', ' : ''}{t.city})</span></div>
-                                                {t.rating !== null && t.rating !== undefined && (
-                                                    <div className="text-yellow-500 text-xs mt-1">{"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}</div>
-                                                )}
-                                                <div className="text-sm text-gray-500 mt-1 truncate max-w-md">"{t.quote}"</div>
-                                                {t.event_tag && <div className="mt-1"><span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{t.event_tag}</span></div>}
-                                            </div>
-                                        ) : (
-                                            <div>
-                                                <div className="font-bold">{t.video_heading} {t.name && <span className="text-gray-500 font-normal text-sm">- {t.name}</span>}</div>
-                                                {t.rating !== null && t.rating !== undefined && (
-                                                    <div className="text-yellow-500 text-xs mt-1">{"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}</div>
-                                                )}
-                                                <div className="text-sm text-accent-blue mt-1 truncate max-w-md">{t.youtube_url}</div>
-                                                {t.event_tag && <div className="mt-1"><span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{t.event_tag}</span></div>}
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <button onClick={() => openEdit(t)} className="text-gray-500 hover:text-gray-900 mr-4">Edit</button>
-                                        <button onClick={() => handleDelete(t.id)} className="text-red-500 hover:text-red-400">Delete</button>
-                                    </td>
-                                </tr>
-                            ))
+                            <DraggableList
+                                items={filteredTestimonials}
+                                onReorder={handleReorder}
+                                renderRow={(t) => (
+                                    <>
+                                        <td className="p-4 font-bold uppercase text-xs">
+                                            {t.type}
+                                            {t.type === 'video' && <div className="text-gray-400 font-normal mt-1">Order: {t.display_order}</div>}
+                                        </td>
+                                        <td className="p-4">
+                                            {t.type === 'text' ? (
+                                                <div>
+                                                    <div className="font-bold">{t.name} <span className="text-gray-500 font-normal text-sm">({t.designation}{t.designation && t.city ? ', ' : ''}{t.city})</span></div>
+                                                    {t.rating !== null && t.rating !== undefined && (
+                                                        <div className="text-yellow-500 text-xs mt-1">{"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}</div>
+                                                    )}
+                                                    <div className="text-sm text-gray-500 mt-1 truncate max-w-md">"{t.quote}"</div>
+                                                    {t.event_tag && <div className="mt-1"><span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{t.event_tag}</span></div>}
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <div className="font-bold">{t.video_heading} {t.name && <span className="text-gray-500 font-normal text-sm">- {t.name}</span>}</div>
+                                                    {t.rating !== null && t.rating !== undefined && (
+                                                        <div className="text-yellow-500 text-xs mt-1">{"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}</div>
+                                                    )}
+                                                    <div className="text-sm text-accent-blue mt-1 truncate max-w-md">{t.youtube_url}</div>
+                                                    {t.event_tag && <div className="mt-1"><span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{t.event_tag}</span></div>}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            <button onClick={() => openEdit(t)} className="text-gray-500 hover:text-gray-900 mr-4">Edit</button>
+                                            <button onClick={() => handleDelete(t.id)} className="text-red-500 hover:text-red-400">Delete</button>
+                                        </td>
+                                    </>
+                                )}
+                            />
                         )}
                     </tbody>
                 </table>
@@ -261,7 +280,7 @@ export default function AdminTestimonials() {
                             )}
                             
                             <div className="flex gap-2 mt-4">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-gray-900 font-bold">Cancel</button>
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-white font-bold">Cancel</button>
                                 <button type="submit" className="flex-1 py-2 rounded bg-white text-black font-bold hover:bg-gray-200">Save</button>
                             </div>
                         </form>

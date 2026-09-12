@@ -37,8 +37,18 @@ async function getEvents() {
         const upcomingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?upcoming=true`, { cache: 'no-store' });
         const pastRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?past=true`, { cache: 'no-store' });
         
-        const upcoming = upcomingRes.ok ? await upcomingRes.json() : [];
-        const past = pastRes.ok ? await pastRes.json() : [];
+        let upcoming = upcomingRes.ok ? await upcomingRes.json() : [];
+        let past = pastRes.ok ? await pastRes.json() : [];
+        
+        // Sort past events latest to oldest (descending)
+        if (Array.isArray(past)) {
+            past.sort((a: any, b: any) => new Date(b.start_date || 0).getTime() - new Date(a.start_date || 0).getTime());
+        }
+
+        // Sort upcoming events closest to farthest (ascending)
+        if (Array.isArray(upcoming)) {
+            upcoming.sort((a: any, b: any) => new Date(a.start_date || 0).getTime() - new Date(b.start_date || 0).getTime());
+        }
         
         return { upcoming, past };
     } catch (e) {

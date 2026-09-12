@@ -14,12 +14,12 @@ function readFile(file: File): Promise<string> {
     });
 }
 
-function SortableGalleryItem({ item, onDelete, heightClass }: { item: any; onDelete: (id: string) => void; heightClass: string }) {
+function SortableGalleryItem({ item, onDelete, heightClass, onDoubleClick }: { item: any; onDelete: (id: string) => void; heightClass: string; onDoubleClick?: (id: string) => void }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
     const style = { transform: CSS.Transform.toString(transform), transition };
 
     return (
-        <div ref={setNodeRef} style={style} className={`relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col shrink-0 ${heightClass}`}>
+        <div ref={setNodeRef} style={style} onDoubleClick={() => onDoubleClick && onDoubleClick(item.id)} className={`relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col shrink-0 ${heightClass}`}>
             <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative overflow-hidden">
                 {item.type === 'image' ? (
                     <Image src={item.media_url} alt={item.caption ?? ''} fill className="object-cover pointer-events-none" unoptimized />
@@ -52,6 +52,19 @@ export default function AdminGallery() {
     
     // Cropper State
     const [imageSrc, setImageSrc] = useState<string | null>(null);
+    const [currentCropAspect, setCurrentCropAspect] = useState<number | undefined>(undefined);
+    const [editingItemId, setEditingItemId] = useState<string | null>(null);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const getAspectForIndex = (index: number) => {
+        const colPattern = Math.floor(index / 2) % 5;
+        const isBottom = index % 2 === 1;
+        if (colPattern === 0) return isBottom ? 16/11 : 16/19;
+        if (colPattern === 1) return isBottom ? 16/19 : 16/11;
+        if (colPattern === 2) return isBottom ? 2/1 : 8/11;
+        if (colPattern === 3) return isBottom ? 4/3 : 8/9;
+        return isBottom ? 8/9 : 4/3; // colPattern === 4
+    };
 
     const token = () => localStorage.getItem("adminToken");
     const API = process.env.NEXT_PUBLIC_API_URL;
@@ -138,9 +151,10 @@ export default function AdminGallery() {
 
     return (
         <div>
+            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-3xl font-bold">Gallery</h1>
-                <button onClick={() => setIsModalOpen(true)} className="bg-white text-black font-bold px-4 py-2 rounded shadow hover:bg-gray-200 transition">+ Add Item</button>
+                <button onClick={() => { setIsModalOpen(true); setEditingItemId(null); setCurrentCropAspect(getAspectForIndex(items.length)); }} className="bg-white text-black font-bold px-4 py-2 rounded shadow hover:bg-gray-200 transition">+ Add Item</button>
             </div>
             <p className="text-gray-500 text-sm mb-8">Limits: <span className="text-gray-900">20 images</span> · <span className="text-gray-900">10 videos</span> · <span className="text-gray-900">30 total</span> — Current: {images.length} images, {videos.length} videos</p>
 
@@ -165,8 +179,8 @@ export default function AdminGallery() {
 
                                 return (
                                     <div key={colIndex} className="flex flex-col gap-4 w-[240px] shrink-0">
-                                        {items[i] && <SortableGalleryItem key={items[i].id} item={items[i]} onDelete={handleDelete} heightClass={h1} />}
-                                        {items[j] && <SortableGalleryItem key={items[j].id} item={items[j]} onDelete={handleDelete} heightClass={h2} />}
+                                        {items[i] && <SortableGalleryItem key={items[i].id} item={items[i]} onDelete={handleDelete} heightClass={h1} onDoubleClick={() => { setCurrentCropAspect(getAspectForIndex(i)); setEditingItemId(items[i].id); fileInputRef.current?.click(); }} />}
+                                        {items[j] && <SortableGalleryItem key={items[j].id} item={items[j]} onDelete={handleDelete} heightClass={h2} onDoubleClick={() => { setCurrentCropAspect(getAspectForIndex(j)); setEditingItemId(items[j].id); fileInputRef.current?.click(); }} />}
                                     </div>
                                 );
                             })}
@@ -222,13 +236,30 @@ export default function AdminGallery() {
             {imageSrc && (
                 <ImageCropperModal
                     imageSrc={imageSrc}
-                    aspect={undefined}
-                    onCropComplete={(croppedFile) => {
+                    aspect={currentCropAspect}
+                    onCropComplete={async (croppedFile) => {
                         setFile(croppedFile);
                         setImageSrc(null);
+                        if (editingItemId) {
+                            setUploading(true);
+                            const data = new FormData();
+                            data.append('media', croppedFile);
+                            try {
+                                const res = await fetch(`${API}/api/admin/gallery/${editingItemId}`, { 
+                                    method: "PUT", 
+                                    headers: { "Authorization": `Bearer ${token()}` }, 
+                                    body: data 
+                                });
+                                if (res.ok) fetchItems();
+                                else alert('Failed to update image.');
+                            } catch(e) { console.error(e); }
+                            setUploading(false);
+                            setEditingItemId(null);
+                        }
                     }}
                     onCancel={() => {
                         setImageSrc(null);
+                        setEditingItemId(null);
                     }}
                 />
             )}

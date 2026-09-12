@@ -718,6 +718,30 @@ app.delete('/api/admin/gallery/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to delete gallery item' }); }
 });
 
+app.put('/api/admin/gallery/:id', upload.single('media'), compressImage, async (req, res) => {
+  try {
+    const { caption, media_url, type } = req.body;
+    let data = {};
+    if (caption !== undefined) data.caption = caption || null;
+    if (type) data.type = type;
+    
+    if (req.file) {
+      data.media_url = `/uploads/${req.file.filename}`;
+    } else if (media_url) {
+      data.media_url = media_url;
+    }
+    
+    const updated = await prisma.galleryItem.update({
+      where: { id: req.params.id },
+      data
+    });
+    res.json(updated);
+  } catch (error) { 
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update gallery item' }); 
+  }
+});
+
 app.put('/api/admin/gallery/reorder', async (req, res) => {
   const { items } = req.body;
   if (!Array.isArray(items)) return res.status(400).json({ error: 'Invalid items array' });

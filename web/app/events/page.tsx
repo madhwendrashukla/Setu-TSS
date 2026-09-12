@@ -136,32 +136,28 @@ export default async function EventsPage() {
                         ) : (
                             // No .glass-card on these cards: its unlayered white background beats bg-[#13113B] and made the white title invisible (same fix as the course cards, d076e0f)
                             upcoming.map((event: any) => (
-                                <div key={event.id} className="rounded-3xl p-8 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
-                                    {event.banner_url ? (
-                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845]">
-                                            <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain" />
+                                <div key={event.id} className="rounded-2xl p-6 border border-functional-border/20 bg-[#13113B] flex flex-col shadow-[0_4px_20px_rgba(0,0,0,0.15)] group hover-glow">
+                                    <h3 className="text-xl font-bold text-white mb-6 leading-tight group-hover:text-[#A855F7] transition duration-300 line-clamp-2" title={event.title}>{event.title}</h3>
+                                    <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mt-auto pt-4 border-t border-white/10">
+                                        <div className="space-y-1">
+                                            <div className="flex items-center text-gray-400 text-sm font-medium">
+                                                <i className="far fa-calendar text-gray-400 w-5"></i> {event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'}
+                                            </div>
+                                            <div className="flex items-center text-gray-400 text-sm font-medium">
+                                                <i className="fas fa-map-marker-alt text-gray-400 w-5"></i> {event.venue}
+                                            </div>
                                         </div>
-                                    ) : (
-                                        <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845] flex items-center justify-center">
-                                            <i className="fas fa-calendar-alt text-4xl text-white/20"></i>
-                                        </div>
-                                    )}
-                                    <h3 className="text-2xl font-bold text-white mb-4">{event.title}</h3>
-                                    <p className="text-gray-400 mb-6 flex-grow">{event.description}</p>
-                                    <div className="flex gap-4 text-sm text-gray-400 mb-6">
-                                        <span><i className="fas fa-map-marker-alt text-gray-400 w-4"></i> {event.venue}</span>
-                                        <span><i className="far fa-calendar text-gray-400 w-4"></i> {event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'}</span>
+                                        {(event.slug || event.registration_url) && (
+                                            <Link 
+                                                href={event.slug ? `/events/${event.slug}` : event.registration_url} 
+                                                target={event.slug ? "_self" : "_blank"} 
+                                                rel={event.slug ? "" : "noopener noreferrer"} 
+                                                className="w-full sm:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-white px-5 py-2 text-sm rounded-lg font-bold transition duration-300 text-center shrink-0"
+                                            >
+                                                {event.slug ? "View Details" : "Register"}
+                                            </Link>
+                                        )}
                                     </div>
-                                    {(event.slug || event.registration_url) && (
-                                        <Link 
-                                            href={event.slug ? `/events/${event.slug}` : event.registration_url} 
-                                            target={event.slug ? "_self" : "_blank"} 
-                                            rel={event.slug ? "" : "noopener noreferrer"} 
-                                            className="text-[#A855F7] font-bold uppercase text-sm hover:text-[#9333ea] transition-colors"
-                                        >
-                                            {event.slug ? "View Event Details \u2192" : "Register Now \u2192"}
-                                        </Link>
-                                    )}
                                 </div>
                             ))
                         )}
@@ -174,32 +170,20 @@ export default async function EventsPage() {
 
                     <div className="grid lg:grid-cols-2 gap-8">
                         {past.map((event: any) => (
-                            <div key={event.id} className="hover-glow rounded-3xl p-8 md:p-10 border border-functional-border/20 relative group h-full flex flex-col bg-[#13113B] shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
-                                {event.banner_url ? (
-                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845]">
-                                        <img src={encodeURI(event.banner_url)} alt={event.title} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
-                                    </div>
-                                ) : (
-                                    <div className="w-full aspect-video mb-8 rounded-2xl overflow-hidden relative shrink-0 bg-[#1a1845] flex items-center justify-center">
-                                        <i className="fas fa-calendar-alt text-4xl text-white/20 group-hover:scale-110 transition-transform duration-500"></i>
-                                    </div>
-                                )}
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="bg-white/10 border border-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                            <div key={event.id} className="hover-glow rounded-2xl p-6 border border-functional-border/20 relative group h-full flex flex-col bg-[#13113B] shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="bg-white/10 border border-white/20 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-widest">
                                         Concluded
                                     </div>
                                 </div>
-
-                                <h3 className="text-3xl font-bold text-white mb-4 tracking-[-0.02em] leading-tight group-hover:text-[#A855F7] transition duration-300">{event.title}</h3>
-                                <p className="text-gray-400 text-lg leading-relaxed mb-10 flex-grow">{event.description}</p>
-
-                                <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center mt-auto pt-8 border-t border-white/10">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center text-gray-400 font-medium tracking-wide">
-                                            <i className="far fa-calendar text-gray-400 w-6"></i> {event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'} (Past)
+                                <h3 className="text-xl font-bold text-white mb-6 leading-tight group-hover:text-[#A855F7] transition duration-300 line-clamp-2" title={event.title}>{event.title}</h3>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mt-auto pt-4 border-t border-white/10">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center text-gray-400 text-sm font-medium">
+                                            <i className="far fa-calendar text-gray-400 w-5"></i> {event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'}
                                         </div>
-                                        <div className="flex items-center text-gray-400 font-medium tracking-wide">
-                                            <i className="fas fa-map-marker-alt text-gray-400 w-6"></i> {event.venue}
+                                        <div className="flex items-center text-gray-400 text-sm font-medium">
+                                            <i className="fas fa-map-marker-alt text-gray-400 w-5"></i> {event.venue}
                                         </div>
                                     </div>
                                     {(event.slug || event.registration_url) && (
@@ -207,9 +191,9 @@ export default async function EventsPage() {
                                             href={event.slug ? `/events/${event.slug}` : event.registration_url} 
                                             target={event.slug ? "_self" : "_blank"} 
                                             rel={event.slug ? "" : "noopener noreferrer"} 
-                                            className="w-full sm:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-white px-8 py-3 rounded-full font-bold transition duration-300 text-center"
+                                            className="w-full sm:w-auto bg-[#A855F7] hover:bg-[#9333ea] text-white px-5 py-2 text-sm rounded-lg font-bold transition duration-300 text-center shrink-0"
                                         >
-                                            View Event Details
+                                            View Details
                                         </Link>
                                     )}
                                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatEventDateRange } from '@/lib/event-date';
@@ -9,6 +9,14 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
     const [events, setEvents] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'upcoming' | 'concluded'>('upcoming');
     const [loading, setLoading] = useState(true);
+
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const scrollEvents = (direction: 'left' | 'right') => {
+        if (scrollRef.current) {
+            const scrollAmount = window.innerWidth > 768 ? 400 + 24 : window.innerWidth * 0.85 + 24;
+            scrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+        }
+    };
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -27,8 +35,9 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
         fetchEvents();
     }, []);
 
-    const upcomingEvents = events.filter(e => !e.is_past);
-    const concludedEvents = events.filter(e => e.is_past);
+    // Sort latest to old
+    const upcomingEvents = events.filter(e => !e.is_past).sort((a,b) => new Date(b.start_date || 0).getTime() - new Date(a.start_date || 0).getTime());
+    const concludedEvents = events.filter(e => e.is_past).sort((a,b) => new Date(b.start_date || 0).getTime() - new Date(a.start_date || 0).getTime());
 
     const displayEvents = activeTab === 'upcoming' ? upcomingEvents : concludedEvents;
 
@@ -40,22 +49,34 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                     <div className="text-sm md:text-lg text-text-secondary font-medium max-w-2xl mb-8 leading-relaxed [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings.subtitle }} />
                 )}
                 
-                {/* Tabs */}
-                <div className="flex items-center justify-center md:justify-start gap-4 mb-8 border-b border-functional-border pb-4">
-                    <button 
-                        onClick={() => setActiveTab('upcoming')}
-                        className={`text-lg md:text-xl font-bold transition-colors pb-2 relative ${activeTab === 'upcoming' ? 'text-[#A855F7]' : 'text-text-secondary hover:text-text-primary'}`}
-                    >
-                        Upcoming
-                        {activeTab === 'upcoming' && <div className="absolute -bottom-[17px] left-0 w-full h-1 bg-[#A855F7] rounded-full"></div>}
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('concluded')}
-                        className={`text-lg md:text-xl font-bold transition-colors pb-2 relative ${activeTab === 'concluded' ? 'text-[#A855F7]' : 'text-text-secondary hover:text-text-primary'}`}
-                    >
-                        Concluded
-                        {activeTab === 'concluded' && <div className="absolute -bottom-[17px] left-0 w-full h-1 bg-[#A855F7] rounded-full"></div>}
-                    </button>
+                {/* Tabs & Navigation */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-functional-border pb-4">
+                    <div className="flex items-center justify-center md:justify-start gap-4">
+                        <button 
+                            onClick={() => { setActiveTab('upcoming'); if(scrollRef.current) scrollRef.current.scrollLeft = 0; }}
+                            className={`text-lg md:text-xl font-bold transition-colors pb-2 relative ${activeTab === 'upcoming' ? 'text-[#A855F7]' : 'text-text-secondary hover:text-text-primary'}`}
+                        >
+                            Upcoming
+                            {activeTab === 'upcoming' && <div className="absolute -bottom-[17px] left-0 w-full h-1 bg-[#A855F7] rounded-full"></div>}
+                        </button>
+                        <button 
+                            onClick={() => { setActiveTab('concluded'); if(scrollRef.current) scrollRef.current.scrollLeft = 0; }}
+                            className={`text-lg md:text-xl font-bold transition-colors pb-2 relative ${activeTab === 'concluded' ? 'text-[#A855F7]' : 'text-text-secondary hover:text-text-primary'}`}
+                        >
+                            Concluded
+                            {activeTab === 'concluded' && <div className="absolute -bottom-[17px] left-0 w-full h-1 bg-[#A855F7] rounded-full"></div>}
+                        </button>
+                    </div>
+                    {displayEvents.length > 1 && (
+                        <div className="flex gap-3 shrink-0 justify-center">
+                            <button onClick={() => scrollEvents('left')} className="w-10 h-10 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Previous events">
+                                <i className="fas fa-arrow-left text-text-primary text-sm"></i>
+                            </button>
+                            <button onClick={() => scrollEvents('right')} className="w-10 h-10 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Next events">
+                                <i className="fas fa-arrow-right text-text-primary text-sm"></i>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
             
@@ -71,7 +92,10 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                         </span>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div 
+                        ref={scrollRef}
+                        className="grid grid-flow-col auto-cols-[85vw] md:auto-cols-[400px] items-stretch gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4"
+                    >
                         {displayEvents.map((event) => {
                             // This card shows the date only — no time. (fullDateStr was
                             // computed here and never rendered, even before the helper.)
@@ -120,11 +144,11 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                             const targetAttr = event.slug ? "_self" : "_blank";
 
                             return activeTab === 'upcoming' ? (
-                                <Link key={event.id} href={targetUrl} target={targetAttr} rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} className="block h-full">
+                                <Link key={event.id} href={targetUrl} target={targetAttr} rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} className="block h-full snap-start">
                                     {CardContent}
                                 </Link>
                             ) : (
-                                <div key={event.id} className="block h-full cursor-default">
+                                <div key={event.id} className="block h-full cursor-default snap-start">
                                     {CardContent}
                                 </div>
                             );

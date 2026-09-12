@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -54,7 +54,7 @@ export default function AdminGallery() {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [currentCropAspect, setCurrentCropAspect] = useState<number | undefined>(undefined);
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const getAspectForIndex = (index: number) => {
         const colPattern = Math.floor(index / 2) % 5;

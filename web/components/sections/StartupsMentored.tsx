@@ -4,7 +4,7 @@ export function StartupsMentored({ data = [], headings = {} }: { data?: any[], h
     const startups = data || [];
     if (startups.length === 0) return null;
 
-    const shouldRoll = startups.length > 5;
+    const shouldRoll = true;
 
     return (
         <section className="card-section py-16 md:py-24">
@@ -22,31 +22,32 @@ export function StartupsMentored({ data = [], headings = {} }: { data?: any[], h
                     </>
                 )}
                 
-                <div className={`flex ${shouldRoll ? 'animate-[marquee_30s_linear_infinite] whitespace-nowrap gap-6 md:gap-12 hover:[animation-play-state:paused] w-max' : 'flex-wrap justify-center gap-6 md:gap-10 max-w-6xl mx-auto px-6'}`}>
+                <div className={`flex ${shouldRoll ? 'animate-scroll-left whitespace-nowrap hover:[animation-play-state:paused] w-max' : 'flex-wrap justify-center gap-6 md:gap-10 max-w-6xl mx-auto px-6'}`}>
                     
-                    {(shouldRoll ? [...startups, ...startups, ...startups] : startups).map((startup, index) => {
+                    {(shouldRoll ? [...startups, ...startups, ...startups, ...startups] : startups).map((startup, index) => {
                         const CardWrapper = startup.website_url ? 'a' : 'div';
                         return (
-                            <CardWrapper 
-                                key={`${startup.id}-${index}`} 
-                                href={startup.website_url || undefined}
-                                target={startup.website_url ? "_blank" : undefined}
-                                rel={startup.website_url ? "noopener noreferrer" : undefined}
-                                className={`flex-shrink-0 flex flex-col items-center justify-center w-48 h-32 md:w-64 md:h-40 bg-bg-surface border border-functional-border rounded-2xl hover:bg-white/10 hover:shadow-[0_8px_40px_rgba(168,85,247,0.1)] transition duration-300 group p-4 ${startup.website_url ? 'cursor-pointer hover:-translate-y-1' : ''}`}
-                            >
-                                {startup.logo_url && (
-                                    <img 
-                                        src={encodeURI(startup.logo_url)} 
-                                        alt={startup.name} 
-                                        className="max-w-full max-h-[60%] object-contain transition duration-300 mb-2"
-                                    />
-                                )}
-                                {startup.name && (
-                                    <span className="text-sm font-bold text-text-secondary group-hover:text-text-primary transition duration-300 text-center line-clamp-2">
-                                        {startup.name}
-                                    </span>
-                                )}
-                            </CardWrapper>
+                            <div key={`${startup.id}-${index}`} className={shouldRoll ? 'mx-3 md:mx-6' : ''}>
+                                <CardWrapper 
+                                    href={startup.website_url || undefined}
+                                    target={startup.website_url ? "_blank" : undefined}
+                                    rel={startup.website_url ? "noopener noreferrer" : undefined}
+                                    className={`flex-shrink-0 flex flex-col items-center justify-center w-48 h-32 md:w-64 md:h-40 bg-bg-surface border border-functional-border rounded-2xl hover:bg-white/10 hover:shadow-[0_8px_40px_rgba(168,85,247,0.1)] transition duration-300 group p-4 ${startup.website_url ? 'cursor-pointer hover:-translate-y-1' : ''}`}
+                                >
+                                    {startup.logo_url && (
+                                        <img 
+                                            src={encodeURI(startup.logo_url)} 
+                                            alt={startup.name} 
+                                            className="max-w-full max-h-[60%] object-contain transition duration-300 mb-2"
+                                        />
+                                    )}
+                                    {startup.name && (
+                                        <span className="text-sm font-bold text-text-secondary group-hover:text-text-primary transition duration-300 text-center line-clamp-2">
+                                            {startup.name}
+                                        </span>
+                                    )}
+                                </CardWrapper>
+                            </div>
                         );
                     })}
                 </div>

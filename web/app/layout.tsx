@@ -71,7 +71,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <head>
+      <head suppressHydrationWarning>
         {/* Google Tag Manager */}
         <Script id="google-tag-manager" strategy="afterInteractive">
           {`
@@ -90,6 +90,7 @@ export default function RootLayout({
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
+          suppressHydrationWarning
         />
       </head>
       <body

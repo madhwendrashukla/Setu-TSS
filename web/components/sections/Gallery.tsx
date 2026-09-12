@@ -142,35 +142,25 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                     className="flex gap-4 md:gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar px-4 sm:px-6"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    {/* Column 1: Tall then Short */}
-                    <div className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
-                        {renderImage(validData[0] || { media_url: GALLERY_PHOTOS[0] }, "h-[380px]")}
-                        {renderImage(validData[1] || { media_url: GALLERY_PHOTOS[1] }, "h-[220px]")}
-                    </div>
+                    {validData.length > 0 && Array.from({ length: Math.ceil(validData.length / 2) }).map((_, colIndex) => {
+                        const i = colIndex * 2;
+                        const j = i + 1;
+                        const colPattern = colIndex % 5;
+                        
+                        let h1, h2;
+                        if (colPattern === 0) { h1 = "h-[380px]"; h2 = "h-[220px]"; }
+                        else if (colPattern === 1) { h1 = "h-[220px]"; h2 = "h-[380px]"; }
+                        else if (colPattern === 2) { h1 = "h-[440px]"; h2 = "h-[160px]"; }
+                        else if (colPattern === 3) { h1 = "h-[360px]"; h2 = "h-[240px]"; }
+                        else { h1 = "h-[240px]"; h2 = "h-[360px]"; }
 
-                    {/* Column 2: Short then Tall */}
-                    <div className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
-                        {renderImage(validData[2] || { media_url: GALLERY_PHOTOS[2] }, "h-[220px]")}
-                        {renderImage(validData[3] || { media_url: GALLERY_PHOTOS[3] }, "h-[380px]")}
-                    </div>
-
-                    {/* Column 3: Very Tall then Short */}
-                    <div className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
-                        {renderImage(validData[4] || { media_url: GALLERY_PHOTOS[4] }, "h-[440px]")}
-                        {renderImage(validData[5] || { media_url: GALLERY_PHOTOS[5] }, "h-[160px]")}
-                    </div>
-
-                    {/* Column 4: Tall then Short */}
-                    <div className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
-                        {renderImage(validData[6] || { media_url: GALLERY_PHOTOS[6] }, "h-[360px]")}
-                        {renderImage(validData[7] || { media_url: GALLERY_PHOTOS[0] }, "h-[240px]")}
-                    </div>
-                    
-                    {/* Column 5: Short then Tall (Extra for scrolling) */}
-                    <div className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
-                        {renderImage(validData[8] || { media_url: GALLERY_PHOTOS[1] }, "h-[240px]")}
-                        {renderImage(validData[9] || { media_url: GALLERY_PHOTOS[2] }, "h-[360px]")}
-                    </div>
+                        return (
+                            <div key={colIndex} className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
+                                {validData[i] && renderImage(validData[i], h1)}
+                                {validData[j] && renderImage(validData[j], h2)}
+                            </div>
+                        );
+                    })}
 
                     {/* Trailing spacer for right-edge padding on mobile */}
                     <div className="w-6 shrink-0" aria-hidden="true" />

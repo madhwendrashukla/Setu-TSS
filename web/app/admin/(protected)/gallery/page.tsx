@@ -14,17 +14,17 @@ function readFile(file: File): Promise<string> {
     });
 }
 
-function SortableGalleryItem({ item, onDelete }: { item: any; onDelete: (id: string) => void }) {
+function SortableGalleryItem({ item, onDelete, heightClass }: { item: any; onDelete: (id: string) => void; heightClass: string }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
     const style = { transform: CSS.Transform.toString(transform), transition };
 
     return (
-        <div ref={setNodeRef} style={style} className="relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col h-full">
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative">
+        <div ref={setNodeRef} style={style} className={`relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col shrink-0 ${heightClass}`}>
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative overflow-hidden">
                 {item.type === 'image' ? (
-                    <Image src={item.media_url} alt={item.caption ?? ''} width={300} height={200} className="w-full h-40 object-cover pointer-events-none" unoptimized />
+                    <Image src={item.media_url} alt={item.caption ?? ''} fill className="object-cover pointer-events-none" unoptimized />
                 ) : (
-                    <div className="w-full h-40 bg-black relative">
+                    <div className="w-full h-full bg-black relative">
                         <iframe src={item.media_url} className="w-full h-full pointer-events-none" frameBorder="0" allowFullScreen></iframe>
                         {/* Overlay to intercept drag events instead of the iframe */}
                         <div className="absolute inset-0 cursor-grab active:cursor-grabbing"></div>
@@ -149,10 +149,27 @@ export default function AdminGallery() {
             ) : (
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {items.map(item => (
-                                <SortableGalleryItem key={item.id} item={item} onDelete={handleDelete} />
-                            ))}
+                        <div className="flex gap-4 overflow-x-auto pb-6 custom-scrollbar px-2 pt-2">
+                            {items.length > 0 && Array.from({ length: Math.ceil(items.length / 2) }).map((_, colIndex) => {
+                                const i = colIndex * 2;
+                                const j = i + 1;
+                                const colPattern = colIndex % 5;
+                                
+                                let h1, h2;
+                                // Admin panel heights are 50% scale of frontend
+                                if (colPattern === 0) { h1 = "h-[190px]"; h2 = "h-[110px]"; }
+                                else if (colPattern === 1) { h1 = "h-[110px]"; h2 = "h-[190px]"; }
+                                else if (colPattern === 2) { h1 = "h-[220px]"; h2 = "h-[80px]"; }
+                                else if (colPattern === 3) { h1 = "h-[180px]"; h2 = "h-[120px]"; }
+                                else { h1 = "h-[120px]"; h2 = "h-[180px]"; }
+
+                                return (
+                                    <div key={colIndex} className="flex flex-col gap-4 w-[240px] shrink-0">
+                                        {items[i] && <SortableGalleryItem key={items[i].id} item={items[i]} onDelete={handleDelete} heightClass={h1} />}
+                                        {items[j] && <SortableGalleryItem key={items[j].id} item={items[j]} onDelete={handleDelete} heightClass={h2} />}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </SortableContext>
                 </DndContext>

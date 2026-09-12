@@ -45,6 +45,7 @@ model Event {
   is_past     Boolean  @default(false)
   is_pinned   Boolean  @default(false)
   is_active   Boolean  @default(true)
+  display_order Int    @default(0)
   slug        String?  @unique
   page_blocks Json     @default("[]")
   // Link to an LMS course (Unified Events). Present = this event is the

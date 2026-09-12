@@ -272,11 +272,34 @@ app.get('/api/events', async (req, res) => {
     // Public callers keep the lean projection.
     const events = await prisma.event.findMany({
       where: whereClause,
-      orderBy: { start_date: 'asc' },
+      orderBy: [
+        { display_order: 'asc' },
+        { start_date: 'desc' }
+      ],
       ...(isAdminList ? {} : { select: eventListSelection })
     });
     res.json(events);
   } catch (error) { res.status(500).json({ error: 'Failed to fetch events' }); }
+});
+
+app.put('/api/admin/events/reorder', async (req, res) => {
+  if (!hasValidAdminToken(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const { items } = req.body;
+  if (!Array.isArray(items)) return res.status(400).json({ error: 'Invalid items array' });
+  try {
+    await prisma.$transaction(
+      items.map(item => 
+        prisma.event.update({
+          where: { id: item.id },
+          data: { display_order: item.display_order }
+        })
+      )
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Failed to reorder events:", error);
+    res.status(500).json({ error: 'Failed to reorder events' });
+  }
 });
 
 app.get('/api/events/slug/:slug', async (req, res) => {
@@ -693,6 +716,25 @@ app.delete('/api/admin/gallery/:id', async (req, res) => {
     await prisma.galleryItem.delete({ where: { id: req.params.id } });
     res.json({ success: true });
   } catch (error) { res.status(500).json({ error: 'Failed to delete gallery item' }); }
+});
+
+app.put('/api/admin/gallery/reorder', async (req, res) => {
+  const { items } = req.body;
+  if (!Array.isArray(items)) return res.status(400).json({ error: 'Invalid items array' });
+  try {
+    await prisma.$transaction(
+      items.map(item => 
+        prisma.galleryItem.update({
+          where: { id: item.id },
+          data: { display_order: item.display_order }
+        })
+      )
+    );
+    res.json({ success: true });
+  } catch (error) { 
+    console.error("Failed to reorder gallery items:", error);
+    res.status(500).json({ error: 'Failed to reorder gallery items' }); 
+  }
 });
 
 // TESTIMONIALS

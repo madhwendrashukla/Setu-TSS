@@ -2,6 +2,9 @@
 import { useState, useEffect, useCallback } from "react";
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from "@/utils/cropImage";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 function readFile(file: File): Promise<string> {
     return new Promise((resolve) => {
@@ -9,6 +12,77 @@ function readFile(file: File): Promise<string> {
         reader.addEventListener('load', () => resolve(reader.result as string), false);
         reader.readAsDataURL(file);
     });
+}
+
+function SortableEventRow({ event, toggleStatus, toggleVisibility, togglePin, openEdit, handleDelete }: any) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: event.id });
+    const style = { transform: CSS.Transform.toString(transform), transition };
+
+    return (
+        <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 transition-colors group bg-white">
+            <td className="p-5 w-10 text-center align-middle">
+                <i className="fas fa-grip-vertical text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing px-2 py-4" {...attributes} {...listeners}></i>
+            </td>
+            <td className="p-5">
+                <div className="flex flex-col">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-bold text-gray-900">{event.title}</h3>
+                        {event.lms_course_slug && <span className="text-[9px] font-bold uppercase tracking-wider bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full border border-purple-200" title={`Linked to LMS course: ${event.lms_course_slug}`}>LMS</span>}
+                        {event.is_active === false && <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full border border-amber-200" title="Not visible on the public events page yet">Hidden</span>}
+                    </div>
+                    {event.slug && <span className="text-xs text-purple-600 mt-1">Slug: {event.slug}</span>}
+                    {event.registration_url && <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent-blue mt-1 hover:underline">{event.registration_url}</a>}
+                </div>
+            </td>
+            <td className="p-5">
+                <div className="text-gray-700 font-medium flex items-center gap-2 mb-1">
+                    <i className="fas fa-clock text-xs text-gray-400"></i>
+                    {new Date(event.start_date).toLocaleDateString()}
+                </div>
+                <div className="text-gray-500 text-xs flex items-center gap-2">
+                    <i className="fas fa-map-marker-alt text-xs"></i>
+                    {event.venue}
+                </div>
+            </td>
+            <td className="p-5 text-center">
+                <button onClick={() => toggleStatus(event)} className="transition-transform hover:scale-105 active:scale-95 outline-none focus:outline-none" title={`Mark as ${event.is_past ? 'Upcoming' : 'Past'}`}>
+                    {event.is_past ? 
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-200 hover:text-gray-700 transition-colors cursor-pointer">Past</span> : 
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-green-50 text-green-600 px-3 py-1 rounded-full border border-green-200 hover:bg-green-100 hover:text-green-700 transition-colors cursor-pointer">Upcoming</span>
+                    }
+                </button>
+            </td>
+            <td className="p-5 text-center">
+                <button onClick={() => toggleVisibility(event)} className="transition-transform hover:scale-110 active:scale-95 outline-none focus:outline-none" title={event.is_active === false ? "Hidden — click to show on the site" : "Visible — click to hide"}>
+                    {event.is_active === false ?
+                        <span className="text-gray-300 hover:text-gray-500 text-lg transition-colors"><i className="fas fa-eye-slash"></i></span> :
+                        <span className="text-emerald-600 text-lg"><i className="fas fa-eye"></i></span>
+                    }
+                </button>
+            </td>
+            <td className="p-5 text-center">
+                <button onClick={() => togglePin(event)} className="transition-transform hover:scale-110 active:scale-95 outline-none focus:outline-none">
+                    {event.is_pinned ? 
+                        <span className="text-accent-blue text-lg" title="Unpin from Homepage"><i className="fas fa-star"></i></span> : 
+                        <span className="text-gray-300 hover:text-gray-500 text-lg transition-colors" title="Pin to Homepage"><i className="far fa-star"></i></span>
+                    }
+                </button>
+            </td>
+            <td className="p-5 text-right">
+                <div className="flex justify-end gap-2">
+                    <a href={`/admin/events/${event.id}/builder`} className="w-auto px-3 h-8 rounded-lg bg-accent-blue/10 text-accent-blue hover:bg-accent-blue hover:text-white transition-all flex items-center justify-center text-xs font-bold gap-1">
+                        <i className="fas fa-hammer"></i> Builder
+                    </a>
+                    <button onClick={() => openEdit(event)} className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-all flex items-center justify-center">
+                        <i className="fas fa-edit text-sm"></i>
+                    </button>
+                    <button onClick={() => handleDelete(event.id)} className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-text-primary transition-all flex items-center justify-center">
+                        <i className="fas fa-trash-alt text-sm"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    );
 }
 
 export default function AdminEvents() {
@@ -150,6 +224,40 @@ export default function AdminEvents() {
         }
     };
 
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
+
+    const handleDragEnd = async (dragEvent: DragEndEvent) => {
+        const { active, over } = dragEvent;
+        if (over && active.id !== over.id) {
+            setEvents((items) => {
+                const oldIndex = items.findIndex(item => item.id === active.id);
+                const newIndex = items.findIndex(item => item.id === over.id);
+                const newItems = arrayMove(items, oldIndex, newIndex);
+                
+                // Update display_order
+                const reorderedItems = newItems.map((item, index) => ({
+                    ...item,
+                    display_order: index
+                }));
+
+                const token = localStorage.getItem("adminToken");
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/reorder`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ items: reorderedItems.map(i => ({ id: i.id, display_order: i.display_order })) })
+                }).catch(console.error);
+
+                return reorderedItems;
+            });
+        }
+    };
+
     const resetForm = () => {
         setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: "" });
         setFile(null);
@@ -213,114 +321,41 @@ export default function AdminEvents() {
 
             <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
-                            <tr>
-                                <th className="p-5 font-bold">Event Details</th>
-                                <th className="p-5 font-bold">Date & Location</th>
-                                <th className="p-5 font-bold text-center">Status</th>
-                                <th className="p-5 font-bold text-center">Visible</th>
-                                <th className="p-5 font-bold text-center">Pinned</th>
-                                <th className="p-5 font-bold text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {events.length === 0 ? (
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <table className="w-full text-left border-collapse">
+                            <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
                                 <tr>
-                                    <td colSpan={5} className="p-10 text-center text-gray-400">
-                                        <div className="flex flex-col items-center justify-center gap-3">
-                                            <i className="fas fa-calendar-times text-4xl mb-2 opacity-50"></i>
-                                            <p>No events scheduled. Create one above.</p>
-                                        </div>
-                                    </td>
+                                    <th className="w-10 p-5"></th>
+                                    <th className="p-5 font-bold">Event Details</th>
+                                    <th className="p-5 font-bold">Date & Location</th>
+                                    <th className="p-5 font-bold text-center">Status</th>
+                                    <th className="p-5 font-bold text-center">Visible</th>
+                                    <th className="p-5 font-bold text-center">Pinned</th>
+                                    <th className="p-5 font-bold text-right">Actions</th>
                                 </tr>
-                            ) : (
-                                events.map(event => (
-                                <tr key={event.id} className="hover:bg-gray-50 transition-colors group">
-                                    <td className="p-5">
-                                        <div className="flex flex-col">
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <h3 className="font-bold text-gray-900">{event.title}</h3>
-                                                {event.lms_course_slug && <span className="text-[9px] font-bold uppercase tracking-wider bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full border border-purple-200" title={`Linked to LMS course: ${event.lms_course_slug}`}>LMS</span>}
-                                                {event.is_active === false && <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full border border-amber-200" title="Not visible on the public events page yet">Hidden</span>}
-                                            </div>
-                                            {event.slug && <span className="text-xs text-purple-600 mt-1">Slug: {event.slug}</span>}
-                                            {event.registration_url && <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent-blue mt-1 hover:underline">{event.registration_url}</a>}
-                                        </div>
-                                    </td>
-                                    <td className="p-5">
-                                        <div className="text-gray-700 font-medium flex items-center gap-2 mb-1">
-                                            <i className="fas fa-clock text-xs text-gray-400"></i>
-                                            {new Date(event.start_date).toLocaleDateString()}
-                                        </div>
-                                        <div className="text-gray-500 text-xs flex items-center gap-2">
-                                            <i className="fas fa-map-marker-alt text-xs"></i>
-                                            {event.venue}
-                                        </div>
-                                    </td>
-                                        <td className="p-5 text-center">
-                                            <button 
-                                                onClick={() => toggleStatus(event)}
-                                                className="transition-transform hover:scale-105 active:scale-95 outline-none focus:outline-none"
-                                                title={`Mark as ${event.is_past ? 'Upcoming' : 'Past'}`}
-                                            >
-                                                {event.is_past ? 
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-3 py-1 rounded-full border border-gray-200 hover:bg-gray-200 hover:text-gray-700 transition-colors cursor-pointer">Past</span> : 
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider bg-green-50 text-green-600 px-3 py-1 rounded-full border border-green-200 hover:bg-green-100 hover:text-green-700 transition-colors cursor-pointer">Upcoming</span>
-                                                }
-                                            </button>
-                                        </td>
-                                        <td className="p-5 text-center">
-                                            <button
-                                                onClick={() => toggleVisibility(event)}
-                                                className="transition-transform hover:scale-110 active:scale-95 outline-none focus:outline-none"
-                                                title={event.is_active === false ? "Hidden — click to show on the site" : "Visible — click to hide"}
-                                            >
-                                                {event.is_active === false ?
-                                                    <span className="text-gray-300 hover:text-gray-500 text-lg transition-colors"><i className="fas fa-eye-slash"></i></span> :
-                                                    <span className="text-emerald-600 text-lg"><i className="fas fa-eye"></i></span>
-                                                }
-                                            </button>
-                                        </td>
-                                        <td className="p-5 text-center">
-                                            <button 
-                                                onClick={() => togglePin(event)}
-                                                className="transition-transform hover:scale-110 active:scale-95 outline-none focus:outline-none"
-                                            >
-                                                {event.is_pinned ? 
-                                                    <span className="text-accent-blue text-lg" title="Unpin from Homepage"><i className="fas fa-star"></i></span> : 
-                                                    <span className="text-gray-300 hover:text-gray-500 text-lg transition-colors" title="Pin to Homepage"><i className="far fa-star"></i></span>
-                                                }
-                                            </button>
-                                        </td>
-                                        <td className="p-5 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <a 
-                                                    href={`/admin/events/${event.id}/builder`}
-                                                    className="w-auto px-3 h-8 rounded-lg bg-accent-blue/10 text-accent-blue hover:bg-accent-blue hover:text-white transition-all flex items-center justify-center text-xs font-bold gap-1"
-                                                >
-                                                    <i className="fas fa-hammer"></i> Builder
-                                                </a>
-                                                <button 
-                                                    onClick={() => openEdit(event)} 
-                                                    className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-all flex items-center justify-center"
-                                                >
-                                                    <i className="fas fa-edit text-sm"></i>
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleDelete(event.id)} 
-                                                    className="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-text-primary transition-all flex items-center justify-center"
-                                                >
-                                                    <i className="fas fa-trash-alt text-sm"></i>
-                                                </button>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 relative">
+                                {events.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} className="p-10 text-center text-gray-400">
+                                            <div className="flex flex-col items-center justify-center gap-3">
+                                                <i className="fas fa-calendar-times text-4xl mb-2 opacity-50"></i>
+                                                <p>No events scheduled. Create one above.</p>
                                             </div>
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : (
+                                    <SortableContext items={events.map(e => e.id)} strategy={verticalListSortingStrategy}>
+                                        {events.map(event => (
+                                            <SortableEventRow key={event.id} event={event} toggleStatus={toggleStatus} toggleVisibility={toggleVisibility} togglePin={togglePin} openEdit={openEdit} handleDelete={handleDelete} />
+                                        ))}
+                                    </SortableContext>
+                                )}
+                            </tbody>
+                        </table>
+                    </DndContext>
                 </div>
+            </div>
             </div>
 
             {/* Modal */}

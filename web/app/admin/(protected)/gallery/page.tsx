@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 function readFile(file: File): Promise<string> {
     return new Promise((resolve) => {
@@ -9,6 +12,35 @@ function readFile(file: File): Promise<string> {
         reader.addEventListener('load', () => resolve(reader.result as string), false);
         reader.readAsDataURL(file);
     });
+}
+
+function SortableGalleryItem({ item, onDelete }: { item: any; onDelete: (id: string) => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
+    const style = { transform: CSS.Transform.toString(transform), transition };
+
+    return (
+        <div ref={setNodeRef} style={style} className="relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col h-full">
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative">
+                {item.type === 'image' ? (
+                    <Image src={item.media_url} alt={item.caption ?? ''} width={300} height={200} className="w-full h-40 object-cover pointer-events-none" unoptimized />
+                ) : (
+                    <div className="w-full h-40 bg-black relative">
+                        <iframe src={item.media_url} className="w-full h-full pointer-events-none" frameBorder="0" allowFullScreen></iframe>
+                        {/* Overlay to intercept drag events instead of the iframe */}
+                        <div className="absolute inset-0 cursor-grab active:cursor-grabbing"></div>
+                    </div>
+                )}
+            </div>
+            <div className="p-2 border-t border-gray-100 flex justify-between items-center bg-gray-50 h-9 shrink-0">
+                <p className="text-xs text-gray-500 truncate" title={item.caption ?? item.type}>{item.caption ?? item.type}</p>
+                <i className="fas fa-grip-vertical text-gray-400 cursor-grab px-1" {...attributes} {...listeners}></i>
+            </div>
+            <button onPointerDown={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition z-10 shadow-sm cursor-pointer hover:bg-red-700">
+                Remove
+            </button>
+        </div>
+    );
 }
 
 export default function AdminGallery() {
@@ -26,7 +58,11 @@ export default function AdminGallery() {
 
     const fetchItems = () => {
         fetch(`${API}/api/gallery`, { headers: { "Authorization": `Bearer ${token()}` } })
-            .then(res => res.json()).then(data => setItems(Array.isArray(data) ? data : [])).catch(console.error);
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setItems(data.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)));
+                else setItems([]);
+            }).catch(console.error);
     };
 
     useEffect(() => { fetchItems(); }, []);
@@ -63,6 +99,40 @@ export default function AdminGallery() {
         fetchItems();
     };
 
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            setItems((items) => {
+                const oldIndex = items.findIndex(item => item.id === active.id);
+                const newIndex = items.findIndex(item => item.id === over.id);
+                const newItems = arrayMove(items, oldIndex, newIndex);
+                
+                // Update display_order based on new array order
+                const reorderedItems = newItems.map((item, index) => ({
+                    ...item,
+                    display_order: index
+                }));
+
+                // Save to backend
+                fetch(`${API}/api/admin/gallery/reorder`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token()}` 
+                    },
+                    body: JSON.stringify({ items: reorderedItems.map(i => ({ id: i.id, display_order: i.display_order })) })
+                }).catch(console.error);
+
+                return reorderedItems;
+            });
+        }
+    };
+
     const images = items.filter(i => i.type === 'image');
     const videos = items.filter(i => i.type === 'video');
 
@@ -70,33 +140,22 @@ export default function AdminGallery() {
         <div>
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-3xl font-bold">Gallery</h1>
-                <button onClick={() => setIsModalOpen(true)} className="bg-white text-black font-bold px-4 py-2 rounded hover:bg-gray-200">+ Add Item</button>
+                <button onClick={() => setIsModalOpen(true)} className="bg-white text-black font-bold px-4 py-2 rounded shadow hover:bg-gray-200 transition">+ Add Item</button>
             </div>
             <p className="text-gray-500 text-sm mb-8">Limits: <span className="text-gray-900">20 images</span> · <span className="text-gray-900">10 videos</span> · <span className="text-gray-900">30 total</span> — Current: {images.length} images, {videos.length} videos</p>
 
             {items.length === 0 ? (
                 <div className="bg-white border border-gray-200 rounded-xl p-12 text-center text-gray-500">No gallery items yet</div>
             ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {items.map(item => (
-                        <div key={item.id} className="relative group bg-white border border-gray-200 rounded-xl overflow-hidden">
-                            {item.type === 'image' ? (
-                                <Image src={item.media_url} alt={item.caption ?? ''} width={300} height={200} className="w-full h-40 object-cover" unoptimized />
-                            ) : (
-                                <div className="w-full h-40 bg-gray-50 flex items-center justify-center">
-                                    <i className="fas fa-play-circle text-4xl text-accent-blue"></i>
-                                </div>
-                            )}
-                            <div className="p-2">
-                                <p className="text-xs text-gray-500 truncate">{item.caption ?? item.type}</p>
-                            </div>
-                            <button onClick={() => handleDelete(item.id)}
-                                className="absolute top-2 right-2 bg-red-600 text-gray-900 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-                                Remove
-                            </button>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {items.map(item => (
+                                <SortableGalleryItem key={item.id} item={item} onDelete={handleDelete} />
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </SortableContext>
+                </DndContext>
             )}
 
             {isModalOpen && (

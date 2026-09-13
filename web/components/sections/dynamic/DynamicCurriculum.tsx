@@ -97,17 +97,17 @@ export function DynamicCurriculum({ data }: { data: any }) {
                             {/* Expanded content */}
                             {open === wi && (
                                 <div className="px-6 md:px-10 pb-8 md:pb-10 border-t border-slate-200">
-                                    <div className="mt-8 grid md:grid-cols-2 gap-6 lg:gap-10">
+                                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-start">
                                         {/* Modules */}
-                                        <div>
+                                        <div className="min-w-0 w-full overflow-hidden">
                                             <h4 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
                                                 <i className="fa-solid fa-book-open text-[#8b5cf6]" /> What You&apos;ll Learn
                                             </h4>
-                                            <div className="space-y-5">
+                                            <div className="space-y-5 min-w-0">
                                                 {(ws.detail_bullets?.what_youll_learn || []).map((mod, mi) => (
-                                                    <div key={mi} className="relative pl-4 border-l-2" style={{ borderColor: `${ws.color || '#8b5cf6'}50` }}>
+                                                    <div key={mi} className="relative pl-4 border-l-2 min-w-0 overflow-hidden" style={{ borderColor: `${ws.color || '#8b5cf6'}50` }}>
                                                         <div 
-                                                            className="text-sm text-slate-600 font-light" 
+                                                            className="text-sm text-slate-600 font-light break-words [overflow-wrap:anywhere] [&_*]:break-words [&_*]:[overflow-wrap:anywhere]" 
                                                             dangerouslySetInnerHTML={{ __html: mod }} 
                                                         />
                                                     </div>
@@ -116,22 +116,24 @@ export function DynamicCurriculum({ data }: { data: any }) {
                                         </div>
 
                                         {/* Deliverables */}
-                                        <div>
-                                            <h4 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
-                                                <i className="fa-solid fa-gift text-[#d946ef]" /> Your Deliverables
-                                            </h4>
-                                            <div className="bg-white/5 rounded-xl p-5 border border-slate-200">
-                                                <ul className="space-y-3">
-                                                    {(ws.detail_bullets?.your_deliverables || []).map((d, di2) => (
-                                                        <li key={di2} className="flex items-start gap-3">
-                                                            <i className="fa-solid fa-check mt-0.5 text-xs shrink-0" style={{ color: ws.color || '#8b5cf6' }} />
-                                                            <span 
-                                                                className="text-sm text-slate-600 font-light" 
-                                                                dangerouslySetInnerHTML={{ __html: d }}
-                                                            />
-                                                        </li>
-                                                    ))}
-                                                </ul>
+                                        <div className="min-w-0 w-full flex flex-col justify-between">
+                                            <div className="min-w-0">
+                                                <h4 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
+                                                    <i className="fa-solid fa-gift text-[#d946ef]" /> Your Deliverables
+                                                </h4>
+                                                <div className="bg-white/5 rounded-xl p-5 border border-slate-200 min-w-0 overflow-hidden">
+                                                    <ul className="space-y-3 min-w-0">
+                                                        {(ws.detail_bullets?.your_deliverables || []).map((d, di2) => (
+                                                             <li key={di2} className="flex items-start gap-3 min-w-0">
+                                                                <i className="fa-solid fa-check mt-0.5 text-xs shrink-0" style={{ color: ws.color || '#8b5cf6' }} />
+                                                                <span 
+                                                                    className="text-sm text-slate-600 font-light flex-1 min-w-0 break-words [overflow-wrap:anywhere] [&_*]:break-words [&_*]:[overflow-wrap:anywhere]" 
+                                                                    dangerouslySetInnerHTML={{ __html: d }}
+                                                                />
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
                                             </div>
 
                                             {/* Google Calendar links moved to header */}

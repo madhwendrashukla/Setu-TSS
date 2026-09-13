@@ -34,38 +34,38 @@ export function DynamicWorkshops({ data, onCheckoutClick }: { data: PageData, on
                                             />
                                         )}
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                                             {workshop.detail_bullets?.what_youll_learn && (Array.isArray(workshop.detail_bullets.what_youll_learn) ? workshop.detail_bullets.what_youll_learn.length > 0 : workshop.detail_bullets.what_youll_learn.trim() !== '') && (
-                                                <div>
+                                                <div className="min-w-0 w-full overflow-hidden">
                                                     <h4 className="font-bold text-slate-900 mb-4 text-lg border-b pb-2">What You'll Learn</h4>
                                                     {Array.isArray(workshop.detail_bullets.what_youll_learn) ? (
-                                                        <ul className="space-y-3">
+                                                        <ul className="space-y-3 min-w-0">
                                                             {workshop.detail_bullets.what_youll_learn.map((item: string, i: number) => (
-                                                                <li key={i} className="flex gap-3 text-sm text-slate-600">
+                                                                <li key={i} className="flex gap-3 text-sm text-slate-600 min-w-0">
                                                                     <i className="fas fa-arrow-right text-blue-500 mt-1 shrink-0"></i>
-                                                                    <span dangerouslySetInnerHTML={{ __html: item }} />
+                                                                    <span className="flex-1 min-w-0 break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: item }} />
                                                                 </li>
                                                             ))}
                                                         </ul>
                                                     ) : (
-                                                        <div className="prose prose-sm prose-slate max-w-none prose-ul:space-y-3 prose-li:text-slate-600 prose-li:flex prose-li:gap-3" dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.what_youll_learn }} />
+                                                        <div className="prose prose-sm prose-slate max-w-none prose-ul:space-y-3 prose-li:text-slate-600 prose-li:flex prose-li:gap-3 break-words [overflow-wrap:anywhere] [&_*]:break-words [&_*]:[overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.what_youll_learn }} />
                                                     )}
                                                 </div>
                                             )}
                                             {workshop.detail_bullets?.your_deliverables && (Array.isArray(workshop.detail_bullets.your_deliverables) ? workshop.detail_bullets.your_deliverables.length > 0 : workshop.detail_bullets.your_deliverables.trim() !== '') && (
-                                                <div>
+                                                <div className="min-w-0 w-full overflow-hidden">
                                                     <h4 className="font-bold text-slate-900 mb-4 text-lg border-b pb-2">Your Deliverables</h4>
                                                     {Array.isArray(workshop.detail_bullets.your_deliverables) ? (
-                                                        <ul className="space-y-3">
+                                                        <ul className="space-y-3 min-w-0">
                                                             {workshop.detail_bullets.your_deliverables.map((item: string, i: number) => (
-                                                                <li key={i} className="flex gap-3 text-sm text-slate-600">
+                                                                <li key={i} className="flex gap-3 text-sm text-slate-600 min-w-0">
                                                                     <i className="fas fa-cube text-purple-500 mt-1 shrink-0"></i>
-                                                                    <span dangerouslySetInnerHTML={{ __html: item }} />
+                                                                    <span className="flex-1 min-w-0 break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: item }} />
                                                                 </li>
                                                             ))}
                                                         </ul>
                                                     ) : (
-                                                        <div className="prose prose-sm prose-slate max-w-none prose-ul:space-y-3 prose-li:text-slate-600 prose-li:flex prose-li:gap-3" dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.your_deliverables }} />
+                                                        <div className="prose prose-sm prose-slate max-w-none prose-ul:space-y-3 prose-li:text-slate-600 prose-li:flex prose-li:gap-3 break-words [overflow-wrap:anywhere] [&_*]:break-words [&_*]:[overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.your_deliverables }} />
                                                     )}
                                                 </div>
                                             )}

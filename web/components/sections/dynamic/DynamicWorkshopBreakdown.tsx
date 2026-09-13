@@ -203,31 +203,31 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
 
             {expanded && (
                 <div className="px-6 md:px-10 pb-8 md:pb-10 border-t border-slate-100">
-                    <div className="mt-8 grid md:grid-cols-2 gap-6 lg:gap-10">
+                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-start">
                         {/* Left Column: What you'll learn */}
                         {workshop.detail_bullets?.what_youll_learn && (Array.isArray(workshop.detail_bullets.what_youll_learn) ? workshop.detail_bullets.what_youll_learn.length > 0 : workshop.detail_bullets.what_youll_learn.trim() !== '') && (
-                            <div>
+                            <div className="min-w-0 w-full overflow-hidden">
                                 <h4 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
                                     <i className="fa-solid fa-book-open text-[#8b5cf6]"></i> What You'll Learn
                                 </h4>
                                 
                                 {Array.isArray(workshop.detail_bullets.what_youll_learn) ? (
-                                    <div className="space-y-5">
-                                        <div className="relative pl-4 border-l-2 border-slate-200">
-                                            <ul className="space-y-3">
+                                    <div className="space-y-5 min-w-0">
+                                        <div className="relative pl-4 border-l-2 border-slate-200 min-w-0">
+                                            <ul className="space-y-3 min-w-0">
                                                 {workshop.detail_bullets.what_youll_learn.map((item: string, i: number) => (
-                                                    <li key={i} className="flex items-start gap-3 text-sm text-slate-600 font-medium">
+                                                    <li key={i} className="flex items-start gap-3 text-sm text-slate-600 font-medium min-w-0">
                                                         <i className="fa-solid fa-circle-dot mt-1.5 shrink-0 text-[8px]" style={{ color: theme.primary }}></i>
-                                                        <span dangerouslySetInnerHTML={{ __html: item }} />
+                                                        <span className="flex-1 min-w-0 break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: item }} />
                                                     </li>
                                                 ))}
                                             </ul>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="relative pl-4 border-l-2 border-slate-200">
+                                    <div className="relative pl-4 border-l-2 border-slate-200 min-w-0 overflow-hidden">
                                         <div 
-                                            className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-600 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm"
+                                            className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-600 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm break-words [overflow-wrap:anywhere] min-w-0 [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
                                             style={{'--marker-color': theme.primary} as React.CSSProperties}
                                             dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.what_youll_learn }} 
                                         />
@@ -238,28 +238,30 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                         
                         {/* Right Column: Your Deliverables */}
                         {workshop.detail_bullets?.your_deliverables && (Array.isArray(workshop.detail_bullets.your_deliverables) ? workshop.detail_bullets.your_deliverables.length > 0 : workshop.detail_bullets.your_deliverables.trim() !== '') && (
-                            <div>
-                                <h4 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
-                                    <i className="fa-solid fa-gift text-[#d946ef]"></i> Your Deliverables
-                                </h4>
-                                
-                                <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
-                                    {Array.isArray(workshop.detail_bullets.your_deliverables) ? (
-                                        <ul className="space-y-3">
-                                            {workshop.detail_bullets.your_deliverables.map((item: string, i: number) => (
-                                                <li key={i} className="flex items-start gap-3">
-                                                    <i className="fa-solid fa-check mt-0.5 text-xs shrink-0" style={{ color: theme.primary }}></i>
-                                                    <span className="text-sm text-slate-700 font-medium" dangerouslySetInnerHTML={{ __html: item }} />
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <div 
-                                            className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-700 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm"
-                                            style={{'--marker-color': theme.primary} as React.CSSProperties}
-                                            dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.your_deliverables }} 
-                                        />
-                                    )}
+                            <div className="min-w-0 w-full flex flex-col justify-between">
+                                <div className="min-w-0">
+                                    <h4 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
+                                        <i className="fa-solid fa-gift text-[#d946ef]"></i> Your Deliverables
+                                    </h4>
+                                    
+                                    <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 min-w-0 overflow-hidden">
+                                        {Array.isArray(workshop.detail_bullets.your_deliverables) ? (
+                                            <ul className="space-y-3 min-w-0">
+                                                {workshop.detail_bullets.your_deliverables.map((item: string, i: number) => (
+                                                    <li key={i} className="flex items-start gap-3 min-w-0">
+                                                        <i className="fa-solid fa-check mt-0.5 text-xs shrink-0" style={{ color: theme.primary }}></i>
+                                                        <span className="text-sm text-slate-700 font-medium flex-1 min-w-0 break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: item }} />
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <div 
+                                                className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-700 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm break-words [overflow-wrap:anywhere] min-w-0 [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
+                                                style={{'--marker-color': theme.primary} as React.CSSProperties}
+                                                dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.your_deliverables }} 
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                                 
                                 {registrations_open !== false ? (
@@ -283,7 +285,7 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                         
                         {/* Fallback button if there's no right column */}
                         {!(workshop.detail_bullets?.your_deliverables && (Array.isArray(workshop.detail_bullets.your_deliverables) ? workshop.detail_bullets.your_deliverables.length > 0 : workshop.detail_bullets.your_deliverables.trim() !== '')) && (
-                             <div className="col-span-1 md:col-span-2 mt-4">
+                             <div className="col-span-1 md:col-span-2 mt-4 min-w-0">
                                 {registrations_open !== false ? (
                                     <button 
                                         onClick={(e) => { 

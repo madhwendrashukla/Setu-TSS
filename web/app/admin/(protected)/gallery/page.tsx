@@ -326,6 +326,22 @@ export default function AdminGallery() {
         }
     };
 
+    const handleAutoFixGaps = async () => {
+        if (!confirm("This will automatically shift all images to fill empty gaps. Are you sure?")) return;
+        const filledItems = slots.filter(s => s);
+        const updates = filledItems.map((item, i) => ({ id: item.id, display_order: i }));
+        try {
+            await fetch(`${API}/api/admin/gallery/reorder`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
+                body: JSON.stringify({ items: updates })
+            });
+            fetchItems();
+        } catch (error) {
+            console.error("Auto-fix failed", error);
+        }
+    };
+
     const sortableIds = slots.map((item, i) => item ? item.id : `empty-slot-${i}`);
 
     return (
@@ -347,7 +363,15 @@ export default function AdminGallery() {
                     </div>
                 </div>
                 <div className="text-right">
-                    <div className="flex gap-4 text-sm font-bold text-slate-700">
+                    <div className="flex gap-4 text-sm font-bold text-slate-700 items-center">
+                        {firstEmptyIndex !== -1 && slots.filter(s => s).length > firstEmptyIndex && (
+                            <button 
+                                onClick={handleAutoFixGaps}
+                                className="px-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl text-xs flex items-center gap-2 transition-colors"
+                            >
+                                <i className="fa-solid fa-wand-magic-sparkles"></i> Fix Gaps
+                            </button>
+                        )}
                         <div className="flex flex-col items-end">
                             <span className="text-[10px] uppercase tracking-wider text-slate-400">Filled Slots</span>
                             <span className="text-lg text-purple-600">{items.length} / 30</span>

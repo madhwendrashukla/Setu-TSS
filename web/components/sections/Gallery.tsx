@@ -186,7 +186,7 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
             <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6">
                 <div 
                     ref={scrollContainerRef}
-                    className="grid gap-4 md:gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar"
+                    className="gallery-grid grid gap-4 md:gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar"
                     style={{ 
                         scrollbarWidth: 'none', 
                         msOverflowStyle: 'none',
@@ -198,10 +198,10 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                     {/* Inline CSS to handle responsive columns */}
                     <style dangerouslySetInnerHTML={{__html: `
                         @media (min-width: 768px) {
-                            .grid { grid-auto-columns: calc(33.33vw - 2rem); }
+                            .gallery-grid { grid-auto-columns: calc(33.33vw - 2rem); }
                         }
                         @media (min-width: 1024px) {
-                            .grid { grid-auto-columns: minmax(280px, 1fr); }
+                            .gallery-grid { grid-auto-columns: minmax(280px, 1fr); }
                         }
                     `}} />
 

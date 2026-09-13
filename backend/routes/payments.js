@@ -520,7 +520,7 @@ function freeRegistrationEmailHtml(name, eventTitle, eventDate, eventVenue) {
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.08);">
         <tr>
           <td style="background:linear-gradient(135deg,#8b5cf6,#d946ef);padding:32px;text-align:center;">
-            <p style="margin:0;color:#fff;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;opacity:0.8;">The Startup School</p>
+            <p style="margin:0;color:#fff;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;opacity:0.8;">Setu Startup School</p>
             <h1 style="margin:8px 0 0;color:#fff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">You're Registered! 🎉</h1>
           </td>
         </tr>
@@ -541,7 +541,7 @@ function freeRegistrationEmailHtml(name, eventTitle, eventDate, eventVenue) {
         </tr>
         <tr>
           <td style="padding:20px 36px;border-top:1px solid #f3f4f6;text-align:center;">
-            <p style="margin:0;color:#d1d5db;font-size:11px;">© 2026 The Startup School. All rights reserved.</p>
+            <p style="margin:0;color:#d1d5db;font-size:11px;">© 2026 Setu Startup School. All rights reserved.</p>
           </td>
         </tr>
       </table>

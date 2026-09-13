@@ -168,7 +168,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
                 amount: amount,
                 currency: currency,
-                name: 'The Startup School',
+                name: 'Setu Startup School',
                 description: `Enrollment for ${workshop.title}`,
                 order_id: orderId,
                 handler: async function (response: any) {

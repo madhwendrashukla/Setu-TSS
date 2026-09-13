@@ -45,7 +45,7 @@ export function Navbar() {
                         {/* Desktop Menu */}
                         <div className="hidden md:flex items-center space-x-2 md:space-x-4 lg:space-x-8 text-[15px] font-bold tracking-wide">
                             <Link href="/mentors" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/mentors') ? 'bg-black/5 text-text-primary' : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'}`}>Mentors</Link>
-                            <Link href="/events" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/events') ? 'bg-black/5 text-text-primary' : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'}`}>Programmes</Link>
+                            <Link href="/events" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/events') ? 'bg-black/5 text-text-primary' : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'}`}>Programs</Link>
                             <Link href="/tools" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/tools') || pathname.startsWith('/tools/') ? 'bg-black/5 text-text-primary' : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'}`}>Tools</Link>
                             <Link href="/#contact" className="ml-4 bg-accent-blue text-white px-8 py-2.5 rounded-full font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(124,58,237,0.2)] hover:-translate-y-0.5 hover:bg-accent-royal">
                                 Connect
@@ -69,7 +69,7 @@ export function Navbar() {
             <div className={`${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} md:hidden fixed inset-0 top-[80px] bg-bg-main z-40 transition-opacity duration-300 overflow-y-auto`}>
                 <div className="px-6 py-8 flex flex-col space-y-6 text-2xl font-bold tracking-tight">
                     <Link href="/mentors" onClick={closeMenu} className="text-text-primary hover:text-text-secondary transition-colors border-b border-functional-border pb-4">Mentors</Link>
-                    <Link href="/events" onClick={closeMenu} className="text-text-primary hover:text-text-secondary transition-colors border-b border-functional-border pb-4">Programmes</Link>
+                    <Link href="/events" onClick={closeMenu} className="text-text-primary hover:text-text-secondary transition-colors border-b border-functional-border pb-4">Programs</Link>
                     <Link href="/tools" onClick={closeMenu} className="text-text-primary hover:text-text-secondary transition-colors border-b border-functional-border pb-4">Tools</Link>
                     <Link href="/#contact" onClick={closeMenu} className="text-accent-blue mt-4">Connect &rarr;</Link>
                 </div>

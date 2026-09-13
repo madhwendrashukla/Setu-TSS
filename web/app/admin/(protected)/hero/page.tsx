@@ -299,7 +299,7 @@ export default function AdminHero() {
                         const defaultHeadings: any = {
                             'tools_showcase': {
                                 prefix: 'Tools & <span style="color: #A855F7">Resources.</span>',
-                                subtitle: 'Access our curated suite of tools designed to help you raise capital, <br class="hidden md:block" /> build your product, and scale your startup.'
+                                subtitle: 'Access our curated suite of tools designed to help you raise capital, build your product, and scale your startup.'
                             },
                             'mentors_preview': {
                                 prefix: 'Learn From <span style="color: #A855F7">Masters.</span>',
@@ -318,7 +318,7 @@ export default function AdminHero() {
                                 subtitle: ''
                             },
                             'programs': {
-                                prefix: 'Programmes Launching <span style="color: #A855F7">Soon.</span>',
+                                prefix: 'Programs Launching <span style="color: #A855F7">Soon.</span>',
                                 subtitle: `For all those who have <span style="color: #A855F7">'KEEDA'</span> and <span style="color: #A855F7">'HIMMAT'</span>`
                             },
                             'founder_manifesto': {

@@ -1338,7 +1338,7 @@ app.post('/api/otp/send', async (req, res) => {
     });
 
     // Send OTP email
-    await sendMail(email, 'Your OTP – The Startup School', otpEmailHtml(name, otp));
+    await sendMail(email, 'Your OTP – Setu Startup School', otpEmailHtml(name, otp));
 
     res.json({ success: true, message: 'OTP sent to ' + email });
   } catch (error) {

@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: 'Programmes & Workshops | Setu - TheStartupSchool',
+    title: 'Programs & Workshops | Setu - TheStartupSchool',
     description: 'Upcoming and past events, workshops, and startup testimonials at Setu - TheStartupSchool.',
 };
 

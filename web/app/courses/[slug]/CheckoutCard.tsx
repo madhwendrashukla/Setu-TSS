@@ -247,7 +247,7 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                 key: order.keyId,
                 amount: order.amount,
                 currency: order.currency,
-                name: "The Startup School",
+                name: "Setu Startup School",
                 description: title,
                 order_id: order.razorpayOrderId,
                 prefill: { name, email, contact: phone },

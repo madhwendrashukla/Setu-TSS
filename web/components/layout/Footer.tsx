@@ -91,14 +91,20 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                 {/* Top row: Brand + Tagline */}
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left gap-6 md:gap-8 mb-10">
                     <div>
-                        <Link href="/" className="flex items-center gap-3 mb-4">
-                            <Image 
-                                src="/setu-logo-footer-transparent.png" 
-                                alt="Setu Logo" 
-                                width={120} 
-                                height={130} 
-                                className="object-contain"
-                            />
+                        <Link href="/" className="inline-flex items-center gap-3.5 mb-4 group hover:opacity-95 transition-opacity">
+                            <div className="bg-white px-3.5 py-1.5 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                <Image 
+                                    src="/setu-logo-nav.png" 
+                                    alt="Setu Logo" 
+                                    width={90} 
+                                    height={30} 
+                                    className="object-contain"
+                                />
+                            </div>
+                            <div className="h-6 w-px bg-white/20"></div>
+                            <span className="text-xs md:text-sm font-black tracking-[0.2em] text-white uppercase mt-0.5">
+                                <span className="text-[#A855F7]">Startup</span> School
+                            </span>
                         </Link>
                         
                         <div className="flex flex-col gap-1 mt-4 mb-6 text-center md:text-left text-sm text-gray-300">

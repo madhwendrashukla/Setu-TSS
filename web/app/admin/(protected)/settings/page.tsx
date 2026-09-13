@@ -141,7 +141,8 @@ export default function AdminSettings() {
                             { key: 'show_startups', label: 'Startups Mentored' },
                             { key: 'show_testimonials', label: 'Testimonials' },
                             { key: 'show_partners', label: 'Ecosystem Partners' },
-                            { key: 'show_students_from', label: 'Students From' }
+                            { key: 'show_students_from', label: 'Students From' },
+                            { key: 'show_certifications', label: 'Certifications' }
                         ].map((section) => (
                             <label key={section.key} className="flex items-center justify-between p-4 border border-gray-100 rounded bg-gray-50 cursor-pointer">
                                 <span className="text-gray-700 font-medium">{section.label}</span>

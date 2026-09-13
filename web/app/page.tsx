@@ -97,7 +97,7 @@ export default async function Home() {
         {toggles.show_partners !== false && <EcosystemPartners data={data?.partners} headings={headings.partners} />}
 
         {/* 13. Certifications */}
-        <Certifications data={data?.certifications} />
+        {toggles.show_certifications !== false && <Certifications data={data?.certifications} />}
 
         {/* 14. Upcoming Programs */}
         {toggles.show_programs !== false && <Programs data={data?.programs} headings={headings.programs} />}

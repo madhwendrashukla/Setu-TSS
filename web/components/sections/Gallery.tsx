@@ -148,10 +148,10 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                     className="overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    <div className="h-[720px]" style={{ columnWidth: '320px', columnGap: '24px' }}>
+                    <div className="grid gap-6 min-w-max pb-4 px-4 sm:px-6" style={{ gridTemplateRows: 'repeat(2, 320px)', gridAutoColumns: '320px', gridAutoFlow: 'column dense' }}>
                         {validData.filter(item => item && item.media_url).map((item, i) => {
                             const rawCaption = item.caption || '';
-                            let size = 'medium';
+                            let size = '1x1';
                             let cleanCaption = rawCaption;
                             
                             const sizeMatch = rawCaption.match(/^SIZE:([^|]+)\|/);
@@ -160,16 +160,16 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                                 cleanCaption = rawCaption.replace(/^SIZE:[^|]+\|/, '');
                             }
 
-                            let heightClass = "h-[320px]"; // medium
-                            if (size === 'small') heightClass = "h-[220px]";
-                            else if (size === 'large') heightClass = "h-[420px]";
-                            else if (size === 'tall') heightClass = "h-[640px]"; // Almost full height
+                            let gridClass = "col-span-1 row-span-1";
+                            if (size === '1x2') gridClass = "col-span-1 row-span-2";
+                            else if (size === '2x1') gridClass = "col-span-2 row-span-1";
+                            else if (size === '2x2') gridClass = "col-span-2 row-span-2";
 
                             // Mutate item to pass the cleaned caption for alt text (and to avoid bugs)
                             const renderItem = { ...item, caption: cleanCaption };
 
                             return (
-                                <div key={item.id || i} className={`w-full mb-6 snap-start shrink-0 inline-block ${heightClass}`} style={{ breakInside: 'avoid', breakBefore: 'auto', breakAfter: 'auto' }}>
+                                <div key={item.id || i} className={`w-full h-full snap-start relative overflow-hidden rounded-2xl group border border-functional-border bg-[#1e293b] ${gridClass}`}>
                                     {renderImage(renderItem, 'w-full h-full')}
                                 </div>
                             );

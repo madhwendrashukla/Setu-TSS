@@ -6,8 +6,12 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
     const pricingItems = data?.pricing_options || data?.workshops || [];
     if (pricingItems.length === 0) return null;
 
+    // Filter visible items
+    const visibleItems = pricingItems.filter((item: any) => item.visible !== false);
+    if (visibleItems.length === 0) return null;
+
     // Sort by priority_order
-    const sortedItems = [...pricingItems].sort((a: any, b: any) => (a.priority_order || 0) - (b.priority_order || 0));
+    const sortedItems = [...visibleItems].sort((a: any, b: any) => (a.priority_order || 0) - (b.priority_order || 0));
 
     return (
         <section className="py-24 bg-slate-50 relative" id="pricing">
@@ -23,13 +27,13 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+                <div className="flex flex-wrap justify-center gap-8 items-stretch">
                     {sortedItems.map((item: any, idx: number) => {
-                        if (!item.visible) return null;
-
                         return (
-                            <div key={item.id || idx} className={`bg-white rounded-3xl overflow-hidden shadow-xl border ${idx === sortedItems.length - 1 && sortedItems.length > 1 ? 'border-blue-400 ring-1 ring-blue-400' : 'border-slate-200'} flex flex-col hover:shadow-2xl transition-shadow relative`}>
-                                
+                            <div 
+                                key={item.id || idx} 
+                                className={`w-full ${sortedItems.length === 1 ? 'max-w-md' : 'max-w-sm md:w-[380px]'} bg-white rounded-3xl overflow-hidden shadow-xl border ${idx === sortedItems.length - 1 && sortedItems.length > 1 ? 'border-blue-400 ring-1 ring-blue-400' : 'border-slate-200'} flex flex-col hover:shadow-2xl transition-shadow relative text-center`}
+                            >
                                 {idx === sortedItems.length - 1 && sortedItems.length > 1 && (
                                     <div className="absolute top-0 right-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-bl-xl z-10 uppercase tracking-wider shadow-sm">
                                         Best Value
@@ -38,8 +42,8 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                 
                                 <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500"></div>
                                 
-                                <div className="p-8 flex-1 flex flex-col">
-                                    <div className="mb-6">
+                                <div className="p-8 flex-1 flex flex-col items-center">
+                                    <div className="mb-6 flex flex-col items-center">
                                         {item.heading && (
                                             <div className="inline-block px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 font-bold text-[10px] tracking-widest uppercase mb-4 border border-slate-200">
                                                 {item.heading}
@@ -49,56 +53,53 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                     </div>
 
                                     {data.registrations_open !== false && (
-                                    <div className="mb-6 pb-6 border-b border-slate-100">
-                                        <div className="flex flex-col gap-1">
+                                    <div className="mb-6 pb-6 border-b border-slate-100 w-full flex flex-col items-center">
+                                        <div className="flex flex-col items-center gap-1">
                                             {(item.pricing?.strike_price || 0) > 0 && (
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center justify-center gap-2">
                                                     <span className="text-lg text-slate-400 line-through font-medium">₹{item.pricing.strike_price}</span>
-                                                    {/* Was a hardcoded "Early Bird", which claimed a time-limited
-                                                        introductory price on ANY card with a strike price. On the
-                                                        Launchpad bundle the strike is simply the sum of the three
-                                                        workshops, so that was untrue. State the actual saving. */}
                                                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-sm uppercase tracking-wider">
                                                         Save ₹{item.pricing.strike_price - (item.pricing?.actual_price || 0)}
                                                     </span>
                                                 </div>
                                             )}
-                                            <div className="flex items-end gap-1 mt-1">
+                                            <div className="flex items-center justify-center gap-1 mt-1">
                                                 <span className="text-5xl font-extrabold text-slate-900 tracking-tight">₹{item.pricing?.actual_price}</span>
                                             </div>
                                         </div>
                                     </div>
                                     )}
 
-                                    <div className="mb-6 text-slate-700 border-b border-slate-100 pb-6">
+                                    <div className="mb-6 text-slate-700 border-b border-slate-100 pb-6 w-full flex flex-col items-center">
                                         {item.date_time_html ? (
                                             <div 
-                                                className="pricing-datetime text-sm text-slate-600"
+                                                className="pricing-datetime text-sm text-slate-600 text-center"
                                                 dangerouslySetInnerHTML={{ __html: item.date_time_html }}
                                             />
                                         ) : item.pricing?.date_time_bullets && item.pricing.date_time_bullets.length > 0 ? (
-                                            <ul className="pricing-datetime list-disc pl-4 text-sm space-y-1 text-slate-600">
+                                            <ul className="pricing-datetime list-none space-y-1.5 text-sm text-slate-600 text-center">
                                                 {item.pricing.date_time_bullets.map((dt: string, i: number) => (
-                                                    <li key={i} dangerouslySetInnerHTML={{ __html: dt }} />
+                                                    <li key={i} className="flex items-center justify-center gap-2">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span>
+                                                        <span dangerouslySetInnerHTML={{ __html: dt }} />
+                                                    </li>
                                                 ))}
                                             </ul>
                                         ) : null}
 
-                                        <div className="flex items-start gap-3 mt-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                            <i className={`fas fa-${item.pricing?.mode === 'offline' ? 'map-marker-alt' : 'laptop'} text-blue-500 mt-0.5`}></i>
-                                            <div>
-                                                <span className="capitalize font-medium text-slate-800">{item.pricing?.mode}</span>
-                                                {item.pricing?.mode === 'offline' && item.pricing?.address && (
-                                                    <div className="mt-0.5 text-xs">{item.pricing.address}</div>
-                                                )}
-                                            </div>
+                                        <div className="inline-flex items-center justify-center gap-2 mt-4 text-sm text-slate-600 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100 mx-auto">
+                                            <i className={`fas fa-${item.pricing?.mode === 'offline' ? 'map-marker-alt' : 'laptop'} text-blue-500`}></i>
+                                            <span className="capitalize font-medium text-slate-800">{item.pricing?.mode}</span>
+                                            {item.pricing?.mode === 'offline' && item.pricing?.address && (
+                                                <span className="text-xs text-slate-500">({item.pricing.address})</span>
+                                            )}
                                         </div>
                                     </div>
 
-                                    <div className="flex-1">
+                                    <div className="flex-1 w-full text-center">
                                         {item.key_features && (
                                             <div 
-                                                className="pricing-features text-sm text-slate-700"
+                                                className="pricing-features text-sm text-slate-600 text-center"
                                                 dangerouslySetInnerHTML={{ __html: item.key_features }}
                                             />
                                         )}
@@ -133,13 +134,13 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                 </div>
             </div>
             <style dangerouslySetInnerHTML={{__html: `
-                .pricing-datetime p { margin-bottom: 0.5rem; }
+                .pricing-datetime p { margin-bottom: 0.5rem; text-align: center; }
                 .pricing-datetime p:last-child { margin-bottom: 0; }
-                .pricing-datetime ul { list-style-type: disc; padding-left: 1.25rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+                .pricing-datetime ul { list-style-type: disc; padding-left: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; text-align: center; }
                 .pricing-datetime li { margin-bottom: 0.25rem; }
                 
-                .pricing-features p { margin-bottom: 0.5rem; }
-                .pricing-features ul { list-style: none; padding-left: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+                .pricing-features p { margin-bottom: 0.5rem; text-align: center; }
+                .pricing-features ul { list-style: none; padding-left: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; display: inline-block; text-align: left; }
                 .pricing-features li { 
                     position: relative; 
                     padding-left: 1.75rem; 

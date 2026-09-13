@@ -92,11 +92,11 @@ export function ToolsShowcase({ toggles = {}, headings = {} }: { toggles?: any, 
                         <Link 
                             key={idx} 
                             href={category.href}
-                            className={`w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group flex flex-col p-8 md:p-10 bg-[#13113B] border border-functional-border rounded-[32px] transition-all duration-300 relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.2)] ${isUnclickable ? 'opacity-80 cursor-not-allowed' : 'hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)] hover:-translate-y-1 hover:bg-[#1a1845]'}`}
+                            className={`w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group flex flex-col p-7 sm:p-8 md:p-9 bg-[#13113B] border border-functional-border/30 rounded-[32px] transition-all duration-300 relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.2)] ${isUnclickable ? 'opacity-80 cursor-not-allowed' : 'hover:border-purple-500/40 hover:shadow-[0_12px_45px_rgba(168,85,247,0.22)] hover:-translate-y-1 hover:bg-[#181547]'}`}
                             onClick={(e) => { if (isUnclickable) e.preventDefault(); }}
                         >
-                            <div className="flex items-start justify-between w-full mb-8">
-                                <div className={`w-16 h-16 rounded-2xl ${category.color} flex items-center justify-center shrink-0 ${!isUnclickable && 'group-hover:scale-110'} transition-transform duration-500`}>
+                            <div className="flex items-start justify-between w-full mb-6">
+                                <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${category.color} flex items-center justify-center shrink-0 ${!isUnclickable && 'group-hover:scale-110'} transition-transform duration-500 shadow-sm border border-purple-500/10`}>
                                     {category.icon}
                                 </div>
                                 {badgeText && (
@@ -106,26 +106,34 @@ export function ToolsShowcase({ toggles = {}, headings = {} }: { toggles?: any, 
                                 )}
                             </div>
                             
-                            <h3 className={`text-2xl font-bold mb-3 tracking-tight ${isUnclickable ? 'text-white/60' : 'text-white'}`}>
+                            <h3 className={`text-xl sm:text-2xl font-bold mb-3 tracking-tight ${isUnclickable ? 'text-white/60' : 'text-white group-hover:text-purple-200 transition-colors'}`}>
                                 {category.title}
                             </h3>
-                            <p className="text-gray-400 font-medium leading-relaxed mb-10 flex-1">
+                            <p className="text-gray-400 font-medium text-sm sm:text-base leading-relaxed mb-8 flex-1">
                                 {category.description}
                             </p>
                             
-                            {!isUnclickable && (
-                                <div className="flex items-center gap-2 text-[#A855F7] font-bold mt-auto group-hover:gap-3 transition-all">
-                                    Explore <ArrowRight className="w-5 h-5" />
-                                </div>
-                            )}
+                            <div className="mt-auto pt-2">
+                                {isUnclickable ? (
+                                    <div className="w-full py-3.5 px-5 rounded-xl font-bold text-sm bg-white/5 text-gray-500 flex items-center justify-center gap-2 border border-white/5 cursor-not-allowed">
+                                        <span>Coming Soon</span>
+                                    </div>
+                                ) : (
+                                    <div className="w-full py-3.5 px-5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#A855F7] to-[#7C3AED] group-hover:from-[#9333ea] group-hover:to-[#6D28D9] text-white flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(168,85,247,0.35)] group-hover:shadow-[0_8px_25px_rgba(168,85,247,0.5)] group-hover:scale-[1.02] active:scale-[0.99] transition-all duration-300">
+                                        <span>Explore Now</span>
+                                        <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                    </div>
+                                )}
+                            </div>
                         </Link>
                     )
                 })}
             </div>
 
-            <div className="mt-6 text-center relative z-10">
-                <Link href="/tools" className="group inline-flex items-center gap-3 bg-[#A855F7] hover:bg-[#9333ea] text-text-primary px-8 py-4 rounded-xl font-bold text-sm transition-all duration-300 shadow-[0_8px_20px_rgba(168,85,247,0.2)] hover:shadow-[0_12px_25px_rgba(168,85,247,0.3)] hover:-translate-y-0.5">
-                    View all resources <span className="text-lg leading-none">→</span>
+            <div className="mt-8 text-center relative z-10">
+                <Link href="/tools" className="group inline-flex items-center gap-3 bg-gradient-to-r from-[#A855F7] to-[#7C3AED] hover:from-[#9333ea] hover:to-[#6D28D9] text-white px-9 py-4 rounded-xl font-bold text-sm transition-all duration-300 shadow-[0_6px_20px_rgba(168,85,247,0.3)] hover:shadow-[0_10px_28px_rgba(168,85,247,0.45)] hover:-translate-y-0.5">
+                    <span>View all resources</span>
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
             </div>
         </section>

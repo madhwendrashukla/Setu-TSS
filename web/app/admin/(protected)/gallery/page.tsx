@@ -33,21 +33,38 @@ function getYouTubeData(url: string) {
     return { embedUrl: url, thumbnailUrl: url };
 }
 
+// Helpers to extract and embed size in caption
+const parseSize = (caption: string | null) => {
+    if (!caption) return { size: 'standard', cleanCaption: '' };
+    const match = caption.match(/^SIZE:(standard|wide|tall|large)\|?(.*)$/);
+    if (match) return { size: match[1], cleanCaption: match[2] };
+    return { size: 'standard', cleanCaption: caption };
+};
+
+const buildCaption = (size: string, cleanCaption: string) => {
+    if (size === 'standard' && !cleanCaption) return '';
+    return `SIZE:${size}|${cleanCaption}`;
+};
+
 function SortableGallerySlot({ 
     slotIndex, 
     item, 
-    heightClass, 
+    isLocked,
     onDoubleClick, 
     onDelete 
 }: { 
     slotIndex: number; 
     item: any | null; 
-    heightClass: string; 
+    isLocked: boolean;
     onDoubleClick: (slotIndex: number, item: any | null) => void;
     onDelete: (id: string) => void;
 }) {
     const id = item ? item.id : `empty-slot-${slotIndex}`;
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
+        id,
+        disabled: isLocked && !item // Can't drag locked empty slots
+    });
+    
     const style = { 
         transform: CSS.Transform.toString(transform), 
         transition,
@@ -55,18 +72,32 @@ function SortableGallerySlot({
         zIndex: isDragging ? 10 : 1
     };
 
+    const { size, cleanCaption } = parseSize(item?.caption);
+
+    let gridClass = "col-span-1 row-span-1 min-h-[160px] md:min-h-[180px]";
+    if (item) {
+        if (size === 'wide') gridClass = "col-span-1 md:col-span-2 row-span-1 min-h-[160px] md:min-h-[180px]";
+        else if (size === 'tall') gridClass = "col-span-1 row-span-2 min-h-[336px] md:min-h-[376px]";
+        else if (size === 'large') gridClass = "col-span-1 md:col-span-2 row-span-2 min-h-[336px] md:min-h-[376px]";
+    }
+
     if (!item) {
         return (
             <div 
                 ref={setNodeRef} 
                 style={style} 
-                {...attributes} 
-                {...listeners}
-                onDoubleClick={() => onDoubleClick(slotIndex, null)} 
-                className={`relative group bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-gray-100 hover:border-gray-400 transition-all ${heightClass}`}
+                {...(isLocked ? {} : attributes)} 
+                {...(isLocked ? {} : listeners)}
+                onClick={() => {
+                    if (isLocked) alert("Please fill the previous slots first!");
+                }}
+                onDoubleClick={() => {
+                    if (!isLocked) onDoubleClick(slotIndex, null);
+                }} 
+                className={`relative group bg-gray-50 border-2 border-dashed ${isLocked ? 'border-gray-200 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100 hover:border-gray-400'} rounded-xl flex flex-col items-center justify-center shrink-0 transition-all ${gridClass}`}
             >
-                <i className="fa-solid fa-plus text-gray-400 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
-                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Slot {slotIndex + 1}</span>
+                <i className={`fa-solid ${isLocked ? 'fa-lock text-gray-300' : 'fa-plus text-gray-400 group-hover:scale-110'} text-2xl mb-2 transition-transform`}></i>
+                <span className={`text-xs font-semibold ${isLocked ? 'text-gray-300' : 'text-gray-400'} uppercase tracking-wider`}>Slot {slotIndex + 1}</span>
             </div>
         );
     }
@@ -82,10 +113,10 @@ function SortableGallerySlot({
             ref={setNodeRef} 
             style={style} 
             onDoubleClick={() => onDoubleClick(slotIndex, item)} 
-            className={`relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col shrink-0 ${heightClass}`}
+            className={`relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col shrink-0 ${gridClass}`}
         >
             <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative overflow-hidden bg-gray-100">
-                <Image src={displayUrl} alt={item.caption ?? ''} fill className="object-cover pointer-events-none" unoptimized />
+                <Image src={displayUrl} alt={cleanCaption} fill className="object-cover pointer-events-none" unoptimized />
                 {isVideo && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
                         <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow">
@@ -93,10 +124,13 @@ function SortableGallerySlot({
                         </div>
                     </div>
                 )}
+                <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase">
+                    {size}
+                </div>
             </div>
             <div className="p-2 border-t border-gray-100 flex justify-between items-center bg-gray-50 h-9 shrink-0">
-                <p className="text-xs text-gray-600 font-medium truncate" title={item.caption ?? item.type}>
-                    <span className="text-gray-400 mr-1">#{slotIndex + 1}</span> {item.caption ?? (item.type === 'video' ? 'Video' : 'Image')}
+                <p className="text-xs text-gray-600 font-medium truncate" title={cleanCaption || item.type}>
+                    <span className="text-gray-400 mr-1">#{slotIndex + 1}</span> {cleanCaption || (item.type === 'video' ? 'Video' : 'Image')}
                 </p>
                 <i className="fas fa-grip-vertical text-gray-400 cursor-grab px-1" {...attributes} {...listeners}></i>
             </div>
@@ -109,33 +143,24 @@ function SortableGallerySlot({
 }
 
 export default function AdminGallery() {
-    const TOTAL_SLOTS = 30; // 30 fixed blocks corresponding to frontend layout
+    const TOTAL_SLOTS = 30; // 30 fixed blocks
     const [items, setItems] = useState<any[]>([]);
     
     // UI State
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditOptionsModalOpen, setIsEditOptionsModalOpen] = useState(false);
+    
     const [editingSlotIndex, setEditingSlotIndex] = useState<number | null>(null);
-    const [editingItemId, setEditingItemId] = useState<string | null>(null);
+    const [editingItem, setEditingItem] = useState<any | null>(null);
     const [uploading, setUploading] = useState(false);
     
-    // Form State
-    const [formData, setFormData] = useState({ type: "image", caption: "", media_url: "" });
+    // Form State (Add/Edit)
+    const [formData, setFormData] = useState({ type: "image", caption: "", media_url: "", size: "standard" });
     const [file, setFile] = useState<File | null>(null);
     
     // Cropper State
     const [imageSrc, setImageSrc] = useState<string | null>(null);
-    const [currentCropAspect, setCurrentCropAspect] = useState<number | undefined>(undefined);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const getAspectForIndex = (index: number) => {
-        const colPattern = Math.floor(index / 2) % 5;
-        const isBottom = index % 2 === 1;
-        if (colPattern === 0) return isBottom ? 16/11 : 16/19;
-        if (colPattern === 1) return isBottom ? 16/19 : 16/11;
-        if (colPattern === 2) return isBottom ? 2/1 : 8/11;
-        if (colPattern === 3) return isBottom ? 4/3 : 8/9;
-        return isBottom ? 8/9 : 4/3;
-    };
 
     const token = () => localStorage.getItem("adminToken");
     const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -151,39 +176,41 @@ export default function AdminGallery() {
 
     useEffect(() => { fetchItems(); }, []);
 
-    // Create an array of 30 slots, mapping items by their display_order
+    // Build the 30 slots
     const slots = Array.from({ length: TOTAL_SLOTS }).map((_, i) => {
         return items.find(item => item.display_order === i) || null;
     });
 
+    // Find first empty index to enforce sequential filling
+    const firstEmptyIndex = slots.findIndex(s => !s);
+    const maxAllowedSlot = firstEmptyIndex === -1 ? TOTAL_SLOTS - 1 : firstEmptyIndex;
+
     const handleDoubleClick = (slotIndex: number, item: any | null) => {
         setEditingSlotIndex(slotIndex);
         if (item) {
-            setEditingItemId(item.id);
-            setFormData({ type: item.type, caption: item.caption || "", media_url: item.media_url || "" });
+            setEditingItem(item);
+            const { size, cleanCaption } = parseSize(item.caption);
+            setFormData({ type: item.type, caption: cleanCaption, media_url: item.media_url || "", size });
             
-            // If it's an image, we can prompt for a replacement (crop). Or just open the modal.
-            if (item.type === 'image') {
-                setCurrentCropAspect(getAspectForIndex(slotIndex));
-                fileInputRef.current?.click();
-            } else {
-                setIsModalOpen(true);
-            }
+            // Open Options Modal instead of forcing crop immediately
+            setIsEditOptionsModalOpen(true);
         } else {
+            if (slotIndex > maxAllowedSlot) return; // Disallow skipping
             // Empty slot -> Add new
-            setEditingItemId(null);
-            setFormData({ type: "image", caption: "", media_url: "" });
+            setEditingItem(null);
+            setFormData({ type: "image", caption: "", media_url: "", size: "standard" });
             setFile(null);
-            setIsModalOpen(true);
+            setIsAddModalOpen(true);
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSaveSlot = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         setUploading(true);
+        
         const data = new FormData();
         data.append('type', formData.type);
-        data.append('caption', formData.caption);
+        data.append('caption', buildCaption(formData.size, formData.caption));
         data.append('display_order', String(editingSlotIndex ?? 0));
         
         if (formData.type === 'video') {
@@ -194,22 +221,22 @@ export default function AdminGallery() {
         }
 
         try {
-            const url = editingItemId 
-                ? `${API}/api/admin/gallery/${editingItemId}`
+            const url = editingItem 
+                ? `${API}/api/admin/gallery/${editingItem.id}`
                 : `${API}/api/admin/gallery`;
-            const method = editingItemId ? "PUT" : "POST";
+            const method = editingItem ? "PUT" : "POST";
 
             const res = await fetch(url, { method, headers: { "Authorization": `Bearer ${token()}` }, body: data });
             const result = await res.json();
             
             if (!res.ok) { 
-                alert(result.error || 'Upload failed'); 
+                alert(result.error || 'Operation failed'); 
                 return; 
             }
-            setIsModalOpen(false); 
+            setIsAddModalOpen(false); 
+            setIsEditOptionsModalOpen(false);
             setFile(null); 
-            setFormData({ type: "image", caption: "", media_url: "" }); 
-            setEditingItemId(null);
+            setEditingItem(null);
             setEditingSlotIndex(null);
             fetchItems();
         } catch (error) {
@@ -225,16 +252,7 @@ export default function AdminGallery() {
             const f = e.target.files[0];
             const dataUrl = await readFile(f);
             setImageSrc(dataUrl);
-            
-            if (editingSlotIndex === null) {
-                // If they clicked the global "+ Add Item", find the first empty slot
-                const firstEmpty = slots.findIndex(s => s === null);
-                setEditingSlotIndex(firstEmpty !== -1 ? firstEmpty : 0);
-                setCurrentCropAspect(getAspectForIndex(firstEmpty !== -1 ? firstEmpty : 0));
-            } else if (!isModalOpen) {
-                // Only set aspect if we came from double clicking an image block directly (modal is not open)
-                setCurrentCropAspect(getAspectForIndex(editingSlotIndex));
-            }
+            setIsEditOptionsModalOpen(false); // Close options modal if open
         }
         e.target.value = '';
     };
@@ -254,11 +272,8 @@ export default function AdminGallery() {
         const { active, over } = event;
         if (!over || active.id === over.id) return;
 
-        // Parse IDs (either item ID or empty-slot-X)
         const getSlotIndex = (id: string) => {
-            if (String(id).startsWith('empty-slot-')) {
-                return parseInt(String(id).replace('empty-slot-', ''));
-            }
+            if (String(id).startsWith('empty-slot-')) return parseInt(String(id).replace('empty-slot-', ''));
             return slots.findIndex(s => s && s.id === id);
         };
 
@@ -266,13 +281,17 @@ export default function AdminGallery() {
         const overIndex = getSlotIndex(String(over.id));
 
         if (activeIndex === -1 || overIndex === -1) return;
+        
+        // Prevent dragging to slots far ahead (skipping)
+        if (overIndex > maxAllowedSlot && !slots[overIndex]) {
+            alert("You cannot skip slots! Drag to the next available empty slot.");
+            return;
+        }
 
         const activeItem = slots[activeIndex];
         const overItem = slots[overIndex];
+        if (!activeItem) return;
 
-        if (!activeItem) return; // Cannot drag an empty slot
-
-        // Optimistic UI Update
         const newItems = [...items];
         const activeItemInState = newItems.find(i => i.id === activeItem.id);
         if (!activeItemInState) return;
@@ -280,7 +299,6 @@ export default function AdminGallery() {
         const updates: {id: string, display_order: number}[] = [];
 
         if (overItem) {
-            // Swap
             const overItemInState = newItems.find(i => i.id === overItem.id);
             if (overItemInState) {
                 activeItemInState.display_order = overIndex;
@@ -289,37 +307,29 @@ export default function AdminGallery() {
                 updates.push({ id: overItem.id, display_order: activeIndex });
             }
         } else {
-            // Transfer
             activeItemInState.display_order = overIndex;
             updates.push({ id: activeItem.id, display_order: overIndex });
         }
 
-        setItems(newItems); // Apply optimistic update
+        setItems(newItems);
 
-        // Save to backend
         try {
             await fetch(`${API}/api/admin/gallery/reorder`, {
                 method: 'PUT',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token()}` 
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
                 body: JSON.stringify({ items: updates })
             });
+            fetchItems(); // Sync back
         } catch (error) {
-            console.error("Reorder failed, fetching original state", error);
-            fetchItems(); // Revert on failure
+            console.error("Reorder failed", error);
+            fetchItems();
         }
     };
 
-    const imagesCount = items.filter(i => i.type === 'image').length;
-    const videosCount = items.filter(i => i.type === 'video').length;
-
-    // We only make the filled slots and empty slots sortable.
     const sortableIds = slots.map((item, i) => item ? item.id : `empty-slot-${i}`);
 
     return (
-        <div>
+        <div className="pb-20">
             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm mb-6">
@@ -329,9 +339,9 @@ export default function AdminGallery() {
                             <i className="fa-solid fa-images text-lg"></i>
                         </div>
                         <div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Interactive Grid Gallery</h1>
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Dynamic Grid Gallery</h1>
                             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                                Drag & drop to swap or transfer items. Double-click any slot to add or edit media.
+                                Drag & drop, double click to edit, and resize blocks. Sequential filling enforced.
                             </p>
                         </div>
                     </div>
@@ -348,106 +358,82 @@ export default function AdminGallery() {
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-                    <div className="flex gap-4 overflow-x-auto pb-6 custom-scrollbar px-2 pt-2 snap-x hide-scrollbar">
-                        {Array.from({ length: Math.ceil(TOTAL_SLOTS / 2) }).map((_, colIndex) => {
-                            const i = colIndex * 2;
-                            const j = i + 1;
-                            const colPattern = colIndex % 5;
-                            
-                            let h1, h2;
-                            if (colPattern === 0) { h1 = "h-[190px]"; h2 = "h-[110px]"; }
-                            else if (colPattern === 1) { h1 = "h-[110px]"; h2 = "h-[190px]"; }
-                            else if (colPattern === 2) { h1 = "h-[220px]"; h2 = "h-[80px]"; }
-                            else if (colPattern === 3) { h1 = "h-[180px]"; h2 = "h-[120px]"; }
-                            else { h1 = "h-[120px]"; h2 = "h-[180px]"; }
-
-                            return (
-                                <div key={`col-${colIndex}`} className="flex flex-col gap-4 w-[240px] shrink-0 snap-start">
-                                    <SortableGallerySlot 
-                                        slotIndex={i} 
-                                        item={slots[i]} 
-                                        heightClass={h1} 
-                                        onDoubleClick={handleDoubleClick}
-                                        onDelete={handleDelete}
-                                    />
-                                    {j < TOTAL_SLOTS && (
-                                        <SortableGallerySlot 
-                                            slotIndex={j} 
-                                            item={slots[j]} 
-                                            heightClass={h2} 
-                                            onDoubleClick={handleDoubleClick}
-                                            onDelete={handleDelete}
-                                        />
-                                    )}
-                                </div>
-                            );
-                        })}
+                    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-min" style={{ gridAutoFlow: 'dense' }}>
+                        {slots.map((item, i) => (
+                            <SortableGallerySlot 
+                                key={item ? item.id : `empty-${i}`}
+                                slotIndex={i} 
+                                item={item} 
+                                isLocked={i > maxAllowedSlot}
+                                onDoubleClick={handleDoubleClick}
+                                onDelete={handleDelete}
+                            />
+                        ))}
                     </div>
                 </SortableContext>
             </DndContext>
 
-            {/* Modal for adding/editing a block (Video mostly, or uploading new image) */}
-            {isModalOpen && (
+            {/* Modal for adding media (Empty Slot) */}
+            {isAddModalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in zoom-in-95 duration-200">
                     <div className="bg-white border border-gray-200 rounded-3xl w-full max-w-lg p-8 shadow-2xl">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-black text-slate-900">
-                                {editingItemId ? `Edit Slot ${editingSlotIndex! + 1}` : `Add Media to Slot ${editingSlotIndex! + 1}`}
+                                Add Media to Slot {editingSlotIndex! + 1}
                             </h2>
-                            <button onClick={() => { setIsModalOpen(false); setFile(null); }} className="text-slate-400 hover:text-slate-700">
+                            <button onClick={() => { setIsAddModalOpen(false); setFile(null); }} className="text-slate-400 hover:text-slate-700">
                                 <i className="fa-solid fa-xmark text-xl"></i>
                             </button>
                         </div>
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-1.5">Media Type</label>
-                                <select 
-                                    value={formData.type} 
-                                    onChange={e => setFormData({...formData, type: e.target.value})}
-                                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
-                                >
-                                    <option value="image">Image</option>
-                                    <option value="video">Video (YouTube)</option>
-                                </select>
+                        <form onSubmit={handleSaveSlot} className="space-y-5">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Media Type</label>
+                                    <select 
+                                        value={formData.type} 
+                                        onChange={e => setFormData({...formData, type: e.target.value})}
+                                        className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                                    >
+                                        <option value="image">Image</option>
+                                        <option value="video">Video (YouTube)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Block Size</label>
+                                    <select 
+                                        value={formData.size} 
+                                        onChange={e => setFormData({...formData, size: e.target.value})}
+                                        className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                                    >
+                                        <option value="standard">Standard (1x1)</option>
+                                        <option value="wide">Wide (2x1)</option>
+                                        <option value="tall">Tall (1x2)</option>
+                                        <option value="large">Large (2x2)</option>
+                                    </select>
+                                </div>
                             </div>
                             
                             {formData.type === 'image' ? (
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1.5">Image File</label>
-                                    <div className="flex items-center gap-3">
-                                        <button 
-                                            type="button"
-                                            onClick={() => {
-                                                setCurrentCropAspect(getAspectForIndex(editingSlotIndex || 0));
-                                                fileInputRef.current?.click();
-                                            }}
-                                            className="px-4 py-2.5 rounded-xl border-2 border-dashed border-gray-300 bg-slate-50 hover:bg-gray-100 hover:border-gray-400 text-sm font-bold text-gray-600 transition-all flex-1 text-left flex justify-between items-center"
-                                        >
-                                            <span>{file ? file.name : "Select and crop image..."}</span>
-                                            <i className="fa-solid fa-cloud-arrow-up"></i>
-                                        </button>
-                                    </div>
-                                    {file && <p className="text-[11px] font-bold text-emerald-600 mt-2"><i className="fa-solid fa-check mr-1"></i> Image ready for upload</p>}
+                                    <button 
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 bg-slate-50 hover:bg-gray-100 hover:border-gray-400 text-sm font-bold text-gray-600 transition-all flex justify-between items-center"
+                                    >
+                                        <span>{file ? file.name : "Select and crop image..."}</span>
+                                        <i className="fa-solid fa-cloud-arrow-up"></i>
+                                    </button>
                                 </div>
                             ) : (
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1.5">YouTube URL</label>
                                     <input 
-                                        required
-                                        value={formData.media_url} 
+                                        required value={formData.media_url} 
                                         onChange={e => setFormData({...formData, media_url: e.target.value})} 
-                                        className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
-                                        placeholder="https://www.youtube.com/watch?v=..." 
+                                        className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:bg-white" 
+                                        placeholder="https://youtube.com/watch?v=..." 
                                     />
-                                    {formData.media_url && (
-                                        <div className="mt-4 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 p-2 flex items-start gap-4">
-                                            <img src={getYouTubeData(formData.media_url).thumbnailUrl} alt="Thumbnail preview" className="w-24 h-auto rounded-lg object-cover" />
-                                            <div>
-                                                <p className="text-xs font-bold text-gray-900">Thumbnail Preview</p>
-                                                <p className="text-[10px] text-gray-500 mt-1">Automatically fetched from YouTube. Videos open in a popup player on the frontend.</p>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             )}
                             
@@ -456,18 +442,65 @@ export default function AdminGallery() {
                                 <input 
                                     value={formData.caption} 
                                     onChange={e => setFormData({...formData, caption: e.target.value})} 
-                                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:bg-white transition-colors" 
-                                    placeholder="Brief description..."
+                                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:bg-white" 
                                 />
                             </div>
                             
                             <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors">Cancel</button>
-                                <button type="submit" disabled={uploading || (formData.type === 'image' && !file && !editingItemId)} className="px-6 py-2.5 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 transition-colors shadow-md disabled:opacity-50">
-                                    {uploading ? <><i className="fa-solid fa-circle-notch fa-spin mr-2"></i> Saving...</> : 'Save to Slot'}
+                                <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 font-bold hover:bg-slate-50">Cancel</button>
+                                <button type="submit" disabled={uploading || (formData.type === 'image' && !file)} className="px-6 py-2.5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 disabled:opacity-50">
+                                    {uploading ? 'Saving...' : 'Save to Slot'}
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal for Editing Options (Filled Slot) */}
+            {isEditOptionsModalOpen && editingItem && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="bg-white border border-gray-200 rounded-3xl w-full max-w-sm p-8 shadow-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-black text-slate-900">Edit Slot {editingSlotIndex! + 1}</h2>
+                            <button onClick={() => setIsEditOptionsModalOpen(false)} className="text-slate-400 hover:text-slate-700">
+                                <i className="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-3 mb-6">
+                            {editingItem.type === 'image' && (
+                                <button onClick={() => setImageSrc(editingItem.media_url)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold transition-colors">
+                                    <i className="fa-solid fa-crop-simple w-5"></i> Rotate / Re-Crop Image
+                                </button>
+                            )}
+                            <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold transition-colors">
+                                <i className="fa-solid fa-upload w-5"></i> Replace Media
+                            </button>
+                            
+                            <div className="pt-3 border-t border-gray-100">
+                                <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Change Block Size</label>
+                                <select 
+                                    value={formData.size} 
+                                    onChange={e => {
+                                        setFormData({...formData, size: e.target.value});
+                                    }}
+                                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white"
+                                >
+                                    <option value="standard">Standard (1x1)</option>
+                                    <option value="wide">Wide (2x1)</option>
+                                    <option value="tall">Tall (1x2)</option>
+                                    <option value="large">Large (2x2)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
+                            <button onClick={() => setIsEditOptionsModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 font-bold hover:bg-slate-50 w-full text-center">Cancel</button>
+                            <button onClick={handleSaveSlot} disabled={uploading} className="px-5 py-2.5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 w-full text-center disabled:opacity-50">
+                                {uploading ? 'Saving...' : 'Save Settings'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -475,42 +508,33 @@ export default function AdminGallery() {
             {imageSrc && (
                 <ImageCropperModal
                     imageSrc={imageSrc}
-                    aspect={currentCropAspect}
                     onCropComplete={async (croppedFile) => {
                         setFile(croppedFile);
                         setImageSrc(null);
-                        if (editingItemId) {
-                            // If we were directly editing an existing item, upload it right away
+                        
+                        // Proceed to save immediately if we were editing an existing item
+                        if (editingItem) {
                             setUploading(true);
                             const data = new FormData();
                             data.append('media', croppedFile);
                             try {
-                                const res = await fetch(`${API}/api/admin/gallery/${editingItemId}`, { 
-                                    method: "PUT", 
-                                    headers: { "Authorization": `Bearer ${token()}` }, 
-                                    body: data 
+                                const res = await fetch(`${API}/api/admin/gallery/${editingItem.id}`, { 
+                                    method: "PUT", headers: { "Authorization": `Bearer ${token()}` }, body: data 
                                 });
                                 if (res.ok) fetchItems();
                                 else alert('Failed to update image.');
                             } catch(e) { console.error(e); }
                             setUploading(false);
-                            setEditingItemId(null);
+                            setEditingItem(null);
                             setEditingSlotIndex(null);
                         } else {
-                            // If we are adding a new item, open the modal to fill caption/type
-                            setIsModalOpen(true);
+                            setIsAddModalOpen(true);
                         }
                     }}
-                    onCancel={() => {
-                        setImageSrc(null);
-                        if (editingItemId) setEditingItemId(null);
-                    }}
+                    onCancel={() => setImageSrc(null)}
                 />
             )}
             
-            <style dangerouslySetInnerHTML={{__html: `
-                .hide-scrollbar::-webkit-scrollbar { display: none; }
-            `}} />
         </div>
     );
 }

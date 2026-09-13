@@ -13,6 +13,7 @@ interface ImageCropperModalProps {
 export function ImageCropperModal({ imageSrc, onCropComplete, onCancel, aspect = 16 / 9 }: ImageCropperModalProps) {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
+    const [rotation, setRotation] = useState(0);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -20,14 +21,14 @@ export function ImageCropperModal({ imageSrc, onCropComplete, onCancel, aspect =
         try {
             setIsProcessing(true);
             if (!imageSrc || !croppedAreaPixels) return;
-            const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
+            const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
             onCropComplete(croppedImage);
         } catch (e) {
             console.error(e);
         } finally {
             setIsProcessing(false);
         }
-    }, [imageSrc, croppedAreaPixels, onCropComplete]);
+    }, [imageSrc, croppedAreaPixels, rotation, onCropComplete]);
 
     return (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-[100] animate-in fade-in duration-200">
@@ -36,24 +37,43 @@ export function ImageCropperModal({ imageSrc, onCropComplete, onCancel, aspect =
                     image={imageSrc}
                     crop={crop}
                     zoom={zoom}
+                    rotation={rotation}
                     aspect={aspect}
                     onCropChange={setCrop}
                     onZoomChange={setZoom}
+                    onRotationChange={setRotation}
                     onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
                 />
             </div>
             
             <div className="w-full max-w-4xl mt-6 flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div className="flex-1 w-full max-w-xs">
-                    <label className="text-white text-xs uppercase font-bold tracking-wider mb-2 block">Zoom</label>
+                    <label className="text-white text-xs uppercase font-bold tracking-wider mb-2 flex justify-between">
+                        <span>Zoom</span>
+                        <span className="text-gray-400">{zoom.toFixed(1)}x</span>
+                    </label>
                     <input
                         type="range"
                         value={zoom}
                         min={1}
                         max={3}
                         step={0.1}
-                        aria-labelledby="Zoom"
                         onChange={(e) => setZoom(Number(e.target.value))}
+                        className="w-full accent-accent-blue"
+                    />
+                </div>
+                <div className="flex-1 w-full max-w-xs">
+                    <label className="text-white text-xs uppercase font-bold tracking-wider mb-2 flex justify-between">
+                        <span>Rotation</span>
+                        <span className="text-gray-400">{rotation}°</span>
+                    </label>
+                    <input
+                        type="range"
+                        value={rotation}
+                        min={0}
+                        max={360}
+                        step={1}
+                        onChange={(e) => setRotation(Number(e.target.value))}
                         className="w-full accent-accent-blue"
                     />
                 </div>

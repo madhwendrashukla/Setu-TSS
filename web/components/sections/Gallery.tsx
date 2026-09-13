@@ -55,25 +55,62 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
     const slots = Array.from({ length: TOTAL_SLOTS }).map((_, i) => {
         return validData.find(item => item.display_order === i) || null;
     });
+
+    // Helper to parse size from caption
+    const parseSize = (caption: string | null) => {
+        if (!caption) return { size: 'standard', cleanCaption: '' };
+        const match = caption.match(/^SIZE:(standard|wide|tall|large)\|?(.*)$/);
+        if (match) return { size: match[1], cleanCaption: match[2] };
+        return { size: 'standard', cleanCaption: caption };
+    };
+
     // Helper to render an image item safely
-    const renderImage = (item: any, className: string) => {
+    const renderImage = (item: any) => {
         if (!item || !item.media_url) return null;
         
         const src = item.media_url;
         const isRotated = src.includes('IMG_1378.webp') || src.includes('IMG_1380.webp');
         const isVideo = item.type === 'video' || src.includes('youtube.com') || src.includes('youtu.be');
         
-        let thumbnailUrl = src;
+        let displayUrl = src;
+        let videoId = "";
+        
         if (isVideo) {
-            thumbnailUrl = getYouTubeData(src).thumbnailUrl;
+            const watchMatch = src.match(/watch\?v=([^&]+)/);
+            const shortMatch = src.match(/youtu\.be\/([^?]+)/);
+            const embedMatch = src.match(/embed\/([^?]+)/);
+            if (watchMatch) videoId = watchMatch[1];
+            else if (shortMatch) videoId = shortMatch[1];
+            else if (embedMatch) videoId = embedMatch[1];
+            
+            if (videoId) {
+                displayUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            }
         }
 
-        // Fallback for unconfigured domains in Next.js Image
-        const isExternal = thumbnailUrl.startsWith('http');
-        const isCurrentlyPlaying = activeVideo === src;
+        const { size, cleanCaption } = parseSize(item.caption);
+        const altText = cleanCaption || `Gallery image`;
+        
+        let gridClass = "row-span-1 col-span-1";
+        if (size === 'wide') gridClass = "row-span-1 col-span-2";
+        else if (size === 'tall') gridClass = "row-span-2 col-span-1";
+        else if (size === 'large') gridClass = "row-span-2 col-span-2";
+
+        const isExternal = displayUrl.startsWith('http');
+        const isCurrentlyPlaying = activeVideo === src || selectedVideo === src;
 
         return (
-            <div className={`relative overflow-hidden rounded-2xl group border border-functional-border bg-[#1e293b] ${className}`}>
+            <div 
+                className={`relative rounded-3xl overflow-hidden cursor-pointer group bg-[#1e293b] border border-functional-border snap-start shrink-0 h-full w-full ${gridClass}`}
+                onClick={() => {
+                    if (isVideo) {
+                        setActiveVideo(src);
+                        setSelectedVideo(src);
+                    } else {
+                        setSelectedImage({ url: src, caption: cleanCaption });
+                    }
+                }}
+            >
                 {isCurrentlyPlaying ? (
                     <iframe
                         src={`${getYouTubeData(src).embedUrl}?autoplay=1`}
@@ -85,26 +122,34 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                     <>
                         {isExternal ? (
                             <img
-                                src={thumbnailUrl}
-                                alt="Gallery image"
+                                src={displayUrl}
+                                alt={altText}
                                 className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${isRotated ? '-rotate-90 scale-[1.35]' : ''}`}
                             />
                         ) : (
                             <Image
-                                src={encodeURI(thumbnailUrl)}
-                                alt="Gallery image"
+                                src={encodeURI(displayUrl)}
+                                alt={altText}
                                 fill
                                 className={`object-cover transition-transform duration-700 group-hover:scale-110 ${isRotated ? '-rotate-90 scale-[1.35]' : ''}`}
                             />
                         )}
                         {isVideo && (
-                            <div 
-                                className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors cursor-pointer"
-                                onClick={() => setActiveVideo(src)}
-                            >
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
                                 <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                     <svg className="w-6 h-6 text-[#6B21FB] ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                 </div>
+                            </div>
+                        )}
+                        {/* Overlay for hover effect */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        
+                        {/* Caption (only visible on hover) */}
+                        {cleanCaption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                <p className="text-white text-sm md:text-base font-medium line-clamp-2 drop-shadow-md">
+                                    {cleanCaption}
+                                </p>
                             </div>
                         )}
                     </>
@@ -140,42 +185,37 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                 </div>
             </div>
 
-            {/* Scrollable Masonry Grid */}
-            <div className="w-full max-w-7xl mx-auto">
+            {/* Scrollable Grid */}
+            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6">
                 <div 
                     ref={scrollContainerRef}
-                    className="flex gap-4 md:gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar px-4 sm:px-6"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    className="grid gap-4 md:gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar"
+                    style={{ 
+                        scrollbarWidth: 'none', 
+                        msOverflowStyle: 'none',
+                        gridTemplateRows: 'repeat(2, minmax(180px, 1fr))',
+                        gridAutoColumns: 'calc(50vw - 2rem)',
+                        gridAutoFlow: 'column dense',
+                    }}
                 >
-                    {Array.from({ length: Math.ceil(TOTAL_SLOTS / 2) }).map((_, colIndex) => {
-                        const i = colIndex * 2;
-                        const j = i + 1;
-                        
-                        const item1 = slots[i];
-                        const item2 = j < TOTAL_SLOTS ? slots[j] : null;
+                    {/* Inline CSS to handle responsive columns */}
+                    <style dangerouslySetInnerHTML={{__html: `
+                        @media (min-width: 768px) {
+                            .grid { grid-auto-columns: calc(33.33vw - 2rem); }
+                        }
+                        @media (min-width: 1024px) {
+                            .grid { grid-auto-columns: minmax(280px, 1fr); }
+                        }
+                    `}} />
 
-                        // If the entire column is empty, don't render it on the frontend
-                        if (!item1 && !item2) return null;
-
-                        const colPattern = colIndex % 5;
-                        
-                        let h1, h2;
-                        if (colPattern === 0) { h1 = "h-[380px]"; h2 = "h-[220px]"; }
-                        else if (colPattern === 1) { h1 = "h-[220px]"; h2 = "h-[380px]"; }
-                        else if (colPattern === 2) { h1 = "h-[440px]"; h2 = "h-[160px]"; }
-                        else if (colPattern === 3) { h1 = "h-[360px]"; h2 = "h-[240px]"; }
-                        else { h1 = "h-[240px]"; h2 = "h-[360px]"; }
-
-                        return (
-                            <div key={colIndex} className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
-                                {item1 ? renderImage(item1, h1) : <div className={`${h1} invisible`} />}
-                                {item2 ? renderImage(item2, h2) : <div className={`${h2} invisible`} />}
-                            </div>
-                        );
-                    })}
-
+                    {slots.filter(item => item !== null).map((item, index) => (
+                        <div key={item ? item.id : `slot-${index}`} className="contents">
+                            {renderImage(item)}
+                        </div>
+                    ))}
+                    
                     {/* Trailing spacer for right-edge padding on mobile */}
-                    <div className="w-6 shrink-0" aria-hidden="true" />
+                    <div className="w-6 shrink-0 row-span-2 col-span-1" aria-hidden="true" />
                 </div>
             </div>
 

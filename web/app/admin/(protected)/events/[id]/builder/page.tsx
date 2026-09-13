@@ -617,6 +617,241 @@ const initialPageData = {
     coupon: { code: "EARLYBIRD", discount_percent: 20, active: true }
 };
 
+const SupportingImageEditor = ({ 
+    imageUrl, 
+    onUpload, 
+    event, 
+    pageData 
+}: { 
+    imageUrl?: string, 
+    onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void, 
+    event: any, 
+    pageData: any 
+}) => {
+    const [targetRatio, setTargetRatio] = useState<'1:1' | '4:5'>('1:1');
+    const [promptCopied, setPromptCopied] = useState(false);
+    const [showPromptBox, setShowPromptBox] = useState(false);
+    const [detectedDimensions, setDetectedDimensions] = useState<{ width: number; height: number; ratio: number; label: string } | null>(null);
+
+    useEffect(() => {
+        if (!imageUrl) {
+            setDetectedDimensions(null);
+            return;
+        }
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = () => {
+            const w = img.naturalWidth;
+            const h = img.naturalHeight;
+            const r = w / h;
+            let label = 'Square (1:1)';
+            if (r > 1.5) label = 'Landscape 16:9';
+            else if (r > 1.1) label = 'Landscape 4:3';
+            else if (r < 0.85) label = 'Portrait 4:5 / 9:16';
+            else label = 'Square (1:1)';
+            setDetectedDimensions({ width: w, height: h, ratio: r, label });
+        };
+    }, [imageUrl]);
+
+    // Build the AI Prompt based on event details
+    const eventTitle = event?.title || pageData?.hero?.headline?.replace(/<[^>]*>?/gm, '') || "Event Workshop";
+    const sectionHeadline = pageData?.output?.headline?.replace(/<[^>]*>?/gm, '') || "What You'll Learn";
+    const bulletsList = Array.isArray(pageData?.output?.bullets) 
+        ? pageData.output.bullets.filter(Boolean).map((b: string) => `• ${b}`).join('\n') 
+        : '';
+    const mentorsList = Array.isArray(pageData?.mentors?.items)
+        ? pageData.mentors.items.filter((m: any) => m.name).map((m: any) => `${m.name} (${m.professional_headline || m.role || ''})`).join(', ')
+        : '';
+
+    const generatedPrompt = `I have attached an existing 16:9 landscape workshop banner. 
+Please convert, rearrange, and adapt this into a clean, modern ${targetRatio === '1:1' ? '1:1 Square (1080x1080)' : '4:5 Vertical Poster (1080x1350)'} graphic that fits perfectly into a vertical section card without cutting off any text or graphics:
+
+1. CORE BRANDING & TYPOGRAPHY:
+- Title: "${eventTitle}"
+- Section Focus: "${sectionHeadline}"
+- Brand Style: Setu Startup School theme with deep navy (#13113B), vibrant violet/purple accents (#8B5CF6, #D946EF), crisp white text, and clean modern card aesthetic.
+
+2. INFORMATION TO RETAIN (DO NOT CUT OFF):
+${bulletsList ? `Key Topics / Deliverables:\n${bulletsList}` : ''}
+${mentorsList ? `Featured Speakers / Mentors: ${mentorsList}` : ''}
+
+3. COMPOSITION INSTRUCTIONS:
+- Rearrange the horizontal landscape layout into a balanced vertical / square format.
+- Do not stretch or distort the original image or text.
+- Ensure all text, logos, badges, and faces have generous margins from the edges so nothing gets cropped on the website.
+- Output aspect ratio: Exactly ${targetRatio} (${targetRatio === '1:1' ? '1080x1080' : '1080x1350'}).`;
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(generatedPrompt);
+        setPromptCopied(true);
+        setTimeout(() => setPromptCopied(false), 2500);
+    };
+
+    const isMismatch = detectedDimensions && detectedDimensions.ratio > 1.2;
+
+    return (
+        <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                <div>
+                    <label className="block text-sm font-bold text-gray-800">Supporting Image</label>
+                    <p className="text-xs text-gray-500">
+                        This image is displayed in the "The Output" section on the frontend as a vertical/square card (h: 600px).
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setShowPromptBox(!showPromptBox)}
+                    className="text-xs font-bold text-accent-blue hover:text-purple-700 flex items-center gap-1.5 bg-accent-blue/10 hover:bg-accent-blue/20 px-3 py-1.5 rounded-lg transition-all"
+                >
+                    <i className="fas fa-magic"></i>
+                    <span>{showPromptBox ? 'Hide AI Prompt Tool' : 'Generate AI Image Prompt'}</span>
+                </button>
+            </div>
+
+            <div className="border-2 border-dashed border-gray-200 rounded-xl p-5 bg-gray-50 space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={onUpload} 
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" 
+                    />
+                    <div className="text-xs font-semibold text-gray-500 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shrink-0">
+                        Target Ratio: <span className="text-purple-600 font-bold">1:1 Square</span> or <span className="text-purple-600 font-bold">4:5 Portrait</span>
+                    </div>
+                </div>
+
+                {imageUrl && (
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-5 pt-3 border-t border-gray-200/80">
+                        <div className="relative group shrink-0 rounded-xl overflow-hidden border border-gray-300 shadow-sm bg-slate-900 w-32 h-32 flex items-center justify-center p-1">
+                            <img src={imageUrl} alt="Supporting Image Preview" className="w-full h-full object-contain rounded-lg" />
+                        </div>
+
+                        <div className="flex-1 min-w-0 space-y-2">
+                            {detectedDimensions && (
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold ${
+                                        isMismatch 
+                                            ? 'bg-amber-100 text-amber-800 border border-amber-300' 
+                                            : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                    }`}>
+                                        <i className={`fas fa-${isMismatch ? 'triangle-exclamation' : 'check-circle'}`}></i>
+                                        Detected: {detectedDimensions.label} ({detectedDimensions.width} × {detectedDimensions.height}px)
+                                    </span>
+                                </div>
+                            )}
+
+                            {isMismatch ? (
+                                <div className="text-xs text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                                    <p className="font-bold mb-1">⚠️ Aspect ratio does not match vertical requirement:</p>
+                                    <p>
+                                        This image is <strong>{detectedDimensions?.label}</strong>, but this section requires a <strong>1:1 Square</strong> or <strong>4:5 Portrait</strong> image so that text, logos, and mentor photos don&apos;t look small or leave empty margins on the frontend.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPromptBox(true)}
+                                        className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-amber-900 bg-amber-200/80 hover:bg-amber-200 px-2.5 py-1 rounded transition-colors"
+                                    >
+                                        <i className="fas fa-wand-magic-sparkles"></i>
+                                        Click here to generate ChatGPT prompt to adapt this image
+                                    </button>
+                                </div>
+                            ) : (
+                                <p className="text-xs text-emerald-700 font-medium">
+                                    ✓ Aspect ratio is well-suited for the vertical card display on the website.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* AI Image Conversion Prompt Generator Box */}
+            {showPromptBox && (
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl p-5 space-y-4 shadow-sm animate-in fade-in duration-300">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-purple-200/60 pb-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-accent-blue text-white flex items-center justify-center text-xs shadow-sm">
+                                <i className="fas fa-robot"></i>
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-bold text-gray-900">AI Prompt Generator for Aspect Ratio Conversion</h4>
+                                <p className="text-xs text-gray-500">Paste this prompt + your image into ChatGPT / DALL-E to convert it without losing information.</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-bold text-gray-600">Target Ratio:</label>
+                            <div className="inline-flex rounded-lg bg-white p-1 border border-purple-200 shadow-xs">
+                                <button
+                                    type="button"
+                                    onClick={() => setTargetRatio('1:1')}
+                                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+                                        targetRatio === '1:1' 
+                                            ? 'bg-accent-blue text-white shadow-xs' 
+                                            : 'text-gray-600 hover:text-gray-900'
+                                    }`}
+                                >
+                                    1:1 Square
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setTargetRatio('4:5')}
+                                    className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+                                        targetRatio === '4:5' 
+                                            ? 'bg-accent-blue text-white shadow-xs' 
+                                            : 'text-gray-600 hover:text-gray-900'
+                                    }`}
+                                >
+                                    4:5 Portrait
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="relative">
+                            <textarea
+                                readOnly
+                                value={generatedPrompt}
+                                rows={7}
+                                className="w-full font-mono text-xs text-gray-800 bg-white border border-purple-200 rounded-xl p-3.5 outline-none custom-scrollbar leading-relaxed resize-y"
+                            />
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
+                            <div className="text-[11px] text-gray-500 flex items-center gap-2">
+                                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span>Includes current event title, headline, deliverables, and speaker credentials.</span>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={handleCopy}
+                                className={`px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 ${
+                                    promptCopied 
+                                        ? 'bg-emerald-600 text-white' 
+                                        : 'bg-accent-blue hover:bg-accent-blue/90 text-white'
+                                }`}
+                            >
+                                <i className={`fas fa-${promptCopied ? 'check' : 'copy'}`}></i>
+                                <span>{promptCopied ? 'Copied to Clipboard!' : 'Copy AI Prompt'}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/80 border border-purple-200/70 rounded-xl p-3 text-xs text-gray-600 space-y-1">
+                        <span className="font-bold text-purple-900 block mb-0.5">Quick How-To:</span>
+                        <p>1. Click <strong>Copy AI Prompt</strong> above.</p>
+                        <p>2. Open <strong>ChatGPT (GPT-4o)</strong>, attach your 16:9 image, and paste this prompt.</p>
+                        <p>3. Download the generated image and upload it in the file box above. It will fit 100% perfectly without any clipping!</p>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 export default function EventBuilderPage() {
     const params = useParams();
     const router = useRouter();
@@ -1010,13 +1245,12 @@ export default function EventBuilderPage() {
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-4">The Output</h2>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Headline (Rich Text)</label><div className="bg-white"><ReactQuill modules={quillModules} theme="snow" value={pageData.output?.headline || ""} onChange={val => updateData('output', 'headline', val)} /></div></div>
-                            <div>
-                                <label className="block text-sm font-bold mb-2 text-gray-700">Supporting Image</label>
-                                <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 bg-gray-50">
-                                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'output', 'image_url')} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-                                    {pageData.output?.image_url && <img src={pageData.output.image_url} alt="Preview" className="h-40 object-cover mt-4 rounded-lg shadow-sm" />}
-                                </div>
-                            </div>
+                            <SupportingImageEditor
+                                imageUrl={pageData.output?.image_url}
+                                onUpload={(e) => handleImageUpload(e, 'output', 'image_url')}
+                                event={event}
+                                pageData={pageData}
+                            />
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Deliverable Bullets</label><StringArrayEditor value={pageData.output?.bullets || []} onChange={v => updateData('output', 'bullets', v)} placeholder='e.g. "Build a SaaS...", "Raise Funds..."' /></div>
                         </div>
                     )}

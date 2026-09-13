@@ -14,9 +14,12 @@ export function DynamicOutcomes({ data }: { data: PageData }) {
                     {/* Left: Graphic */}
                     {output.image_url && (
                         <div className="w-full lg:w-1/2 flex justify-center">
-                            <div className="relative w-full max-w-lg aspect-square lg:aspect-auto lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
-                                <img src={output.image_url} alt="What you get" className="absolute inset-0 w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-gradient-to-tr from-purple-900/40 to-transparent mix-blend-multiply" />
+                            <div className="relative w-full max-w-lg aspect-square lg:aspect-auto lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-b from-slate-900 via-[#13113b] to-slate-950 flex items-center justify-center p-2 border border-slate-800/50 group">
+                                <img 
+                                    src={output.image_url} 
+                                    alt={output.headline ? output.headline.replace(/<[^>]*>?/gm, '') : "Workshop Overview"} 
+                                    className="w-full h-full object-contain rounded-2xl group-hover:scale-[1.02] transition-transform duration-500" 
+                                />
                             </div>
                         </div>
                     )}

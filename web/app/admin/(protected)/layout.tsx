@@ -54,6 +54,7 @@ const NAV_CATEGORIES = [
         title: "System",
         links: [
             { href: "/admin/settings", label: "Site Settings", icon: "fas fa-cog" },
+            { href: "/admin/audit-logs", label: "Login Activity", icon: "fas fa-shield-halved" },
         ]
     }
 ];
@@ -78,7 +79,8 @@ const PANEL_INFO: Record<string, string> = {
     "/admin/testimonials": "Manage student and partner testimonials, ratings, and feedback.",
     "/admin/tools": "Add useful downloadable resources, ICS files, and tools for students.",
     "/admin/chat-widgets": "Configure floating chat widgets or external help integrations like WhatsApp.",
-    "/admin/settings": "Update global site settings like contact emails, physical addresses, and phone numbers."
+    "/admin/settings": "Update global site settings like contact emails, physical addresses, and phone numbers.",
+    "/admin/audit-logs": "Monitor real-time admin login attempts, IP addresses, geographical locations, devices, operating systems, browsers, and success/failure status."
 };
 
 function AdminTopBar({ onToggleMenu, pathname }: { onToggleMenu: () => void, pathname: string }) {

@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { authenticator } = require('otplib');
 const qrcode = require('qrcode');
+const { logAdminLogin } = require('./utils/auditLogger');
 
 const app = express();
 app.disable('x-powered-by'); // Production hygiene: remove Express signature
@@ -78,11 +79,21 @@ app.use('/api/admin/handoff-exchange', adminHandoff.exchangeRouter);
 app.post('/api/admin/login', async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) {
+    logAdminLogin({ prisma, email, status: 'FAILED', failureReason: 'Missing email or password', req });
     return res.status(400).json({ error: 'Email and password are required' });
   }
   const user = await prisma.user.findUnique({ where: { email } });
-  const isValid = user && await bcrypt.compare(password, user.password);
-  if (!isValid || user.role !== 'admin') {
+  if (!user) {
+    logAdminLogin({ prisma, email, status: 'FAILED', failureReason: 'User not found', req });
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  const isValid = await bcrypt.compare(password, user.password);
+  if (!isValid) {
+    logAdminLogin({ prisma, email, status: 'FAILED', failureReason: 'Incorrect password', req });
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  if (user.role !== 'admin') {
+    logAdminLogin({ prisma, email, status: 'FAILED', failureReason: 'Unauthorized role (Non-admin)', req });
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
@@ -90,8 +101,10 @@ app.post('/api/admin/login', async (req, res) => {
   const tempToken = jwt.sign({ id: user.id, email: user.email, tempRole: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
 
   if (!user.two_factor_enabled) {
+    logAdminLogin({ prisma, email, status: 'SUCCESS', failureReason: 'Password verified (2FA Setup Required)', req });
     return res.json({ requireSetup: true, tempToken });
   } else {
+    logAdminLogin({ prisma, email, status: 'SUCCESS', failureReason: 'Password verified (2FA OTP Required)', req });
     return res.json({ requireOtp: true, tempToken });
   }
 });
@@ -124,12 +137,17 @@ app.post('/api/admin/verify-2fa-setup', async (req, res) => {
     if (decoded.tempRole !== 'admin') return res.status(403).json({ error: 'Not an admin' });
 
     const isValid = authenticator.verify({ token, secret });
-    if (!isValid) return res.status(400).json({ error: 'Invalid OTP' });
+    if (!isValid) {
+      logAdminLogin({ prisma, email: decoded.email, status: 'FAILED', failureReason: 'Invalid 2FA setup OTP', req });
+      return res.status(400).json({ error: 'Invalid OTP' });
+    }
 
     await prisma.user.update({
       where: { id: decoded.id },
       data: { two_factor_secret: secret, two_factor_enabled: true }
     });
+
+    logAdminLogin({ prisma, email: decoded.email, status: 'SUCCESS', failureReason: '2FA Setup Completed & Logged In', req });
 
     const finalToken = jwt.sign({ id: decoded.id, role: decoded.tempRole }, process.env.JWT_SECRET);
     res.json({ token: finalToken });
@@ -148,11 +166,17 @@ app.post('/api/admin/verify-otp', async (req, res) => {
 
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
     if (!user || !user.two_factor_enabled || !user.two_factor_secret) {
+      logAdminLogin({ prisma, email: decoded.email, status: 'FAILED', failureReason: '2FA not fully setup on account', req });
       return res.status(400).json({ error: '2FA not fully setup' });
     }
 
     const isValid = authenticator.verify({ token, secret: user.two_factor_secret });
-    if (!isValid) return res.status(400).json({ error: 'Invalid OTP' });
+    if (!isValid) {
+      logAdminLogin({ prisma, email: user.email, status: 'FAILED', failureReason: 'Invalid 2FA OTP code', req });
+      return res.status(400).json({ error: 'Invalid OTP' });
+    }
+
+    logAdminLogin({ prisma, email: user.email, status: 'SUCCESS', failureReason: '2FA Verified & Logged In', req });
 
     const finalToken = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
     res.json({ token: finalToken });
@@ -1465,6 +1489,89 @@ app.post('/api/admin/leads/mail-one/:id', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Lead single mail error:', error);
     res.status(500).json({ error: 'Failed to send email: ' + error.message });
+  }
+});
+
+// ─── ADMIN LOGIN AUDIT LOGS ──────────────────────────────────────────────────
+
+// Fetch login logs with filtering and pagination
+app.get('/api/admin/login-logs', authMiddleware, async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 25));
+    const statusFilter = req.query.status ? req.query.status.toUpperCase() : null;
+    const search = (req.query.search || '').trim();
+
+    const where = {};
+    if (statusFilter && statusFilter !== 'ALL') {
+      where.status = statusFilter;
+    }
+
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { ip_address: { contains: search, mode: 'insensitive' } },
+        { city: { contains: search, mode: 'insensitive' } },
+        { country: { contains: search, mode: 'insensitive' } },
+        { os: { contains: search, mode: 'insensitive' } },
+        { browser: { contains: search, mode: 'insensitive' } },
+        { device_type: { contains: search, mode: 'insensitive' } },
+        { failure_reason: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [logs, total, totalAttempts, successfulCount, failedCount, lastLogin] = await Promise.all([
+      prisma.adminLoginLog.findMany({
+        where,
+        orderBy: { created_at: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.adminLoginLog.count({ where }),
+      prisma.adminLoginLog.count(),
+      prisma.adminLoginLog.count({ where: { status: 'SUCCESS' } }),
+      prisma.adminLoginLog.count({ where: { status: 'FAILED' } }),
+      prisma.adminLoginLog.findFirst({
+        where: { status: 'SUCCESS' },
+        orderBy: { created_at: 'desc' },
+      }),
+    ]);
+
+    res.json({
+      logs,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit) || 1,
+      stats: {
+        totalAttempts,
+        successfulCount,
+        failedCount,
+        lastLoginTime: lastLogin ? lastLogin.created_at : null,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching admin login logs:', error);
+    res.status(500).json({ error: 'Failed to fetch login logs' });
+  }
+});
+
+// Delete a single log
+app.delete('/api/admin/login-logs/:id', authMiddleware, async (req, res) => {
+  try {
+    await prisma.adminLoginLog.delete({ where: { id: req.params.id } });
+    res.json({ success: true, message: 'Log entry deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete log entry' });
+  }
+});
+
+// Clear all login logs
+app.delete('/api/admin/login-logs', authMiddleware, async (req, res) => {
+  try {
+    await prisma.adminLoginLog.deleteMany({});
+    res.json({ success: true, message: 'All login logs cleared successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to clear login logs' });
   }
 });
 

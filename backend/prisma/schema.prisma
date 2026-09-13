@@ -513,3 +513,24 @@ model CertificationLogo {
 
   @@map("certification_logos")
 }
+
+model AdminLoginLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  email          String
+  status         String   // "SUCCESS" | "FAILED"
+  ip_address     String?
+  city           String?
+  region         String?
+  country        String?
+  device_type    String?  // "Laptop / Desktop", "Android", "Mac / MacBook", "iPhone", etc.
+  os             String?  // "Windows 10/11", "macOS", "Android", "iOS", etc.
+  browser        String?  // "Chrome", "Safari", "Edge", "Firefox", etc.
+  user_agent     String?
+  failure_reason String?
+  created_at     DateTime @default(now())
+
+  @@index([status])
+  @@index([created_at])
+  @@map("admin_login_logs")
+}
+

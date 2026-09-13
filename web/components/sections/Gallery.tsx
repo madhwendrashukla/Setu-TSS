@@ -48,8 +48,13 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
         }
     };
 
-    const validData = data && data.length > 0 ? data : GALLERY_PHOTOS.map(url => ({ media_url: url }));
-
+    const validData = data && data.length > 0 ? data : GALLERY_PHOTOS.map((url, i) => ({ media_url: url, display_order: i }));
+    const TOTAL_SLOTS = 30;
+    
+    // Map items exactly to their assigned slot indices based on display_order
+    const slots = Array.from({ length: TOTAL_SLOTS }).map((_, i) => {
+        return validData.find(item => item.display_order === i) || null;
+    });
     // Helper to render an image item safely
     const renderImage = (item: any, className: string) => {
         if (!item || !item.media_url) return null;
@@ -142,9 +147,16 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                     className="flex gap-4 md:gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar px-4 sm:px-6"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    {validData.length > 0 && Array.from({ length: Math.ceil(validData.length / 2) }).map((_, colIndex) => {
+                    {Array.from({ length: Math.ceil(TOTAL_SLOTS / 2) }).map((_, colIndex) => {
                         const i = colIndex * 2;
                         const j = i + 1;
+                        
+                        const item1 = slots[i];
+                        const item2 = j < TOTAL_SLOTS ? slots[j] : null;
+
+                        // If the entire column is empty, don't render it on the frontend
+                        if (!item1 && !item2) return null;
+
                         const colPattern = colIndex % 5;
                         
                         let h1, h2;
@@ -156,8 +168,8 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
 
                         return (
                             <div key={colIndex} className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
-                                {validData[i] && renderImage(validData[i], h1)}
-                                {validData[j] && renderImage(validData[j], h2)}
+                                {item1 ? renderImage(item1, h1) : <div className={`${h1} invisible`} />}
+                                {item2 ? renderImage(item2, h2) : <div className={`${h2} invisible`} />}
                             </div>
                         );
                     })}

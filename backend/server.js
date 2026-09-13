@@ -845,15 +845,14 @@ app.post('/api/admin/gallery', upload.single('media'), compressImage, async (req
   try {
     const data = { ...req.body };
     if (req.file) data.media_url = req.file.url;
-    data.display_order = parseInt(data.display_order) || 0;
-
-    if (data.display_order === 0) {
+    if (req.body.display_order === undefined || req.body.display_order === '') {
       // Auto order
       const maxOrder = await prisma.galleryItem.aggregate({
         _max: { display_order: true }
       });
       data.display_order = (maxOrder._max.display_order || 0) + 1;
     } else {
+      data.display_order = parseInt(req.body.display_order);
       // Order validation
       const existing = await prisma.galleryItem.findFirst({
         where: { display_order: data.display_order }

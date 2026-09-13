@@ -65,7 +65,7 @@ function SortableGallerySlot({
     });
     
     const style = { 
-        transform: CSS.Transform.toString(transform), 
+        transform: isDragging ? CSS.Transform.toString(transform) : undefined, 
         transition,
         opacity: isDragging ? 0.5 : 1,
         zIndex: isDragging ? 10 : 1,
@@ -396,7 +396,7 @@ export default function AdminGallery() {
                             <div className="grid gap-6 min-w-max pb-4" style={{ gridTemplateRows: 'repeat(2, 320px)', gridAutoColumns: '320px', gridAutoFlow: 'column dense' }}>
                                 {slots.map((item, i) => (
                                     <SortableGallerySlot 
-                                        key={i}
+                                        key={item ? item.id : `empty-slot-${i}`}
                                         slotIndex={i} 
                                         item={item} 
                                         isLocked={i > maxAllowedSlot}

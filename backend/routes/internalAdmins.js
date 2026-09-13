@@ -94,7 +94,7 @@ router.post('/sync', async (req, res) => {
         return res.status(400).json({ error: 'passwordHash is required to create a website account' });
       }
       await prisma.user.create({
-        data: { email, name, password: passwordHash, role: 'admin' },
+        data: { email, name, password: passwordHash, role: 'admin', admin_type: 'secondary' },
       });
       console.log(`[admin-sync] created website admin for ${email}`);
       return res.json({ ok: true, action: 'created' });

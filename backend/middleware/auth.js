@@ -31,12 +31,12 @@ const authMiddleware = async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, email: true, role: true },
+      select: { id: true, email: true, role: true, admin_type: true },
     });
     if (!user || user.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required.' });
     }
-    req.user = { ...decoded, id: user.id, email: user.email, role: user.role };
+    req.user = { ...decoded, id: user.id, email: user.email, role: user.role, admin_type: user.admin_type };
     next();
   } catch (err) {
     console.error('authMiddleware lookup failed:', err.message);

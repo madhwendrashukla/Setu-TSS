@@ -11,13 +11,15 @@ async function main() {
     where: { email },
     update: {
       password: passwordHash,
-      role: 'admin'
+      role: 'admin',
+      admin_type: 'primary'
     },
     create: {
       email,
       name: 'Admin',
       password: passwordHash,
-      role: 'admin'
+      role: 'admin',
+      admin_type: 'primary'
     }
   });
 

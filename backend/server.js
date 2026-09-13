@@ -98,8 +98,21 @@ app.post('/api/admin/login', async (req, res) => {
   }
 
   // Issue a short-lived temporary token for the next 2FA step
-  const tempToken = jwt.sign({ id: user.id, email: user.email, tempRole: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
+  const tempToken = jwt.sign({ id: user.id, email: user.email, tempRole: user.role, adminType: user.admin_type }, process.env.JWT_SECRET, { expiresIn: '15m' });
 
+  // Secondary admins always use shared MFA (primary admin's secret)
+  if (user.admin_type === 'secondary') {
+    // Find the primary admin to get their 2FA secret
+    const primaryAdmin = await prisma.user.findFirst({ where: { role: 'admin', admin_type: 'primary', two_factor_enabled: true } });
+    if (!primaryAdmin || !primaryAdmin.two_factor_secret) {
+      logAdminLogin({ prisma, email, status: 'FAILED', failureReason: 'Primary admin MFA not configured — secondary login blocked', req });
+      return res.status(403).json({ error: 'Primary admin has not configured MFA yet. Contact your administrator.' });
+    }
+    logAdminLogin({ prisma, email, status: 'SUCCESS', failureReason: 'Password verified (Shared MFA OTP Required)', req });
+    return res.json({ requireOtp: true, tempToken });
+  }
+
+  // Primary admin flow (existing behavior)
   if (!user.two_factor_enabled) {
     logAdminLogin({ prisma, email, status: 'SUCCESS', failureReason: 'Password verified (2FA Setup Required)', req });
     return res.json({ requireSetup: true, tempToken });
@@ -165,18 +178,37 @@ app.post('/api/admin/verify-otp', async (req, res) => {
     if (decoded.tempRole !== 'admin') return res.status(403).json({ error: 'Not an admin' });
 
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
-    if (!user || !user.two_factor_enabled || !user.two_factor_secret) {
-      logAdminLogin({ prisma, email: decoded.email, status: 'FAILED', failureReason: '2FA not fully setup on account', req });
-      return res.status(400).json({ error: '2FA not fully setup' });
+    if (!user) {
+      logAdminLogin({ prisma, email: decoded.email, status: 'FAILED', failureReason: 'User not found during OTP verification', req });
+      return res.status(400).json({ error: 'User not found' });
     }
 
-    const isValid = authenticator.verify({ token, secret: user.two_factor_secret });
+    // Determine which secret to verify against
+    let verifySecret;
+    if (user.admin_type === 'secondary') {
+      // Secondary admins use the primary admin's MFA secret
+      const primaryAdmin = await prisma.user.findFirst({ where: { role: 'admin', admin_type: 'primary', two_factor_enabled: true } });
+      if (!primaryAdmin || !primaryAdmin.two_factor_secret) {
+        logAdminLogin({ prisma, email: user.email, status: 'FAILED', failureReason: 'Primary admin MFA not configured', req });
+        return res.status(400).json({ error: 'Primary admin MFA not configured' });
+      }
+      verifySecret = primaryAdmin.two_factor_secret;
+    } else {
+      // Primary admin uses their own secret
+      if (!user.two_factor_enabled || !user.two_factor_secret) {
+        logAdminLogin({ prisma, email: decoded.email, status: 'FAILED', failureReason: '2FA not fully setup on account', req });
+        return res.status(400).json({ error: '2FA not fully setup' });
+      }
+      verifySecret = user.two_factor_secret;
+    }
+
+    const isValid = authenticator.verify({ token, secret: verifySecret });
     if (!isValid) {
-      logAdminLogin({ prisma, email: user.email, status: 'FAILED', failureReason: 'Invalid 2FA OTP code', req });
+      logAdminLogin({ prisma, email: user.email, status: 'FAILED', failureReason: `Invalid 2FA OTP code (${user.admin_type || 'primary'} admin)`, req });
       return res.status(400).json({ error: 'Invalid OTP' });
     }
 
-    logAdminLogin({ prisma, email: user.email, status: 'SUCCESS', failureReason: '2FA Verified & Logged In', req });
+    logAdminLogin({ prisma, email: user.email, status: 'SUCCESS', failureReason: `2FA Verified & Logged In (${user.admin_type || 'primary'} admin)`, req });
 
     const finalToken = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
     res.json({ token: finalToken });
@@ -187,6 +219,121 @@ app.post('/api/admin/verify-otp', async (req, res) => {
 
 app.get('/api/admin/verify', authMiddleware, (req, res) => {
   res.json({ valid: true });
+});
+
+// --- ADMIN ACCOUNT MANAGEMENT ---
+
+// Get current admin info
+app.get('/api/admin/me', authMiddleware, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, name: true, email: true, admin_type: true, created_at: true }
+    });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch admin info' });
+  }
+});
+
+// List all admin accounts (primary-only)
+app.get('/api/admin/admins', authMiddleware, async (req, res) => {
+  if (req.user.admin_type !== 'primary') return res.status(403).json({ error: 'Primary admin access required' });
+  try {
+    const admins = await prisma.user.findMany({
+      where: { role: 'admin' },
+      select: { id: true, name: true, email: true, admin_type: true, created_at: true, created_by: true },
+      orderBy: { created_at: 'asc' }
+    });
+    res.json(admins);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch admins' });
+  }
+});
+
+// Create secondary admin (primary-only)
+app.post('/api/admin/admins', authMiddleware, async (req, res) => {
+  if (req.user.admin_type !== 'primary') return res.status(403).json({ error: 'Primary admin access required' });
+  const { email, name, password } = req.body || {};
+  if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+  if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) return res.status(400).json({ error: 'An account with this email already exists' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAdmin = await prisma.user.create({
+      data: {
+        email: email.trim().toLowerCase(),
+        name: name?.trim() || null,
+        password: hashedPassword,
+        role: 'admin',
+        admin_type: 'secondary',
+        created_by: req.user.id
+      }
+    });
+
+    logAdminLogin({ prisma, email: req.user.email, status: 'SUCCESS', failureReason: `Secondary admin '${email}' created by primary admin`, req });
+    res.json({ id: newAdmin.id, email: newAdmin.email, name: newAdmin.name, admin_type: newAdmin.admin_type, created_at: newAdmin.created_at });
+  } catch (err) {
+    console.error('Create admin error:', err);
+    res.status(500).json({ error: 'Failed to create admin' });
+  }
+});
+
+// Delete secondary admin (primary-only)
+app.delete('/api/admin/admins/:id', authMiddleware, async (req, res) => {
+  if (req.user.admin_type !== 'primary') return res.status(403).json({ error: 'Primary admin access required' });
+  try {
+    const target = await prisma.user.findUnique({ where: { id: req.params.id } });
+    if (!target) return res.status(404).json({ error: 'Admin not found' });
+    if (target.admin_type === 'primary') return res.status(403).json({ error: 'Cannot delete primary admin account' });
+    if (target.role !== 'admin') return res.status(400).json({ error: 'Target is not an admin' });
+
+    await prisma.user.delete({ where: { id: req.params.id } });
+    logAdminLogin({ prisma, email: req.user.email, status: 'SUCCESS', failureReason: `Secondary admin '${target.email}' deleted by primary admin`, req });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete admin error:', err);
+    res.status(500).json({ error: 'Failed to delete admin' });
+  }
+});
+
+// Reset password (primary can reset any secondary; any admin can reset their own)
+app.put('/api/admin/admins/:id/reset-password', authMiddleware, async (req, res) => {
+  const { currentPassword, newPassword } = req.body || {};
+  if (!newPassword || newPassword.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters' });
+
+  try {
+    const target = await prisma.user.findUnique({ where: { id: req.params.id } });
+    if (!target || target.role !== 'admin') return res.status(404).json({ error: 'Admin not found' });
+
+    const isSelf = req.user.id === req.params.id;
+    const isPrimary = req.user.admin_type === 'primary';
+
+    // Self reset requires current password
+    if (isSelf) {
+      if (!currentPassword) return res.status(400).json({ error: 'Current password is required' });
+      const isMatch = await bcrypt.compare(currentPassword, target.password);
+      if (!isMatch) return res.status(400).json({ error: 'Current password is incorrect' });
+    } else {
+      // Only primary admin can reset other admins' passwords
+      if (!isPrimary) return res.status(403).json({ error: 'Primary admin access required' });
+      if (target.admin_type === 'primary') return res.status(403).json({ error: 'Cannot reset primary admin password from another account' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({ where: { id: req.params.id }, data: { password: hashedPassword } });
+
+    const action = isSelf ? 'own password reset' : `password reset for '${target.email}' by primary admin`;
+    logAdminLogin({ prisma, email: req.user.email, status: 'SUCCESS', failureReason: action, req });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
 });
 
 const authRoutes = require('./routes/auth');

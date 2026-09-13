@@ -97,17 +97,14 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
         else if (size === 'large') gridClass = "row-span-2 col-span-2";
 
         const isExternal = displayUrl.startsWith('http');
-        const isCurrentlyPlaying = activeVideo === src || selectedVideo === src;
+        const isCurrentlyPlaying = activeVideo === src;
 
         return (
             <div 
-                className={`relative rounded-3xl overflow-hidden cursor-pointer group bg-[#1e293b] border border-functional-border snap-start shrink-0 h-full w-full ${gridClass}`}
+                className={`relative rounded-3xl overflow-hidden group bg-[#1e293b] border border-functional-border snap-start shrink-0 h-full w-full ${gridClass}`}
                 onClick={() => {
                     if (isVideo) {
                         setActiveVideo(src);
-                        setSelectedVideo(src);
-                    } else {
-                        setSelectedImage({ url: src, caption: cleanCaption });
                     }
                 }}
             >

@@ -15,7 +15,15 @@ const GALLERY_PHOTOS = [
     "/gallery/IMG_0845.webp", // Repeating for demo
 ];
 
-function getYouTubeData(url: string) {
+function getVideoData(url: string) {
+    const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^\/]+)/);
+    if (driveMatch) {
+        return {
+            embedUrl: `https://drive.google.com/file/d/${driveMatch[1]}/preview`,
+            thumbnailUrl: `https://placehold.co/600x400/1e293b/FFFFFF/png?text=Play+Video`
+        };
+    }
+
     let videoId = "";
     const watchMatch = url.match(/watch\?v=([^&]+)/);
     const shortMatch = url.match(/youtu\.be\/([^?]+)/);
@@ -61,11 +69,11 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
         
         const src = item.media_url;
         const isRotated = src.includes('IMG_1378.webp') || src.includes('IMG_1380.webp');
-        const isVideo = item.type === 'video' || src.includes('youtube.com') || src.includes('youtu.be');
+        const isVideo = item.type === 'video' || src.includes('youtube.com') || src.includes('youtu.be') || src.includes('drive.google.com');
         
         let thumbnailUrl = src;
         if (isVideo) {
-            thumbnailUrl = getYouTubeData(src).thumbnailUrl;
+            thumbnailUrl = getVideoData(src).thumbnailUrl;
         }
 
         // Fallback for unconfigured domains in Next.js Image
@@ -76,7 +84,7 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
             <div className={`relative overflow-hidden rounded-2xl group border border-functional-border bg-[#1e293b] ${className}`}>
                 {isCurrentlyPlaying ? (
                     <iframe
-                        src={`${getYouTubeData(src).embedUrl}?autoplay=1`}
+                        src={`${getVideoData(src).embedUrl}?autoplay=1`}
                         className="w-full h-full object-cover"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen

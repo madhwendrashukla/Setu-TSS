@@ -14,7 +14,15 @@ function readFile(file: File): Promise<string> {
     });
 }
 
-function getYouTubeData(url: string) {
+function getVideoData(url: string) {
+    const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^\/]+)/);
+    if (driveMatch) {
+        return {
+            embedUrl: `https://drive.google.com/file/d/${driveMatch[1]}/preview`,
+            thumbnailUrl: `https://placehold.co/600x400/1e293b/FFFFFF/png?text=Play+Video`
+        };
+    }
+
     let videoId = "";
     const watchMatch = url.match(/watch\?v=([^&]+)/);
     const shortMatch = url.match(/youtu\.be\/([^?]+)/);
@@ -94,10 +102,10 @@ function SortableGallerySlot({
         );
     }
 
-    const isVideo = item.type === 'video' || (item.media_url && (item.media_url.includes('youtube.com') || item.media_url.includes('youtu.be')));
+    const isVideo = item.type === 'video' || (item.media_url && (item.media_url.includes('youtube.com') || item.media_url.includes('youtu.be') || item.media_url.includes('drive.google.com')));
     let displayUrl = item.media_url;
     if (isVideo && item.media_url) {
-        displayUrl = getYouTubeData(item.media_url).thumbnailUrl;
+        displayUrl = getVideoData(item.media_url).thumbnailUrl;
     }
 
     let displayCaption = item.caption || '';
@@ -450,7 +458,7 @@ export default function AdminGallery() {
                                     className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
                                 >
                                     <option value="image">Image</option>
-                                    <option value="video">Video (YouTube)</option>
+                                    <option value="video">Video (YouTube / Google Drive)</option>
                                 </select>
                             </div>
                             
@@ -468,7 +476,7 @@ export default function AdminGallery() {
                                 </div>
                             ) : (
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1.5">YouTube URL</label>
+                                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Video URL (YouTube / Google Drive)</label>
                                     <input 
                                         required value={formData.media_url} 
                                         onChange={e => setFormData({...formData, media_url: e.target.value})} 

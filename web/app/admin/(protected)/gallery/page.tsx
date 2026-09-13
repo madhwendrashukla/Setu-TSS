@@ -33,14 +33,16 @@ function getYouTubeData(url: string) {
     return { embedUrl: url, thumbnailUrl: url };
 }
 
-const getSlotHeight = (index: number) => {
-    const colPattern = Math.floor(index / 2) % 5;
-    const isTop = index % 2 === 0;
-    if (colPattern === 0) return isTop ? 380 : 220;
-    if (colPattern === 1) return isTop ? 220 : 380;
-    if (colPattern === 2) return isTop ? 440 : 160;
-    if (colPattern === 3) return isTop ? 360 : 240;
-    return isTop ? 240 : 360;
+function getSlotHeightFromItem(item: any | null) {
+    let size = 'medium';
+    if (item && item.caption) {
+        const sizeMatch = item.caption.match(/^SIZE:([^|]+)\|/);
+        if (sizeMatch) size = sizeMatch[1];
+    }
+    if (size === 'small') return 220;
+    if (size === 'large') return 420;
+    if (size === 'tall') return 640;
+    return 320; // default medium
 }
 
 function SortableGallerySlot({ 
@@ -66,11 +68,10 @@ function SortableGallerySlot({
         transform: CSS.Transform.toString(transform), 
         transition,
         opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 10 : 1
+        zIndex: isDragging ? 10 : 1,
     };
 
-    const heightPx = getSlotHeight(slotIndex);
-    const heightClass = `h-[${heightPx}px]`; // Used for dynamic inline style if Tailwind doesn't compile it
+    const heightPx = getSlotHeightFromItem(item);
 
     if (!item) {
         return (
@@ -85,7 +86,7 @@ function SortableGallerySlot({
                 onDoubleClick={() => {
                     if (!isLocked) onDoubleClick(slotIndex, null);
                 }} 
-                className={`relative group bg-gray-50 border-2 border-dashed ${isLocked ? 'border-gray-200 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100 hover:border-gray-400'} rounded-2xl flex flex-col items-center justify-center shrink-0 w-full transition-all`}
+                className={`relative group bg-gray-50 border-2 border-dashed ${isLocked ? 'border-gray-200 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100 hover:border-gray-400'} rounded-2xl flex flex-col items-center justify-center shrink-0 w-full h-full transition-all`}
             >
                 <i className={`fa-solid ${isLocked ? 'fa-lock text-gray-300' : 'fa-plus text-gray-400 group-hover:scale-110'} text-2xl mb-2 transition-transform`}></i>
                 <span className={`text-xs font-semibold ${isLocked ? 'text-gray-300' : 'text-gray-400'} uppercase tracking-wider`}>Slot {slotIndex + 1}</span>
@@ -99,15 +100,18 @@ function SortableGallerySlot({
         displayUrl = getYouTubeData(item.media_url).thumbnailUrl;
     }
 
+    let displayCaption = item.caption || '';
+    displayCaption = displayCaption.replace(/^SIZE:[^|]+\|/, '');
+
     return (
         <div 
             ref={setNodeRef} 
             style={{ ...style, height: `${heightPx}px` }} 
             onDoubleClick={() => onDoubleClick(slotIndex, item)} 
-            className={`relative group bg-[#1e293b] border border-gray-700/50 rounded-2xl overflow-hidden shadow-sm flex flex-col shrink-0 w-full`}
+            className={`relative group bg-[#1e293b] border border-gray-700/50 rounded-2xl overflow-hidden shadow-sm flex flex-col shrink-0 w-full h-full`}
         >
             <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative overflow-hidden bg-gray-900">
-                <Image src={displayUrl} alt={item.caption ?? ''} fill className="object-cover pointer-events-none" unoptimized />
+                <Image src={displayUrl} alt={displayCaption} fill className="object-cover pointer-events-none" unoptimized />
                 {isVideo && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
                         <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow">
@@ -117,8 +121,8 @@ function SortableGallerySlot({
                 )}
             </div>
             <div className="p-2 border-t border-gray-800 flex justify-between items-center bg-gray-900/90 h-9 shrink-0">
-                <p className="text-xs text-gray-300 font-medium truncate" title={item.caption ?? item.type}>
-                    <span className="text-gray-500 mr-1">#{slotIndex + 1}</span> {item.caption || (item.type === 'video' ? 'Video' : 'Image')}
+                <p className="text-xs text-gray-300 font-medium truncate" title={displayCaption || item.type}>
+                    <span className="text-gray-500 mr-1">#{slotIndex + 1}</span> {displayCaption || (item.type === 'video' ? 'Video' : 'Image')}
                 </p>
                 <i className="fas fa-grip-vertical text-gray-500 cursor-grab px-1" {...attributes} {...listeners}></i>
             </div>
@@ -143,7 +147,7 @@ export default function AdminGallery() {
     const [uploading, setUploading] = useState(false);
     
     // Form State (Add/Edit)
-    const [formData, setFormData] = useState({ type: "image", caption: "", media_url: "" });
+    const [formData, setFormData] = useState({ type: "image", caption: "", media_url: "", size: "medium" });
     const [file, setFile] = useState<File | null>(null);
     
     // Cropper State
@@ -175,18 +179,33 @@ export default function AdminGallery() {
     const handleDoubleClick = (slotIndex: number, item: any | null) => {
         setEditingSlotIndex(slotIndex);
         
-        // Calculate aspect ratio for cropper based on this specific slot's skeleton height
-        const height = getSlotHeight(slotIndex);
-        setCurrentCropAspect(320 / height);
+        let size = "medium";
+        let caption = "";
+        if (item) {
+            caption = item.caption || "";
+            const sizeMatch = caption.match(/^SIZE:([^|]+)\|/);
+            if (sizeMatch) {
+                size = sizeMatch[1];
+                caption = caption.replace(/^SIZE:[^|]+\|/, '');
+            }
+        }
+        
+        // Calculate aspect ratio based on selected size
+        let heightPx = 320;
+        if (size === 'small') heightPx = 220;
+        if (size === 'large') heightPx = 420;
+        if (size === 'tall') heightPx = 640;
+
+        setCurrentCropAspect(320 / heightPx);
 
         if (item) {
             setEditingItem(item);
-            setFormData({ type: item.type, caption: item.caption || "", media_url: item.media_url || "" });
+            setFormData({ type: item.type, caption, media_url: item.media_url || "", size });
             setIsEditOptionsModalOpen(true);
         } else {
             if (slotIndex > maxAllowedSlot) return; 
             setEditingItem(null);
-            setFormData({ type: "image", caption: "", media_url: "" });
+            setFormData({ type: "image", caption: "", media_url: "", size: "medium" });
             setFile(null);
             setIsAddModalOpen(true);
         }
@@ -196,9 +215,11 @@ export default function AdminGallery() {
         if (e) e.preventDefault();
         setUploading(true);
         
+        const finalCaption = `SIZE:${formData.size}|${formData.caption}`;
+        
         const data = new FormData();
         data.append('type', formData.type);
-        data.append('caption', formData.caption);
+        data.append('caption', finalCaption);
         data.append('display_order', String(editingSlotIndex ?? 0));
         
         if (formData.type === 'video') {
@@ -344,7 +365,7 @@ export default function AdminGallery() {
                         <div>
                             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Gallery Editor</h1>
                             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                                Drag & drop images into the precise masonry skeleton matching the live website.
+                                Drag & drop and resize your blocks horizontally.
                             </p>
                         </div>
                     </div>
@@ -375,35 +396,18 @@ export default function AdminGallery() {
                 <div className="overflow-x-auto pb-4 pt-12 hide-scrollbar">
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-                            <div className="flex gap-4 md:gap-6 min-w-max">
-                                {Array.from({ length: Math.ceil(TOTAL_SLOTS / 2) }).map((_, colIndex) => {
-                                    const i = colIndex * 2;
-                                    const j = i + 1;
-                                    
-                                    const item1 = slots[i];
-                                    const item2 = j < TOTAL_SLOTS ? slots[j] : null;
-
-                                    return (
-                                        <div key={colIndex} className="flex flex-col gap-4 md:gap-6 w-[280px] md:w-[320px] shrink-0">
-                                            <SortableGallerySlot 
-                                                slotIndex={i} 
-                                                item={item1} 
-                                                isLocked={i > maxAllowedSlot}
-                                                onDoubleClick={handleDoubleClick}
-                                                onDelete={handleDelete}
-                                            />
-                                            {j < TOTAL_SLOTS && (
-                                                <SortableGallerySlot 
-                                                    slotIndex={j} 
-                                                    item={item2} 
-                                                    isLocked={j > maxAllowedSlot}
-                                                    onDoubleClick={handleDoubleClick}
-                                                    onDelete={handleDelete}
-                                                />
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                            <div className="h-[660px] min-w-max" style={{ columnWidth: '320px', columnGap: '24px' }}>
+                                {slots.map((item, i) => (
+                                    <div key={i} className="mb-6 snap-start shrink-0 inline-block w-full" style={{ breakInside: 'avoid', breakBefore: 'auto', breakAfter: 'auto' }}>
+                                        <SortableGallerySlot 
+                                            slotIndex={i} 
+                                            item={item} 
+                                            isLocked={i > maxAllowedSlot}
+                                            onDoubleClick={handleDoubleClick}
+                                            onDelete={handleDelete}
+                                        />
+                                    </div>
+                                ))}
                             </div>
                         </SortableContext>
                     </DndContext>
@@ -423,6 +427,27 @@ export default function AdminGallery() {
                             </button>
                         </div>
                         <form onSubmit={handleSaveSlot} className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1.5">Block Height</label>
+                                <select 
+                                    value={formData.size} 
+                                    onChange={e => {
+                                        setFormData({...formData, size: e.target.value});
+                                        let h = 320;
+                                        if (e.target.value === 'small') h = 220;
+                                        if (e.target.value === 'large') h = 420;
+                                        if (e.target.value === 'tall') h = 640;
+                                        setCurrentCropAspect(320 / h);
+                                    }}
+                                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                                >
+                                    <option value="small">Small (~220px)</option>
+                                    <option value="medium">Medium (~320px)</option>
+                                    <option value="large">Large (~420px)</option>
+                                    <option value="tall">Extra Tall (~640px)</option>
+                                </select>
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1.5">Media Type</label>
                                 <select 
@@ -490,7 +515,28 @@ export default function AdminGallery() {
                             </button>
                         </div>
                         
-                        <div className="space-y-3 mb-6">
+                        <div className="space-y-4 mb-6">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1.5">Block Height</label>
+                                <select 
+                                    value={formData.size} 
+                                    onChange={e => {
+                                        setFormData({...formData, size: e.target.value});
+                                        let h = 320;
+                                        if (e.target.value === 'small') h = 220;
+                                        if (e.target.value === 'large') h = 420;
+                                        if (e.target.value === 'tall') h = 640;
+                                        setCurrentCropAspect(320 / h);
+                                    }}
+                                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                                >
+                                    <option value="small">Small (~220px)</option>
+                                    <option value="medium">Medium (~320px)</option>
+                                    <option value="large">Large (~420px)</option>
+                                    <option value="tall">Extra Tall (~640px)</option>
+                                </select>
+                            </div>
+
                             {editingItem.type === 'image' && (
                                 <button onClick={() => setImageSrc(editingItem.media_url)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold transition-colors">
                                     <i className="fa-solid fa-crop-simple w-5"></i> Rotate / Re-Crop Image
@@ -498,6 +544,9 @@ export default function AdminGallery() {
                             )}
                             <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold transition-colors">
                                 <i className="fa-solid fa-upload w-5"></i> Replace Media
+                            </button>
+                            <button onClick={() => handleSaveSlot()} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition-colors">
+                                <i className="fa-solid fa-floppy-disk w-5"></i> Save Height Changes
                             </button>
                         </div>
                         
@@ -519,7 +568,9 @@ export default function AdminGallery() {
                         // Proceed to save immediately if we were editing an existing item
                         if (editingItem) {
                             setUploading(true);
+                            const finalCaption = `SIZE:${formData.size}|${formData.caption}`;
                             const data = new FormData();
+                            data.append('caption', finalCaption);
                             data.append('media', croppedFile);
                             try {
                                 const res = await fetch(`${API}/api/admin/gallery/${editingItem.id}`, { 

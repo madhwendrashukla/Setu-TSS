@@ -142,41 +142,39 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
             </div>
 
             {/* Scrollable Masonry Grid */}
-            <div className="w-full max-w-7xl mx-auto">
+            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6">
                 <div 
                     ref={scrollContainerRef}
-                    className="flex gap-4 md:gap-6 overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar px-4 sm:px-6"
+                    className="overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    {Array.from({ length: Math.ceil(TOTAL_SLOTS / 2) }).map((_, colIndex) => {
-                        const i = colIndex * 2;
-                        const j = i + 1;
-                        
-                        const item1 = slots[i];
-                        const item2 = j < TOTAL_SLOTS ? slots[j] : null;
+                    <div className="h-[660px]" style={{ columnWidth: '320px', columnGap: '24px' }}>
+                        {validData.filter(item => item && item.media_url).map((item, i) => {
+                            const rawCaption = item.caption || '';
+                            let size = 'medium';
+                            let cleanCaption = rawCaption;
+                            
+                            const sizeMatch = rawCaption.match(/^SIZE:([^|]+)\|/);
+                            if (sizeMatch) {
+                                size = sizeMatch[1];
+                                cleanCaption = rawCaption.replace(/^SIZE:[^|]+\|/, '');
+                            }
 
-                        // If the entire column is empty, don't render it on the frontend
-                        if (!item1 && !item2) return null;
+                            let heightClass = "h-[320px]"; // medium
+                            if (size === 'small') heightClass = "h-[220px]";
+                            else if (size === 'large') heightClass = "h-[420px]";
+                            else if (size === 'tall') heightClass = "h-[640px]"; // Almost full height
 
-                        const colPattern = colIndex % 5;
-                        
-                        let h1, h2;
-                        if (colPattern === 0) { h1 = "h-[380px]"; h2 = "h-[220px]"; }
-                        else if (colPattern === 1) { h1 = "h-[220px]"; h2 = "h-[380px]"; }
-                        else if (colPattern === 2) { h1 = "h-[440px]"; h2 = "h-[160px]"; }
-                        else if (colPattern === 3) { h1 = "h-[360px]"; h2 = "h-[240px]"; }
-                        else { h1 = "h-[240px]"; h2 = "h-[360px]"; }
+                            // Mutate item to pass the cleaned caption for alt text (and to avoid bugs)
+                            const renderItem = { ...item, caption: cleanCaption };
 
-                        return (
-                            <div key={colIndex} className="flex flex-col gap-4 md:gap-6 w-[75vw] sm:w-[280px] md:w-[320px] shrink-0 snap-start">
-                                {item1 ? renderImage(item1, h1) : <div className={`${h1} invisible`} />}
-                                {item2 ? renderImage(item2, h2) : <div className={`${h2} invisible`} />}
-                            </div>
-                        );
-                    })}
-
-                    {/* Trailing spacer for right-edge padding on mobile */}
-                    <div className="w-6 shrink-0" aria-hidden="true" />
+                            return (
+                                <div key={item.id || i} className={`w-full mb-6 snap-start shrink-0 inline-block ${heightClass}`} style={{ breakInside: 'avoid', breakBefore: 'auto', breakAfter: 'auto' }}>
+                                    {renderImage(renderItem, 'w-full h-full')}
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
 

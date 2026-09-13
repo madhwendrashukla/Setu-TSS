@@ -94,6 +94,7 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                                 src={encodeURI(thumbnailUrl)}
                                 alt="Gallery image"
                                 fill
+                                unoptimized={true}
                                 className={`object-cover transition-transform duration-700 group-hover:scale-110 ${isRotated ? '-rotate-90 scale-[1.35]' : ''}`}
                             />
                         )}

@@ -33,18 +33,15 @@ function getYouTubeData(url: string) {
     return { embedUrl: url, thumbnailUrl: url };
 }
 
-// Helpers to extract and embed size in caption
-const parseSize = (caption: string | null) => {
-    if (!caption) return { size: 'standard', cleanCaption: '' };
-    const match = caption.match(/^SIZE:(standard|wide|tall|large)\|?(.*)$/);
-    if (match) return { size: match[1], cleanCaption: match[2] };
-    return { size: 'standard', cleanCaption: caption };
-};
-
-const buildCaption = (size: string, cleanCaption: string) => {
-    if (size === 'standard' && !cleanCaption) return '';
-    return `SIZE:${size}|${cleanCaption}`;
-};
+const getSlotHeight = (index: number) => {
+    const colPattern = Math.floor(index / 2) % 5;
+    const isTop = index % 2 === 0;
+    if (colPattern === 0) return isTop ? 380 : 220;
+    if (colPattern === 1) return isTop ? 220 : 380;
+    if (colPattern === 2) return isTop ? 440 : 160;
+    if (colPattern === 3) return isTop ? 360 : 240;
+    return isTop ? 240 : 360;
+}
 
 function SortableGallerySlot({ 
     slotIndex, 
@@ -62,7 +59,7 @@ function SortableGallerySlot({
     const id = item ? item.id : `empty-slot-${slotIndex}`;
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
         id,
-        disabled: isLocked && !item // Can't drag locked empty slots
+        disabled: isLocked && !item
     });
     
     const style = { 
@@ -72,20 +69,14 @@ function SortableGallerySlot({
         zIndex: isDragging ? 10 : 1
     };
 
-    const { size, cleanCaption } = parseSize(item?.caption);
-
-    let gridClass = "col-span-1 row-span-1 min-h-[160px] md:min-h-[180px]";
-    if (item) {
-        if (size === 'wide') gridClass = "col-span-1 md:col-span-2 row-span-1 min-h-[160px] md:min-h-[180px]";
-        else if (size === 'tall') gridClass = "col-span-1 row-span-2 min-h-[336px] md:min-h-[376px]";
-        else if (size === 'large') gridClass = "col-span-1 md:col-span-2 row-span-2 min-h-[336px] md:min-h-[376px]";
-    }
+    const heightPx = getSlotHeight(slotIndex);
+    const heightClass = `h-[${heightPx}px]`; // Used for dynamic inline style if Tailwind doesn't compile it
 
     if (!item) {
         return (
             <div 
                 ref={setNodeRef} 
-                style={style} 
+                style={{ ...style, height: `${heightPx}px` }} 
                 {...(isLocked ? {} : attributes)} 
                 {...(isLocked ? {} : listeners)}
                 onClick={() => {
@@ -94,7 +85,7 @@ function SortableGallerySlot({
                 onDoubleClick={() => {
                     if (!isLocked) onDoubleClick(slotIndex, null);
                 }} 
-                className={`relative group bg-gray-50 border-2 border-dashed ${isLocked ? 'border-gray-200 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100 hover:border-gray-400'} rounded-xl flex flex-col items-center justify-center shrink-0 transition-all ${gridClass}`}
+                className={`relative group bg-gray-50 border-2 border-dashed ${isLocked ? 'border-gray-200 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100 hover:border-gray-400'} rounded-2xl flex flex-col items-center justify-center shrink-0 w-full transition-all`}
             >
                 <i className={`fa-solid ${isLocked ? 'fa-lock text-gray-300' : 'fa-plus text-gray-400 group-hover:scale-110'} text-2xl mb-2 transition-transform`}></i>
                 <span className={`text-xs font-semibold ${isLocked ? 'text-gray-300' : 'text-gray-400'} uppercase tracking-wider`}>Slot {slotIndex + 1}</span>
@@ -111,12 +102,12 @@ function SortableGallerySlot({
     return (
         <div 
             ref={setNodeRef} 
-            style={style} 
+            style={{ ...style, height: `${heightPx}px` }} 
             onDoubleClick={() => onDoubleClick(slotIndex, item)} 
-            className={`relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col shrink-0 ${gridClass}`}
+            className={`relative group bg-[#1e293b] border border-gray-700/50 rounded-2xl overflow-hidden shadow-sm flex flex-col shrink-0 w-full`}
         >
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative overflow-hidden bg-gray-100">
-                <Image src={displayUrl} alt={cleanCaption} fill className="object-cover pointer-events-none" unoptimized />
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative overflow-hidden bg-gray-900">
+                <Image src={displayUrl} alt={item.caption ?? ''} fill className="object-cover pointer-events-none" unoptimized />
                 {isVideo && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
                         <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow">
@@ -124,15 +115,12 @@ function SortableGallerySlot({
                         </div>
                     </div>
                 )}
-                <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase">
-                    {size}
-                </div>
             </div>
-            <div className="p-2 border-t border-gray-100 flex justify-between items-center bg-gray-50 h-9 shrink-0">
-                <p className="text-xs text-gray-600 font-medium truncate" title={cleanCaption || item.type}>
-                    <span className="text-gray-400 mr-1">#{slotIndex + 1}</span> {cleanCaption || (item.type === 'video' ? 'Video' : 'Image')}
+            <div className="p-2 border-t border-gray-800 flex justify-between items-center bg-gray-900/90 h-9 shrink-0">
+                <p className="text-xs text-gray-300 font-medium truncate" title={item.caption ?? item.type}>
+                    <span className="text-gray-500 mr-1">#{slotIndex + 1}</span> {item.caption || (item.type === 'video' ? 'Video' : 'Image')}
                 </p>
-                <i className="fas fa-grip-vertical text-gray-400 cursor-grab px-1" {...attributes} {...listeners}></i>
+                <i className="fas fa-grip-vertical text-gray-500 cursor-grab px-1" {...attributes} {...listeners}></i>
             </div>
             <button onPointerDown={(e) => { e.stopPropagation(); onDelete(item.id); }}
                 className="absolute top-2 right-2 bg-rose-600 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition z-10 shadow-sm cursor-pointer hover:bg-rose-700 font-bold">
@@ -155,11 +143,12 @@ export default function AdminGallery() {
     const [uploading, setUploading] = useState(false);
     
     // Form State (Add/Edit)
-    const [formData, setFormData] = useState({ type: "image", caption: "", media_url: "", size: "standard" });
+    const [formData, setFormData] = useState({ type: "image", caption: "", media_url: "" });
     const [file, setFile] = useState<File | null>(null);
     
     // Cropper State
     const [imageSrc, setImageSrc] = useState<string | null>(null);
+    const [currentCropAspect, setCurrentCropAspect] = useState<number>(1);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const token = () => localStorage.getItem("adminToken");
@@ -176,29 +165,28 @@ export default function AdminGallery() {
 
     useEffect(() => { fetchItems(); }, []);
 
-    // Build the 30 slots
     const slots = Array.from({ length: TOTAL_SLOTS }).map((_, i) => {
         return items.find(item => item.display_order === i) || null;
     });
 
-    // Find first empty index to enforce sequential filling
     const firstEmptyIndex = slots.findIndex(s => !s);
     const maxAllowedSlot = firstEmptyIndex === -1 ? TOTAL_SLOTS - 1 : firstEmptyIndex;
 
     const handleDoubleClick = (slotIndex: number, item: any | null) => {
         setEditingSlotIndex(slotIndex);
+        
+        // Calculate aspect ratio for cropper based on this specific slot's skeleton height
+        const height = getSlotHeight(slotIndex);
+        setCurrentCropAspect(320 / height);
+
         if (item) {
             setEditingItem(item);
-            const { size, cleanCaption } = parseSize(item.caption);
-            setFormData({ type: item.type, caption: cleanCaption, media_url: item.media_url || "", size });
-            
-            // Open Options Modal instead of forcing crop immediately
+            setFormData({ type: item.type, caption: item.caption || "", media_url: item.media_url || "" });
             setIsEditOptionsModalOpen(true);
         } else {
-            if (slotIndex > maxAllowedSlot) return; // Disallow skipping
-            // Empty slot -> Add new
+            if (slotIndex > maxAllowedSlot) return; 
             setEditingItem(null);
-            setFormData({ type: "image", caption: "", media_url: "", size: "standard" });
+            setFormData({ type: "image", caption: "", media_url: "" });
             setFile(null);
             setIsAddModalOpen(true);
         }
@@ -210,7 +198,7 @@ export default function AdminGallery() {
         
         const data = new FormData();
         data.append('type', formData.type);
-        data.append('caption', buildCaption(formData.size, formData.caption));
+        data.append('caption', formData.caption);
         data.append('display_order', String(editingSlotIndex ?? 0));
         
         if (formData.type === 'video') {
@@ -252,7 +240,7 @@ export default function AdminGallery() {
             const f = e.target.files[0];
             const dataUrl = await readFile(f);
             setImageSrc(dataUrl);
-            setIsEditOptionsModalOpen(false); // Close options modal if open
+            setIsEditOptionsModalOpen(false);
         }
         e.target.value = '';
     };
@@ -261,6 +249,22 @@ export default function AdminGallery() {
         if (!confirm("Remove this gallery item?")) return;
         await fetch(`${API}/api/admin/gallery/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token()}` } });
         fetchItems();
+    };
+
+    const handleAutoFixGaps = async () => {
+        if (!confirm("This will automatically shift all images to fill empty gaps. Are you sure?")) return;
+        const filledItems = slots.filter(s => s);
+        const updates = filledItems.map((item, i) => ({ id: item.id, display_order: i }));
+        try {
+            await fetch(`${API}/api/admin/gallery/reorder`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
+                body: JSON.stringify({ items: updates })
+            });
+            fetchItems();
+        } catch (error) {
+            console.error("Auto-fix failed", error);
+        }
     };
 
     const sensors = useSensors(
@@ -282,7 +286,6 @@ export default function AdminGallery() {
 
         if (activeIndex === -1 || overIndex === -1) return;
         
-        // Prevent dragging to slots far ahead (skipping)
         if (overIndex > maxAllowedSlot && !slots[overIndex]) {
             alert("You cannot skip slots! Drag to the next available empty slot.");
             return;
@@ -319,26 +322,10 @@ export default function AdminGallery() {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
                 body: JSON.stringify({ items: updates })
             });
-            fetchItems(); // Sync back
+            fetchItems(); 
         } catch (error) {
             console.error("Reorder failed", error);
             fetchItems();
-        }
-    };
-
-    const handleAutoFixGaps = async () => {
-        if (!confirm("This will automatically shift all images to fill empty gaps. Are you sure?")) return;
-        const filledItems = slots.filter(s => s);
-        const updates = filledItems.map((item, i) => ({ id: item.id, display_order: i }));
-        try {
-            await fetch(`${API}/api/admin/gallery/reorder`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
-                body: JSON.stringify({ items: updates })
-            });
-            fetchItems();
-        } catch (error) {
-            console.error("Auto-fix failed", error);
         }
     };
 
@@ -355,9 +342,9 @@ export default function AdminGallery() {
                             <i className="fa-solid fa-images text-lg"></i>
                         </div>
                         <div>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Dynamic Grid Gallery</h1>
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Gallery Editor</h1>
                             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                                Drag & drop, double click to edit, and resize blocks. Sequential filling enforced.
+                                Drag & drop images into the precise masonry skeleton matching the live website.
                             </p>
                         </div>
                     </div>
@@ -374,30 +361,56 @@ export default function AdminGallery() {
                         )}
                         <div className="flex flex-col items-end">
                             <span className="text-[10px] uppercase tracking-wider text-slate-400">Filled Slots</span>
-                            <span className="text-lg text-purple-600">{items.length} / 30</span>
+                            <span className="text-lg text-purple-600">{items.length} / {TOTAL_SLOTS}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-                    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-min" style={{ gridAutoFlow: 'dense' }}>
-                        {slots.map((item, i) => (
-                            <SortableGallerySlot 
-                                key={item ? item.id : `empty-${i}`}
-                                slotIndex={i} 
-                                item={item} 
-                                isLocked={i > maxAllowedSlot}
-                                onDoubleClick={handleDoubleClick}
-                                onDelete={handleDelete}
-                            />
-                        ))}
-                    </div>
-                </SortableContext>
-            </DndContext>
+            {/* Scrollable Masonry Grid (Matches Frontend EXACTLY) */}
+            <div className="w-full bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-inner overflow-hidden relative">
+                <div className="absolute top-4 left-6 z-10 flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-slate-100">
+                    <i className="fa-solid fa-arrow-right-arrow-left"></i> Scroll horizontally
+                </div>
+                <div className="overflow-x-auto pb-4 pt-12 hide-scrollbar">
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
+                            <div className="flex gap-4 md:gap-6 min-w-max">
+                                {Array.from({ length: Math.ceil(TOTAL_SLOTS / 2) }).map((_, colIndex) => {
+                                    const i = colIndex * 2;
+                                    const j = i + 1;
+                                    
+                                    const item1 = slots[i];
+                                    const item2 = j < TOTAL_SLOTS ? slots[j] : null;
 
-            {/* Modal for adding media (Empty Slot) */}
+                                    return (
+                                        <div key={colIndex} className="flex flex-col gap-4 md:gap-6 w-[280px] md:w-[320px] shrink-0">
+                                            <SortableGallerySlot 
+                                                slotIndex={i} 
+                                                item={item1} 
+                                                isLocked={i > maxAllowedSlot}
+                                                onDoubleClick={handleDoubleClick}
+                                                onDelete={handleDelete}
+                                            />
+                                            {j < TOTAL_SLOTS && (
+                                                <SortableGallerySlot 
+                                                    slotIndex={j} 
+                                                    item={item2} 
+                                                    isLocked={j > maxAllowedSlot}
+                                                    onDoubleClick={handleDoubleClick}
+                                                    onDelete={handleDelete}
+                                                />
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
+                </div>
+            </div>
+
+            {/* Modal for adding media */}
             {isAddModalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in zoom-in-95 duration-200">
                     <div className="bg-white border border-gray-200 rounded-3xl w-full max-w-lg p-8 shadow-2xl">
@@ -410,31 +423,16 @@ export default function AdminGallery() {
                             </button>
                         </div>
                         <form onSubmit={handleSaveSlot} className="space-y-5">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Media Type</label>
-                                    <select 
-                                        value={formData.type} 
-                                        onChange={e => setFormData({...formData, type: e.target.value})}
-                                        className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
-                                    >
-                                        <option value="image">Image</option>
-                                        <option value="video">Video (YouTube)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Block Size</label>
-                                    <select 
-                                        value={formData.size} 
-                                        onChange={e => setFormData({...formData, size: e.target.value})}
-                                        className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
-                                    >
-                                        <option value="standard">Standard (1x1)</option>
-                                        <option value="wide">Wide (2x1)</option>
-                                        <option value="tall">Tall (1x2)</option>
-                                        <option value="large">Large (2x2)</option>
-                                    </select>
-                                </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1.5">Media Type</label>
+                                <select 
+                                    value={formData.type} 
+                                    onChange={e => setFormData({...formData, type: e.target.value})}
+                                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white transition-colors"
+                                >
+                                    <option value="image">Image</option>
+                                    <option value="video">Video (YouTube)</option>
+                                </select>
                             </div>
                             
                             {formData.type === 'image' ? (
@@ -501,29 +499,10 @@ export default function AdminGallery() {
                             <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold transition-colors">
                                 <i className="fa-solid fa-upload w-5"></i> Replace Media
                             </button>
-                            
-                            <div className="pt-3 border-t border-gray-100">
-                                <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Change Block Size</label>
-                                <select 
-                                    value={formData.size} 
-                                    onChange={e => {
-                                        setFormData({...formData, size: e.target.value});
-                                    }}
-                                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-purple-500 focus:bg-white"
-                                >
-                                    <option value="standard">Standard (1x1)</option>
-                                    <option value="wide">Wide (2x1)</option>
-                                    <option value="tall">Tall (1x2)</option>
-                                    <option value="large">Large (2x2)</option>
-                                </select>
-                            </div>
                         </div>
                         
                         <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
                             <button onClick={() => setIsEditOptionsModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 font-bold hover:bg-slate-50 w-full text-center">Cancel</button>
-                            <button onClick={handleSaveSlot} disabled={uploading} className="px-5 py-2.5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 w-full text-center disabled:opacity-50">
-                                {uploading ? 'Saving...' : 'Save Settings'}
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -532,6 +511,7 @@ export default function AdminGallery() {
             {imageSrc && (
                 <ImageCropperModal
                     imageSrc={imageSrc}
+                    aspect={currentCropAspect}
                     onCropComplete={async (croppedFile) => {
                         setFile(croppedFile);
                         setImageSrc(null);

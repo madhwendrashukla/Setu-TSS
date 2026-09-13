@@ -148,7 +148,7 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
                     className="overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    <div className="h-[660px]" style={{ columnWidth: '320px', columnGap: '24px' }}>
+                    <div className="h-[720px]" style={{ columnWidth: '320px', columnGap: '24px' }}>
                         {validData.filter(item => item && item.media_url).map((item, i) => {
                             const rawCaption = item.caption || '';
                             let size = 'medium';

@@ -396,7 +396,7 @@ export default function AdminGallery() {
                 <div className="overflow-x-auto pb-4 pt-12 hide-scrollbar">
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-                            <div className="h-[660px] min-w-max" style={{ columnWidth: '320px', columnGap: '24px' }}>
+                            <div className="h-[720px]" style={{ columnWidth: '320px', columnGap: '24px' }}>
                                 {slots.map((item, i) => (
                                     <div key={i} className="mb-6 snap-start shrink-0 inline-block w-full" style={{ breakInside: 'avoid', breakBefore: 'auto', breakAfter: 'auto' }}>
                                         <SortableGallerySlot 

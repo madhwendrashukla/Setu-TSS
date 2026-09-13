@@ -897,7 +897,7 @@ app.put('/api/admin/gallery/:id', upload.single('media'), compressImage, async (
     if (type) data.type = type;
     
     if (req.file) {
-      data.media_url = `/uploads/${req.file.filename}`;
+      data.media_url = req.file.url;
     } else if (media_url) {
       data.media_url = media_url;
     }

@@ -239,6 +239,7 @@ export default function AdminLeads() {
     const [newSourceLabel, setNewSourceLabel] = useState('');
     const [mailLead, setMailLead] = useState<any | null>(null);
     const [showBulkMail, setShowBulkMail] = useState(false);
+    const [viewLead, setViewLead] = useState<any | null>(null);
 
     const fetchSources = () => {
         fetch(`${API}/api/admin/lead-sources`, {
@@ -279,7 +280,22 @@ export default function AdminLeads() {
         setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
     };
 
-    const statusColor = (s: string) => s === 'new' ? 'text-blue-500 bg-blue-50 border-blue-200' : s === 'contacted' ? 'text-yellow-600 bg-yellow-50 border-yellow-200' : 'text-green-600 bg-green-50 border-green-200';
+    const deleteLead = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to delete lead "${name}"?`)) return;
+        try {
+            const res = await fetch(`${API}/api/admin/leads/${id}`, {
+                method: 'DELETE',
+                headers: { "Authorization": `Bearer ${localStorage.getItem("adminToken")}` }
+            });
+            if (res.ok) {
+                setLeads(prev => prev.filter(l => l.id !== id));
+            }
+        } catch (e) {
+            console.error('Failed to delete lead', e);
+        }
+    };
+
+    const statusColor = (s: string) => s === 'new' ? 'text-blue-600 bg-blue-50 border-blue-200' : s === 'contacted' ? 'text-amber-600 bg-amber-50 border-amber-200' : 'text-emerald-600 bg-emerald-50 border-emerald-200';
 
     const addSource = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -316,14 +332,14 @@ export default function AdminLeads() {
                     <button
                         onClick={() => setShowBulkMail(true)}
                         disabled={leads.length === 0}
-                        className="flex items-center gap-2 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white font-bold px-4 py-2 rounded-xl text-sm disabled:opacity-50 hover:opacity-90 transition-all"
+                        className="flex items-center gap-2 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-white font-bold px-4 py-2 rounded-xl text-sm disabled:opacity-50 hover:opacity-90 transition-all shadow-sm"
                     >
                         <i className="fas fa-envelope-bulk" /> Mail All Filtered ({leads.length})
                     </button>
-                    <button onClick={() => setShowSourceModal(true)} className="border border-gray-300 text-gray-900 font-bold px-4 py-2 rounded-xl hover:bg-gray-100 text-sm">
+                    <button onClick={() => setShowSourceModal(true)} className="border border-gray-300 text-gray-900 font-bold px-4 py-2 rounded-xl hover:bg-gray-100 text-sm transition-colors">
                         <i className="fas fa-list mr-2" />Manage Sources
                     </button>
-                    <button onClick={() => exportCsv(leads)} className="border border-gray-300 text-gray-900 font-bold px-4 py-2 rounded-xl hover:bg-gray-100 text-sm">
+                    <button onClick={() => exportCsv(leads)} className="border border-gray-300 text-gray-900 font-bold px-4 py-2 rounded-xl hover:bg-gray-100 text-sm transition-colors">
                         <i className="fas fa-download mr-2" />Export CSV
                     </button>
                 </div>
@@ -338,19 +354,19 @@ export default function AdminLeads() {
                         placeholder="Search by name, email, or phone..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white border border-gray-200 text-gray-900 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
+                        className="w-full bg-white border border-gray-200 text-gray-900 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
                     />
                 </div>
                 <div className="flex gap-3">
                     <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                        className="bg-white border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-purple-400">
+                        className="bg-white border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-purple-400 cursor-pointer">
                         <option value="">All Statuses</option>
                         <option value="new">New</option>
                         <option value="contacted">Contacted</option>
                         <option value="converted">Converted</option>
                     </select>
                     <select value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}
-                        className="bg-white border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-purple-400">
+                        className="bg-white border border-gray-200 text-gray-900 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-purple-400 cursor-pointer">
                         <option value="">All Sources</option>
                         {adminSources.map(s => (
                             <option key={s.id} value={s.slug}>{s.label}</option>
@@ -359,61 +375,160 @@ export default function AdminLeads() {
                 </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
+            {/* Table with responsive horizontal overflow and safe column widths */}
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-x-auto">
+                <table className="w-full text-left min-w-[1000px] table-fixed border-collapse">
+                    <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider font-semibold">
                         <tr>
-                            <th className="p-4 font-bold">Name</th>
-                            <th className="p-4 font-bold">Email</th>
-                            <th className="p-4 font-bold">Phone</th>
-                            <th className="p-4 font-bold">City</th>
-                            <th className="p-4 font-bold">Source</th>
-                            <th className="p-4 font-bold">Date</th>
-                            <th className="p-4 font-bold">Status</th>
-                            <th className="p-4 font-bold">Mail</th>
+                            <th className="p-4 w-[200px]">Name</th>
+                            <th className="p-4 w-[220px]">Email</th>
+                            <th className="p-4 w-[130px]">Phone</th>
+                            <th className="p-4 w-[120px]">City</th>
+                            <th className="p-4 w-[140px]">Source</th>
+                            <th className="p-4 w-[110px]">Date</th>
+                            <th className="p-4 w-[130px]">Status</th>
+                            <th className="p-4 w-[110px] text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-gray-100">
                         {loading ? (
-                            <tr><td colSpan={8} className="p-8 text-center text-gray-400">
-                                <i className="fas fa-circle-notch fa-spin mr-2" />Loading...
-                            </td></tr>
+                            <tr>
+                                <td colSpan={8} className="p-12 text-center text-gray-400">
+                                    <i className="fas fa-circle-notch fa-spin text-xl mr-2 text-purple-600" />
+                                    Loading inquiries...
+                                </td>
+                            </tr>
                         ) : leads.length === 0 ? (
-                            <tr><td colSpan={8} className="p-8 text-center text-gray-400">No inquiries found</td></tr>
+                            <tr>
+                                <td colSpan={8} className="p-12 text-center text-gray-400">
+                                    No inquiries found matching criteria.
+                                </td>
+                            </tr>
                         ) : leads.map(lead => (
-                            <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                <td className="p-4 font-bold text-gray-900">{lead.full_name}</td>
-                                <td className="p-4 text-gray-500 text-sm">{lead.email}</td>
-                                <td className="p-4 text-gray-500 text-sm">{lead.phone ?? '—'}</td>
-                                <td className="p-4 text-gray-500 text-sm">{lead.city ?? '—'}</td>
-                                <td className="p-4">
-                                    <span className="bg-gray-100 px-2 py-1 rounded-lg text-xs font-medium text-gray-700">
+                            <tr key={lead.id} className="hover:bg-gray-50/80 transition-colors group">
+                                <td className="p-4 font-bold text-gray-900">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs shrink-0">
+                                            {lead.full_name ? lead.full_name.charAt(0).toUpperCase() : '?'}
+                                        </div>
+                                        <span className="truncate max-w-[150px] block" title={lead.full_name}>
+                                            {lead.full_name || '—'}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td className="p-4 text-gray-600 text-sm">
+                                    <span className="truncate max-w-[200px] block" title={lead.email}>
+                                        {lead.email}
+                                    </span>
+                                </td>
+                                <td className="p-4 text-gray-600 text-sm whitespace-nowrap">
+                                    {lead.phone ? (
+                                        <a href={`tel:${lead.phone}`} className="hover:text-purple-600 hover:underline">
+                                            {lead.phone}
+                                        </a>
+                                    ) : '—'}
+                                </td>
+                                <td className="p-4 text-gray-600 text-sm">
+                                    <span className="truncate max-w-[100px] block" title={lead.city}>
+                                        {lead.city || '—'}
+                                    </span>
+                                </td>
+                                <td className="p-4 whitespace-nowrap">
+                                    <span className="bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-700 inline-block max-w-[120px] truncate" title={adminSources.find(s => s.slug === lead.source)?.label || lead.source}>
                                         {adminSources.find(s => s.slug === lead.source)?.label || lead.source || '—'}
                                     </span>
                                 </td>
-                                <td className="p-4 text-gray-400 text-xs">{formatDate(lead.created_at)}</td>
-                                <td className="p-4">
-                                    <select value={lead.status} onChange={e => updateStatus(lead.id, e.target.value)}
-                                        className={`rounded-lg px-2.5 py-1 text-xs font-bold border focus:outline-none ${statusColor(lead.status)}`}>
+                                <td className="p-4 text-gray-400 text-xs whitespace-nowrap font-medium">
+                                    {formatDate(lead.created_at)}
+                                </td>
+                                <td className="p-4 whitespace-nowrap">
+                                    <select
+                                        value={lead.status}
+                                        onChange={e => updateStatus(lead.id, e.target.value)}
+                                        className={`rounded-lg px-2.5 py-1 text-xs font-bold border focus:outline-none cursor-pointer transition-all ${statusColor(lead.status)}`}
+                                    >
                                         <option value="new">New</option>
                                         <option value="contacted">Contacted</option>
                                         <option value="converted">Converted</option>
                                     </select>
                                 </td>
-                                <td className="p-4">
-                                    <button
-                                        onClick={() => setMailLead(lead)}
-                                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-purple-200 text-purple-500 hover:bg-purple-50 hover:border-purple-400 transition-all"
-                                        title={`Send email to ${lead.full_name}`}
-                                    >
-                                        <i className="fas fa-envelope text-xs" />
-                                    </button>
+                                <td className="p-4 whitespace-nowrap text-right">
+                                    <div className="flex items-center justify-end gap-1.5">
+                                        {lead.message && (
+                                            <button
+                                                onClick={() => setViewLead(lead)}
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all"
+                                                title="View message note"
+                                            >
+                                                <i className="fas fa-comment-dots text-xs" />
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => setMailLead(lead)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-400 transition-all"
+                                            title={`Send email to ${lead.full_name}`}
+                                        >
+                                            <i className="fas fa-envelope text-xs" />
+                                        </button>
+                                        <button
+                                            onClick={() => deleteLead(lead.id, lead.full_name)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-100 text-red-400 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all"
+                                            title={`Delete inquiry`}
+                                        >
+                                            <i className="fas fa-trash text-xs" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {/* View Lead Message Modal */}
+            {viewLead && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+                        <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">{viewLead.full_name}</h3>
+                                <p className="text-xs text-gray-500">{viewLead.email} {viewLead.phone ? `· ${viewLead.phone}` : ''}</p>
+                            </div>
+                            <button onClick={() => setViewLead(null)} className="text-gray-400 hover:text-gray-600 p-1">
+                                <i className="fas fa-times text-lg" />
+                            </button>
+                        </div>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Inquiry Message</label>
+                                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-800 whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto">
+                                    {viewLead.message || 'No message provided.'}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-gray-500">
+                                <div><span className="font-bold text-gray-700">Source:</span> {viewLead.source || '—'}</div>
+                                <div><span className="font-bold text-gray-700">City:</span> {viewLead.city || '—'}</div>
+                                <div><span className="font-bold text-gray-700">Date:</span> {formatDate(viewLead.created_at)}</div>
+                                <div><span className="font-bold text-gray-700">Status:</span> {viewLead.status}</div>
+                            </div>
+                        </div>
+                        <div className="mt-6 flex justify-end gap-2">
+                            <button
+                                onClick={() => { const leadToMail = viewLead; setViewLead(null); setMailLead(leadToMail); }}
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition-colors flex items-center gap-2"
+                            >
+                                <i className="fas fa-paper-plane text-xs" /> Reply via Email
+                            </button>
+                            <button
+                                onClick={() => setViewLead(null)}
+                                className="border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-100 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Manage Sources Modal */}
             {showSourceModal && (

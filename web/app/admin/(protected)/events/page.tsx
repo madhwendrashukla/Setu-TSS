@@ -97,7 +97,8 @@ export default function AdminEvents() {
 
     const [formData, setFormData] = useState({
         title: "", registration_url: "", description: "", venue: "", 
-        start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: ""
+        start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: "",
+        whatsapp_link: "", zoom_link: "", confirmation_message: ""
     });
 
     const fetchEvents = () => {
@@ -126,9 +127,24 @@ export default function AdminEvents() {
         const token = localStorage.getItem("adminToken");
         const data = new FormData();
         
+        // Pack custom links into page_blocks
+        let blocks: any = {};
+        if (editingEvent?.page_blocks) {
+            try {
+                blocks = typeof editingEvent.page_blocks === 'string' ? JSON.parse(editingEvent.page_blocks) : editingEvent.page_blocks;
+            } catch(e) {}
+        }
+        blocks.whatsapp_link = formData.whatsapp_link || "";
+        blocks.zoom_link = formData.zoom_link || "";
+        blocks.confirmation_message = formData.confirmation_message || "";
+
         Object.keys(formData).forEach(key => {
-            data.append(key, (formData as any)[key]);
+            if (!['whatsapp_link', 'zoom_link', 'confirmation_message'].includes(key)) {
+                data.append(key, (formData as any)[key]);
+            }
         });
+        data.append("page_blocks", JSON.stringify(blocks));
+
         if (file) data.append("banner", file);
 
         const url = editingEvent 
@@ -259,12 +275,24 @@ export default function AdminEvents() {
     };
 
     const resetForm = () => {
-        setFormData({ title: "", registration_url: "", description: "", venue: "", start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: "" });
+        setFormData({ 
+            title: "", registration_url: "", description: "", venue: "", 
+            start_date: "", start_time: "", end_date: "", end_time: "", 
+            is_past: false, is_pinned: false, display_order: 0, slug: "",
+            whatsapp_link: "", zoom_link: "", confirmation_message: "" 
+        });
         setFile(null);
     };
 
     const openEdit = (event: any) => {
         setEditingEvent(event);
+        let blocks: any = {};
+        if (event.page_blocks) {
+            try {
+                blocks = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+            } catch(e) {}
+        }
+
         setFormData({
             title: event.title,
             slug: event.slug || "",
@@ -277,7 +305,10 @@ export default function AdminEvents() {
             end_time: event.end_time || "",
             is_past: event.is_past,
             is_pinned: event.is_pinned,
-            display_order: event.display_order || 0
+            display_order: event.display_order || 0,
+            whatsapp_link: blocks.whatsapp_link || blocks.whatsapp_group_link || "",
+            zoom_link: blocks.zoom_link || blocks.meeting_link || "",
+            confirmation_message: blocks.confirmation_message || blocks.success_message || ""
         });
         setFile(null);
         setImageSrc(null);
@@ -412,6 +443,51 @@ export default function AdminEvents() {
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
                                 <textarea placeholder="Event details..." value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all h-24 resize-none custom-scrollbar" />
+                            </div>
+
+                            {/* Post-Registration Links & Notes */}
+                            <div className="bg-purple-50/60 border border-purple-100 p-5 rounded-2xl space-y-4">
+                                <div className="flex items-center gap-2">
+                                    <i className="fas fa-link text-purple-600"></i>
+                                    <h4 className="text-sm font-bold text-gray-900">Post-Registration Links & Notes (Shown on Confirmation Screen)</h4>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                            <i className="fa-brands fa-whatsapp text-green-600 text-sm"></i> WhatsApp Group Link
+                                        </label>
+                                        <input 
+                                            placeholder="https://chat.whatsapp.com/..." 
+                                            value={formData.whatsapp_link} 
+                                            onChange={e => setFormData({...formData, whatsapp_link: e.target.value})} 
+                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                            <i className="fa-solid fa-video text-blue-600 text-sm"></i> Zoom / Meeting Link
+                                        </label>
+                                        <input 
+                                            placeholder="https://zoom.us/j/... or Meet link" 
+                                            value={formData.zoom_link} 
+                                            onChange={e => setFormData({...formData, zoom_link: e.target.value})} 
+                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
+                                        Custom Confirmation Instructions / Note
+                                    </label>
+                                    <textarea 
+                                        placeholder="e.g. Please join the WhatsApp group for materials. Meeting credentials will be emailed 1 hour before the session." 
+                                        value={formData.confirmation_message} 
+                                        onChange={e => setFormData({...formData, confirmation_message: e.target.value})} 
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all h-20 resize-none custom-scrollbar" 
+                                    />
+                                </div>
                             </div>
 
                             <div>

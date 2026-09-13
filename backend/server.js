@@ -1183,6 +1183,16 @@ app.put('/api/admin/leads/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to update lead status' }); }
 });
 
+app.delete('/api/admin/leads/:id', async (req, res) => {
+  try {
+    await prisma.lead.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) { 
+    console.error('Failed to delete lead:', error);
+    res.status(500).json({ error: 'Failed to delete lead' }); 
+  }
+});
+
 // REGISTRATIONS
 app.get('/api/admin/registrations', authMiddleware, async (req, res) => {
   try {

@@ -64,15 +64,19 @@ export function ToolsShowcase({ toggles = {}, headings = {} }: { toggles?: any, 
 
     if (displayCategories.length === 0) return null;
 
+    const rawSubtitle = headings?.subtitle || 'Access our curated suite of tools designed to help you raise capital, build your product, and scale your startup.';
+    const cleanSubtitle = typeof rawSubtitle === 'string'
+        ? rawSubtitle.replace(/<br\s*\/?>/gi, ' ').replace(/\s+/g, ' ').trim()
+        : rawSubtitle;
+
     return (
         <section className="card-section pt-16 md:pt-24 pb-0 relative">
             {/* Background Pattern overlay (dotted mesh effect) */}
             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_20%,transparent_100%)]"></div>
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10 mb-16 text-center">
-
+            <div className="max-w-7xl mx-auto px-6 relative z-10 mb-12 md:mb-16 text-center">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary tracking-tight mb-4 [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings?.prefix || 'Tools & <span style="color: #A855F7">Resources.</span>' }} />
-                <div className="text-base sm:text-lg md:text-xl text-text-secondary font-medium max-w-3xl mx-auto leading-relaxed text-balance [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: headings?.subtitle || 'Access our curated suite of tools designed to help you raise capital, build your product, and scale your startup.' }} />
+                <div className="text-base sm:text-lg md:text-xl text-text-secondary font-medium max-w-2xl mx-auto leading-relaxed text-center [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: cleanSubtitle }} />
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-wrap justify-center gap-6">

@@ -45,6 +45,61 @@ export function DynamicWorkshopBreakdown({ data, onCheckoutClick }: { data: Page
     );
 }
 
+function getWorkshopVectorIcon(workshop: WorkshopData): string {
+    const rawIcon = (workshop.icon || '').trim();
+    
+    // Direct emoji mapping to appropriate FontAwesome vectors
+    const emojiMap: Record<string, string> = {
+        '🛡️': 'fa-solid fa-shield-halved',
+        '🛡': 'fa-solid fa-shield-halved',
+        '⚖️': 'fa-solid fa-scale-balanced',
+        '⚖': 'fa-solid fa-scale-balanced',
+        '📜': 'fa-solid fa-file-contract',
+        '🚀': 'fa-solid fa-rocket',
+        '💡': 'fa-solid fa-lightbulb',
+        '🤖': 'fa-solid fa-robot',
+        '🔒': 'fa-solid fa-lock',
+        '📊': 'fa-solid fa-chart-pie',
+        '📈': 'fa-solid fa-chart-line',
+        '💻': 'fa-solid fa-laptop-code',
+        '🤝': 'fa-solid fa-handshake',
+        '🎓': 'fa-solid fa-graduation-cap',
+        '🏆': 'fa-solid fa-award',
+    };
+
+    if (rawIcon && emojiMap[rawIcon]) {
+        return emojiMap[rawIcon];
+    }
+
+    if (rawIcon) {
+        const clean = rawIcon.replace(/^(fas\s+|fa-solid\s+|fa-|far\s+)/, '');
+        if (clean && clean !== 'undefined') return `fa-solid fa-${clean}`;
+    }
+
+    // Smart detection from title / heading / key features
+    const text = `${workshop.title || ''} ${workshop.heading || ''} ${workshop.key_features || ''}`.toLowerCase();
+    if (text.includes('dpdp') || text.includes('privacy') || text.includes('security') || text.includes('protection')) {
+        return 'fa-solid fa-shield-halved';
+    }
+    if (text.includes('legal') || text.includes('contract') || text.includes('agreement') || text.includes('playbook') || text.includes('law')) {
+        return 'fa-solid fa-scale-balanced';
+    }
+    if (text.includes('ai') || text.includes('claude') || text.includes('chatgpt') || text.includes('prompt') || text.includes('automation')) {
+        return 'fa-solid fa-robot';
+    }
+    if (text.includes('pitch') || text.includes('fundrais') || text.includes('investor') || text.includes('launch') || text.includes('scale')) {
+        return 'fa-solid fa-rocket';
+    }
+    if (text.includes('finance') || text.includes('cap table') || text.includes('valuation') || text.includes('revenue')) {
+        return 'fa-solid fa-chart-pie';
+    }
+    if (text.includes('code') || text.includes('prototype') || text.includes('mvp') || text.includes('tech')) {
+        return 'fa-solid fa-laptop-code';
+    }
+
+    return 'fa-solid fa-lightbulb';
+}
+
 function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, registrations_open }: { workshop: WorkshopData, index: number, theme: any, onCheckoutClick?: (id: string) => void, registrations_open?: boolean }) {
     const [expanded, setExpanded] = useState(true);
 
@@ -52,8 +107,8 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
         <div className={`bg-white rounded-2xl md:rounded-3xl border overflow-hidden transition-all duration-500 border-slate-200 hover:border-slate-300 shadow-xl hover:shadow-2xl`}>
             <div onClick={() => setExpanded(!expanded)} className="w-full text-left px-6 md:px-10 py-6 md:py-8 flex items-start gap-4 md:gap-6 group relative cursor-pointer">
                 
-                <div className="mt-1 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110" style={{ background: theme.bg, borderColor: theme.border }}>
-                    <i className={`fas fa-${workshop.icon || 'lightbulb'} text-base md:text-lg`} style={{ color: theme.primary }}></i>
+                <div className="mt-1 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110 shadow-sm" style={{ background: theme.bg, borderColor: theme.border }}>
+                    <i className={`${getWorkshopVectorIcon(workshop)} text-base md:text-lg`} style={{ color: theme.primary }}></i>
                 </div>
                 
                 <div className="flex-1 min-w-0">

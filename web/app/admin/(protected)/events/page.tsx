@@ -94,12 +94,40 @@ export default function AdminEvents() {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+    const [cropAspect, setCropAspect] = useState<number | undefined>(16 / 9);
+    const [promptCopied, setPromptCopied] = useState(false);
 
     const [formData, setFormData] = useState({
         title: "", registration_url: "", description: "", venue: "", 
         start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: "",
         whatsapp_link: "", zoom_link: "", confirmation_message: ""
     });
+
+    const handleCopyPrompt = () => {
+        const promptText = `I have uploaded a 16:9 landscape event banner image. 
+Please convert and adapt this into a high-resolution portrait/square poster format with an aspect ratio of [1:1 / 4:5] while strictly maintaining brand consistency:
+
+1. COMPOSITION & LAYOUT:
+- Reorganize the landscape layout into a balanced, professional vertical/square poster composition.
+- Place the "Setu STARTUP SCHOOL" logo and event title at the top: "${formData.title || 'DPDP ACT FOR STARTUPS - A Practical Founder\'s Guide to Data Privacy Compliance'}".
+- Keep the purple and deep navy blue (#13113B) color palette, modern typography, and clean aesthetic.
+
+2. SPEAKERS / MENTORS:
+- Prominently feature the speakers with circular or curved portrait photo frames, including their names, designations, and credentials.
+
+3. EVENT DETAILS & BADGES:
+- Include the "FREE SESSION" or "REGISTRATION" tag, Date (${formData.start_date || 'Saturday, September 12, 2026'}), Time (${formData.start_time || '11:00 AM – 12:00 PM IST'}), and Mode (${formData.venue || 'Online Zoom'}).
+- Include the "JOIN HERE TO REGISTER" button / QR code block.
+- At the bottom, include highlight icons with text: "Stay Compliant", "Practical Insights", "Expert Guidance".
+
+4. OUTPUT REQUIREMENTS:
+- Aspect ratio: Exactly 1:1 (Square 1080x1080) or 4:5 (Vertical 1080x1350).
+- Do not crop faces, do not distort text or logos, keep all elements sharp, centered, and legible.`;
+
+        navigator.clipboard.writeText(promptText);
+        setPromptCopied(true);
+        setTimeout(() => setPromptCopied(false), 2500);
+    };
 
     const fetchEvents = () => {
         const token = localStorage.getItem("adminToken");
@@ -491,12 +519,23 @@ export default function AdminEvents() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Banner Image</label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Banner Image</label>
+                                    <button
+                                        type="button"
+                                        onClick={handleCopyPrompt}
+                                        className="text-xs font-semibold text-accent-blue hover:text-purple-700 flex items-center gap-1.5 transition-colors"
+                                        title="Copy prompt for ChatGPT to convert 16:9 banner to 1:1 or 4:5 poster"
+                                    >
+                                        <i className={`fas fa-${promptCopied ? 'check text-emerald-600' : 'magic'}`}></i>
+                                        <span>{promptCopied ? 'Prompt Copied!' : 'Copy ChatGPT Prompt (16:9 ➔ Poster)'}</span>
+                                    </button>
+                                </div>
                                 <div className="relative w-full">
                                     <input type="file" accept="image/*" onChange={onFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                                     <div className="w-full bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">
                                         <i className="fas fa-image text-2xl text-gray-300 group-hover:text-accent-blue transition-colors"></i>
-                                        <span className="text-gray-500 text-sm">{file ? file.name : (editingEvent && editingEvent.banner_url ? "Click to upload and crop a new banner" : "Upload event banner (will be cropped to 16:9)")}</span>
+                                        <span className="text-gray-500 text-sm">{file ? file.name : (editingEvent && editingEvent.banner_url ? "Click to upload and crop a new banner" : "Upload event banner or poster (Supports 16:9, 1:1 Square, 4:5 Poster)")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -532,12 +571,40 @@ export default function AdminEvents() {
             {/* Cropper Modal */}
             {imageSrc && (
                 <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-[100] animate-in fade-in duration-200">
+                    <div className="w-full max-w-4xl flex flex-wrap items-center justify-between mb-4 gap-2">
+                        <div className="text-white font-bold text-sm flex items-center gap-2">
+                            <i className="fas fa-crop-simple text-accent-blue"></i>
+                            <span>Crop Aspect Ratio:</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 bg-gray-800 p-1.5 rounded-xl border border-gray-700">
+                            {[
+                                { label: '16:9 Banner', val: 16 / 9 },
+                                { label: '1:1 Square Poster', val: 1 / 1 },
+                                { label: '4:5 Portrait', val: 4 / 5 },
+                                { label: 'Free Crop', val: undefined },
+                            ].map(item => (
+                                <button
+                                    key={item.label}
+                                    type="button"
+                                    onClick={() => setCropAspect(item.val)}
+                                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+                                        cropAspect === item.val
+                                            ? 'bg-accent-blue text-white shadow-sm'
+                                            : 'text-gray-400 hover:text-white'
+                                    }`}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="w-full max-w-4xl relative h-[60vh] bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-700">
                         <Cropper
                             image={imageSrc}
                             crop={crop}
                             zoom={zoom}
-                            aspect={16 / 9}
+                            aspect={cropAspect}
                             onCropChange={setCrop}
                             onZoomChange={setZoom}
                             onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}

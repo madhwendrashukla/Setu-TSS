@@ -110,7 +110,7 @@ const DPDP_PAGE_BLOCKS = {
       cta: { text: 'Reserve a spot', active: true },
       visible: true,
       color: '#0EA5E9',
-      icon: '🛡️',
+      icon: 'shield-halved',
       badge: 'Live Session',
     }
   ],

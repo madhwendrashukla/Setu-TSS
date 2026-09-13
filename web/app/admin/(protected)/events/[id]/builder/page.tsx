@@ -311,7 +311,7 @@ const StoryBoxesEditor = ({ boxes, onChange, onUpload }: { boxes: any[], onChang
 };
 
 const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: (w: any[] | ((prev: any[]) => any[])) => void }) => {
-    const handleAdd = () => onChange((prev) => [...(Array.isArray(prev) ? prev : []), { id: "w_"+Date.now(), priority_order: (prev?.length || 0)+1, heading: "DAY 1", title: "", key_features: "", detail_bullets: { what_youll_learn: [], your_deliverables: [] }, pricing: { strike_price: 0, actual_price: 0, date_time_bullets: [], mode: "online", address: "" }, cta: { text: "Book Now", active: true }, visible: true }]);
+    const handleAdd = () => onChange((prev) => [...(Array.isArray(prev) ? prev : []), { id: "w_"+Date.now(), priority_order: (prev?.length || 0)+1, heading: "DAY 1", title: "", icon: "", key_features: "", detail_bullets: { what_youll_learn: [], your_deliverables: [] }, pricing: { strike_price: 0, actual_price: 0, date_time_bullets: [], mode: "online", address: "" }, cta: { text: "Book Now", active: true }, visible: true }]);
     const handleRemove = (index: number) => { onChange(prev => { const newArr = [...(Array.isArray(prev) ? prev : [])]; newArr.splice(index, 1); return newArr; }); };
     const handleChange = (index: number, field: string, val: any) => { onChange(prev => { const newArr = [...(Array.isArray(prev) ? prev : [])]; newArr[index] = { ...newArr[index], [field]: val }; return newArr; }); };
     const handleDeepChange = (index: number, objName: string, propName: string, val: any) => {
@@ -337,10 +337,27 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                         <button onClick={() => handleRemove(index)} className="text-red-500 hover:text-red-700 bg-white w-7 h-7 rounded shadow-sm"><i className="fas fa-trash text-xs"></i></button>
                     </div>
                     <div className="p-5 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Priority Order</label><input type="number" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.priority_order || 0} onChange={e => handleChange(index, 'priority_order', parseInt(e.target.value)||0)} /></div>
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Badge / Day (e.g. DAY 1)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Title</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
+                            <div>
+                                <label className="block text-xs font-bold mb-1 text-gray-500">Vector Icon</label>
+                                <select className="w-full bg-white border border-gray-200 p-2 rounded outline-none text-xs text-gray-700 font-medium" value={w.icon || ""} onChange={e => handleChange(index, 'icon', e.target.value)}>
+                                    <option value="">Auto-detect / Lightbulb</option>
+                                    <option value="shield-halved">🛡️ Shield (DPDP / Security)</option>
+                                    <option value="scale-balanced">⚖️ Scale (Legal / Contracts)</option>
+                                    <option value="file-contract">📜 Document / Agreement</option>
+                                    <option value="robot">🤖 Robot (AI / Automation)</option>
+                                    <option value="rocket">🚀 Rocket (Pitch / Launch)</option>
+                                    <option value="chart-pie">📊 Chart (Finance / Cap Table)</option>
+                                    <option value="laptop-code">💻 Laptop (Coding / MVP)</option>
+                                    <option value="lightbulb">💡 Lightbulb (Ideation)</option>
+                                    <option value="handshake">🤝 Handshake (Partnership)</option>
+                                    <option value="graduation-cap">🎓 Cap (Masterclass)</option>
+                                    <option value="award">🏆 Trophy / Award</option>
+                                </select>
+                            </div>
                         </div>
                         <div className="bg-white rounded border border-gray-200">
                             <label className="block text-xs font-bold mb-2 text-gray-500 p-2 pb-0">Key Features</label>

@@ -227,7 +227,7 @@ export default function AdminsPage() {
                                                 >
                                                     <i className="fa-solid fa-key"></i>
                                                 </button>
-                                                {me?.admin_type === 'primary' && admin.admin_type !== 'primary' && !isMe && (
+                                                {me?.admin_type === 'primary' && !isMe && admin.email !== 'admin@thestartupschool.in' && (
                                                     <button
                                                         onClick={() => handleDelete(admin.id, admin.email)}
                                                         className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors"

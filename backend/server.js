@@ -289,7 +289,7 @@ app.delete('/api/admin/admins/:id', authMiddleware, async (req, res) => {
   try {
     const target = await prisma.user.findUnique({ where: { id: req.params.id } });
     if (!target) return res.status(404).json({ error: 'Admin not found' });
-    if (target.admin_type === 'primary') return res.status(403).json({ error: 'Cannot delete primary admin account' });
+    if (target.email === 'admin@thestartupschool.in') return res.status(403).json({ error: 'Cannot delete the master seeded admin account' });
     if (target.role !== 'admin') return res.status(400).json({ error: 'Target is not an admin' });
 
     await prisma.user.delete({ where: { id: req.params.id } });

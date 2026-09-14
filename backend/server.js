@@ -1470,6 +1470,26 @@ app.post('/api/admin/bottom_videos', authMiddleware, async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to add bottom video' }); }
 });
 
+app.put('/api/admin/bottom_videos/reorder', authMiddleware, async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+    
+    const updates = items.map(item => {
+      return prisma.bottomVideoGallery.update({
+        where: { id: item.id },
+        data: { display_order: item.display_order }
+      });
+    });
+    
+    await prisma.$transaction(updates);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Reorder error:', error);
+    res.status(500).json({ error: 'Failed to reorder bottom videos' });
+  }
+});
+
 app.put('/api/admin/bottom_videos/:id', authMiddleware, async (req, res) => {
   try {
     const video = await prisma.bottomVideoGallery.update({

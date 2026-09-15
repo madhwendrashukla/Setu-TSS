@@ -619,7 +619,7 @@ const initialPageData = {
         enabled: false,
         subject: "Registration Confirmed: {{event_title}}",
         heading: "Registration Confirmed!",
-        message_body: "Hi {{name}},\n\nYour registration for {{event_title}} is confirmed. We're excited to have you join us!",
+        message_body: "Your registration for {{event_title}} is confirmed. We are excited to have you join us!",
         include_details_card: true,
         whatsapp_link: "",
         zoom_link: "",
@@ -1129,7 +1129,7 @@ const EmailTemplateEditor = ({
                                     onChange={e => handleFieldChange('whatsapp_link', e.target.value)} 
                                     placeholder="https://chat.whatsapp.com/..."
                                 />
-                                <p className="text-[10px] text-emerald-700/80">Renders as a green &quot;💬 Join WhatsApp Community&quot; button.</p>
+                                <p className="text-[10px] text-emerald-700/80">Renders as a green &quot;Join WhatsApp Community&quot; button.</p>
                             </div>
 
                             {/* Link 2: Zoom */}
@@ -1146,7 +1146,7 @@ const EmailTemplateEditor = ({
                                     onChange={e => handleFieldChange('zoom_link', e.target.value)} 
                                     placeholder="https://zoom.us/j/... or Google Meet"
                                 />
-                                <p className="text-[10px] text-blue-700/80">Renders as a blue &quot;📹 Join Zoom Session&quot; button.</p>
+                                <p className="text-[10px] text-blue-700/80">Renders as a purple &quot;Join Zoom Session&quot; button.</p>
                             </div>
 
                             {/* Link 3: Other URL */}
@@ -1175,7 +1175,7 @@ const EmailTemplateEditor = ({
                                         />
                                     </div>
                                 </div>
-                                <p className="text-[10px] text-purple-700/80">Renders as a purple action button with your custom label.</p>
+                                <p className="text-[10px] text-purple-700/80">Renders as a dark action button with your custom label.</p>
                             </div>
                         </div>
                     </div>
@@ -1217,7 +1217,7 @@ const EmailTemplateEditor = ({
                     <i className="fas fa-shield-alt"></i>
                 </div>
                 <div className="flex-1 text-xs text-emerald-950 leading-relaxed">
-                    <p className="font-bold text-emerald-900 mb-0.5">🛡️ Inbox Deliverability & Anti-Spam Active</p>
+                    <p className="font-bold text-emerald-900 mb-0.5">Inbox Deliverability & Anti-Spam Active</p>
                     <p className="text-emerald-800/90 text-[11px]">
                         Emails are dispatched with dual MIME format (HTML + clean plain-text fallback), verified SPF/DKIM headers, and <code className="bg-white/80 px-1 py-0.5 rounded text-emerald-900 font-mono">support@setustartupschool.com</code> reply-to to ensure emails land directly in the Primary inbox.
                     </p>

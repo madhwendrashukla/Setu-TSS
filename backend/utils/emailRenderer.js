@@ -1,7 +1,8 @@
 /**
  * Dynamic Email Renderer for Event Registrations (Setu Startup School)
  * Universal support for Paid, Free, and LMS hybrid events.
- * Anti-Spam optimized with strict HTML standards & dual HTML/Text output.
+ * Anti-Spam deliverability optimized with clean HTML & plain-text fallback.
+ * Light/White Theme matching the website with Setu brand colors (#6B21FB, #10B981, #0F172A).
  */
 
 function formatEventDate(isoDate, timeStr) {
@@ -79,7 +80,7 @@ function renderRegistrationEmail({ templateConfig = {}, registration = {}, event
 
   const isCustomEnabled = templateConfig && templateConfig.enabled === true;
 
-  // 1. Subject Line (Clean, spam-safe)
+  // 1. Subject Line
   const rawSubject = isCustomEnabled && templateConfig.subject
     ? templateConfig.subject
     : `Registration Confirmed: {{event_title}}`;
@@ -88,7 +89,7 @@ function renderRegistrationEmail({ templateConfig = {}, registration = {}, event
   // 2. Heading
   const rawHeading = isCustomEnabled && templateConfig.heading
     ? templateConfig.heading
-    : `Registration Confirmed`;
+    : `Registration Confirmed!`;
   const heading = substituteVariables(rawHeading, vars);
 
   // 3. Message Body
@@ -97,107 +98,139 @@ function renderRegistrationEmail({ templateConfig = {}, registration = {}, event
     rawBody = templateConfig.message_body;
   } else {
     rawBody = registration.amount > 0
-      ? `Your payment has been successfully verified. Your seat for <strong>{{event_title}}</strong> is secured.`
-      : `You are successfully registered for <strong>{{event_title}}</strong>. We are excited to have you with us.`;
+      ? `Your payment has been successfully verified. Your seat for <strong>{{event_title}}</strong> is secured. We look forward to seeing you!`
+      : `Your registration for <strong>{{event_title}}</strong> is confirmed. We are excited to have you join us!`;
   }
-  const messageBody = substituteVariables(rawBody, vars);
+  let messageBody = substituteVariables(rawBody, vars);
+
+  // Check if messageBody already starts with a greeting like "Hi ..." or "Hello ..."
+  const hasGreetingInBody = /^\s*(hi|hello|dear|hey)\b/i.test(messageBody.replace(/<[^>]+>/g, '').trim());
+  const greetingHtml = hasGreetingInBody
+    ? ''
+    : `<p style="margin:0 0 14px;color:#0F172A;font-size:15px;font-weight:600;line-height:1.6;">Hi ${guestName},</p>`;
 
   // 4. Custom Notes
   const rawNotes = isCustomEnabled && templateConfig.custom_notes ? templateConfig.custom_notes : '';
   const customNotes = substituteVariables(rawNotes, vars);
 
-  // 5. Action Buttons (1. WhatsApp, 2. Zoom, 3. Other Link)
+  // 5. Action Buttons (No emojis, clean modern buttons)
   const buttons = [];
   if (whatsappLink) {
     buttons.push(`
-      <a href="${whatsappLink}" target="_blank" style="display:inline-block;background:#10B981;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 20px;border-radius:10px;margin:5px 6px 5px 0;">
-        💬 Join WhatsApp Community
+      <a href="${whatsappLink}" target="_blank" style="display:inline-block;background:#10B981;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 22px;border-radius:10px;margin:6px 8px 6px 0;">
+        Join WhatsApp Community
       </a>
     `);
   }
   if (zoomLink) {
     buttons.push(`
-      <a href="${zoomLink}" target="_blank" style="display:inline-block;background:#5A1EEB;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 20px;border-radius:10px;margin:5px 6px 5px 0;">
-        📹 Join Zoom Session
+      <a href="${zoomLink}" target="_blank" style="display:inline-block;background:#6B21FB;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 22px;border-radius:10px;margin:6px 8px 6px 0;">
+        Join Zoom Session
       </a>
     `);
   }
   if (otherLink) {
     buttons.push(`
-      <a href="${otherLink}" target="_blank" style="display:inline-block;background:#7C3AED;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 20px;border-radius:10px;margin:5px 6px 5px 0;">
-        🔗 ${otherLinkLabel}
+      <a href="${otherLink}" target="_blank" style="display:inline-block;background:#0F172A;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 22px;border-radius:10px;margin:6px 8px 6px 0;">
+        ${otherLinkLabel}
       </a>
     `);
   }
   const actionButtonsHtml = buttons.length > 0 ? `
-    <div style="margin:22px 0 16px;">
+    <div style="margin:24px 0 16px;">
       ${buttons.join('')}
     </div>
   ` : '';
 
-  // 6. Summary Card
+  // 6. Summary Card (Clean white/light theme with slate borders)
   const includeDetails = templateConfig.include_details_card !== false;
   const summaryHtml = includeDetails ? `
-    <div style="background:#0E0C28;border:1px solid rgba(139,92,246,0.3);border-radius:14px;padding:20px;margin:22px 0;">
-      <p style="margin:0 0 12px;color:#C084FC;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;">Registration Summary</p>
+    <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:20px;margin:22px 0;">
+      <p style="margin:0 0 14px;color:#6B21FB;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;">Registration Summary</p>
       <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-        <tr><td style="padding:6px 0;color:#94A3B8;font-size:13px;width:110px;">Package / Tier</td><td style="padding:6px 0;color:#FFFFFF;font-size:13px;font-weight:600;">${ticketTier}</td></tr>
-        ${eventDate ? `<tr><td style="padding:6px 0;color:#94A3B8;font-size:13px;width:110px;">Date & Time</td><td style="padding:6px 0;color:#E2E8F0;font-size:13px;font-weight:500;">${eventDate}</td></tr>` : ''}
-        ${eventVenue ? `<tr><td style="padding:6px 0;color:#94A3B8;font-size:13px;width:110px;">Venue / Mode</td><td style="padding:6px 0;color:#E2E8F0;font-size:13px;font-weight:500;">${eventVenue}</td></tr>` : ''}
-        <tr><td style="padding:6px 0;color:#94A3B8;font-size:13px;width:110px;">Amount</td><td style="padding:6px 0;color:#34D399;font-size:13px;font-weight:800;">${amountStr}</td></tr>
-        <tr><td style="padding:6px 0;color:#94A3B8;font-size:13px;width:110px;">Ref ID</td><td style="padding:6px 0;color:#94A3B8;font-size:12px;font-family:'Courier New',monospace;">${paymentRef}</td></tr>
+        <tr>
+          <td style="padding:7px 0;color:#64748B;font-size:13px;width:120px;">Package / Tier</td>
+          <td style="padding:7px 0;color:#0F172A;font-size:13px;font-weight:600;">${ticketTier}</td>
+        </tr>
+        ${eventDate ? `
+        <tr>
+          <td style="padding:7px 0;color:#64748B;font-size:13px;width:120px;">Date & Time</td>
+          <td style="padding:7px 0;color:#334155;font-size:13px;font-weight:500;">${eventDate}</td>
+        </tr>` : ''}
+        ${eventVenue ? `
+        <tr>
+          <td style="padding:7px 0;color:#64748B;font-size:13px;width:120px;">Venue / Mode</td>
+          <td style="padding:7px 0;color:#334155;font-size:13px;font-weight:500;">${eventVenue}</td>
+        </tr>` : ''}
+        <tr>
+          <td style="padding:7px 0;color:#64748B;font-size:13px;width:120px;">Amount</td>
+          <td style="padding:7px 0;color:#059669;font-size:13px;font-weight:800;">${amountStr}</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 0;color:#64748B;font-size:13px;width:120px;">Ref ID</td>
+          <td style="padding:7px 0;color:#64748B;font-size:12px;font-family:'Courier New',Consolas,monospace;">${paymentRef}</td>
+        </tr>
       </table>
     </div>
   ` : '';
 
-  // 7. Custom Notes Box
+  // 7. Custom Notes Box (No emojis, clean brand styling)
   const notesHtml = customNotes ? `
-    <div style="background:#161244;border-left:4px solid #7C3AED;border-radius:0 10px 10px 0;padding:14px 16px;margin:20px 0;color:#E2E8F0;font-size:13px;line-height:1.6;">
-      <strong style="color:#C084FC;">📌 Instructions & Notes:</strong><br/>
-      <span style="white-space:pre-wrap;">${customNotes}</span>
+    <div style="background:#FAF5FF;border-left:4px solid #7C3AED;border-radius:0 10px 10px 0;padding:14px 18px;margin:20px 0;color:#374151;font-size:13px;line-height:1.6;">
+      <strong style="color:#6B21FB;display:block;margin-bottom:4px;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Instructions & Notes</strong>
+      <span style="white-space:pre-wrap;color:#334155;">${customNotes}</span>
     </div>
   ` : '';
 
-  // 8. Full HTML Body (Website Brand Theme: #0B091E, #13113B, #5A1EEB)
+  // 8. Full HTML Email (Clean White Background, Setu Brand Violet Accent)
+  const formattedBody = messageBody.includes('<p>') || messageBody.includes('<div>') 
+    ? messageBody 
+    : messageBody.replace(/\n\n/g, '</p><p style="margin:0 0 12px;color:#334155;font-size:14px;line-height:1.7;">').replace(/\n/g, '<br/>');
+
   const html = `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="color-scheme" content="dark">
       <title>${subject}</title>
     </head>
-    <body style="margin:0;padding:0;background:#0B091E;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#0B091E;padding:36px 16px;">
+    <body style="margin:0;padding:0;background:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#0F172A;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:32px 16px;">
         <tr>
           <td align="center">
-            <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#13113B;border-radius:20px;overflow:hidden;border:1px solid rgba(139,92,246,0.35);box-shadow:0 20px 50px rgba(0,0,0,0.5);">
-              <!-- Top Gradient Accent -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:16px;overflow:hidden;border:1px solid #E2E8F0;box-shadow:0 4px 20px rgba(15,23,42,0.06);">
+              <!-- Top Gradient Accent Bar -->
               <tr>
-                <td style="height:5px;background:linear-gradient(90deg,#5A1EEB 0%,#7C3AED 50%,#A855F7 100%);"></td>
+                <td style="height:5px;background:linear-gradient(90deg,#6B21FB 0%,#8B5CF6 50%,#06B6D4 100%);"></td>
               </tr>
-              <!-- Brand Header -->
+              <!-- Clean Brand Header (No broken images) -->
               <tr>
-                <td style="text-align:center;padding:26px 24px 18px;background:#161244;border-bottom:1px solid rgba(139,92,246,0.2);">
-                  <div style="display:inline-block;padding:8px 18px;background:rgba(255,255,255,0.08);border-radius:12px;margin-bottom:8px;">
-                    <img src="https://thestartupschool.in/setu-logo-nav.png" alt="Setu Startup School" height="28" style="height:28px;max-height:28px;display:block;border:0;outline:none;" />
+                <td style="padding:28px 32px 20px;text-align:center;border-bottom:1px solid #F1F5F9;background:#FFFFFF;">
+                  <div style="font-size:19px;font-weight:900;letter-spacing:-0.5px;color:#0F172A;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                    <span style="color:#6B21FB;">SETU</span> STARTUP SCHOOL
                   </div>
-                  <p style="margin:0;color:#C4B5FD;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Setu Startup School</p>
+                  <div style="font-size:10px;font-weight:700;letter-spacing:1.8px;color:#64748B;text-transform:uppercase;margin-top:3px;">
+                    The Startup School
+                  </div>
                 </td>
               </tr>
-              <!-- Content Section -->
+              <!-- Main Content Section -->
               <tr>
-                <td style="padding:32px 28px 24px;">
-                  <div style="display:inline-block;padding:4px 12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);border-radius:20px;color:#34D399;font-size:11px;font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">
-                    ✓ Registration Confirmed
+                <td style="padding:32px 32px 28px;">
+                  <!-- Status Pill -->
+                  <div style="display:inline-block;padding:4px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:20px;color:#059669;font-size:11px;font-weight:700;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.8px;">
+                    Registration Confirmed
                   </div>
-                  <h1 style="margin:0 0 16px;color:#FFFFFF;font-size:22px;font-weight:800;letter-spacing:-0.5px;">${heading}</h1>
+
+                  <h1 style="margin:0 0 16px;color:#0F172A;font-size:22px;font-weight:800;letter-spacing:-0.4px;line-height:1.3;">
+                    ${heading}
+                  </h1>
                   
-                  <p style="margin:0 0 12px;color:#E2E8F0;font-size:15px;line-height:1.6;">Hi <strong style="color:#FFFFFF;">${guestName}</strong>,</p>
+                  ${greetingHtml}
                   
-                  <div style="color:#CBD5E1;font-size:14px;line-height:1.7;">
-                    ${messageBody.includes('<p>') || messageBody.includes('<div>') ? messageBody : messageBody.replace(/\n/g, '<br/>')}
+                  <div style="color:#334155;font-size:14px;line-height:1.7;">
+                    ${formattedBody}
                   </div>
 
                   ${summaryHtml}
@@ -206,16 +239,16 @@ function renderRegistrationEmail({ templateConfig = {}, registration = {}, event
 
                   ${notesHtml}
 
-                  <p style="margin:24px 0 0;color:#94A3B8;font-size:12px;line-height:1.6;border-top:1px solid rgba(139,92,246,0.2);padding-top:16px;">
-                    Have questions? Reply directly to this email or reach our support desk at <a href="mailto:support@setustartupschool.com" style="color:#A855F7;text-decoration:none;font-weight:600;">support@setustartupschool.com</a>.
+                  <p style="margin:26px 0 0;color:#64748B;font-size:12px;line-height:1.6;border-top:1px solid #F1F5F9;padding-top:18px;">
+                    Have questions? Reply directly to this email or reach our support team at <a href="mailto:support@setustartupschool.com" style="color:#6B21FB;text-decoration:none;font-weight:600;">support@setustartupschool.com</a>.
                   </p>
                 </td>
               </tr>
               <!-- Footer -->
               <tr>
-                <td style="padding:18px 24px;background:#0F0D2E;border-top:1px solid rgba(139,92,246,0.2);text-align:center;">
-                  <p style="margin:0 0 4px;color:#64748B;font-size:11px;">© ${currentYear} Setu Startup School. All rights reserved.</p>
-                  <p style="margin:0;color:#475569;font-size:10px;">Empowering Founders to Build, Scale & Fundraise</p>
+                <td style="padding:20px 32px;background:#F8FAFC;border-top:1px solid #E2E8F0;text-align:center;">
+                  <p style="margin:0 0 4px;color:#64748B;font-size:12px;font-weight:500;">© ${currentYear} Setu Startup School. All rights reserved.</p>
+                  <p style="margin:0;color:#94A3B8;font-size:11px;">Empowering Founders to Build, Scale & Fundraise</p>
                 </td>
               </tr>
             </table>
@@ -226,7 +259,7 @@ function renderRegistrationEmail({ templateConfig = {}, registration = {}, event
     </html>
   `;
 
-  // 9. Clean Plain-Text Version (Anti-Spam deliverability)
+  // 9. Plain-Text Fallback
   const plainText = `
 SETU STARTUP SCHOOL - REGISTRATION CONFIRMED
 ============================================
@@ -250,13 +283,12 @@ Need help? Contact support@setustartupschool.com.
   return {
     subject,
     html,
-    text: plainText,
-    vars
+    text: plainText
   };
 }
 
 module.exports = {
   renderRegistrationEmail,
-  substituteVariables,
-  formatEventDate
+  formatEventDate,
+  substituteVariables
 };

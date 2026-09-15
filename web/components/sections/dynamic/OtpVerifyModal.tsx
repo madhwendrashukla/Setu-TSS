@@ -1,6 +1,21 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
+import { 
+  X, 
+  ShieldCheck, 
+  User, 
+  Mail, 
+  Phone, 
+  Send, 
+  Loader2, 
+  Lock, 
+  CheckCircle2, 
+  AlertCircle, 
+  ArrowLeft,
+  KeyRound
+} from 'lucide-react';
 import { GuestUser } from '@/hooks/useGuestUser';
 
 interface OtpVerifyModalProps {
@@ -205,75 +220,103 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#0B1120]/75 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
-        {/* Gradient Header */}
-        <div className="bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] p-6 text-center relative">
+      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-[0_25px_60px_-15px_rgba(124,58,237,0.3)] border border-slate-100 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+        {/* Brand Gradient Header */}
+        <div className="bg-gradient-to-r from-accent-royal via-accent-blue to-accent-violet p-6 text-center relative overflow-hidden">
+          {/* Subtle glow decorative background elements */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none" />
+          <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-accent-lavender/20 rounded-full blur-lg pointer-events-none" />
+
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
+            className="absolute top-4 right-4 text-white/70 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors z-10"
             aria-label="Close verify modal"
           >
-            <i className="fa-solid fa-xmark text-lg" />
+            <X size={18} />
           </button>
-          <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <i className="fa-solid fa-shield-check text-white text-2xl" />
+
+          {/* New Setu Logo Pill */}
+          <div className="inline-flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-lg shadow-black/10 border border-white/80 mx-auto mb-3.5">
+            <Image 
+              src="/setu-logo-nav.png" 
+              alt="Setu Logo" 
+              width={75} 
+              height={24} 
+              className="object-contain h-5 w-auto"
+              priority
+            />
+            <div className="h-4 w-px bg-slate-300"></div>
+            <span className="text-[10px] md:text-[11px] font-black tracking-[0.16em] text-[#0B1120] uppercase mt-0.5">
+              The <span className="text-accent-violet">Startup</span> School
+            </span>
           </div>
-          <h2 className="text-xl font-extrabold text-white tracking-tight">
-            {step === 'form' ? 'Quick Verification' : 'Enter Your OTP'}
+
+          <h2 className="text-xl font-extrabold text-white tracking-tight flex items-center justify-center gap-2">
+            {step === 'form' ? (
+              <>
+                <span>Quick Verification</span>
+                <ShieldCheck size={20} className="text-white/90" />
+              </>
+            ) : (
+              <>
+                <span>Enter Your OTP</span>
+                <KeyRound size={20} className="text-white/90" />
+              </>
+            )}
           </h2>
-          <p className="text-white/70 text-sm mt-1">
+          <p className="text-white/80 text-xs sm:text-sm mt-1 max-w-xs mx-auto">
             {step === 'form'
               ? 'No account needed — just verify to proceed'
-              : `OTP sent to ${email}`}
+              : `Enter the 6-digit code sent to ${email}`}
           </p>
         </div>
 
         <div className="p-6">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
-              <i className="fa-solid fa-circle-exclamation" />
-              {error}
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm flex items-center gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
+              <AlertCircle size={18} className="shrink-0 text-red-500" />
+              <span className="font-medium text-xs sm:text-sm">{error}</span>
             </div>
           )}
 
           {step === 'form' ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name</label>
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1.5">Full Name</label>
                 <div className="relative">
-                  <i className="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                  <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="Your full name"
                     required
-                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-text-primary text-sm focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 transition-all placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1.5">Email Address</label>
                 <div className="relative">
-                  <i className="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     required
-                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-text-primary text-sm focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 transition-all placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Phone Number</label>
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1.5">Phone Number</label>
                 <div className="relative">
-                  <i className="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                  <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="tel"
                     value={phone}
@@ -281,7 +324,7 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
                     placeholder="10-digit mobile number"
                     required
                     maxLength={10}
-                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-text-primary text-sm focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 transition-all placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -291,25 +334,25 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
                 disabled={loading}
                 className="relative group w-full mt-2"
               >
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300" />
-                <div className="relative w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-royal via-accent-blue to-accent-violet rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300" />
+                <div className="relative w-full flex items-center justify-center gap-2 bg-gradient-to-r from-accent-royal to-accent-blue hover:from-accent-blue hover:to-accent-royal text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md active:scale-[0.99] disabled:opacity-70">
                   {loading ? (
-                    <><i className="fa-solid fa-circle-notch fa-spin" /> Sending OTP...</>
+                    <><Loader2 size={16} className="animate-spin" /> Sending OTP...</>
                   ) : (
-                    <><i className="fa-solid fa-paper-plane" /> Send OTP to Email</>
+                    <><Send size={16} /> Send OTP to Email</>
                   )}
                 </div>
               </button>
 
-              <p className="text-center text-xs text-slate-400 mt-2">
-                <i className="fa-solid fa-lock text-[10px] mr-1" />
-                Your details are saved locally and used only for this purchase
+              <p className="text-center text-xs text-text-secondary mt-3 flex items-center justify-center gap-1.5">
+                <Lock size={12} className="text-slate-400" />
+                <span>Your details are saved locally and used only for this purchase</span>
               </p>
             </form>
           ) : (
             <form onSubmit={handleVerify} className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 text-center">
+                <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-3 text-center">
                   Enter 6-digit OTP
                 </label>
                 <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
@@ -327,7 +370,7 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
                           otpRefs.current[idx - 1]?.focus();
                         }
                       }}
-                      className="w-11 h-14 text-center text-2xl font-black border-2 border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                      className="w-11 h-14 text-center text-2xl font-black border-2 border-slate-200 rounded-xl text-text-primary focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 transition-all"
                     />
                   ))}
                 </div>
@@ -338,29 +381,29 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
                 disabled={loading || otp.join('').length < 6}
                 className="relative group w-full"
               >
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] rounded-xl blur opacity-60 group-hover:opacity-100 disabled:opacity-20 transition duration-300" />
-                <div className="relative w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-3.5 rounded-xl text-sm disabled:opacity-60">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-royal via-accent-blue to-accent-violet rounded-xl blur opacity-60 group-hover:opacity-100 disabled:opacity-20 transition duration-300" />
+                <div className="relative w-full flex items-center justify-center gap-2 bg-gradient-to-r from-accent-royal to-accent-blue hover:from-accent-blue hover:to-accent-royal text-white font-bold py-3.5 rounded-xl text-sm disabled:opacity-60 transition-all shadow-md active:scale-[0.99]">
                   {loading ? (
-                    <><i className="fa-solid fa-circle-notch fa-spin" /> Verifying...</>
+                    <><Loader2 size={16} className="animate-spin" /> Verifying...</>
                   ) : (
-                    <><i className="fa-solid fa-check-circle" /> Verify & Continue</>
+                    <><CheckCircle2 size={16} /> Verify & Continue</>
                   )}
                 </div>
               </button>
 
-              <div className="text-center">
+              <div className="text-center flex items-center justify-between pt-1">
                 <button
                   type="button"
                   onClick={() => setStep('form')}
-                  className="text-xs text-slate-400 hover:text-slate-600 mr-4"
+                  className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary transition-colors"
                 >
-                  ← Change details
+                  <ArrowLeft size={13} /> Change details
                 </button>
                 <button
                   type="button"
                   onClick={handleResend}
                   disabled={resendTimer > 0 || loading}
-                  className="text-xs font-semibold text-[#8b5cf6] hover:underline disabled:text-slate-400 disabled:no-underline"
+                  className="text-xs font-semibold text-accent-blue hover:text-accent-royal hover:underline disabled:text-slate-400 disabled:no-underline transition-colors"
                 >
                   {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
                 </button>
@@ -372,3 +415,4 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
     </div>
   );
 }
+

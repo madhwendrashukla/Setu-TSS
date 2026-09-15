@@ -8,6 +8,8 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { requiredEnv } = require('../utils/requiredEnv');
 const { sendMail } = require('../utils/mailer');
+const { renderRegistrationEmail } = require('../utils/emailRenderer');
+const authMiddleware = require('../middleware/auth');
 
 const razorpay = new Razorpay({
   key_id: requiredEnv('RAZORPAY_KEY_ID'),
@@ -430,6 +432,51 @@ function safeEqualHex(expected, incoming) {
   return crypto.timingSafeEqual(a, b);
 }
 
+// POST /api/payments/test-email
+// Admin test email preview for the Event Builder
+router.post('/test-email', authMiddleware, async (req, res) => {
+  try {
+    const { toEmail, eventId, templateConfig } = req.body;
+    if (!toEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail)) {
+      return res.status(400).json({ error: 'A valid recipient email is required' });
+    }
+
+    let event = {};
+    if (eventId) {
+      event = (await prisma.event.findUnique({ where: { id: eventId } })) || {};
+    }
+
+    const mockRegistration = {
+      guest_name: 'Test Founder',
+      guest_email: toEmail,
+      guest_phone: '+91 98765 43210',
+      ticket_tier: 'Masterclass VIP Pass',
+      amount: 449,
+      razorpay_payment_id: 'pay_test_preview123',
+      id: 'reg_preview_id'
+    };
+
+    const rendered = renderRegistrationEmail({
+      templateConfig: templateConfig || {},
+      registration: mockRegistration,
+      event: {
+        title: event.title || 'Sample Masterclass',
+        start_date: event.start_date || new Date().toISOString(),
+        start_time: event.start_time || '10:30 AM',
+        venue: event.venue || 'The Hosteller Delhi NCR',
+        city: event.city || 'New Delhi',
+        page_blocks: event.page_blocks
+      }
+    });
+
+    await sendMail(toEmail, `[TEST PREVIEW] ${rendered.subject}`, rendered.html);
+    res.json({ success: true, message: `Test preview email sent to ${toEmail}` });
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    res.status(500).json({ error: error.message || 'Failed to send test email' });
+  }
+});
+
 router.post('/verify-payment', async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
@@ -440,12 +487,6 @@ router.post('/verify-payment', async (req, res) => {
       .update(body.toString())
       .digest('hex');
 
-    // 🔴 CONSTANT-TIME, NOT `===`. A plain string comparison returns as soon
-    // as two characters differ, so the time it takes leaks how much of the
-    // signature was correct — which is exactly how a signature gets guessed a
-    // byte at a time. This is the money path; it gets the same treatment the
-    // LMS already gives its webhooks (lib/hmac.ts, which says in as many words
-    // "never use !== directly").
     const isAuthentic = safeEqualHex(expectedSignature, razorpay_signature);
 
     if (isAuthentic) {
@@ -476,7 +517,7 @@ router.post('/verify-payment', async (req, res) => {
             await prisma.couponUsage.create({
               data: {
                 coupon_id: coupon.id,
-                user_email: req.body.email || null
+                user_email: req.body.email || (reg && reg.guest_email) || null
               }
             });
             await prisma.coupon.update({
@@ -486,6 +527,55 @@ router.post('/verify-payment', async (req, res) => {
           }
         } catch (err) {
           console.error("Failed to log coupon usage:", err);
+        }
+      }
+
+      // --- SEND PAID CONFIRMATION EMAIL (custom template aware) ---
+      if (reg) {
+        let recipientEmail = reg.guest_email || req.body.email;
+        let recipientName = reg.guest_name;
+
+        if (!recipientEmail && reg.user_id) {
+          try {
+            const u = await prisma.user.findUnique({ where: { id: reg.user_id } });
+            if (u) {
+              recipientEmail = u.email;
+              recipientName = recipientName || u.name;
+            }
+          } catch (_) {}
+        }
+
+        if (recipientEmail) {
+          let event = null;
+          if (reg.event_id) {
+            try {
+              event = await prisma.event.findUnique({ where: { id: reg.event_id } });
+            } catch (_) {}
+          }
+
+          let templateConfig = {};
+          if (event && event.page_blocks) {
+            try {
+              const pb = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+              if (pb && pb.email_template) {
+                templateConfig = pb.email_template;
+              }
+            } catch (_) {}
+          }
+
+          const rendered = renderRegistrationEmail({
+            templateConfig,
+            registration: {
+              ...reg,
+              guest_name: recipientName,
+              guest_email: recipientEmail,
+              razorpay_payment_id: razorpay_payment_id
+            },
+            event: event || {}
+          });
+
+          sendMail(recipientEmail, rendered.subject, rendered.html)
+            .catch(err => console.error('[verify-payment] confirmation email failed (non-fatal):', err.message));
         }
       }
 
@@ -509,47 +599,6 @@ router.post('/verify-payment', async (req, res) => {
 // Zero-cost event registration — no Razorpay involved.
 // The server re-reads actual_price from the DB; if it's > 0 we reject.
 // ---------------------------------------------------------------------------
-function freeRegistrationEmailHtml(name, eventTitle, eventDate, eventVenue) {
-  const dateStr = eventDate ? `<p style="margin:0 0 8px;color:#6b7280;font-size:14px;">📅 <strong>${eventDate}</strong></p>` : '';
-  const venueStr = eventVenue ? `<p style="margin:0 0 8px;color:#6b7280;font-size:14px;">📍 <strong>${eventVenue}</strong></p>` : '';
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-    <body style="margin:0;padding:0;background:#f8fafc;font-family:'Segoe UI',Arial,sans-serif;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.08);">
-        <tr>
-          <td style="background:linear-gradient(135deg,#8b5cf6,#d946ef);padding:32px;text-align:center;">
-            <p style="margin:0;color:#fff;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;opacity:0.8;">Setu Startup School</p>
-            <h1 style="margin:8px 0 0;color:#fff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">You're Registered! 🎉</h1>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:40px 36px;">
-            <p style="margin:0 0 16px;color:#374151;font-size:15px;">Hi <strong>${name || 'there'}</strong>,</p>
-            <p style="margin:0 0 24px;color:#6b7280;font-size:14px;line-height:1.7;">
-              You're successfully registered for <strong style="color:#1f2937;">${eventTitle}</strong>. We're excited to have you!
-            </p>
-            <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;padding:20px;margin-bottom:28px;">
-              <p style="margin:0 0 12px;color:#7c3aed;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Event Details</p>
-              ${dateStr}
-              ${venueStr}
-              <p style="margin:0;color:#6b7280;font-size:13px;">Keep an eye on your email for further updates.</p>
-            </div>
-            <p style="margin:0;color:#9ca3af;font-size:12px;">If you have any questions, reply to this email or contact us at <a href="mailto:support@setustartupschool.com" style="color:#8b5cf6;">support@setustartupschool.com</a></p>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:20px 36px;border-top:1px solid #f3f4f6;text-align:center;">
-            <p style="margin:0;color:#d1d5db;font-size:11px;">© 2026 Setu Startup School. All rights reserved.</p>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
-  `;
-}
-
 router.post('/register-free', flexAuth, async (req, res) => {
   try {
     const { eventId, ticketTier } = req.body;
@@ -580,8 +629,6 @@ router.post('/register-free', flexAuth, async (req, res) => {
     if (!event) return res.status(404).json({ error: 'Event not found' });
 
     // Re-read ALL pricing cards and check if at least one free card exists.
-    // We accept a free registration if the event has ANY pricing card with price 0,
-    // OR if the entire event has no pricing cards (open/free by nature).
     let pageData;
     try {
       pageData = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
@@ -651,24 +698,27 @@ router.post('/register-free', flexAuth, async (req, res) => {
       }
     }
 
-    // --- SEND CONFIRMATION EMAIL (non-blocking) ---
+    // --- SEND CONFIRMATION EMAIL (custom template aware) ---
     if (email) {
-      // Parse event details for the email
-      let eventDate = null;
-      let eventVenue = null;
-      try {
-        if (event.start_date) {
-          eventDate = new Date(event.start_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-          if (event.start_time) eventDate += ` at ${event.start_time}`;
-        }
-        eventVenue = event.venue || event.city || null;
-      } catch (_) {}
+      let templateConfig = {};
+      if (pageData && pageData.email_template) {
+        templateConfig = pageData.email_template;
+      }
 
-      sendMail(
-        email,
-        `You're registered for ${event.title}! 🎉`,
-        freeRegistrationEmailHtml(guestName, event.title, eventDate, eventVenue)
-      ).catch(err => console.error('[register-free] email failed (non-fatal):', err.message));
+      const rendered = renderRegistrationEmail({
+        templateConfig,
+        registration: {
+          ...registration,
+          guest_name: guestName,
+          guest_email: email,
+          guest_phone: guestPhone,
+          amount: 0
+        },
+        event
+      });
+
+      sendMail(email, rendered.subject, rendered.html)
+        .catch(err => console.error('[register-free] email failed (non-fatal):', err.message));
     }
 
     return res.json({ success: true, registrationId: registration.id });

@@ -99,11 +99,13 @@ export function Mentors({ data }: { data?: any[] }) {
                 </p>
             </div>
 
-            {/* Grid Layout */}
-            <div className="max-w-[1400px] mx-auto px-6 w-full relative z-20">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            {/* Centered Flex Layout */}
+            <div className="max-w-[1400px] mx-auto px-6 w-full relative z-20 flex justify-center">
+                <div className="flex flex-wrap justify-center gap-6 md:gap-8 w-full">
                     {displayMentors.map((mentor, idx) => (
-                        <MentorCard key={`mentor-${idx}`} mentor={mentor} />
+                        <div key={`mentor-${idx}`} className="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-22px)] xl:w-[calc(25%-24px)] max-w-[380px]">
+                            <MentorCard mentor={mentor} />
+                        </div>
                     ))}
                 </div>
             </div>

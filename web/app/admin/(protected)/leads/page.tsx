@@ -240,6 +240,8 @@ export default function AdminLeads() {
     const [mailLead, setMailLead] = useState<any | null>(null);
     const [showBulkMail, setShowBulkMail] = useState(false);
     const [viewLead, setViewLead] = useState<any | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
 
     const fetchSources = () => {
         fetch(`${API}/api/admin/lead-sources`, {
@@ -267,6 +269,7 @@ export default function AdminLeads() {
     };
 
     useEffect(() => {
+        setCurrentPage(1);
         const t = setTimeout(fetchLeads, 500);
         return () => clearTimeout(t);
     }, [statusFilter, sourceFilter, searchQuery]);
@@ -324,6 +327,12 @@ export default function AdminLeads() {
         searchQuery ? `Search: "${searchQuery}"` : '',
     ].filter(Boolean).join(' · ') || 'All Leads';
 
+    // Pagination calculations
+    const totalPages = Math.ceil(leads.length / pageSize) || 1;
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, leads.length);
+    const paginatedLeads = leads.slice(startIndex, endIndex);
+
     return (
         <div>
             <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
@@ -375,114 +384,161 @@ export default function AdminLeads() {
                 </div>
             </div>
 
-            {/* Table with responsive horizontal overflow and safe column widths */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-x-auto">
-                <table className="w-full text-left min-w-[1000px] table-fixed border-collapse">
-                    <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider font-semibold">
-                        <tr>
-                            <th className="p-4 w-[200px]">Name</th>
-                            <th className="p-4 w-[220px]">Email</th>
-                            <th className="p-4 w-[130px]">Phone</th>
-                            <th className="p-4 w-[120px]">City</th>
-                            <th className="p-4 w-[140px]">Source</th>
-                            <th className="p-4 w-[110px]">Date</th>
-                            <th className="p-4 w-[130px]">Status</th>
-                            <th className="p-4 w-[110px] text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {loading ? (
+            {/* Table Card with side scroller & clean pagination */}
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[1100px] border-collapse">
+                        <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider font-semibold">
                             <tr>
-                                <td colSpan={8} className="p-12 text-center text-gray-400">
-                                    <i className="fas fa-circle-notch fa-spin text-xl mr-2 text-purple-600" />
-                                    Loading inquiries...
-                                </td>
+                                <th className="p-4 w-[280px] min-w-[240px]">Name</th>
+                                <th className="p-4 w-[240px] min-w-[220px]">Email</th>
+                                <th className="p-4 w-[140px] min-w-[130px]">Phone</th>
+                                <th className="p-4 w-[120px] min-w-[100px]">City</th>
+                                <th className="p-4 w-[160px] min-w-[140px]">Source</th>
+                                <th className="p-4 w-[120px] min-w-[110px]">Date</th>
+                                <th className="p-4 w-[130px] min-w-[120px]">Status</th>
+                                <th className="p-4 w-[110px] min-w-[110px] text-right">Actions</th>
                             </tr>
-                        ) : leads.length === 0 ? (
-                            <tr>
-                                <td colSpan={8} className="p-12 text-center text-gray-400">
-                                    No inquiries found matching criteria.
-                                </td>
-                            </tr>
-                        ) : leads.map(lead => (
-                            <tr key={lead.id} className="hover:bg-gray-50/80 transition-colors group">
-                                <td className="p-4 font-bold text-gray-900">
-                                    <div className="flex items-center gap-2.5">
-                                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs shrink-0">
-                                            {lead.full_name ? lead.full_name.charAt(0).toUpperCase() : '?'}
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={8} className="p-12 text-center text-gray-400">
+                                        <i className="fas fa-circle-notch fa-spin text-xl mr-2 text-purple-600" />
+                                        Loading inquiries...
+                                    </td>
+                                </tr>
+                            ) : paginatedLeads.length === 0 ? (
+                                <tr>
+                                    <td colSpan={8} className="p-12 text-center text-gray-400">
+                                        No inquiries found matching criteria.
+                                    </td>
+                                </tr>
+                            ) : paginatedLeads.map(lead => (
+                                <tr key={lead.id} className="hover:bg-gray-50/80 transition-colors group">
+                                    <td className="p-4 text-gray-900">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px] shrink-0">
+                                                {lead.full_name ? lead.full_name.charAt(0).toUpperCase() : '?'}
+                                            </div>
+                                            <span className="text-xs font-semibold text-gray-900 whitespace-nowrap" title={lead.full_name}>
+                                                {lead.full_name || '—'}
+                                            </span>
                                         </div>
-                                        <span className="truncate max-w-[150px] block" title={lead.full_name}>
-                                            {lead.full_name || '—'}
+                                    </td>
+                                    <td className="p-4 text-gray-600 text-xs">
+                                        <span className="whitespace-nowrap" title={lead.email}>
+                                            {lead.email}
                                         </span>
-                                    </div>
-                                </td>
-                                <td className="p-4 text-gray-600 text-sm">
-                                    <span className="truncate max-w-[200px] block" title={lead.email}>
-                                        {lead.email}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-gray-600 text-sm whitespace-nowrap">
-                                    {lead.phone ? (
-                                        <a href={`tel:${lead.phone}`} className="hover:text-purple-600 hover:underline">
-                                            {lead.phone}
-                                        </a>
-                                    ) : '—'}
-                                </td>
-                                <td className="p-4 text-gray-600 text-sm">
-                                    <span className="truncate max-w-[100px] block" title={lead.city}>
-                                        {lead.city || '—'}
-                                    </span>
-                                </td>
-                                <td className="p-4 whitespace-nowrap">
-                                    <span className="bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-700 inline-block max-w-[120px] truncate" title={adminSources.find(s => s.slug === lead.source)?.label || lead.source}>
-                                        {adminSources.find(s => s.slug === lead.source)?.label || lead.source || '—'}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-gray-400 text-xs whitespace-nowrap font-medium">
-                                    {formatDate(lead.created_at)}
-                                </td>
-                                <td className="p-4 whitespace-nowrap">
-                                    <select
-                                        value={lead.status}
-                                        onChange={e => updateStatus(lead.id, e.target.value)}
-                                        className={`rounded-lg px-2.5 py-1 text-xs font-bold border focus:outline-none cursor-pointer transition-all ${statusColor(lead.status)}`}
-                                    >
-                                        <option value="new">New</option>
-                                        <option value="contacted">Contacted</option>
-                                        <option value="converted">Converted</option>
-                                    </select>
-                                </td>
-                                <td className="p-4 whitespace-nowrap text-right">
-                                    <div className="flex items-center justify-end gap-1.5">
-                                        {lead.message && (
+                                    </td>
+                                    <td className="p-4 text-gray-600 text-xs whitespace-nowrap">
+                                        {lead.phone ? (
+                                            <a href={`tel:${lead.phone}`} className="hover:text-purple-600 hover:underline">
+                                                {lead.phone}
+                                            </a>
+                                        ) : '—'}
+                                    </td>
+                                    <td className="p-4 text-gray-600 text-xs">
+                                        <span className="whitespace-nowrap" title={lead.city}>
+                                            {lead.city || '—'}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 whitespace-nowrap">
+                                        <span className="bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-gray-700 inline-block truncate max-w-[150px]" title={adminSources.find(s => s.slug === lead.source)?.label || lead.source}>
+                                            {adminSources.find(s => s.slug === lead.source)?.label || lead.source || '—'}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-gray-400 text-xs whitespace-nowrap font-medium">
+                                        {formatDate(lead.created_at)}
+                                    </td>
+                                    <td className="p-4 whitespace-nowrap">
+                                        <select
+                                            value={lead.status}
+                                            onChange={e => updateStatus(lead.id, e.target.value)}
+                                            className={`rounded-lg px-2.5 py-1 text-xs font-bold border focus:outline-none cursor-pointer transition-all ${statusColor(lead.status)}`}
+                                        >
+                                            <option value="new">New</option>
+                                            <option value="contacted">Contacted</option>
+                                            <option value="converted">Converted</option>
+                                        </select>
+                                    </td>
+                                    <td className="p-4 whitespace-nowrap text-right">
+                                        <div className="flex items-center justify-end gap-1.5">
+                                            {lead.message && (
+                                                <button
+                                                    onClick={() => setViewLead(lead)}
+                                                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all"
+                                                    title="View message note"
+                                                >
+                                                    <i className="fas fa-comment-dots text-xs" />
+                                                </button>
+                                            )}
                                             <button
-                                                onClick={() => setViewLead(lead)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all"
-                                                title="View message note"
+                                                onClick={() => setMailLead(lead)}
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg border border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-400 transition-all"
+                                                title={`Send email to ${lead.full_name}`}
                                             >
-                                                <i className="fas fa-comment-dots text-xs" />
+                                                <i className="fas fa-envelope text-xs" />
                                             </button>
-                                        )}
-                                        <button
-                                            onClick={() => setMailLead(lead)}
-                                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-400 transition-all"
-                                            title={`Send email to ${lead.full_name}`}
-                                        >
-                                            <i className="fas fa-envelope text-xs" />
-                                        </button>
-                                        <button
-                                            onClick={() => deleteLead(lead.id, lead.full_name)}
-                                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-100 text-red-400 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all"
-                                            title={`Delete inquiry`}
-                                        >
-                                            <i className="fas fa-trash text-xs" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                            <button
+                                                onClick={() => deleteLead(lead.id, lead.full_name)}
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-100 text-red-400 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all"
+                                                title={`Delete inquiry`}
+                                            >
+                                                <i className="fas fa-trash text-xs" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Pagination Controls */}
+                {leads.length > 0 && (
+                    <div className="px-6 py-4 bg-gray-50/70 border-t border-gray-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+                        <div>
+                            Showing <span className="font-bold text-gray-800">{startIndex + 1}</span> to <span className="font-bold text-gray-800">{endIndex}</span> of <span className="font-bold text-gray-800">{leads.length}</span> leads
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                type="button"
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-white text-gray-700 font-semibold transition-all flex items-center gap-1 shadow-sm"
+                            >
+                                <i className="fas fa-chevron-left text-[10px]" /> Prev
+                            </button>
+
+                            <div className="flex items-center gap-1">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                                    <button
+                                        key={pageNum}
+                                        type="button"
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        className={`w-7 h-7 rounded-lg font-bold text-xs transition-all ${
+                                            currentPage === pageNum
+                                                ? 'bg-purple-600 text-white shadow-sm'
+                                                : 'text-gray-600 hover:bg-gray-200/70'
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-white text-gray-700 font-semibold transition-all flex items-center gap-1 shadow-sm"
+                            >
+                                Next <i className="fas fa-chevron-right text-[10px]" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* View Lead Message Modal */}

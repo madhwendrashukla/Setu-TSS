@@ -159,6 +159,56 @@ router.post('/capture-lead', async (req, res) => {
   }
 });
 
+// POST /api/payments/record-failure
+// Records a failed payment attempt on the Lead object for instant sales recovery
+router.post('/record-failure', async (req, res) => {
+  try {
+    const { name, email, phone, eventId, ticketTier, errorReason } = req.body;
+    if (!email && !phone) return res.status(400).json({ error: 'Missing contact info' });
+
+    const leadSource = `checkout_${eventId || 'general'}`;
+    const failureMsg = errorReason ? `Payment Failed: ${errorReason}` : 'Payment attempt failed / cancelled on checkout';
+
+    const existing = await prisma.lead.findFirst({
+      where: {
+        source: leadSource,
+        OR: [
+          ...(email ? [{ email }] : []),
+          ...(phone ? [{ phone }] : [])
+        ]
+      }
+    });
+
+    if (existing) {
+      await prisma.lead.update({
+        where: { id: existing.id },
+        data: {
+          status: 'payment_failed',
+          message: failureMsg,
+          phone: phone || existing.phone,
+          full_name: name || existing.full_name
+        }
+      });
+    } else {
+      await prisma.lead.create({
+        data: {
+          full_name: name || 'Guest Checkout',
+          email: email || '',
+          phone: phone || null,
+          source: leadSource,
+          status: 'payment_failed',
+          message: failureMsg
+        }
+      });
+    }
+
+    res.json({ success: true, message: 'Payment failure recorded for follow-up' });
+  } catch (error) {
+    console.error('Error recording payment failure:', error);
+    res.status(500).json({ error: 'Failed to record payment failure' });
+  }
+});
+
 /**
  * Resolve a card's price from the event's builder page, SERVER-SIDE.
  *
@@ -502,15 +552,17 @@ router.post('/verify-payment', async (req, res) => {
         }
       });
 
-      // Update CRM Lead to 'converted'
+      // Remove from Leads table since user is now a confirmed attendee in Registrations
       const reg = await prisma.eventRegistration.findFirst({
         where: { razorpay_order_id: razorpay_order_id }
       });
       if (reg && reg.guest_email) {
-        await prisma.lead.updateMany({
-          where: { email: reg.guest_email, source: `checkout_${reg.event_id}` },
-          data: { status: 'converted' }
-        });
+        await prisma.lead.deleteMany({
+          where: { 
+            email: reg.guest_email, 
+            source: { in: [`checkout_${reg.event_id}`, `checkout_${reg.event_id?.toLowerCase()}`] }
+          }
+        }).catch(() => {});
       }
       
       // Log coupon usage if a valid coupon was used
@@ -683,23 +735,14 @@ router.post('/register-free', flexAuth, async (req, res) => {
       }
     });
 
-    // --- CRM: upsert lead as converted ---
+    // --- CRM: Clean up checkout leads since attendee is confirmed in Registrations ---
     if (email) {
-      const leadSource = `free_registration_${event.id}`;
-      const existingLead = await prisma.lead.findFirst({ where: { email, source: leadSource } });
-      if (existingLead) {
-        await prisma.lead.update({ where: { id: existingLead.id }, data: { status: 'converted' } });
-      } else {
-        await prisma.lead.create({
-          data: {
-            full_name: guestName || 'Guest',
-            email,
-            phone: guestPhone || null,
-            source: leadSource,
-            status: 'converted',
-          }
-        });
-      }
+      await prisma.lead.deleteMany({
+        where: {
+          email,
+          source: { in: [`checkout_${event.id}`, `checkout_${event.slug || ''}`, `free_registration_${event.id}`] }
+        }
+      }).catch(() => {});
     }
 
     // --- SEND CONFIRMATION EMAIL (custom template aware) ---

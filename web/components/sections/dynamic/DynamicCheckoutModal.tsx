@@ -219,7 +219,24 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
 
             const rzp = new (window as any).Razorpay(options);
             rzp.on('payment.failed', function (response: any) {
-                setError(response.error.description);
+                const errorMsg = response?.error?.description || 'Payment attempt failed or was cancelled.';
+                setError(errorMsg);
+
+                // Instantly notify CRM to flag lead as payment_failed for recovery
+                try {
+                    fetch(`${apiUrl}/api/payments/record-failure`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: activeUser?.name,
+                            email: activeUser?.email,
+                            phone: activeUser?.phone,
+                            eventId: eventSlug,
+                            ticketTier: (workshop as any).heading ? `${(workshop as any).heading} - ${workshop.title}` : workshop.title,
+                            errorReason: errorMsg
+                        })
+                    }).catch(() => {});
+                } catch (_) {}
             });
             rzp.open();
         } catch (err: any) {

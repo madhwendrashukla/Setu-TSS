@@ -78,11 +78,42 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
         } catch (e) {
           console.error("Failed to capture lead", e);
         }
-      }, 1500); // 1.5 second debounce
+      }, 1200); // 1.2 second debounce
 
       return () => clearTimeout(timer);
     }
   }, [name, email, phone, isOpen, eventId, ticketTier, pendingLeadId]);
+
+  const flushCapture = async () => {
+    const isEmailValid = emailRegex.test(email);
+    const isPhoneValid = phone.replace(/\s/g, '').length >= 10;
+    if (isEmailValid || isPhoneValid) {
+      const payload = {
+        name,
+        email: isEmailValid ? email : '',
+        phone: isPhoneValid ? phone : '',
+        eventId,
+        ticketTier,
+        pendingLeadId
+      };
+      const currentData = JSON.stringify(payload);
+      if (currentData === lastSentData.current) return;
+      try {
+        const res = await fetch(`${API}/api/payments/capture-lead`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: currentData,
+        });
+        const data = await res.json();
+        if (data.success && data.id) {
+          setPendingLeadId(data.id);
+        }
+        lastSentData.current = currentData;
+      } catch (e) {
+        console.error("Failed to capture lead on blur", e);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) {
@@ -291,6 +322,7 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
+                    onBlur={flushCapture}
                     placeholder="Your full name"
                     required
                     className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-text-primary text-sm focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 transition-all placeholder:text-slate-400"
@@ -306,6 +338,7 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
+                    onBlur={flushCapture}
                     placeholder="your@email.com"
                     required
                     className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-text-primary text-sm focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 transition-all placeholder:text-slate-400"
@@ -321,6 +354,7 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
                     type="tel"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
+                    onBlur={flushCapture}
                     placeholder="10-digit mobile number"
                     required
                     maxLength={10}

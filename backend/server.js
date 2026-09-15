@@ -1363,10 +1363,17 @@ app.delete('/api/admin/leads/:id', async (req, res) => {
   }
 });
 
-// REGISTRATIONS
+// REGISTRATIONS (Only COMPLETED confirmed attendees by default)
 app.get('/api/admin/registrations', authMiddleware, async (req, res) => {
   try {
+    const where = {};
+    if (req.query.status && req.query.status !== 'ALL') {
+      where.status = req.query.status;
+    } else if (!req.query.status) {
+      where.status = 'COMPLETED';
+    }
     const registrations = await prisma.eventRegistration.findMany({ 
+      where,
       include: { user: true },
       orderBy: { created_at: 'desc' } 
     });

@@ -462,7 +462,7 @@ export default function AdminLeads() {
                     }`}
                 >
                     <i className="fas fa-shopping-cart"></i>
-                    🛒 Checkout Drop-Offs <span className={`${typeFilter === 'checkout' ? 'bg-white text-amber-800' : 'bg-amber-100 text-amber-800'} px-2 py-0.5 rounded-full text-[10px]`}>{checkoutCount}</span>
+                    Checkout Drop-Offs <span className={`${typeFilter === 'checkout' ? 'bg-white text-amber-800' : 'bg-amber-100 text-amber-800'} px-2 py-0.5 rounded-full text-[10px]`}>{checkoutCount}</span>
                 </button>
 
                 <button
@@ -475,7 +475,7 @@ export default function AdminLeads() {
                     }`}
                 >
                     <i className="fas fa-comment-alt"></i>
-                    📝 Inquiries & Callbacks <span className={`${typeFilter === 'inquiry' ? 'bg-white text-blue-800' : 'bg-blue-100 text-blue-800'} px-2 py-0.5 rounded-full text-[10px]`}>{inquiryCount}</span>
+                    Inquiries & Callbacks <span className={`${typeFilter === 'inquiry' ? 'bg-white text-blue-800' : 'bg-blue-100 text-blue-800'} px-2 py-0.5 rounded-full text-[10px]`}>{inquiryCount}</span>
                 </button>
 
                 <button
@@ -488,7 +488,7 @@ export default function AdminLeads() {
                     }`}
                 >
                     <i className="fas fa-exclamation-triangle"></i>
-                    ❌ Payment Failures <span className={`${typeFilter === 'failed' ? 'bg-white text-red-800' : 'bg-red-100 text-red-800'} px-2 py-0.5 rounded-full text-[10px]`}>{failedCount}</span>
+                    Payment Failures <span className={`${typeFilter === 'failed' ? 'bg-white text-red-800' : 'bg-red-100 text-red-800'} px-2 py-0.5 rounded-full text-[10px]`}>{failedCount}</span>
                 </button>
             </div>
 

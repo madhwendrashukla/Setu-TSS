@@ -18,17 +18,26 @@ const transporter = nodemailer.createTransport({
  * @param {string} [text] - plain text fallback
  */
 async function sendMail(to, subject, html, text) {
+  const plainText = text || html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const fromAddress = process.env.SMTP_FROM || '"Setu Startup School" <no-reply@setustartupschool.com>';
+
   const info = await transporter.sendMail({
-    // ⚠️ foundersschool.in has NO MX and no sender records — mail "from" there is
-    // rejected or spam-foldered. The sending mailbox is on setustartupschool.com.
-    // Unused in production (SMTP_FROM is set on the box); correct anyway, because
-    // a fallback that only fires when something else broke is the worst place to
-    // hide a second bug.
-    from: process.env.SMTP_FROM || '"Setu Startup School" <no-reply@setustartupschool.com>',
+    from: fromAddress,
+    replyTo: 'support@setustartupschool.com',
     to,
     subject,
     html,
-    text: text || html.replace(/<[^>]+>/g, ''),
+    text: plainText,
+    headers: {
+      'X-Entity-Ref-ID': `tss-${Date.now()}`,
+      'List-Unsubscribe': '<mailto:support@setustartupschool.com?subject=unsubscribe>',
+    }
   });
   return info;
 }

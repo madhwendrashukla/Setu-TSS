@@ -436,7 +436,10 @@ function safeEqualHex(expected, incoming) {
 // Admin test email preview for the Event Builder
 router.post('/test-email', authMiddleware, async (req, res) => {
   try {
-    const { toEmail, eventId, templateConfig } = req.body;
+    const toEmail = req.body.toEmail || req.body.recipient_email || req.body.email;
+    const eventId = req.body.eventId || req.body.event_id;
+    const templateConfig = req.body.templateConfig || req.body.custom_template || req.body.template || {};
+
     if (!toEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail)) {
       return res.status(400).json({ error: 'A valid recipient email is required' });
     }
@@ -450,27 +453,28 @@ router.post('/test-email', authMiddleware, async (req, res) => {
       guest_name: 'Test Founder',
       guest_email: toEmail,
       guest_phone: '+91 98765 43210',
-      ticket_tier: 'Masterclass VIP Pass',
-      amount: 449,
-      razorpay_payment_id: 'pay_test_preview123',
-      id: 'reg_preview_id'
+      ticket_tier: 'All-Access Workshop Pass',
+      amount: 499,
+      razorpay_payment_id: 'pay_test_' + Date.now().toString().slice(-8),
+      id: 'reg_test_' + Date.now().toString().slice(-6)
     };
 
     const rendered = renderRegistrationEmail({
-      templateConfig: templateConfig || {},
+      templateConfig: templateConfig,
       registration: mockRegistration,
       event: {
-        title: event.title || 'Sample Masterclass',
+        title: event.title || 'AI Startup Launchpad: 3-Day Accelerator',
         start_date: event.start_date || new Date().toISOString(),
-        start_time: event.start_time || '10:30 AM',
-        venue: event.venue || 'The Hosteller Delhi NCR',
-        city: event.city || 'New Delhi',
+        start_time: event.start_time || '06:00 PM',
+        venue: event.venue || 'Online via Zoom',
+        city: event.city || 'Online',
         page_blocks: event.page_blocks
       }
     });
 
-    await sendMail(toEmail, `[TEST PREVIEW] ${rendered.subject}`, rendered.html);
-    res.json({ success: true, message: `Test preview email sent to ${toEmail}` });
+    const testSubject = `[Test] ${rendered.subject.replace(/^\[Test\]\s*/i, '')}`;
+    await sendMail(toEmail, testSubject, rendered.html, rendered.text);
+    res.json({ success: true, message: `Test email successfully sent to ${toEmail}` });
   } catch (error) {
     console.error('Error sending test email:', error);
     res.status(500).json({ error: error.message || 'Failed to send test email' });
@@ -574,7 +578,7 @@ router.post('/verify-payment', async (req, res) => {
             event: event || {}
           });
 
-          sendMail(recipientEmail, rendered.subject, rendered.html)
+          sendMail(recipientEmail, rendered.subject, rendered.html, rendered.text)
             .catch(err => console.error('[verify-payment] confirmation email failed (non-fatal):', err.message));
         }
       }
@@ -717,7 +721,7 @@ router.post('/register-free', flexAuth, async (req, res) => {
         event
       });
 
-      sendMail(email, rendered.subject, rendered.html)
+      sendMail(email, rendered.subject, rendered.html, rendered.text)
         .catch(err => console.error('[register-free] email failed (non-fatal):', err.message));
     }
 

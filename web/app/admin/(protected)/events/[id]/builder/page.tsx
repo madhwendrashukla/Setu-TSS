@@ -617,12 +617,14 @@ const initialPageData = {
     coupon: { code: "EARLYBIRD", discount_percent: 20, active: true },
     email_template: {
         enabled: false,
-        subject: "Registration Confirmed: {{event_title}} 🎉",
-        heading: "Registration Confirmed! 🎉",
+        subject: "Registration Confirmed: {{event_title}}",
+        heading: "Registration Confirmed!",
         message_body: "Hi {{name}},\n\nYour registration for {{event_title}} is confirmed. We're excited to have you join us!",
         include_details_card: true,
-        zoom_link: "",
         whatsapp_link: "",
+        zoom_link: "",
+        other_link: "",
+        other_link_label: "Access Resources & Materials",
         custom_notes: "Please arrive 10 minutes early. Joining links and updates will also be shared closer to the date."
     }
 };
@@ -877,18 +879,20 @@ const EmailTemplateEditor = ({
     const [sendingTest, setSendingTest] = useState(false);
     const [testStatus, setTestStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [copiedVar, setCopiedVar] = useState<string | null>(null);
-    const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+
+    const isCustom = template?.enabled === true;
 
     const variables = [
-        { key: '{{name}}', label: 'Attendee Name', desc: 'Full Name' },
-        { key: '{{event_title}}', label: 'Event Title', desc: 'Title of the Event' },
-        { key: '{{event_date}}', label: 'Event Date/Time', desc: 'Schedule Date & Time' },
-        { key: '{{event_venue}}', label: 'Venue / Mode', desc: 'Online (Zoom) or Address' },
-        { key: '{{ticket_tier}}', label: 'Ticket / Workshop', desc: 'Registered Tier Name' },
-        { key: '{{amount}}', label: 'Amount Paid', desc: 'e.g. ₹499 or Free' },
-        { key: '{{payment_id}}', label: 'Order / Reg ID', desc: 'Payment or Reg ID' },
-        { key: '{{zoom_link}}', label: 'Zoom Link', desc: 'Live Zoom Meeting URL' },
-        { key: '{{whatsapp_link}}', label: 'WhatsApp Link', desc: 'Community Group URL' },
+        { key: '{{name}}', label: 'Attendee Name' },
+        { key: '{{event_title}}', label: 'Event Title' },
+        { key: '{{event_date}}', label: 'Date & Time' },
+        { key: '{{event_venue}}', label: 'Venue / Mode' },
+        { key: '{{ticket_tier}}', label: 'Ticket / Workshop' },
+        { key: '{{amount}}', label: 'Amount Paid' },
+        { key: '{{payment_id}}', label: 'Order / Reg ID' },
+        { key: '{{whatsapp_link}}', label: 'WhatsApp Link' },
+        { key: '{{zoom_link}}', label: 'Zoom Link' },
+        { key: '{{other_link}}', label: 'Other URL' },
     ];
 
     const handleCopy = (v: string) => {
@@ -905,7 +909,7 @@ const EmailTemplateEditor = ({
     };
 
     const handleSendTest = async () => {
-        if (!testEmail || !testEmail.includes('@')) {
+        if (!testEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testEmail)) {
             setTestStatus({ type: 'error', message: 'Please enter a valid recipient email address.' });
             return;
         }
@@ -921,17 +925,26 @@ const EmailTemplateEditor = ({
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
+                    eventId: eventId,
                     event_id: eventId,
+                    toEmail: testEmail,
                     recipient_email: testEmail,
+                    templateConfig: template,
                     custom_template: template
                 })
             });
 
             const data = await res.json();
             if (res.ok && data.success) {
-                setTestStatus({ type: 'success', message: `Test email successfully sent to ${testEmail}! Check your inbox.` });
+                setTestStatus({ 
+                    type: 'success', 
+                    message: `✓ Test email sent to ${testEmail}! Check your inbox (or spam/promotions folder if receiving for the first time).` 
+                });
             } else {
-                setTestStatus({ type: 'error', message: data.error || 'Failed to send test email. Please check server logs.' });
+                setTestStatus({ 
+                    type: 'error', 
+                    message: data.error || 'Failed to send test email. Please ensure backend mailer is configured.' 
+                });
             }
         } catch (err: any) {
             setTestStatus({ type: 'error', message: err?.message || 'Network error while sending test email.' });
@@ -940,427 +953,330 @@ const EmailTemplateEditor = ({
         }
     };
 
-    // Sample substitution for live preview
-    const sampleName = "Aarav Sharma";
-    const sampleTitle = event?.title || "AI Startup Launchpad: 3-Day Accelerator";
-    const sampleDate = "15 May 2026, 6:00 PM - 8:00 PM IST";
-    const sampleVenue = "Online (Live via Zoom)";
-    const sampleTier = "All-Access Pass (3 Days)";
-    const sampleAmount = "₹499";
-    const samplePaymentId = "pay_live_987654321";
-
-    const replaceSample = (str: string = "") => {
-        return str
-            .replace(/\{\{name\}\}/gi, sampleName)
-            .replace(/\{\{event_title\}\}/gi, sampleTitle)
-            .replace(/\{\{event_date\}\}/gi, sampleDate)
-            .replace(/\{\{event_venue\}\}/gi, sampleVenue)
-            .replace(/\{\{ticket_tier\}\}/gi, sampleTier)
-            .replace(/\{\{amount\}\}/gi, sampleAmount)
-            .replace(/\{\{payment_id\}\}/gi, samplePaymentId)
-            .replace(/\{\{zoom_link\}\}/gi, template?.zoom_link || "https://zoom.us/j/sample")
-            .replace(/\{\{whatsapp_link\}\}/gi, template?.whatsapp_link || "https://chat.whatsapp.com/sample");
-    };
-
-    const previewSubject = replaceSample(template?.subject || "Registration Confirmed: {{event_title}} 🎉");
-    const previewHeading = replaceSample(template?.heading || "Registration Confirmed! 🎉");
-    const previewBody = replaceSample(template?.message_body || "Hi {{name}},\n\nYour registration for {{event_title}} is confirmed. We're excited to have you join us!");
-    const previewNotes = replaceSample(template?.custom_notes || "Please arrive 10 minutes early. Joining links and updates will also be shared closer to the date.");
-
     return (
-        <div className="space-y-8">
-            {/* Header / Intro */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <i className="fas fa-envelope-open-text text-purple-600"></i>
-                        Confirmation Email Settings
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                        Configure the automated confirmation email dispatched to participants upon completing registration (free, paid, or LMS).
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input 
-                            type="checkbox" 
-                            checked={template?.enabled || false} 
-                            onChange={e => handleFieldChange('enabled', e.target.checked)}
-                            className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                        <span className="ml-3 text-sm font-bold text-gray-900">
-                            {template?.enabled ? 'Custom Template Active' : 'Default System Template'}
-                        </span>
-                    </label>
+        <div className="space-y-6 max-w-4xl">
+            {/* Header with Title & Switcher */}
+            <div className="bg-white border border-purple-100 rounded-2xl p-6 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2.5">
+                            <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center text-sm shadow-sm">
+                                <i className="fas fa-envelope-open-text"></i>
+                            </span>
+                            Registration Confirmation Email
+                        </h2>
+                        <p className="text-gray-500 text-xs mt-1">
+                            Dispatched automatically to every participant upon completing registration (free, paid, or LMS).
+                        </p>
+                    </div>
+
+                    {/* Mode Toggle Switch */}
+                    <div className="inline-flex p-1 bg-gray-100 rounded-xl border border-gray-200 shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => handleFieldChange('enabled', false)}
+                            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${
+                                !isCustom 
+                                    ? 'bg-white text-purple-700 shadow-sm' 
+                                    : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                        >
+                            <i className="fas fa-sparkles"></i>
+                            Default Template
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleFieldChange('enabled', true)}
+                            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${
+                                isCustom 
+                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md' 
+                                    : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                        >
+                            <i className="fas fa-pen-nib"></i>
+                            Custom Message
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Template Mode Notification Card */}
-            {!template?.enabled ? (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                        <i className="fas fa-magic text-lg"></i>
+            {/* Mode Banner */}
+            {!isCustom ? (
+                <div className="bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 border border-purple-200/80 rounded-2xl p-5 flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <i className="fas fa-check-circle text-lg"></i>
                     </div>
-                    <div className="flex-1 text-sm text-blue-900">
-                        <p className="font-bold text-base mb-1">Default System Template is Currently Active</p>
-                        <p className="text-blue-800/80 leading-relaxed mb-3">
-                            The system will send a standard, high-converting branded confirmation email featuring the Setu Startup School logo, event details card, receipt summary, and calendar reminder.
+                    <div className="flex-1 text-sm text-gray-800">
+                        <p className="font-bold text-gray-900 text-sm mb-0.5">Default System Template is Active</p>
+                        <p className="text-gray-600 text-xs leading-relaxed mb-3">
+                            The system will automatically send our high-converting, branded confirmation email featuring the Setu Startup School logo, event details card, receipt summary, and calendar invite.
                         </p>
                         <button 
                             type="button" 
                             onClick={() => handleFieldChange('enabled', true)} 
-                            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm"
                         >
-                            <i className="fas fa-edit"></i> Enable & Customize Template for This Event
+                            <i className="fas fa-edit"></i> Switch to Custom Message
                         </button>
                     </div>
                 </div>
             ) : (
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-5 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                        <i className="fas fa-paint-brush text-lg"></i>
+                <div className="bg-gradient-to-r from-purple-50 via-fuchsia-50 to-pink-50 border border-purple-200 rounded-2xl p-4 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <i className="fas fa-paint-brush text-sm"></i>
                     </div>
-                    <div className="flex-1 text-sm text-purple-900">
-                        <p className="font-bold text-base mb-1">Custom Event Template is Active</p>
-                        <p className="text-purple-800/80 leading-relaxed">
-                            Attendees of this event will receive your customized email below with your custom subject, greeting, instructions, Zoom links, and community channels.
-                        </p>
+                    <div className="flex-1 text-xs text-purple-950">
+                        <span className="font-bold">Custom Message Active:</span> Attendees of this event will receive the customized content, links, and instructions below.
                     </div>
                 </div>
             )}
 
-            {/* Dynamic Variable Chips */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                        <i className="fas fa-code text-purple-600"></i>
-                        <span className="text-xs font-bold uppercase tracking-wider text-gray-700">Dynamic Personalization Tags (Click to Copy)</span>
+            {/* Custom Content Form (Visible when Custom is Active) */}
+            {isCustom && (
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in duration-200">
+                    {/* Dynamic Variables Chips */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-2.5">
+                            <span className="text-xs font-bold uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
+                                <i className="fas fa-code text-purple-600"></i>
+                                Dynamic Tags (Click to Copy & Paste)
+                            </span>
+                            {copiedVar && (
+                                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
+                                    <i className="fas fa-check"></i> Copied {copiedVar}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {variables.map(v => (
+                                <button
+                                    key={v.key}
+                                    type="button"
+                                    onClick={() => handleCopy(v.key)}
+                                    title={`Click to copy: ${v.label}`}
+                                    className="inline-flex items-center gap-1.5 bg-white hover:bg-purple-50 text-gray-700 hover:text-purple-700 border border-gray-200 hover:border-purple-300 px-2.5 py-1 rounded-lg text-xs font-mono transition-all shadow-2xs"
+                                >
+                                    <span className="text-purple-600 font-bold">{v.key}</span>
+                                    <span className="text-[10px] text-gray-400 font-sans">({v.label})</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    {copiedVar && (
-                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1 animate-pulse">
-                            <i className="fas fa-check-circle"></i> Copied {copiedVar}!
-                        </span>
-                    )}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {variables.map(v => (
-                        <button
-                            key={v.key}
-                            type="button"
-                            onClick={() => handleCopy(v.key)}
-                            title={`Click to copy: ${v.desc}`}
-                            className="inline-flex items-center gap-1.5 bg-white hover:bg-purple-50 text-gray-700 hover:text-purple-700 border border-gray-200 hover:border-purple-300 px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all shadow-sm hover:shadow"
-                        >
-                            <span className="text-purple-600 font-bold">{v.key}</span>
-                            <span className="text-[10px] text-gray-400 font-sans">({v.label})</span>
-                            <i className="fas fa-copy text-[10px] text-gray-400 ml-0.5"></i>
-                        </button>
-                    ))}
-                </div>
-            </div>
 
-            {/* Main Form & Live Preview Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-                {/* Editor Column */}
-                <div className="xl:col-span-6 space-y-6">
-                    <div className="border border-gray-200 rounded-2xl p-6 bg-white shadow-sm space-y-5">
-                        <h3 className="text-base font-bold text-gray-900 border-b pb-3 flex items-center gap-2">
-                            <i className="fas fa-sliders-h text-purple-600"></i>
-                            Email Content Configuration
-                        </h3>
+                    {/* Subject Line */}
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                            Email Subject Line <span className="text-red-500">*</span>
+                        </label>
+                        <input 
+                            className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm font-medium transition-all"
+                            value={template?.subject || ""} 
+                            onChange={e => handleFieldChange('subject', e.target.value)} 
+                            placeholder="e.g. Registration Confirmed: {{event_title}}"
+                        />
+                        <p className="text-[11px] text-gray-400 mt-1">Keep it crisp and relevant to ensure high open rates and avoid spam filters.</p>
+                    </div>
 
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
-                                Email Subject Line
+                    {/* Title / Heading */}
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                            Header Banner Title / Heading
+                        </label>
+                        <input 
+                            className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm font-medium transition-all"
+                            value={template?.heading || ""} 
+                            onChange={e => handleFieldChange('heading', e.target.value)} 
+                            placeholder="e.g. Registration Confirmed!"
+                        />
+                    </div>
+
+                    {/* Main Welcome Message */}
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                            Main Welcome & Confirmation Message
+                        </label>
+                        <textarea 
+                            className="w-full bg-gray-50 border border-gray-200 p-3.5 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm h-36 font-sans leading-relaxed transition-all"
+                            value={template?.message_body || ""} 
+                            onChange={e => handleFieldChange('message_body', e.target.value)} 
+                            placeholder="Hi {{name}},\n\nYour registration for {{event_title}} is confirmed. We are excited to have you join us!"
+                        />
+                        <p className="text-[11px] text-gray-400 mt-1">Use line breaks for paragraphs. Supports dynamic tags like <code className="bg-gray-100 text-purple-600 px-1 rounded font-mono">{"{{name}}"}</code> and <code className="bg-gray-100 text-purple-600 px-1 rounded font-mono">{"{{event_title}}"}</code>.</p>
+                    </div>
+
+                    {/* 3 Action Links Section */}
+                    <div className="border-t border-gray-200 pt-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold uppercase tracking-wider text-gray-800 flex items-center gap-2">
+                                <i className="fas fa-link text-purple-600"></i>
+                                Action Buttons & Links (Optional)
                             </label>
-                            <input 
-                                className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm font-medium"
-                                value={template?.subject || ""} 
-                                onChange={e => handleFieldChange('subject', e.target.value)} 
-                                placeholder="e.g. Registration Confirmed: {{event_title}} 🎉"
-                            />
-                            <p className="text-[11px] text-gray-400 mt-1">Supports tags like <code className="bg-gray-100 px-1 py-0.5 rounded text-purple-600 font-mono">{"{{event_title}}"}</code> and <code className="bg-gray-100 px-1 py-0.5 rounded text-purple-600 font-mono">{"{{name}}"}</code></p>
+                            <span className="text-[11px] text-gray-400">Prominent colored buttons inside the email</span>
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
-                                Header Banner Title / Heading
-                            </label>
-                            <input 
-                                className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm font-medium"
-                                value={template?.heading || ""} 
-                                onChange={e => handleFieldChange('heading', e.target.value)} 
-                                placeholder="e.g. Registration Confirmed! 🎉"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
-                                Main Welcome & Confirmation Message
-                            </label>
-                            <textarea 
-                                className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm h-36 font-sans leading-relaxed"
-                                value={template?.message_body || ""} 
-                                onChange={e => handleFieldChange('message_body', e.target.value)} 
-                                placeholder="Hi {{name}},\n\nYour registration for {{event_title}} is confirmed. We're excited to have you join us!"
-                            />
-                            <p className="text-[11px] text-gray-400 mt-1">Use line breaks for paragraphs. Supports dynamic tags.</p>
-                        </div>
-
-                        <div className="pt-2 border-t border-gray-100">
-                            <label className="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-colors">
-                                <input 
-                                    type="checkbox" 
-                                    checked={template?.include_details_card !== false} 
-                                    onChange={e => handleFieldChange('include_details_card', e.target.checked)} 
-                                    className="w-5 h-5 accent-purple-600 rounded cursor-pointer"
-                                />
-                                <div>
-                                    <span className="font-bold text-sm text-gray-800 block">Include Registration & Receipt Summary Card</span>
-                                    <span className="text-xs text-gray-500">Shows Event Title, Schedule, Mode/Venue, Ticket Tier, and Amount Paid in a structured card.</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Link 1: WhatsApp */}
+                            <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
+                                <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
+                                    <span className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs">
+                                        <i className="fab fa-whatsapp"></i>
+                                    </span>
+                                    1. WhatsApp Community Link
                                 </div>
-                            </label>
-                        </div>
-
-                        <div className="space-y-4 pt-2 border-t border-gray-100">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 flex items-center gap-2">
-                                <i className="fas fa-link text-blue-500"></i>
-                                Action Links & Community Channels
-                            </h4>
-                            
-                            <div>
-                                <label className="block text-xs font-bold text-gray-600 mb-1 flex items-center gap-1.5">
-                                    <i className="fas fa-video text-blue-500"></i>
-                                    Live Session / Zoom Meeting URL (Optional)
-                                </label>
                                 <input 
-                                    className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm"
-                                    value={template?.zoom_link || ""} 
-                                    onChange={e => handleFieldChange('zoom_link', e.target.value)} 
-                                    placeholder="https://zoom.us/j/..."
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-gray-600 mb-1 flex items-center gap-1.5">
-                                    <i className="fab fa-whatsapp text-emerald-500"></i>
-                                    WhatsApp / Community Group URL (Optional)
-                                </label>
-                                <input 
-                                    className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm"
+                                    className="w-full bg-white border border-emerald-200 p-2.5 rounded-lg focus:border-emerald-500 outline-none text-xs"
                                     value={template?.whatsapp_link || ""} 
                                     onChange={e => handleFieldChange('whatsapp_link', e.target.value)} 
                                     placeholder="https://chat.whatsapp.com/..."
                                 />
+                                <p className="text-[10px] text-emerald-700/80">Renders as a green &quot;💬 Join WhatsApp Community&quot; button.</p>
                             </div>
-                        </div>
 
-                        <div className="pt-2 border-t border-gray-100">
-                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
-                                Important Notes / Pre-requisite Instructions (Optional)
-                            </label>
-                            <textarea 
-                                className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-sm h-24"
-                                value={template?.custom_notes || ""} 
-                                onChange={e => handleFieldChange('custom_notes', e.target.value)} 
-                                placeholder="e.g. Please join 10 minutes prior to start time. Ensure you have Zoom installed."
-                            />
+                            {/* Link 2: Zoom */}
+                            <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/40 space-y-2">
+                                <div className="flex items-center gap-2 text-xs font-bold text-blue-800">
+                                    <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+                                        <i className="fas fa-video"></i>
+                                    </span>
+                                    2. Live Zoom / Meeting URL
+                                </div>
+                                <input 
+                                    className="w-full bg-white border border-blue-200 p-2.5 rounded-lg focus:border-blue-500 outline-none text-xs"
+                                    value={template?.zoom_link || ""} 
+                                    onChange={e => handleFieldChange('zoom_link', e.target.value)} 
+                                    placeholder="https://zoom.us/j/... or Google Meet"
+                                />
+                                <p className="text-[10px] text-blue-700/80">Renders as a blue &quot;📹 Join Zoom Session&quot; button.</p>
+                            </div>
+
+                            {/* Link 3: Other URL */}
+                            <div className="p-4 rounded-xl border border-purple-200 bg-purple-50/40 space-y-2 md:col-span-2">
+                                <div className="flex items-center gap-2 text-xs font-bold text-purple-900">
+                                    <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs">
+                                        <i className="fas fa-external-link-alt"></i>
+                                    </span>
+                                    3. Other Resource / Materials URL
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <div className="sm:col-span-1">
+                                        <input 
+                                            className="w-full bg-white border border-purple-200 p-2.5 rounded-lg focus:border-purple-500 outline-none text-xs font-medium"
+                                            value={template?.other_link_label || ""} 
+                                            onChange={e => handleFieldChange('other_link_label', e.target.value)} 
+                                            placeholder="Button Label (e.g. Access Materials)"
+                                        />
+                                    </div>
+                                    <div className="sm:col-span-2">
+                                        <input 
+                                            className="w-full bg-white border border-purple-200 p-2.5 rounded-lg focus:border-purple-500 outline-none text-xs"
+                                            value={template?.other_link || ""} 
+                                            onChange={e => handleFieldChange('other_link', e.target.value)} 
+                                            placeholder="https://drive.google.com/... or Notion link"
+                                        />
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-purple-700/80">Renders as a purple action button with your custom label.</p>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Test Email Dispatch Panel */}
-                    <div className="border border-purple-200 rounded-2xl p-6 bg-gradient-to-br from-purple-50/50 to-indigo-50/50 shadow-sm space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-bold text-purple-900 flex items-center gap-2">
-                                <i className="fas fa-paper-plane text-purple-600"></i>
-                                Send Test Preview Email
-                            </h3>
-                            <span className="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Live Test</span>
-                        </div>
-                        <p className="text-xs text-purple-800/80">
-                            Dispatch a real test confirmation email to any inbox to verify subject, formatting, dynamic replacements, and styling.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-2">
+                    {/* Registration Summary Card Toggle */}
+                    <div className="border-t border-gray-200 pt-5">
+                        <label className="flex items-center gap-3 cursor-pointer p-3.5 bg-gray-50 hover:bg-purple-50/50 rounded-xl border border-gray-200 transition-colors">
                             <input 
-                                type="email"
-                                value={testEmail}
-                                onChange={e => setTestEmail(e.target.value)}
-                                placeholder="Enter your email address..."
-                                className="flex-1 bg-white border border-purple-200 p-3 rounded-xl focus:border-purple-500 outline-none text-sm text-gray-800"
+                                type="checkbox" 
+                                checked={template?.include_details_card !== false} 
+                                onChange={e => handleFieldChange('include_details_card', e.target.checked)} 
+                                className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
                             />
-                            <button
-                                type="button"
-                                onClick={handleSendTest}
-                                disabled={sendingTest}
-                                className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold px-5 py-3 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 shrink-0"
-                            >
-                                {sendingTest ? (
-                                    <>
-                                        <i className="fas fa-circle-notch fa-spin"></i>
-                                        Sending...
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="fas fa-paper-plane"></i>
-                                        Send Test
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                        {testStatus && (
-                            <div className={`p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${testStatus.type === 'success' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-red-100 text-red-900 border border-red-300'}`}>
-                                <i className={`fas fa-${testStatus.type === 'success' ? 'check-circle' : 'exclamation-circle'}`}></i>
-                                <span>{testStatus.message}</span>
+                            <div>
+                                <span className="font-bold text-xs text-gray-800 block">Include Registration & Receipt Summary Card</span>
+                                <span className="text-[11px] text-gray-500">Displays Event Title, Schedule, Venue/Mode, Ticket Tier, and Amount Paid in a structured card.</span>
                             </div>
+                        </label>
+                    </div>
+
+                    {/* Important Instructions / Notes */}
+                    <div className="border-t border-gray-200 pt-5">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                            Important Notes / Pre-requisite Instructions (Optional)
+                        </label>
+                        <textarea 
+                            className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:border-purple-500 outline-none text-xs h-20 transition-all"
+                            value={template?.custom_notes || ""} 
+                            onChange={e => handleFieldChange('custom_notes', e.target.value)} 
+                            placeholder="e.g. Please join 10 minutes prior to the start time. Keep your laptop ready with internet connectivity."
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Spam Protection & Deliverability Notice */}
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 text-sm shadow-xs mt-0.5">
+                    <i className="fas fa-shield-alt"></i>
+                </div>
+                <div className="flex-1 text-xs text-emerald-950 leading-relaxed">
+                    <p className="font-bold text-emerald-900 mb-0.5">🛡️ Inbox Deliverability & Anti-Spam Active</p>
+                    <p className="text-emerald-800/90 text-[11px]">
+                        Emails are dispatched with dual MIME format (HTML + clean plain-text fallback), verified SPF/DKIM headers, and <code className="bg-white/80 px-1 py-0.5 rounded text-emerald-900 font-mono">support@setustartupschool.com</code> reply-to to ensure emails land directly in the Primary inbox.
+                    </p>
+                </div>
+            </div>
+
+            {/* Test Email Dispatch Panel */}
+            <div className="bg-gradient-to-br from-[#0B091E] to-[#161244] border border-purple-500/30 rounded-2xl p-6 text-white shadow-lg space-y-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                        <span className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs shadow-xs">
+                            <i className="fas fa-paper-plane"></i>
+                        </span>
+                        <h3 className="text-sm font-bold text-white">Send Test Confirmation Email</h3>
+                    </div>
+                    <span className="text-[10px] font-bold text-purple-300 bg-purple-900/60 border border-purple-500/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        Live Preview
+                    </span>
+                </div>
+                <p className="text-xs text-purple-200/70 leading-relaxed">
+                    Send a test email to your inbox to review formatting, tags, subject line, and action buttons exactly as attendees will receive them.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                    <input 
+                        type="email"
+                        value={testEmail}
+                        onChange={e => setTestEmail(e.target.value)}
+                        placeholder="Enter test email (e.g. founder@example.com)..."
+                        className="flex-1 bg-[#1A164D] border border-purple-500/40 p-3 rounded-xl focus:border-purple-400 outline-none text-xs text-white placeholder-purple-300/50"
+                    />
+                    <button
+                        type="button"
+                        onClick={handleSendTest}
+                        disabled={sendingTest}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 text-white font-bold px-6 py-3 rounded-xl text-xs transition-all shadow-md flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                    >
+                        {sendingTest ? (
+                            <>
+                                <i className="fas fa-circle-notch fa-spin"></i>
+                                Sending Test Email...
+                            </>
+                        ) : (
+                            <>
+                                <i className="fas fa-paper-plane"></i>
+                                Send Test Email
+                            </>
                         )}
-                    </div>
+                    </button>
                 </div>
-
-                {/* Live Preview Column */}
-                <div className="xl:col-span-6 space-y-4">
-                    <div className="flex items-center justify-between px-1">
-                        <div className="flex items-center gap-2">
-                            <i className="fas fa-eye text-gray-500"></i>
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-700">Real-Time Email Inbox Preview</span>
-                        </div>
-                        <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-                            <button 
-                                type="button"
-                                onClick={() => setPreviewDevice('desktop')}
-                                className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${previewDevice === 'desktop' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                <i className="fas fa-desktop mr-1"></i> Desktop
-                            </button>
-                            <button 
-                                type="button"
-                                onClick={() => setPreviewDevice('mobile')}
-                                className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${previewDevice === 'mobile' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                <i className="fas fa-mobile-alt mr-1"></i> Mobile
-                            </button>
-                        </div>
+                {testStatus && (
+                    <div className={`p-3.5 rounded-xl text-xs font-medium flex items-start gap-2.5 ${
+                        testStatus.type === 'success' 
+                            ? 'bg-emerald-950/80 text-emerald-200 border border-emerald-500/40' 
+                            : 'bg-red-950/80 text-red-200 border border-red-500/40'
+                    }`}>
+                        <i className={`fas fa-${testStatus.type === 'success' ? 'check-circle text-emerald-400' : 'exclamation-circle text-red-400'} mt-0.5`}></i>
+                        <span className="flex-1 leading-relaxed">{testStatus.message}</span>
                     </div>
-
-                    {/* Email Window Mockup */}
-                    <div className={`mx-auto transition-all duration-300 ${previewDevice === 'mobile' ? 'max-w-sm' : 'w-full'} border border-gray-300 rounded-2xl shadow-xl overflow-hidden bg-slate-900`}>
-                        {/* Email Client Header */}
-                        <div className="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center justify-between text-xs text-slate-300">
-                            <div className="flex items-center gap-2 truncate">
-                                <span className="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
-                                <span className="text-slate-400 ml-2 truncate font-mono text-[11px]">Subject: {previewSubject}</span>
-                            </div>
-                            <span className="text-slate-400 text-[10px] shrink-0 font-mono">no-reply@setustartupschool.com</span>
-                        </div>
-
-                        {/* Email HTML Body Canvas */}
-                        <div className="bg-[#0B091E] p-4 sm:p-6 text-white min-h-[520px] font-sans">
-                            {/* Inner Email Card */}
-                            <div className="max-w-[540px] mx-auto bg-[#13113B] border border-purple-500/30 rounded-2xl overflow-hidden shadow-2xl">
-                                {/* Gradient Top Accent */}
-                                <div className="h-1.5 bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500"></div>
-
-                                {/* Brand Header */}
-                                <div className="p-6 text-center border-b border-purple-500/20 bg-[#161244]">
-                                    <div className="inline-flex items-center justify-center p-2 bg-white/10 rounded-xl mb-3 backdrop-blur-sm">
-                                        <img src="/setu-logo-nav.png" alt="Setu Startup School" className="h-7 w-auto object-contain" onError={(e: any) => { e.target.style.display = 'none'; }} />
-                                    </div>
-                                    <p className="text-[11px] font-bold uppercase tracking-widest text-purple-300">Setu Startup School</p>
-                                </div>
-
-                                {/* Greeting Content */}
-                                <div className="p-6 space-y-5">
-                                    <div className="text-center space-y-2">
-                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
-                                            <i className="fas fa-check-circle"></i> Confirmed & Verified
-                                        </div>
-                                        <h1 className="text-xl font-extrabold text-white tracking-tight">{previewHeading}</h1>
-                                    </div>
-
-                                    {/* Message Body */}
-                                    <div className="text-sm text-purple-100/90 leading-relaxed whitespace-pre-line bg-purple-950/30 p-4 rounded-xl border border-purple-500/20">
-                                        {previewBody}
-                                    </div>
-
-                                    {/* Action Buttons (Zoom / WhatsApp) */}
-                                    {(template?.zoom_link || template?.whatsapp_link) && (
-                                        <div className="space-y-2.5 pt-2">
-                                            {template?.zoom_link && (
-                                                <a 
-                                                    href={replaceSample(template.zoom_link)} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-lg shadow-blue-500/20"
-                                                >
-                                                    <i className="fas fa-video"></i> Join Live Session (Zoom)
-                                                </a>
-                                            )}
-                                            {template?.whatsapp_link && (
-                                                <a 
-                                                    href={replaceSample(template.whatsapp_link)} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl text-xs transition-all shadow-lg shadow-green-500/20"
-                                                >
-                                                    <i className="fab fa-whatsapp"></i> Join Exclusive WhatsApp Community
-                                                </a>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Details Card */}
-                                    {template?.include_details_card !== false && (
-                                        <div className="bg-[#1A154D] rounded-xl p-4 border border-purple-500/20 space-y-3">
-                                            <div className="text-xs font-bold uppercase tracking-wider text-purple-300 border-b border-purple-500/20 pb-2 flex items-center gap-1.5">
-                                                <i className="fas fa-ticket-alt text-purple-400"></i> Event Registration Summary
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-3 text-xs">
-                                                <div>
-                                                    <span className="text-[10px] text-purple-300/70 block uppercase">Event</span>
-                                                    <span className="font-semibold text-white truncate block">{sampleTitle}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="text-[10px] text-purple-300/70 block uppercase">Ticket Tier</span>
-                                                    <span className="font-semibold text-purple-200 truncate block">{sampleTier}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="text-[10px] text-purple-300/70 block uppercase">Schedule</span>
-                                                    <span className="font-medium text-purple-200">{sampleDate}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="text-[10px] text-purple-300/70 block uppercase">Amount Paid</span>
-                                                    <span className="font-bold text-emerald-400">{sampleAmount}</span>
-                                                </div>
-                                                <div className="col-span-2 pt-1 border-t border-purple-500/10 flex justify-between items-center text-[10px] text-purple-300/60 font-mono">
-                                                    <span>Ref: {samplePaymentId}</span>
-                                                    <span>Mode: {sampleVenue}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Notes */}
-                                    {previewNotes && (
-                                        <div className="bg-amber-950/30 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-200/90 leading-relaxed">
-                                            <div className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
-                                                <i className="fas fa-info-circle"></i> Important Instructions
-                                            </div>
-                                            <p className="whitespace-pre-line">{previewNotes}</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Footer */}
-                                <div className="p-4 text-center bg-[#0F0D2E] border-t border-purple-500/20 text-[10px] text-purple-300/60 space-y-1">
-                                    <p>© {new Date().getFullYear()} Setu Startup School. All rights reserved.</p>
-                                    <p>Questions? Contact us at support@setustartupschool.com</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );

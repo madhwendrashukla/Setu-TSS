@@ -99,4 +99,4 @@ async function getBundleMemberCourseIds(bundleCourseId) {
   return rows.map((r) => r.courseId);
 }
 
-module.exports = { lmsPool, listPublishedCourses, getCourseBySlug, getCourseTags, getBundleMemberCourseIds };
+module.exports = { listPublishedCourses, getCourseBySlug, getCourseTags, getBundleMemberCourseIds };

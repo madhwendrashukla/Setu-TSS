@@ -156,7 +156,6 @@ async function pushPricesToLms(prices) {
 
 module.exports = {
   pushVisibilityToLms,
-  forEachPricingCard,
   applyPriceToPageBlocks,
   collectPricesFromPageBlocks,
   pushPricesToLms,

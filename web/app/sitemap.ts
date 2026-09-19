@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://foundersschool.in';
+    const baseUrl = 'https://setustartupschool.com';
 
     const routes = [
         '',
@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/events',
         '/mentors',
         '/programs',
-        '/gaurav-bansal',
+        '/gauravbansal',
         '/fundraising-workshop-15apr',
         '/founders-dating-14feb26',
         '/tools',
@@ -32,7 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority:
             route === '' ? 1 :
             route === '/about' || route === '/programs' || route === '/mentors' ? 0.9 :
-            route === '/gaurav-bansal' || route === '/events' ? 0.8 :
+            route === '/gauravbansal' || route === '/events' ? 0.8 :
             route === '/fundraising-workshop-15apr' || route === '/founders-dating-14feb26' ? 0.7 :
             route.startsWith('/tools/') ? 0.8 :
             route.startsWith('/privacy') || route.startsWith('/terms') ? 0.5 : 0.9,

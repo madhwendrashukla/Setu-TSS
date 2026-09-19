@@ -49,6 +49,7 @@ const adminHandoffRoutes = require('./routes/adminHandoff');
 const adminHandoff = adminHandoffRoutes;
 const studentNetworkLogosRoutes = require('./routes/studentNetworkLogos');
 const certificationLogosRoutes = require('./routes/certificationLogos');
+const gauravProfileRoutes = require('./routes/gauravProfile');
 
 const internalCoupons = require('./routes/internalCoupons');
 app.use('/api/internal/lms-events', lmsEventsSync.router);
@@ -693,6 +694,10 @@ const adminHelpdeskRoutes = require('./routes/adminHelpdesk');
 app.use('/api/admin/helpdesk', adminHelpdeskRoutes);
 app.use('/api/admin/student-network-logos', studentNetworkLogosRoutes);
 app.use('/api/admin/certification-logos', certificationLogosRoutes);
+
+// Gaurav Bansal public profile page — CMS-driven
+app.use('/api/gaurav-profile', gauravProfileRoutes.publicRouter);
+app.use('/api/admin/gaurav-profile', gauravProfileRoutes.adminRouter);
 
 app.post('/api/admin/upload', upload.single('file'), compressImage, async (req, res) => {
   try {

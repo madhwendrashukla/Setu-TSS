@@ -536,3 +536,34 @@ model AdminLoginLog {
   @@map("admin_login_logs")
 }
 
+/// Single-row CMS record for the /gauravbansal public profile page.
+/// All content on that page comes from here — nothing is hardcoded in TSX.
+///
+/// ecosystem_links / founder_links are JSON arrays of link objects:
+/// [{ id, label, sublabel, url, icon, style, color, display_order, is_active }]
+/// style: "primary" | "glass"
+model GauravProfile {
+  id             String   @id @default(uuid()) @db.Uuid
+  // Hero
+  name           String   @default("Gaurav Bansal")
+  tagline        String   @default("Building Bharat's Launchpad for next generation of Entrepreneurs")
+  photo_url      String?
+  // VCard / contact
+  org            String   @default("Setu - TheStartupSchool")
+  title          String   @default("Founder")
+  phone          String   @default("+919289121121")
+  email          String   @default("Gauravbansal@foundersschool.in")
+  website        String   @default("https://setustartupschool.com")
+  address        String   @default("Malad West, Mumbai")
+  vcard_filename String   @default("Gaurav_Bansal")
+  // Link sections
+  ecosystem_links Json    @default("[]")
+  founder_links   Json    @default("[]")
+  // Footer branding
+  footer_brand_name String @default("THE STARTUP SCHOOL")
+  footer_tagline    String @default("An alternate B-School for all Aspiring Founders")
+  updated_at     DateTime @updatedAt
+
+  @@map("gaurav_profile")
+}
+

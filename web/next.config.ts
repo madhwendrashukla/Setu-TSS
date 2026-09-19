@@ -136,6 +136,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // 301 redirect: old profile URL → new CMS-driven profile
+  async redirects() {
+    return [
+      {
+        source: "/gaurav-bansal",
+        destination: "/gauravbansal",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

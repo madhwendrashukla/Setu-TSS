@@ -45,7 +45,7 @@ const NAV_LINKS = [
     { label: 'Programs', href: '/events' },
     { label: 'Tools', href: '/tools' },
     { label: 'Workshop', href: '/fundraising-workshop-15apr' },
-    { label: 'Contact', href: '/#contact' },
+    { label: 'Contact', href: '/contact' },
 ];
 
 const LEGAL_LINKS = [

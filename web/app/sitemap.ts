@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const routes = [
         '',
         '/about',
+        '/contact',
         '/events',
         '/mentors',
         '/programs',
@@ -31,7 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         changeFrequency: route === '' ? 'yearly' : 'monthly',
         priority:
             route === '' ? 1 :
-            route === '/about' || route === '/programs' || route === '/mentors' ? 0.9 :
+            route === '/about' || route === '/programs' || route === '/mentors' || route === '/contact' ? 0.9 :
             route === '/gauravbansal' || route === '/events' ? 0.8 :
             route === '/fundraising-workshop-15apr' || route === '/founders-dating-14feb26' ? 0.7 :
             route.startsWith('/tools/') ? 0.8 :

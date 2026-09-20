@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,43 +35,175 @@ interface GauravProfileData {
     footer_tagline: string;
 }
 
-// ── Color map ────────────────────────────────────────────────────────────────
+// ── Color styles mapping for light theme ─────────────────────────────────────
 
-const COLOR_CLASSES: Record<string, string> = {
-    violet: 'bg-violet-500/10 text-violet-400',
-    blue: 'bg-blue-500/10 text-blue-400',
-    pink: 'bg-pink-500/10 text-pink-400',
-    red: 'bg-red-500/10 text-red-500',
-    green: 'bg-green-500/10 text-green-400',
-    amber: 'bg-amber-500/10 text-amber-400',
-    white: 'bg-white/5 text-slate-300',
-    indigo: 'bg-indigo-500/10 text-indigo-400',
+const COLOR_CLASSES: Record<string, { bg: string; text: string; hoverBg: string; hoverText: string }> = {
+    violet: {
+        bg: 'bg-purple-100/90',
+        text: 'text-[#7C3AED]',
+        hoverBg: 'group-hover:bg-[#7C3AED]',
+        hoverText: 'group-hover:text-white',
+    },
+    blue: {
+        bg: 'bg-blue-100/80',
+        text: 'text-[#0A66C2]',
+        hoverBg: 'group-hover:bg-[#0A66C2]',
+        hoverText: 'group-hover:text-white',
+    },
+    pink: {
+        bg: 'bg-pink-100/80',
+        text: 'text-[#E1306C]',
+        hoverBg: 'group-hover:bg-[#E1306C]',
+        hoverText: 'group-hover:text-white',
+    },
+    red: {
+        bg: 'bg-red-100/80',
+        text: 'text-[#E11D48]',
+        hoverBg: 'group-hover:bg-[#E11D48]',
+        hoverText: 'group-hover:text-white',
+    },
+    green: {
+        bg: 'bg-emerald-100/80',
+        text: 'text-[#059669]',
+        hoverBg: 'group-hover:bg-[#059669]',
+        hoverText: 'group-hover:text-white',
+    },
+    amber: {
+        bg: 'bg-amber-100/80',
+        text: 'text-[#D97706]',
+        hoverBg: 'group-hover:bg-[#D97706]',
+        hoverText: 'group-hover:text-white',
+    },
+    white: {
+        bg: 'bg-slate-100',
+        text: 'text-slate-700',
+        hoverBg: 'group-hover:bg-slate-800',
+        hoverText: 'group-hover:text-white',
+    },
+    indigo: {
+        bg: 'bg-indigo-100/80',
+        text: 'text-[#4F46E5]',
+        hoverBg: 'group-hover:bg-[#4F46E5]',
+        hoverText: 'group-hover:text-white',
+    },
+};
+
+// ── Default Fallback Data ───────────────────────────────────────────────────
+
+const DEFAULT_PROFILE: GauravProfileData = {
+    id: 'default',
+    name: 'Gaurav Bansal',
+    tagline: 'Building Bharat’s Launchpad for next generation of Entrepreneurs',
+    photo_url: '/gaurav.webp',
+    org: 'Setu - TheStartupSchool',
+    title: 'Founder & Chief Mentor',
+    phone: '+919289121121',
+    email: 'Gauravbansal@foundersschool.in',
+    website: 'https://foundersschool.in',
+    address: 'Mumbai, Maharashtra, India',
+    vcard_filename: 'Gaurav_Bansal',
+    ecosystem_links: [
+        {
+            id: 'eco-1',
+            label: 'Visit Website',
+            sublabel: 'setustartupschool.com',
+            url: 'https://setustartupschool.com',
+            icon: 'fas fa-globe',
+            style: 'primary',
+            color: 'violet',
+            display_order: 0,
+            is_active: true,
+        },
+        {
+            id: 'eco-2',
+            label: 'Setu - TheStartupSchool LinkedIn',
+            sublabel: 'Official Page',
+            url: 'https://www.linkedin.com/company/the-startup-school-2026/',
+            icon: 'fab fa-linkedin',
+            style: 'glass',
+            color: 'blue',
+            display_order: 1,
+            is_active: true,
+        },
+        {
+            id: 'eco-3',
+            label: 'Follow our Instagram',
+            sublabel: '@the__startup__school',
+            url: 'https://www.instagram.com/the__startup__school',
+            icon: 'fab fa-instagram',
+            style: 'glass',
+            color: 'pink',
+            display_order: 2,
+            is_active: true,
+        },
+    ],
+    founder_links: [
+        {
+            id: 'fnd-1',
+            label: 'Connect with Gaurav',
+            sublabel: 'LinkedIn Profile',
+            url: 'https://www.linkedin.com/in/gauravbansal2/',
+            icon: 'fab fa-linkedin-in',
+            style: 'glass',
+            color: 'blue',
+            display_order: 0,
+            is_active: true,
+        },
+        {
+            id: 'fnd-2',
+            label: "Founder's Hacks",
+            sublabel: 'Masterclass Video',
+            url: 'https://www.youtube.com/watch?v=tt_PVE_A3wU',
+            icon: 'fab fa-youtube',
+            style: 'glass',
+            color: 'red',
+            display_order: 1,
+            is_active: true,
+        },
+    ],
+    footer_brand_name: 'Setu Startup School',
+    footer_tagline: 'AN ALTERNATE B-SCHOOL FOR ALL ASPIRING FOUNDERS',
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-async function fetchProfile(): Promise<GauravProfileData | null> {
+async function fetchProfile(): Promise<GauravProfileData> {
     try {
-        const res = await fetch(`${API}/api/gaurav-profile`, { cache: 'no-store' });
-        if (!res.ok) return null;
-        return res.json();
+        if (API) {
+            const res = await fetch(`${API}/api/gaurav-profile`, { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                return data;
+            }
+        }
     } catch {
-        return null;
+        // Fallback to production if local backend is not reachable
     }
+
+    try {
+        const prodRes = await fetch('https://foundersschool.in/api/gaurav-profile', { cache: 'no-store' });
+        if (prodRes.ok) {
+            return await prodRes.json();
+        }
+    } catch {
+        // Fallback to default
+    }
+
+    return DEFAULT_PROFILE;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
 
 export default function GauravBansalPage() {
-    const [profile, setProfile] = useState<GauravProfileData | null>(null);
+    const [profile, setProfile] = useState<GauravProfileData>(DEFAULT_PROFILE);
     const [copied, setCopied] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchProfile().then(data => {
-            setProfile(data);
+        fetchProfile().then((data) => {
+            setProfile(data || DEFAULT_PROFILE);
             setLoading(false);
         });
     }, []);
@@ -78,7 +211,7 @@ export default function GauravBansalPage() {
     const copyCurrentUrl = () => {
         navigator.clipboard.writeText(window.location.href).then(() => {
             setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+            setTimeout(() => setCopied(false), 2200);
         });
     };
 
@@ -87,13 +220,13 @@ export default function GauravBansalPage() {
         const vcard =
             'BEGIN:VCARD\n' +
             'VERSION:3.0\n' +
-            `FN:${profile.name}\n` +
-            `ORG:${profile.org}\n` +
-            `TITLE:${profile.title}\n` +
-            `TEL;TYPE=CELL:${profile.phone}\n` +
-            `EMAIL:${profile.email}\n` +
-            `URL:${profile.website}\n` +
-            `ADR;TYPE=WORK:;;${profile.address};;;\n` +
+            `FN:${profile.name || 'Gaurav Bansal'}\n` +
+            `ORG:${profile.org || 'Setu - TheStartupSchool'}\n` +
+            `TITLE:${profile.title || 'Founder'}\n` +
+            `TEL;TYPE=CELL:${profile.phone || '+919289121121'}\n` +
+            `EMAIL:${profile.email || 'Gauravbansal@foundersschool.in'}\n` +
+            `URL:${profile.website || 'https://foundersschool.in'}\n` +
+            `ADR;TYPE=WORK:;;${profile.address || 'Malad West;Mumbai;;;'}\n` +
             'END:VCARD';
 
         const blob = new Blob([vcard], { type: 'text/vcard' });
@@ -101,98 +234,14 @@ export default function GauravBansalPage() {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = `${profile.vcard_filename}.vcf`;
+        a.download = `${profile.vcard_filename || 'Gaurav_Bansal'}.vcf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
     };
 
-    // ── Render link card ─────────────────────────────────────────────────────
-
-    const renderLink = (link: ProfileLink) => {
-        const colorClass = COLOR_CLASSES[link.color] ?? COLOR_CLASSES['white'];
-
-        if (link.style === 'primary') {
-            return (
-                <a
-                    key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="reveal delay-3 primary-cta flex items-center justify-between p-6 md:p-8 rounded-full group transition-all duration-300 hover:scale-[1.02] shadow-xl shadow-[#8b5cf6]/20"
-                >
-                    <div className="flex items-center gap-5 ml-2">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/20 flex items-center justify-center text-xl md:text-3xl text-white">
-                            <i className={link.icon}></i>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="font-black text-xl md:text-3xl text-white">{link.label}</span>
-                            {link.sublabel && (
-                                <span className="text-[10px] md:text-[11px] text-white/70 font-bold uppercase tracking-widest">
-                                    {link.sublabel}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                    <div className="mr-2 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-white/20 text-white group-hover:bg-white group-hover:text-[#8b5cf6] transition-all">
-                        <i className="fas fa-arrow-right text-sm md:text-base"></i>
-                    </div>
-                </a>
-            );
-        }
-
-        // glass style
-        return (
-            <a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noreferrer"
-                className="reveal delay-3 glass-card flex items-center justify-between p-5 md:p-6 rounded-3xl group"
-            >
-                <div className="flex items-center gap-5">
-                    <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-2xl md:text-3xl ${colorClass}`}>
-                        <i className={link.icon}></i>
-                    </div>
-                    <div>
-                        <span className="block font-bold text-white md:text-2xl">{link.label}</span>
-                        {link.sublabel && (
-                            <span className="text-[10px] md:text-[11px] text-slate-500 font-bold uppercase tracking-widest">
-                                {link.sublabel}
-                            </span>
-                        )}
-                    </div>
-                </div>
-                <i className="fas fa-chevron-right text-slate-700 group-hover:text-white transition-all mr-3"></i>
-            </a>
-        );
-    };
-
-    // ── Loading skeleton ─────────────────────────────────────────────────────
-
-    if (loading) {
-        return (
-            <div className="profile-body min-h-screen flex items-center justify-center">
-                <div className="dot-pattern"></div>
-                <div className="glow-orb"></div>
-                <style dangerouslySetInnerHTML={{ __html: profileStyles }} />
-                <div className="text-slate-500 text-sm animate-pulse">Loading…</div>
-            </div>
-        );
-    }
-
-    // Fallback: if API is down, show minimal error
-    if (!profile) {
-        return (
-            <div className="profile-body min-h-screen flex items-center justify-center">
-                <div className="dot-pattern"></div>
-                <div className="glow-orb"></div>
-                <style dangerouslySetInnerHTML={{ __html: profileStyles }} />
-                <p className="text-slate-400">Unable to load profile. Please try again later.</p>
-            </div>
-        );
-    }
+    const photoUrl = profile.photo_url || '/gaurav.webp';
 
     const ecosystemLinks = [...(profile.ecosystem_links ?? [])].sort(
         (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
@@ -201,210 +250,240 @@ export default function GauravBansalPage() {
         (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
     );
 
-    const photoUrl = profile.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=1e1b4b&color=a78bfa&size=256`;
+    // ── Render link card ─────────────────────────────────────────────────────
 
-    // ── Main render ──────────────────────────────────────────────────────────
+    const renderLink = (link: ProfileLink) => {
+        const colorConfig = COLOR_CLASSES[link.color] ?? COLOR_CLASSES['violet'];
 
-    return (
-        <>
-            <style dangerouslySetInnerHTML={{ __html: profileStyles }} />
+        if (link.style === 'primary') {
+            return (
+                <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative overflow-hidden w-full group rounded-2xl md:rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-[#A855F7] via-[#8B3DFF] to-[#7C3AED] text-white shadow-[0_10px_30px_rgba(124,58,237,0.25)] hover:shadow-[0_16px_40px_rgba(124,58,237,0.35)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between"
+                >
+                    {/* Shimmer sweep */}
+                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
-            <div className="profile-body min-h-screen relative">
-                <div className="dot-pattern"></div>
-                <div className="glow-orb"></div>
-
-                {/* Background mesh */}
-                <div className="fixed top-0 left-0 w-full h-full opacity-20 pointer-events-none z-[-1] overflow-hidden">
-                    <div className="absolute top-[20%] left-[-10%] w-[40vw] h-[40vw] bg-[#8b5cf6]/20 blur-[120px] rounded-full"></div>
-                    <div className="absolute bottom-[10%] right-[-10%] w-[30vw] h-[30vw] bg-[#d946ef]/10 blur-[100px] rounded-full"></div>
-                </div>
-
-                <main className="relative z-10 min-h-screen flex flex-col items-center pt-12 md:pt-24 pb-24 px-6">
-
-                    {/* Profile Header */}
-                    <header className="text-center mb-14 w-full max-w-lg md:max-w-2xl">
-                        <div className="reveal delay-1 relative inline-block mb-8">
-                            <div
-                                className="relative w-36 h-36 md:w-48 md:h-48 rounded-full p-1.5 bg-gradient-to-b from-white/20 to-transparent"
-                                style={{ animation: 'float 6s ease-in-out infinite' }}
-                            >
-                                <div className="w-full h-full rounded-full overflow-hidden border-[4px] border-[#050810] bg-[#0d121f] shadow-2xl flex items-center justify-center">
-                                    <img
-                                        src={photoUrl}
-                                        alt={profile.name}
-                                        className="w-full h-full object-cover object-top"
-                                        onError={(e) => {
-                                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=1e1b4b&color=a78bfa&size=256`;
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                            {/* Verified Badge */}
-                            <div className="absolute bottom-3 right-3 md:bottom-5 md:right-5 bg-blue-500 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-[4px] border-[#050810] shadow-lg">
-                                <i className="fas fa-check text-white text-[10px] md:text-sm"></i>
-                            </div>
+                    <div className="flex items-center gap-4 sm:gap-5 relative z-10">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl sm:text-2xl text-white shadow-inner flex-shrink-0 group-hover:scale-105 transition-transform">
+                            <i className={link.icon}></i>
                         </div>
-
-                        <h1 className="reveal delay-2 text-4xl md:text-6xl font-black text-white tracking-tight mb-12">
-                            {profile.name}
-                        </h1>
-
-                        <div className="reveal delay-2 relative max-w-sm md:max-w-xl mx-auto">
-                            <div className="glass-card p-8 md:p-10 rounded-3xl">
-                                <p className="text-[16px] md:text-2xl text-slate-300 font-serif italic leading-relaxed">
-                                    &ldquo;{profile.tagline}&rdquo;
-                                </p>
-                            </div>
+                        <div className="flex flex-col text-left">
+                            <span className="font-bold text-lg sm:text-xl md:text-2xl text-white tracking-tight leading-snug">
+                                {link.label}
+                            </span>
+                            {link.sublabel && (
+                                <span className="text-[11px] sm:text-xs text-white/80 font-semibold tracking-wider uppercase mt-0.5">
+                                    {link.sublabel}
+                                </span>
+                            )}
                         </div>
-                    </header>
-
-                    {/* Link Stack */}
-                    <div className="w-full max-w-lg md:max-w-2xl space-y-14">
-
-                        {/* Ecosystem Section */}
-                        {ecosystemLinks.length > 0 && (
-                            <div className="space-y-5">
-                                <div className="reveal delay-3 flex items-center gap-4 px-3 mb-3">
-                                    <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-[0.5em]">Ecosystem</h3>
-                                    <div className="h-px flex-1 bg-white/5"></div>
-                                </div>
-                                {ecosystemLinks.map(renderLink)}
-                            </div>
-                        )}
-
-                        {/* Founder Section */}
-                        {founderLinks.length > 0 && (
-                            <div className="space-y-5">
-                                <div className="reveal delay-4 flex items-center gap-4 px-3 mb-3">
-                                    <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-[0.5em]">Founder</h3>
-                                    <div className="h-px flex-1 bg-white/5"></div>
-                                </div>
-                                {founderLinks.map(renderLink)}
-                            </div>
-                        )}
                     </div>
 
-                    {/* Footer Actions */}
-                    <footer
-                        className="mt-24 text-center w-full max-w-lg md:max-w-2xl space-y-8 !block bg-transparent p-0 m-0 border-none shadow-none text-inherit font-inherit"
-                        style={{ display: 'block' }}
+                    <div className="relative z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-[#7C3AED] transition-all duration-300 shadow-sm flex-shrink-0 ml-2">
+                        <i className="fas fa-arrow-right text-sm sm:text-base group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                </a>
+            );
+        }
+
+        // Glass card style
+        return (
+            <a
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-white/90 backdrop-blur-xl border border-functional-border hover:border-accent-blue/40 shadow-sm hover:shadow-xl hover:shadow-purple-950/5 hover:-translate-y-0.5 transition-all duration-300 rounded-2xl md:rounded-3xl p-4 sm:p-5 flex items-center justify-between group"
+            >
+                <div className="flex items-center gap-4 sm:gap-5">
+                    <div
+                        className={`w-12 h-12 sm:w-13 sm:h-13 rounded-2xl flex items-center justify-center text-xl sm:text-2xl transition-all duration-300 flex-shrink-0 shadow-sm ${colorConfig.bg} ${colorConfig.text} ${colorConfig.hoverBg} ${colorConfig.hoverText}`}
                     >
-                        {/* Save Contact Button */}
-                        <button
-                            onClick={downloadVCard}
-                            className="reveal delay-4 w-full primary-cta flex items-center justify-center gap-4 py-5 md:py-6 px-10 rounded-3xl font-black text-white text-base md:text-xl tracking-widest uppercase hover:scale-[1.02] transition-all shadow-2xl shadow-[#8b5cf6]/30 border-none cursor-pointer"
-                        >
-                            <i className="fas fa-user-plus text-xl md:text-2xl"></i> Save Contact to Phone
-                        </button>
+                        <i className={link.icon}></i>
+                    </div>
+                    <div className="text-left">
+                        <span className="block font-bold text-[#13113B] text-base sm:text-lg group-hover:text-accent-blue transition-colors leading-snug">
+                            {link.label}
+                        </span>
+                        {link.sublabel && (
+                            <span className="text-xs text-text-secondary font-medium tracking-wide mt-0.5 block">
+                                {link.sublabel}
+                            </span>
+                        )}
+                    </div>
+                </div>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-text-secondary/40 group-hover:text-accent-blue group-hover:translate-x-1 transition-all flex-shrink-0">
+                    <i className="fas fa-chevron-right text-sm"></i>
+                </div>
+            </a>
+        );
+    };
 
-                        {/* Share Button */}
-                        <button
-                            onClick={copyCurrentUrl}
-                            className="reveal delay-4 w-full glass-card py-5 md:py-6 px-10 rounded-3xl font-black text-slate-400 text-[11px] md:text-sm tracking-[0.4em] uppercase transition-all flex items-center justify-center gap-4 cursor-pointer"
-                            style={copied ? { borderColor: '#10b981', color: '#10b981' } : {}}
-                        >
-                            {copied ? (
-                                <><i className="fas fa-check"></i> Profile Copied</>
-                            ) : (
-                                <><i className="fas fa-share-alt text-[#8b5cf6] text-lg"></i> Share Profile</>
-                            )}
-                        </button>
+    return (
+        <div className="min-h-screen bg-bg-main relative pt-24 sm:pt-28 md:pt-36 pb-20 px-4 sm:px-6 flex flex-col items-center justify-start overflow-hidden">
+            {/* Ambient background glows */}
+            <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] md:w-[900px] h-[350px] bg-accent-violet/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-[40%] right-[-10%] w-[400px] h-[400px] bg-accent-blue/5 rounded-full blur-[100px] pointer-events-none" />
 
-                        {/* Footer Branding */}
-                        <div className="reveal delay-4 mt-20 select-none opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
-                            <div className="text-2xl md:text-5xl font-black text-white tracking-tighter uppercase">
-                                {profile.footer_brand_name.split(' ').map((word, i) => {
-                                    // Highlight middle word(s) in purple
-                                    const words = profile.footer_brand_name.split(' ');
-                                    const midIdx = Math.floor(words.length / 2);
-                                    return (
-                                        <span key={i} className={i === midIdx ? 'text-[#8b5cf6]' : ''}>
-                                            {word}{i < words.length - 1 ? ' ' : ''}
-                                        </span>
-                                    );
-                                })}
+            <main className="w-full max-w-xl md:max-w-2xl flex flex-col items-center relative z-10">
+
+                {/* ── 1. Profile Header ───────────────────────────────────── */}
+                <header className="text-center w-full mb-8 flex flex-col items-center">
+                    
+                    {/* Badge Pill */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.2em] bg-white border border-[#A855F7]/30 text-[#7C3AED] shadow-sm mb-6">
+                        <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse"></span>
+                        Founder &amp; Chief Mentor
+                    </div>
+
+                    {/* Avatar with Gradient Halo */}
+                    <div className="relative mb-6">
+                        <div className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full p-[3.5px] bg-gradient-to-tr from-[#7C3AED] via-[#A855F7] to-[#C084FC] shadow-[0_12px_35px_rgba(124,58,237,0.22)]">
+                            <div className="w-full h-full rounded-full overflow-hidden border-[3px] border-white bg-white shadow-inner flex items-center justify-center relative">
+                                <img
+                                    src={photoUrl}
+                                    alt={profile.name}
+                                    className="w-full h-full object-cover object-top"
+                                    onError={(e) => {
+                                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                            profile.name
+                                        )}&background=7C3AED&color=FFFFFF&size=256`;
+                                    }}
+                                />
                             </div>
-                            <p className="text-[8px] md:text-[11px] uppercase tracking-[1em] font-bold mt-4 text-slate-500">
-                                {profile.footer_tagline}
-                            </p>
                         </div>
-                    </footer>
-                </main>
-            </div>
-        </>
+
+                        {/* Verified Badge */}
+                        <div
+                            className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-accent-blue text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border-2 border-white shadow-md"
+                            title="Verified Founder Profile"
+                        >
+                            <i className="fas fa-check text-xs"></i>
+                        </div>
+                    </div>
+
+                    {/* Name & Title */}
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-text-primary tracking-tight mb-2">
+                        {profile.name}
+                    </h1>
+
+                    <p className="text-sm sm:text-base font-semibold text-accent-blue tracking-wide mb-6">
+                        {profile.title} • <span className="text-text-secondary">{profile.org}</span>
+                    </p>
+
+                    {/* Tagline / Manifesto Quote Box */}
+                    <div className="w-full bg-white/90 backdrop-blur-2xl border border-functional-border shadow-xl shadow-purple-950/5 rounded-3xl p-6 sm:p-8 relative overflow-hidden text-center">
+                        <i className="fas fa-quote-left text-[#A855F7]/15 text-5xl absolute top-3 left-4 pointer-events-none"></i>
+                        
+                        <p className="text-base sm:text-lg md:text-xl text-text-primary manifesto-font italic leading-relaxed relative z-10 font-normal">
+                            &ldquo;{profile.tagline}&rdquo;
+                        </p>
+
+                        {/* Quick info row */}
+                        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-6 pt-5 border-t border-functional-border/60">
+                            {profile.email && (
+                                <a
+                                    href={`mailto:${profile.email}`}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-bg-main text-text-secondary hover:text-accent-blue hover:bg-purple-100/50 transition-colors"
+                                >
+                                    <i className="fas fa-envelope text-accent-blue text-[11px]"></i>
+                                    <span>{profile.email}</span>
+                                </a>
+                            )}
+                            {profile.address && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-bg-main text-text-secondary">
+                                    <i className="fas fa-map-marker-alt text-accent-violet text-[11px]"></i>
+                                    <span>{profile.address}</span>
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </header>
+
+                {/* ── 2. Link Stack ───────────────────────────────────────── */}
+                <div className="w-full space-y-8 mb-10">
+
+                    {/* Ecosystem Section */}
+                    {ecosystemLinks.length > 0 && (
+                        <div className="space-y-3.5">
+                            <div className="flex items-center gap-3 px-2">
+                                <span className="text-xs font-extrabold text-accent-blue uppercase tracking-[0.25em]">
+                                    Setu Ecosystem
+                                </span>
+                                <div className="h-px flex-1 bg-functional-border"></div>
+                            </div>
+                            <div className="space-y-3.5">
+                                {ecosystemLinks.map(renderLink)}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Founder Section */}
+                    {founderLinks.length > 0 && (
+                        <div className="space-y-3.5">
+                            <div className="flex items-center gap-3 px-2 pt-2">
+                                <span className="text-xs font-extrabold text-accent-blue uppercase tracking-[0.25em]">
+                                    Founder &amp; Content
+                                </span>
+                                <div className="h-px flex-1 bg-functional-border"></div>
+                            </div>
+                            <div className="space-y-3.5">
+                                {founderLinks.map(renderLink)}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* ── 3. Profile Actions ──────────────────────────────────── */}
+                <div className="w-full space-y-3.5 mb-12">
+                    {/* Save Contact Button */}
+                    <button
+                        onClick={downloadVCard}
+                        className="w-full py-4 sm:py-4.5 px-8 rounded-2xl md:rounded-full bg-gradient-to-r from-[#7C3AED] via-[#8B3DFF] to-[#A855F7] hover:from-[#6D28D9] hover:to-[#9333EA] text-white font-bold text-base sm:text-lg shadow-[0_8px_25px_rgba(124,58,237,0.25)] hover:shadow-[0_12px_32px_rgba(124,58,237,0.35)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
+                    >
+                        <i className="fas fa-address-card text-lg"></i>
+                        <span>Save Contact to Phone</span>
+                    </button>
+
+                    {/* Share Profile Button */}
+                    <button
+                        onClick={copyCurrentUrl}
+                        className="w-full py-3.5 px-6 rounded-2xl md:rounded-full bg-white hover:bg-purple-50/50 text-text-primary border border-functional-border hover:border-accent-blue/40 font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer"
+                    >
+                        {copied ? (
+                            <>
+                                <i className="fas fa-check text-green-600"></i>
+                                <span className="text-green-600">Profile Link Copied!</span>
+                            </>
+                        ) : (
+                            <>
+                                <i className="fas fa-share-nodes text-accent-blue"></i>
+                                <span>Share Profile</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                {/* ── 4. Footer Brand Card ────────────────────────────────── */}
+                <div className="w-full text-center py-6 px-4 rounded-3xl bg-white/50 border border-functional-border/60 backdrop-blur-sm">
+                    <div className="flex items-center justify-center gap-2.5 mb-2">
+                        <span className="text-xl sm:text-2xl font-black tracking-tight text-text-primary">
+                            SETU
+                        </span>
+                        <span className="text-xl sm:text-2xl font-bold tracking-tight text-accent-blue">
+                            STARTUP SCHOOL
+                        </span>
+                    </div>
+                    <p className="text-[11px] sm:text-xs uppercase tracking-[0.2em] font-bold text-text-secondary">
+                        {profile.footer_tagline || 'An Alternate B-School for All Aspiring Founders'}
+                    </p>
+                </div>
+
+            </main>
+        </div>
     );
 }
-
-// ── Styles ───────────────────────────────────────────────────────────────────
-
-const profileStyles = `
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@1&display=swap');
-
-@keyframes reveal {
-    from { opacity: 0; transform: translateY(20px); filter: blur(8px); }
-    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
-}
-@keyframes float {
-    0%, 100% { transform: translateY(0);   }
-    50%       { transform: translateY(-8px); }
-}
-@keyframes shimmer {
-    0%   { transform: translateX(-100%) rotate(45deg); }
-    100% { transform: translateX(100%)  rotate(45deg); }
-}
-
-.profile-body {
-    background-color: #050810;
-    overflow-x: hidden;
-    color: #f8fafc;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
-.profile-body .font-serif { font-family: 'Instrument Serif', serif; }
-
-.dot-pattern {
-    position: fixed; inset: 0;
-    background-image: radial-gradient(rgba(139,92,246,0.1) 1.5px, transparent 1.5px);
-    background-size: 32px 32px;
-    z-index: -1;
-}
-.glow-orb {
-    position: fixed; width: 100vw; height: 100vh;
-    background: radial-gradient(circle at 50% -10%, rgba(139,92,246,0.15) 0%, transparent 60%);
-    z-index: -1; pointer-events: none;
-}
-.glass-card {
-    background: rgba(13,18,31,0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.05);
-    transition: all 0.3s ease;
-}
-.glass-card:hover {
-    border-color: rgba(139,92,246,0.4);
-    background: rgba(18,25,43,0.85);
-    transform: translateY(-2px);
-}
-.primary-cta {
-    background: linear-gradient(135deg, #8b5cf6, #d946ef);
-    position: relative; overflow: hidden;
-}
-.primary-cta::after {
-    content: '';
-    position: absolute; top:-50%; left:-50%; width:200%; height:200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
-    transform: rotate(45deg);
-    animation: shimmer 4s infinite;
-}
-.reveal {
-    opacity: 0;
-    animation: reveal 0.8s cubic-bezier(0.2,0.8,0.2,1) forwards;
-}
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
-
-/* Hide global navbar/footer for this profile page */
-header nav, footer.global-footer, .directory-advisor-bot {
-    display: none !important;
-}
-`;

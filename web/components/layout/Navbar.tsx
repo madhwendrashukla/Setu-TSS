@@ -47,7 +47,7 @@ export function Navbar() {
                             <Link href="/mentors" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/mentors') ? 'bg-black/5 text-text-primary' : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'}`}>Mentors</Link>
                             <Link href="/events" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/events') ? 'bg-black/5 text-text-primary' : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'}`}>Programs</Link>
                             <Link href="/tools" className={`px-4 py-2 rounded-full transition duration-300 ${isActive('/tools') || pathname.startsWith('/tools/') ? 'bg-black/5 text-text-primary' : 'text-text-secondary hover:bg-black/5 hover:text-text-primary'}`}>Tools</Link>
-                            <Link href="/#contact" className="ml-4 bg-accent-blue text-white px-8 py-2.5 rounded-full font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(124,58,237,0.2)] hover:-translate-y-0.5 hover:bg-accent-royal">
+                            <Link href="/contact" className={`ml-4 px-8 py-2.5 rounded-full font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(124,58,237,0.2)] hover:-translate-y-0.5 ${isActive('/contact') ? 'bg-accent-royal text-white shadow-[0_8px_20px_rgba(124,58,237,0.25)]' : 'bg-accent-blue text-white hover:bg-accent-royal'}`}>
                                 Connect
                             </Link>
                         </div>
@@ -71,7 +71,7 @@ export function Navbar() {
                     <Link href="/mentors" onClick={closeMenu} className="text-text-primary hover:text-text-secondary transition-colors border-b border-functional-border pb-4">Mentors</Link>
                     <Link href="/events" onClick={closeMenu} className="text-text-primary hover:text-text-secondary transition-colors border-b border-functional-border pb-4">Programs</Link>
                     <Link href="/tools" onClick={closeMenu} className="text-text-primary hover:text-text-secondary transition-colors border-b border-functional-border pb-4">Tools</Link>
-                    <Link href="/#contact" onClick={closeMenu} className="text-accent-blue mt-4">Connect &rarr;</Link>
+                    <Link href="/contact" onClick={closeMenu} className="text-accent-blue mt-4">Connect &rarr;</Link>
                 </div>
             </div>
         </>

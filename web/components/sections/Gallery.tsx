@@ -56,6 +56,12 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
         }
     };
 
+    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+        if (scrollContainerRef.current && e.deltaY !== 0 && !e.shiftKey) {
+            scrollContainerRef.current.scrollLeft += e.deltaY;
+        }
+    };
+
     const validData = data && data.length > 0 ? data : GALLERY_PHOTOS.map((url, i) => ({ media_url: url, display_order: i }));
     const TOTAL_SLOTS = 30;
     
@@ -153,6 +159,7 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
             <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6">
                 <div 
                     ref={scrollContainerRef}
+                    onWheel={handleWheel}
                     className="overflow-x-auto pb-10 pt-4 snap-x snap-mandatory hide-scrollbar"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >

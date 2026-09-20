@@ -382,25 +382,6 @@ export default function GauravBansalPage() {
                         <p className="text-base sm:text-lg md:text-xl text-text-primary manifesto-font italic leading-relaxed relative z-10 font-normal">
                             &ldquo;{profile.tagline}&rdquo;
                         </p>
-
-                        {/* Quick info row */}
-                        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-6 pt-5 border-t border-functional-border/60">
-                            {profile.email && (
-                                <a
-                                    href={`mailto:${profile.email}`}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-bg-main text-text-secondary hover:text-accent-blue hover:bg-purple-100/50 transition-colors"
-                                >
-                                    <i className="fas fa-envelope text-accent-blue text-[11px]"></i>
-                                    <span>{profile.email}</span>
-                                </a>
-                            )}
-                            {profile.address && (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-bg-main text-text-secondary">
-                                    <i className="fas fa-map-marker-alt text-accent-violet text-[11px]"></i>
-                                    <span>{profile.address}</span>
-                                </span>
-                            )}
-                        </div>
                     </div>
                 </header>
 

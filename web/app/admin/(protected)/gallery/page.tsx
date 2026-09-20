@@ -162,6 +162,31 @@ export default function AdminGallery() {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [currentCropAspect, setCurrentCropAspect] = useState<number>(1);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const scroll = (direction: 'left' | 'right', amount = 660) => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({
+                left: direction === 'left' ? -amount : amount,
+                behavior: 'smooth',
+            });
+        }
+    };
+
+    const scrollToEdge = (edge: 'start' | 'end') => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({
+                left: edge === 'start' ? 0 : scrollContainerRef.current.scrollWidth,
+                behavior: 'smooth',
+            });
+        }
+    };
+
+    const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+        if (scrollContainerRef.current && e.deltaY !== 0 && !e.shiftKey) {
+            scrollContainerRef.current.scrollLeft += e.deltaY;
+        }
+    };
 
     const token = () => localStorage.getItem("adminToken");
     const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -393,15 +418,94 @@ export default function AdminGallery() {
                 </div>
             </div>
 
-            {/* Dense Column Grid */}
-            <div className="w-full bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-inner overflow-hidden relative">
-                <div className="absolute top-4 left-6 z-10 flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-slate-100">
-                    <i className="fa-solid fa-arrow-right-arrow-left"></i> Scroll horizontally
+            {/* Dense Column Grid & Horizontal Scroll System */}
+            <div className="w-full bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-inner relative group">
+                
+                {/* Top Horizontal Toolbar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-200/80">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5">
+                            <i className="fa-solid fa-arrows-left-right text-purple-600"></i>
+                            Horizontal Canvas (30 Slots)
+                        </span>
+                        <span className="text-[11px] text-slate-400 hidden sm:inline">
+                            Scroll with mouse wheel, buttons, or scrollbar
+                        </span>
+                    </div>
+
+                    {/* Navigation Buttons */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => scrollToEdge('start')}
+                            title="Jump to Start (Slot 1)"
+                            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                        >
+                            <i className="fa-solid fa-angles-left text-slate-400"></i>
+                            <span className="hidden sm:inline">Start</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => scroll('left', 660)}
+                            title="Scroll Left"
+                            className="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <i className="fa-solid fa-chevron-left"></i>
+                            <span>Left</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => scroll('right', 660)}
+                            title="Scroll Right"
+                            className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <span>Right</span>
+                            <i className="fa-solid fa-chevron-right"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => scrollToEdge('end')}
+                            title="Jump to End (Slot 30)"
+                            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                        >
+                            <span className="hidden sm:inline">End</span>
+                            <i className="fa-solid fa-angles-right text-slate-400"></i>
+                        </button>
+                    </div>
                 </div>
-                <div className="overflow-x-auto pb-4 pt-12 hide-scrollbar">
+
+                {/* Floating Left/Right Arrow Overlays */}
+                <button
+                    type="button"
+                    onClick={() => scroll('left', 660)}
+                    aria-label="Scroll left"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 hover:bg-purple-600 text-slate-700 hover:text-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105 cursor-pointer"
+                >
+                    <i className="fa-solid fa-chevron-left text-sm"></i>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => scroll('right', 660)}
+                    aria-label="Scroll right"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 hover:bg-purple-600 text-slate-700 hover:text-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105 cursor-pointer"
+                >
+                    <i className="fa-solid fa-chevron-right text-sm"></i>
+                </button>
+
+                {/* Main Scrollable Canvas */}
+                <div
+                    ref={scrollContainerRef}
+                    onWheel={handleWheel}
+                    className="overflow-x-auto pb-6 pt-2 admin-gallery-scroll"
+                    style={{ scrollBehavior: 'smooth' }}
+                >
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-                            <div className="grid gap-6 min-w-max pb-4" style={{ gridTemplateRows: 'repeat(2, 320px)', gridAutoColumns: '320px', gridAutoFlow: 'column dense' }}>
+                            <div className="grid gap-6 min-w-max pb-2 px-2" style={{ gridTemplateRows: 'repeat(2, 320px)', gridAutoColumns: '320px', gridAutoFlow: 'column dense' }}>
                                 {slots.map((item, i) => (
                                     <SortableGallerySlot 
                                         key={item ? item.id : `empty-slot-${i}`}
@@ -416,7 +520,68 @@ export default function AdminGallery() {
                         </SortableContext>
                     </DndContext>
                 </div>
+
+                {/* Bottom Quick Jump Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-200/80 text-xs text-slate-500">
+                    <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-slate-600">Quick Jump:</span>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                            }}
+                            className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
+                        >
+                            Slots 1–10
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 1600, behavior: 'smooth' });
+                            }}
+                            className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
+                        >
+                            Slots 11–20
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 3200, behavior: 'smooth' });
+                            }}
+                            className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
+                        >
+                            Slots 21–30
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-slate-400">Drag scrollbar or use buttons to navigate all 30 slots</span>
+                    </div>
+                </div>
             </div>
+
+            <style dangerouslySetInnerHTML={{__html: `
+                .admin-gallery-scroll {
+                    scrollbar-width: thin;
+                    scrollbar-color: #a855f7 #e2e8f0;
+                }
+                .admin-gallery-scroll::-webkit-scrollbar {
+                    height: 12px;
+                }
+                .admin-gallery-scroll::-webkit-scrollbar-track {
+                    background: #f1f5f9;
+                    border-radius: 9999px;
+                    margin: 0 4px;
+                }
+                .admin-gallery-scroll::-webkit-scrollbar-thumb {
+                    background: #cbd5e1;
+                    border-radius: 9999px;
+                    border: 3px solid #f1f5f9;
+                }
+                .admin-gallery-scroll::-webkit-scrollbar-thumb:hover {
+                    background: #a855f7;
+                }
+            `}} />
 
             {/* Modal for adding media */}
             {isAddModalOpen && (

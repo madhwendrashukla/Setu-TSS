@@ -4,11 +4,10 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const authMiddleware = require('../middleware/auth');
 
-// Public route to get all active logos (optional, since /api/homepage does this)
+// Admin route to get all logos (active & inactive)
 router.get('/', async (req, res) => {
   try {
     const logos = await prisma.certificationLogo.findMany({
-      where: { is_active: true },
       orderBy: { display_order: 'asc' }
     });
     res.json(logos);

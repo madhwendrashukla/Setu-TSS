@@ -286,9 +286,9 @@ export default function ContactPage() {
             <div className="absolute bottom-[10%] left-[-10%] w-[450px] h-[450px] bg-accent-violet/5 rounded-full blur-[110px] pointer-events-none" />
 
             {/* ── Page Hero Header ─────────────────────────────────────────── */}
-            <div className="max-w-4xl mx-auto text-center relative z-10 mb-12 md:mb-16">
+            <div className="max-w-4xl w-full mx-auto text-center flex flex-col items-center justify-center relative z-10 mb-12 md:mb-16 px-4">
                 {pageContent.badge_text && (
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.2em] bg-white border border-[#A855F7]/30 text-[#7C3AED] shadow-sm mb-5">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.2em] bg-white border border-[#A855F7]/30 text-[#7C3AED] shadow-sm mb-5 mx-auto">
                         <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse"></span>
                         {pageContent.badge_text}
                     </div>
@@ -296,15 +296,38 @@ export default function ContactPage() {
 
                 {/* Rich Text Title */}
                 <div
-                    className="text-4xl sm:text-5xl md:text-6xl font-black text-text-primary tracking-tight mb-5 leading-tight rich-text-header"
+                    className="w-full text-center text-4xl sm:text-5xl md:text-6xl font-black text-text-primary tracking-tight mb-5 leading-tight rich-text-header [&_p]:text-center [&_p]:m-0 [&_p]:inline [&_*]:text-center"
                     dangerouslySetInnerHTML={{ __html: pageContent.title }}
                 />
 
                 {/* Rich Text Description */}
                 <div
-                    className="text-base sm:text-lg md:text-xl text-text-secondary max-w-2xl mx-auto font-light leading-relaxed rich-text-body"
+                    className="w-full max-w-2xl mx-auto text-center text-base sm:text-lg md:text-xl text-text-secondary font-light leading-relaxed rich-text-body [&_p]:text-center [&_p]:m-0 [&_p]:mx-auto [&_*]:text-center"
                     dangerouslySetInnerHTML={{ __html: pageContent.description }}
                 />
+
+                <style dangerouslySetInnerHTML={{ __html: `
+                    .rich-text-header, .rich-text-body {
+                        text-align: center;
+                    }
+                    .rich-text-header p, .rich-text-body p {
+                        text-align: center;
+                        margin-left: auto;
+                        margin-right: auto;
+                    }
+                    .rich-text-header .ql-align-center, .rich-text-body .ql-align-center {
+                        text-align: center !important;
+                    }
+                    .rich-text-header .ql-align-right, .rich-text-body .ql-align-right {
+                        text-align: right !important;
+                    }
+                    .rich-text-header .ql-align-justify, .rich-text-body .ql-align-justify {
+                        text-align: justify !important;
+                    }
+                    .rich-text-header .ql-align-left, .rich-text-body .ql-align-left {
+                        text-align: left !important;
+                    }
+                `}} />
             </div>
 
             {/* ── Main Two Column Grid ─────────────────────────────────────── */}

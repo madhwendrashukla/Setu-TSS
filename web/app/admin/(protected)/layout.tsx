@@ -15,6 +15,7 @@ const NAV_CATEGORIES = [
         title: "Core Pages",
         links: [
             { href: "/admin/hero", label: "Hero & Homepage", icon: "fas fa-home" },
+            { href: "/admin/contact-page", label: "Contact Page", icon: "fas fa-address-book" },
             { href: "/admin/events", label: "Events & Workshops", icon: "fas fa-calendar-alt" },
             { href: "/admin/programs", label: "Programs", icon: "fas fa-rocket" },
             { href: "/admin/course-page", label: "Course Page", icon: "fas fa-graduation-cap" },
@@ -64,6 +65,7 @@ const NAV_CATEGORIES = [
 const PANEL_INFO: Record<string, string> = {
     "/admin/dashboard": "View overall platform metrics, total revenue, and high-level statistics at a glance.",
     "/admin/hero": "Update the main homepage hero banner, central title, and primary call-to-action button.",
+    "/admin/contact-page": "Customize the dedicated Contact Us page, headings, rich text description, lead collection tags, social channels, and FAQs.",
     "/admin/events": "Create and manage upcoming events, workshops, their dates, and ticketing details.",
     "/admin/programs": "Manage long-term programmes, bootcamps, and their associated modules.",
     "/admin/course-page": "Edit the curriculum, syllabus, and promotional details for the main course offering.",

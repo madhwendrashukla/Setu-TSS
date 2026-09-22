@@ -99,7 +99,7 @@ export default async function DynamicEventPage({ params, searchParams }: { param
                             </Link>
                         </div>
                         <div className="flex-shrink-0 ml-1 sm:ml-4">
-                            {!event.is_past && event.registration_url ? (
+                            {!event.is_past && event.registration_url && pageData.registrations_open !== false ? (
                                 // LMS-linked events sell through the course checkout
                                 // (account + enrollment + welcome email)
                                 <a href={event.lms_course_slug ? `/courses/${event.lms_course_slug}` : (pageData.section_visibility?.pricing ? "#pricing" : "#workshop-breakdown")} className="bg-accent-violet text-white px-3 sm:px-5 py-1.5 sm:py-2 md:px-8 md:py-2.5 rounded-full text-[10px] sm:text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block">

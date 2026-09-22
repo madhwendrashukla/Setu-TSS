@@ -280,7 +280,7 @@ export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, even
             />
             <div className="h-4 w-px bg-slate-300"></div>
             <span className="text-[10px] md:text-[11px] font-black tracking-[0.16em] text-[#0B1120] uppercase mt-0.5">
-              The <span className="text-accent-violet">Startup</span> School
+              <span className="text-accent-violet">Startup</span> School
             </span>
           </div>
 

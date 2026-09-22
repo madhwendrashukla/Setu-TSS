@@ -94,7 +94,7 @@ export default async function DynamicEventPage({ params, searchParams }: { param
                                         className="w-[50px] sm:w-[65px] md:w-[85px] h-auto object-contain flex-shrink-0"
                                     />
                                     <div className="h-4 sm:h-5 w-px bg-slate-300 flex-shrink-0"></div>
-                                    <span className="text-[7px] sm:text-[9px] md:text-[13px] font-black tracking-[0.1em] sm:tracking-[0.2em] text-[#0B1120] uppercase mt-0.5 truncate max-w-[120px] sm:max-w-none">The <span className="text-accent-violet">Startup</span> School</span>
+                                    <span className="text-[7px] sm:text-[9px] md:text-[13px] font-black tracking-[0.1em] sm:tracking-[0.2em] text-[#0B1120] uppercase mt-0.5 truncate max-w-[120px] sm:max-w-none"><span className="text-accent-violet">Startup</span> School</span>
                                 </div>
                             </Link>
                         </div>

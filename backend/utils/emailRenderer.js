@@ -210,9 +210,6 @@ function renderRegistrationEmail({ templateConfig = {}, registration = {}, event
                   <div style="font-size:19px;font-weight:900;letter-spacing:-0.5px;color:#0F172A;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
                     <span style="color:#6B21FB;">SETU</span> STARTUP SCHOOL
                   </div>
-                  <div style="font-size:10px;font-weight:700;letter-spacing:1.8px;color:#64748B;text-transform:uppercase;margin-top:3px;">
-                    The Startup School
-                  </div>
                 </td>
               </tr>
               <!-- Main Content Section -->

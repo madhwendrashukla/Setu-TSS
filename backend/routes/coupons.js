@@ -97,30 +97,38 @@ router.delete('/admin/:id', authMiddleware, async (req, res) => {
     }
 });
 
+const { validateCouponForCourse } = require('../utils/coupons');
+
 // Validate a coupon (Public)
 router.post('/validate', async (req, res) => {
     try {
         const { code, email, eventSlug } = req.body;
         
         if (!code) {
-            return res.status(400).json({ error: "No coupon code provided" });
+            return res.status(400).json({ valid: false, error: "No coupon code provided" });
         }
 
-        const coupon = await prisma.coupon.findUnique({
-            where: { code: code.toUpperCase() }
-        });
+        const normalizedCode = String(code).trim().toUpperCase();
+        const buyerEmail = email ? String(email).trim().toLowerCase() : null;
 
-        if (!coupon) {
-            return res.status(404).json({ error: "Invalid coupon code" });
+        const result = await validateCouponForCourse({ code: normalizedCode, email: buyerEmail });
+        if (!result.ok) {
+            return res.status(400).json({ valid: false, error: result.error });
         }
 
-        if (!coupon.is_active) {
-            return res.status(400).json({ error: "Coupon is no longer active" });
-        }
+        const coupon = result.coupon;
 
         // Check if event-specific coupon linkage exists
         if (eventSlug) {
-            const event = await prisma.event.findUnique({ where: { slug: eventSlug } });
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventSlug);
+            const event = await prisma.event.findFirst({
+                where: {
+                    OR: [
+                        { slug: eventSlug },
+                        ...(isUuid ? [{ id: eventSlug }] : [])
+                    ]
+                }
+            });
             if (event && event.page_blocks) {
                 let pageData;
                 try {
@@ -129,51 +137,9 @@ router.post('/validate', async (req, res) => {
                 
                 if (pageData && pageData.applicable_coupons && pageData.applicable_coupons.length > 0) {
                     if (!pageData.applicable_coupons.includes(coupon.code)) {
-                        return res.status(400).json({ error: "This coupon code is not valid for this specific event." });
+                        return res.status(400).json({ valid: false, error: "This coupon code is not valid for this specific event." });
                     }
                 }
-            }
-        }
-
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0]; // "2026-07-09"
-
-        if (coupon.start_date) {
-            const startStr = new Date(coupon.start_date).toISOString().split('T')[0];
-            if (startStr > todayStr && startStr !== todayStr) {
-                // If the user's local date is ahead of UTC, todayStr might be "2026-07-09" while start is "2026-07-10". 
-                // We should add a robust check.
-                const localNow = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-                if (startStr > localNow) {
-                    return res.status(400).json({ error: "Coupon is not yet active" });
-                }
-            }
-        }
-
-        if (coupon.end_date) {
-            const endStr = new Date(coupon.end_date).toISOString().split('T')[0];
-            const localNow = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-            if (endStr < localNow) {
-                return res.status(400).json({ error: "Coupon has expired" });
-            }
-        }
-
-        if (coupon.max_uses !== null && coupon.current_uses >= coupon.max_uses) {
-            return res.status(400).json({ error: "Coupon usage limit reached" });
-        }
-
-        if (coupon.applicable_emails && coupon.applicable_emails.length > 0) {
-            if (!email || !coupon.applicable_emails.includes(email)) {
-                return res.status(400).json({ error: "Coupon is not applicable for this email" });
-            }
-        }
-
-        if (coupon.max_uses_per_user !== null && email) {
-            const userUsages = await prisma.couponUsage.count({
-                where: { coupon_id: coupon.id, user_email: email }
-            });
-            if (userUsages >= coupon.max_uses_per_user) {
-                return res.status(400).json({ error: "You have reached the maximum usage for this coupon" });
             }
         }
 

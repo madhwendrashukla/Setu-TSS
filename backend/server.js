@@ -494,7 +494,7 @@ app.get('/api/events/slug/:slug', async (req, res) => {
     
     if (event.page_blocks) {
         const blocks = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
-        if (blocks.coupon) delete blocks.coupon;
+        // Retain blocks.coupon so the frontend checkout modal can render the coupon input and featured offer
         if (blocks.applicable_coupons) delete blocks.applicable_coupons;
         event.page_blocks = blocks;
     }

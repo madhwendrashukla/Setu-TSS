@@ -17,7 +17,6 @@ import {
     LayoutGrid,
     Heading,
     ListChecks,
-    AtSign,
 } from "lucide-react";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
@@ -62,7 +61,7 @@ export interface InfoBoxItem {
 }
 
 export default function AdminContactPageManager() {
-    const [activeTab, setActiveTab] = useState<"cards" | "header" | "checklist" | "contact">("cards");
+    const [activeTab, setActiveTab] = useState<"cards" | "header" | "checklist">("cards");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [savedSuccess, setSavedSuccess] = useState(false);
@@ -444,7 +443,6 @@ export default function AdminContactPageManager() {
                     { key: "cards", label: "Support Action Cards", icon: LayoutGrid },
                     { key: "header", label: "Header & Tagline", icon: Heading },
                     { key: "checklist", label: "How We Help Checklist", icon: ListChecks },
-                    { key: "contact", label: "Direct Channels", icon: AtSign },
                 ].map((tab) => {
                     const Icon = tab.icon;
                     return (
@@ -795,58 +793,7 @@ export default function AdminContactPageManager() {
                         </div>
                     )}
 
-                    {/* ── TAB 4: DIRECT CHANNELS ─────────────────────────────────────── */}
-                    {activeTab === "contact" && (
-                        <div className="space-y-6 max-w-4xl">
-                            <div>
-                                <h2 className="text-lg font-bold text-gray-900 mb-1">Direct Channels</h2>
-                                <p className="text-xs text-gray-500">
-                                    Configure default fallback emails, phone helplines, and WhatsApp links.
-                                </p>
-                            </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        Official Support Email
-                                    </label>
-                                    <input
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-medium"
-                                        placeholder="info@setustartupschool.com"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        Helpline / Call Number
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.phone}
-                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-medium"
-                                        placeholder="+91 92891 21121"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Official WhatsApp Community / Group Link
-                                </label>
-                                <input
-                                    type="url"
-                                    value={formData.chat_link}
-                                    onChange={(e) => setFormData({ ...formData, chat_link: e.target.value })}
-                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                    placeholder="https://chat.whatsapp.com/..."
-                                />
-                            </div>
-                        </div>
-                    )}
 
                 </div>
             )}

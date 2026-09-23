@@ -18,7 +18,8 @@ import {
     Check, 
     Star, 
     AlertCircle,
-    ExternalLink
+    ExternalLink,
+    Rocket
 } from 'lucide-react';
 
 interface ActionCard {
@@ -64,18 +65,27 @@ interface ContactPageData {
     lead_source_tag: string;
 }
 
+function cleanHtml(raw?: string): string {
+    if (!raw) return '';
+    return raw
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 const DEFAULT_CONTENT: ContactPageData = {
     badge_text: "Get in Touch • We're Here For You",
     title: 'Support & <span class="text-[#7C3AED]">Contact</span>',
-    description: "Stuck on something? We're one message away.",
+    description: 'Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.',
     back_btn_text: '← Back',
     back_btn_link: '/',
     action_cards: [
         {
             id: '1',
             title: 'WhatsApp community',
-            description: 'Ask questions and meet other founders.',
-            button_text: 'Open community →',
+            description: 'Join founders across Bharat. Ask questions, collaborate, and get peer feedback.',
+            button_text: 'Join community →',
             button_url: 'https://chat.whatsapp.com/BJ5RIXujFJG7ceB06nVqa4',
             action_type: 'whatsapp',
             icon: 'users',
@@ -86,21 +96,21 @@ const DEFAULT_CONTENT: ContactPageData = {
         {
             id: '2',
             title: 'Message us on WhatsApp',
-            description: 'Fastest way to reach the team.',
-            button_text: 'Send a message →',
+            description: 'Quickest way to reach our admissions and founder support team.',
+            button_text: 'Chat on WhatsApp →',
             button_url: 'https://wa.me/919289121121',
             action_type: 'whatsapp',
             icon: 'message',
-            badge: 'Direct Message',
+            badge: 'Direct Connect',
             display_order: 1,
             is_active: true,
         },
         {
             id: '3',
-            title: 'Book a 1-on-1 call',
-            description: 'Talk to a mentor about your startup.',
+            title: 'Book a 1-on-1 Mentor Call',
+            description: 'Talk to mentor Gaurav Bansal about your startup idea, pitch deck, or traction.',
             button_text: 'Book a slot →',
-            button_url: 'https://topmate.io',
+            button_url: 'https://foundersschool.in/gauravbansal',
             action_type: 'url',
             icon: 'calendar',
             badge: 'Mentorship',
@@ -109,56 +119,56 @@ const DEFAULT_CONTENT: ContactPageData = {
         },
         {
             id: '4',
-            title: 'Give feedback',
-            description: 'Tell us what is working and what is not.',
-            button_text: 'Share feedback →',
+            title: 'Program & Cohort Inquiry',
+            description: 'Have questions regarding Cohort 2026, Startup Launchpad, or masterclasses?',
+            button_text: 'Send inquiry →',
             button_url: '',
-            action_type: 'feedback_modal',
-            icon: 'feedback',
-            badge: 'Feedback',
+            action_type: 'inquiry_modal',
+            icon: 'mail',
+            badge: 'Admissions',
             display_order: 3,
             is_active: true,
         },
         {
             id: '5',
-            title: 'Email us',
-            description: 'We reply within one working day.',
-            button_text: 'Email support →',
-            button_url: 'mailto:info@setustartupschool.com',
+            title: 'Partnerships & E-Cells',
+            description: 'Partner as an incubator, investor network, college E-Cell, or corporate sponsor.',
+            button_text: 'Partner with us →',
+            button_url: '',
             action_type: 'inquiry_modal',
-            icon: 'mail',
-            badge: 'Support Desk',
+            icon: 'sparkles',
+            badge: 'Partnership',
             display_order: 4,
             is_active: true,
         },
         {
             id: '6',
-            title: 'Call Us Now !!!',
-            description: 'call on this number - +91 92891 21121',
-            button_text: 'Call now →',
-            button_url: 'tel:+919289121121',
-            action_type: 'phone',
-            icon: 'phone',
-            badge: 'Helpline',
+            title: 'Give feedback & Ideas',
+            description: 'Tell us what startup topics, tools, or founder workshops you want to see next.',
+            button_text: 'Share feedback →',
+            button_url: '',
+            action_type: 'feedback_modal',
+            icon: 'feedback',
+            badge: 'Your Voice',
             display_order: 5,
             is_active: true,
         },
     ],
-    show_problem_banner: true,
-    problem_banner_title: 'Found a problem in a course?',
-    problem_banner_desc: "Report a mistake, broken link, or wrong date — pick the course and we'll get a ticket.",
-    problem_banner_action_text: 'Enroll in a course to report an issue.',
-    problem_banner_action_url: '/courses',
-    problem_banner_icon: 'fas fa-flag',
+    show_problem_banner: false,
+    problem_banner_title: 'Need Custom Mentorship for your Startup?',
+    problem_banner_desc: 'Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.',
+    problem_banner_action_text: 'Explore Programs',
+    problem_banner_action_url: '/events',
+    problem_banner_icon: 'fas fa-rocket',
     show_info_box: true,
-    info_box_title: 'When should you contact us?',
+    info_box_title: 'How we can help you',
     info_box_icon: 'fas fa-question-circle',
     info_box_items: [
-        { id: '1', text: "You can't access a course you paid for, or a lesson won't load.", display_order: 0, is_active: true },
-        { id: '2', text: "A live session's meeting link is missing or not working.", display_order: 1, is_active: true },
-        { id: '3', text: 'You have a question about the course content and want to ask a mentor.', display_order: 2, is_active: true },
-        { id: '4', text: 'Payment, invoice, or refund questions.', display_order: 3, is_active: true },
-        { id: '5', text: "Your certificate has a typo or didn't appear after finishing the course.", display_order: 4, is_active: true },
+        { id: '1', text: 'Guidance on choosing the right cohort, incubation program, or masterclass for your startup stage.', display_order: 0, is_active: true },
+        { id: '2', text: '1-on-1 mentorship, pitch deck reviews, and fundraising support.', display_order: 1, is_active: true },
+        { id: '3', text: 'Joining the founder WhatsApp community and attending offline mixer sessions.', display_order: 2, is_active: true },
+        { id: '4', text: 'Queries regarding admissions, session schedules, invoices, or founder certificates.', display_order: 3, is_active: true },
+        { id: '5', text: 'Ecosystem partnerships, college E-Cell collaborations, and angel investor network connects.', display_order: 4, is_active: true },
     ],
     email: 'info@setustartupschool.com',
     phone: '+91 92891 21121',
@@ -200,17 +210,18 @@ export default function ContactPage() {
             .then((res) => (res.ok ? res.json() : null))
             .then((data) => {
                 if (data && typeof data === 'object') {
+                    const cleanedDesc = cleanHtml(data.description) || DEFAULT_CONTENT.description;
                     setPageContent((prev) => ({
                         ...prev,
                         badge_text: data.badge_text ?? prev.badge_text,
                         title: data.title ?? prev.title,
-                        description: data.description ?? prev.description,
+                        description: cleanedDesc,
                         back_btn_text: data.back_btn_text ?? prev.back_btn_text,
                         back_btn_link: data.back_btn_link ?? prev.back_btn_link,
                         action_cards: Array.isArray(data.action_cards) && data.action_cards.length > 0 
                             ? data.action_cards 
                             : prev.action_cards,
-                        show_problem_banner: data.show_problem_banner !== false,
+                        show_problem_banner: data.show_problem_banner === true,
                         problem_banner_title: data.problem_banner_title ?? prev.problem_banner_title,
                         problem_banner_desc: data.problem_banner_desc ?? prev.problem_banner_desc,
                         problem_banner_action_text: data.problem_banner_action_text ?? prev.problem_banner_action_text,
@@ -252,6 +263,9 @@ export default function ContactPage() {
         }
         if (iconKey.includes('phone') || iconKey.includes('tel') || iconKey.includes('mobile')) {
             return <Phone className="w-6 h-6 text-[#7C3AED]" />;
+        }
+        if (iconKey.includes('rocket')) {
+            return <Rocket className="w-6 h-6 text-[#7C3AED]" />;
         }
         return <Sparkles className="w-6 h-6 text-[#7C3AED]" />;
     };
@@ -402,15 +416,15 @@ export default function ContactPage() {
     const activeInfoItems = (pageContent.info_box_items || []).filter((i) => i.is_active !== false);
 
     return (
-        <div className="min-h-screen bg-[#F8F9FD] text-gray-900 pt-24 sm:pt-28 md:pt-32 pb-24 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+        <div className="min-h-screen bg-[#F8F9FD] text-gray-900 pt-28 sm:pt-32 md:pt-36 pb-24 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
             
             {/* Ambient Background Glow */}
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-purple-200/20 blur-[130px] pointer-events-none -z-10" />
+            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-purple-200/20 blur-[140px] pointer-events-none -z-10" />
 
-            <div className="w-full max-w-4xl mx-auto space-y-8">
+            <div className="w-full max-w-5xl mx-auto space-y-8">
                 
                 {/* ── 1. Top Navigation & Header ─────────────────────────────── */}
-                <div className="space-y-4">
+                <div className="space-y-3.5 text-left">
                     {/* Back Link */}
                     <div>
                         <Link
@@ -424,8 +438,8 @@ export default function ContactPage() {
 
                     {/* Page Headline with Icon */}
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-[#7C3AED] shadow-2xs shrink-0">
-                            {/* Hexagon/Spiral Support Icon */}
+                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-[#7C3AED] shadow-2xs shrink-0">
+                            {/* Hexagon/Support Icon */}
                             <svg className="w-5 h-5 text-[#7C3AED]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <circle cx="12" cy="12" r="4" />
@@ -436,14 +450,14 @@ export default function ContactPage() {
                             </svg>
                         </div>
                         <h1 
-                            className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight [&_span]:text-[#7C3AED]"
+                            className="text-3xl sm:text-4xl md:text-4xl font-extrabold text-gray-900 tracking-tight [&_span]:text-[#7C3AED]"
                             dangerouslySetInnerHTML={{ __html: pageContent.title || 'Support & <span class="text-[#7C3AED]">Contact</span>' }}
                         />
                     </div>
 
-                    {/* Subtitle */}
-                    <p className="text-base text-gray-500 font-normal">
-                        {pageContent.description || "Stuck on something? We're one message away."}
+                    {/* Clean Subtitle without HTML entities */}
+                    <p className="text-base text-gray-600 font-normal leading-relaxed max-w-3xl">
+                        {pageContent.description || 'Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.'}
                     </p>
                 </div>
 
@@ -452,7 +466,7 @@ export default function ContactPage() {
                     {activeCards.map((card) => (
                         <div
                             key={card.id || card.title}
-                            className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-purple-100 transition-all duration-300 p-6 sm:p-7 flex flex-col justify-between group"
+                            className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_rgba(124,58,237,0.08)] hover:border-purple-100 transition-all duration-300 p-6 sm:p-7 flex flex-col justify-between group"
                         >
                             <div>
                                 {/* Icon container in soft lavender squircle */}
@@ -461,7 +475,7 @@ export default function ContactPage() {
                                 </div>
 
                                 {/* Title */}
-                                <h3 className="text-lg font-bold text-gray-900 tracking-tight mb-1">
+                                <h3 className="text-lg font-bold text-gray-900 tracking-tight mb-1.5">
                                     {card.title}
                                 </h3>
 
@@ -471,11 +485,11 @@ export default function ContactPage() {
                                 </p>
                             </div>
 
-                            {/* Action Button */}
+                            {/* Action Button - Exact Color Match with Connect button */}
                             <div>
                                 <button
                                     onClick={() => handleCardAction(card)}
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#6B21A8] hover:bg-[#581C87] text-white text-sm font-semibold shadow-xs hover:shadow-md active:scale-98 transition-all duration-200 cursor-pointer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#7C3AED] hover:bg-[#5A1EEB] text-white text-sm font-bold shadow-md hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                                 >
                                     <span>{card.button_text || 'Open →'}</span>
                                 </button>
@@ -484,7 +498,7 @@ export default function ContactPage() {
                     ))}
                 </div>
 
-                {/* ── 3. Problem in Course Banner ─────────────────────────────── */}
+                {/* ── 3. Banner (Optional) ────────────────────────────────────── */}
                 {pageContent.show_problem_banner && (
                     <div className="bg-[#FFF9F2] border border-[#FDE6CA] rounded-2xl p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs">
                         <div className="flex items-start sm:items-center gap-4">
@@ -493,38 +507,34 @@ export default function ContactPage() {
                             </div>
                             <div>
                                 <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                                    {pageContent.problem_banner_title || 'Found a problem in a course?'}
+                                    {pageContent.problem_banner_title}
                                 </h3>
                                 <p className="text-sm text-gray-600 mt-0.5">
-                                    {pageContent.problem_banner_desc || "Report a mistake, broken link, or wrong date — pick the course and we'll get a ticket."}
+                                    {pageContent.problem_banner_desc}
                                 </p>
                             </div>
                         </div>
 
                         <div className="self-start md:self-center shrink-0">
-                            {pageContent.problem_banner_action_url ? (
+                            {pageContent.problem_banner_action_url && (
                                 <Link
                                     href={pageContent.problem_banner_action_url}
-                                    className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors bg-white/70 hover:bg-white border border-amber-200/80 px-4 py-2 rounded-xl inline-block"
+                                    className="text-xs sm:text-sm font-bold text-[#7C3AED] hover:text-[#5A1EEB] bg-white border border-purple-200 px-4 py-2 rounded-full shadow-2xs inline-block transition-all"
                                 >
-                                    {pageContent.problem_banner_action_text || 'Enroll in a course to report an issue.'}
+                                    {pageContent.problem_banner_action_text || 'Explore'}
                                 </Link>
-                            ) : (
-                                <span className="text-xs sm:text-sm font-medium text-gray-600 bg-white/70 border border-amber-200/80 px-4 py-2 rounded-xl inline-block">
-                                    {pageContent.problem_banner_action_text || 'Enroll in a course to report an issue.'}
-                                </span>
                             )}
                         </div>
                     </div>
                 )}
 
-                {/* ── 4. "When should you contact us?" Info Box ───────────────── */}
+                {/* ── 4. "How we can help you" Info Box ───────────────────────── */}
                 {pageContent.show_info_box && (
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-6 sm:p-8 space-y-5">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-6 sm:p-8 space-y-4">
                         <div className="flex items-center gap-2.5">
                             <HelpCircle className="w-5 h-5 text-[#7C3AED]" />
                             <h2 className="text-lg font-bold text-gray-900 tracking-tight">
-                                {pageContent.info_box_title || 'When should you contact us?'}
+                                {pageContent.info_box_title || 'How we can help you'}
                             </h2>
                         </div>
 
@@ -559,7 +569,7 @@ export default function ContactPage() {
                             <div className="w-11 h-11 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center mb-3">
                                 <MessageCircle className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900">Share Your Feedback</h3>
+                            <h3 className="text-xl font-bold text-gray-900">Share Your Feedback &amp; Ideas</h3>
                             <p className="text-xs text-gray-500 mt-1">
                                 Tell us what is working, what needs improvement, or suggestions for new masterclasses.
                             </p>
@@ -579,7 +589,7 @@ export default function ContactPage() {
                                         setFeedbackModalOpen(false);
                                         setFeedbackStatus('idle');
                                     }}
-                                    className="mt-4 px-6 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-black transition-all cursor-pointer"
+                                    className="mt-4 px-6 py-2 rounded-full bg-[#7C3AED] hover:bg-[#5A1EEB] text-white text-xs font-bold transition-all cursor-pointer"
                                 >
                                     Close
                                 </button>
@@ -621,11 +631,11 @@ export default function ContactPage() {
                                         className="w-full bg-gray-50 border border-gray-200 focus:border-[#7C3AED] focus:bg-white rounded-xl px-4 py-2.5 text-xs text-gray-900 font-medium outline-none transition-all cursor-pointer"
                                     >
                                         <option value="General Feedback">General Feedback</option>
-                                        <option value="Course Content & Quality">Course Content & Quality</option>
-                                        <option value="Platform / Website Experience">Platform / Website Experience</option>
-                                        <option value="Mentorship & Masterclasses">Mentorship & Masterclasses</option>
-                                        <option value="WhatsApp Community">WhatsApp Community</option>
-                                        <option value="Suggestions & Ideas">Suggestions & Ideas</option>
+                                        <option value="Cohort 2026 Programs">Cohort 2026 Programs</option>
+                                        <option value="Mentorship & Masterclasses">Mentorship &amp; Masterclasses</option>
+                                        <option value="WhatsApp Founder Community">WhatsApp Founder Community</option>
+                                        <option value="Startup Tools & Resources">Startup Tools &amp; Resources</option>
+                                        <option value="Suggestions & Ideas">Suggestions &amp; Ideas</option>
                                     </select>
                                 </div>
 
@@ -682,7 +692,7 @@ export default function ContactPage() {
                                 <button
                                     type="submit"
                                     disabled={feedbackStatus === 'loading'}
-                                    className="w-full py-3 px-6 rounded-xl bg-[#6B21A8] hover:bg-[#581C87] text-white text-xs font-bold shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="w-full py-3 px-6 rounded-full bg-[#7C3AED] hover:bg-[#5A1EEB] text-white text-xs font-bold shadow-md hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
                                     {feedbackStatus === 'loading' ? 'Submitting...' : 'Submit Feedback'}
                                     <ArrowRight className="w-3.5 h-3.5" />
@@ -711,9 +721,9 @@ export default function ContactPage() {
                             <div className="w-11 h-11 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center mb-3">
                                 <Mail className="w-6 h-6" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900">Email Support</h3>
+                            <h3 className="text-xl font-bold text-gray-900">Send an Inquiry</h3>
                             <p className="text-xs text-gray-500 mt-1">
-                                Send us a message directly or write to us at{' '}
+                                Drop your note below or write to us at{' '}
                                 <a href={`mailto:${pageContent.email}`} className="text-[#7C3AED] font-semibold underline">
                                     {pageContent.email || 'info@setustartupschool.com'}
                                 </a>
@@ -727,14 +737,14 @@ export default function ContactPage() {
                                 </div>
                                 <h4 className="text-lg font-bold text-gray-900">Inquiry Sent Successfully!</h4>
                                 <p className="text-xs text-gray-500 max-w-xs mx-auto">
-                                    Thank you for writing to us. Our admissions and support team will reply within one working day.
+                                    Thank you for reaching out. A member of the Setu Startup School team will connect with you shortly.
                                 </p>
                                 <button
                                     onClick={() => {
                                         setInquiryModalOpen(false);
                                         setInquiryStatus('idle');
                                     }}
-                                    className="mt-4 px-6 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-black transition-all cursor-pointer"
+                                    className="mt-4 px-6 py-2 rounded-full bg-[#7C3AED] hover:bg-[#5A1EEB] text-white text-xs font-bold transition-all cursor-pointer"
                                 >
                                     Close
                                 </button>
@@ -785,19 +795,18 @@ export default function ContactPage() {
 
                                 <div>
                                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        Subject / Topic
+                                        Inquiry Subject
                                     </label>
                                     <select
                                         value={inquiryForm.subject}
                                         onChange={(e) => setInquiryForm({ ...inquiryForm, subject: e.target.value })}
                                         className="w-full bg-gray-50 border border-gray-200 focus:border-[#7C3AED] focus:bg-white rounded-xl px-4 py-2.5 text-xs text-gray-900 font-medium outline-none transition-all cursor-pointer"
                                     >
-                                        <option value="General Support Inquiry">General Support Inquiry</option>
-                                        <option value="Course Access & Playback Issue">Course Access & Playback Issue</option>
-                                        <option value="Live Session Link Missing">Live Session Link Missing</option>
-                                        <option value="Payment, Invoice, or Refund">Payment, Invoice, or Refund</option>
-                                        <option value="Certificate Typo / Not Received">Certificate Typo / Not Received</option>
                                         <option value="Cohort 2026 Admissions">Cohort 2026 Admissions</option>
+                                        <option value="1-on-1 Founder Mentorship">1-on-1 Founder Mentorship</option>
+                                        <option value="Fundraising Workshop Inquiry">Fundraising Workshop Inquiry</option>
+                                        <option value="Partnership & E-Cell Collaboration">Partnership &amp; E-Cell Collaboration</option>
+                                        <option value="General Program Inquiry">General Program Inquiry</option>
                                     </select>
                                 </div>
 
@@ -810,7 +819,7 @@ export default function ContactPage() {
                                         required
                                         value={inquiryForm.message}
                                         onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
-                                        placeholder="Describe your issue or question in detail..."
+                                        placeholder="Tell us a little about your startup idea or what you'd like to explore..."
                                         className="w-full bg-gray-50 border border-gray-200 focus:border-[#7C3AED] focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-gray-900 outline-none resize-none"
                                     />
                                 </div>
@@ -825,7 +834,7 @@ export default function ContactPage() {
                                 <div className="flex gap-3 pt-2">
                                     <a
                                         href={`mailto:${pageContent.email || 'info@setustartupschool.com'}`}
-                                        className="flex-1 py-3 px-4 rounded-xl border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold text-center transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                                        className="flex-1 py-3 px-4 rounded-full border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold text-center transition-all cursor-pointer flex items-center justify-center gap-1.5"
                                     >
                                         <ExternalLink className="w-3.5 h-3.5" />
                                         <span>Open Mail App</span>
@@ -833,9 +842,9 @@ export default function ContactPage() {
                                     <button
                                         type="submit"
                                         disabled={inquiryStatus === 'loading'}
-                                        className="flex-1 py-3 px-4 rounded-xl bg-[#6B21A8] hover:bg-[#581C87] text-white text-xs font-bold shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                                        className="flex-1 py-3 px-4 rounded-full bg-[#7C3AED] hover:bg-[#5A1EEB] text-white text-xs font-bold shadow-md hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
-                                        {inquiryStatus === 'loading' ? 'Sending...' : 'Send Message'}
+                                        {inquiryStatus === 'loading' ? 'Sending...' : 'Send Inquiry'}
                                         <ArrowRight className="w-3.5 h-3.5" />
                                     </button>
                                 </div>

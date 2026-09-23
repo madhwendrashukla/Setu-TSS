@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import "react-quill-new/dist/quill.snow.css";
 import {
     Users,
     MessageSquare,
@@ -11,8 +9,6 @@ import {
     MessageCircle,
     Mail,
     Phone,
-    Flag,
-    HelpCircle,
     Plus,
     Trash2,
     Edit3,
@@ -24,23 +20,10 @@ import {
     AlertCircle,
     LayoutGrid,
     Heading,
-    AlertOctagon,
     ListChecks,
     AtSign,
     Sparkles,
 } from "lucide-react";
-
-const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
-
-const quillModules = {
-    toolbar: [
-        [{ header: [1, 2, 3, 4, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ color: [] }, { background: [] }],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link", "clean"],
-    ],
-};
 
 interface ActionCardItem {
     id: string;
@@ -62,19 +45,17 @@ interface InfoBoxItem {
     is_active: boolean;
 }
 
-interface SocialLinkItem {
-    id: string;
-    name: string;
-    handle: string;
-    url: string;
-    icon: string;
-    badge: string;
-    is_active: boolean;
-    display_order?: number;
+function cleanHtml(raw?: string): string {
+    if (!raw) return "";
+    return raw
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 }
 
 export default function AdminContactPageManager() {
-    const [activeTab, setActiveTab] = useState<"cards" | "header" | "banner" | "checklist" | "contact" | "social">("cards");
+    const [activeTab, setActiveTab] = useState<"cards" | "header" | "checklist" | "contact">("cards");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [savedSuccess, setSavedSuccess] = useState(false);
@@ -87,45 +68,28 @@ export default function AdminContactPageManager() {
     const [formData, setFormData] = useState({
         badge_text: "Get in Touch • We're Here For You",
         title: 'Support & <span class="text-[#7C3AED]">Contact</span>',
-        description: "Stuck on something? We're one message away.",
+        description: "Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.",
         back_btn_text: "← Back",
         back_btn_link: "/",
         
         action_cards: [] as ActionCardItem[],
 
-        show_problem_banner: true,
-        problem_banner_title: "Found a problem in a course?",
-        problem_banner_desc: "Report a mistake, broken link, or wrong date — pick the course and we'll get a ticket.",
-        problem_banner_action_text: "Enroll in a course to report an issue.",
-        problem_banner_action_url: "/courses",
-        problem_banner_icon: "fas fa-flag",
+        show_problem_banner: false,
+        problem_banner_title: "Need Custom Mentorship for your Startup?",
+        problem_banner_desc: "Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.",
+        problem_banner_action_text: "Explore Programs",
+        problem_banner_action_url: "/events",
+        problem_banner_icon: "fas fa-rocket",
 
         show_info_box: true,
-        info_box_title: "When should you contact us?",
+        info_box_title: "How we can help you",
         info_box_icon: "fas fa-question-circle",
         info_box_items: [] as InfoBoxItem[],
 
-        form_heading: "Send Us a Message",
-        form_subheading: "Fill in the form below and our team will get back to you within 24 hours.",
         lead_source_tag: "contact_page",
-        submit_btn_text: "Submit Inquiry",
-        success_heading: "Message Sent Successfully!",
-        success_message: "Thank you for reaching out! A member of the Setu Startup School team will connect with you shortly.",
-
         email: "info@setustartupschool.com",
         phone: "+91 92891 21121",
-        address: "98-103, Aditya Industrial Estate, behind Evershine Mall, Chincholi Bunder, Malad West, Mumbai, Maharashtra 400064",
         chat_link: "https://chat.whatsapp.com/BJ5RIXujFJG7ceB06nVqa4",
-
-        social_links: [] as SocialLinkItem[],
-        show_founder_card: false,
-        founder_name: "Gaurav Bansal",
-        founder_title: "Founder & Chief Mentor • Setu Startup School",
-        founder_tag: "Founder Profile",
-        founder_photo_url: "/gaurav.webp",
-        founder_link: "/gauravbansal",
-        show_faqs: false,
-        faqs: [] as any[],
     });
 
     // Card Modal State
@@ -168,45 +132,28 @@ export default function AdminContactPageManager() {
                 setFormData({
                     badge_text: data.badge_text ?? "Get in Touch • We're Here For You",
                     title: data.title ?? 'Support & <span class="text-[#7C3AED]">Contact</span>',
-                    description: data.description ?? "Stuck on something? We're one message away.",
+                    description: cleanHtml(data.description) || "Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.",
                     back_btn_text: data.back_btn_text ?? "← Back",
                     back_btn_link: data.back_btn_link ?? "/",
 
                     action_cards: Array.isArray(data.action_cards) ? data.action_cards : [],
 
-                    show_problem_banner: data.show_problem_banner !== false,
-                    problem_banner_title: data.problem_banner_title ?? "Found a problem in a course?",
-                    problem_banner_desc: data.problem_banner_desc ?? "Report a mistake, broken link, or wrong date — pick the course and we'll get a ticket.",
-                    problem_banner_action_text: data.problem_banner_action_text ?? "Enroll in a course to report an issue.",
-                    problem_banner_action_url: data.problem_banner_action_url ?? "/courses",
-                    problem_banner_icon: data.problem_banner_icon ?? "fas fa-flag",
+                    show_problem_banner: data.show_problem_banner === true,
+                    problem_banner_title: data.problem_banner_title ?? "Need Custom Mentorship for your Startup?",
+                    problem_banner_desc: data.problem_banner_desc ?? "Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.",
+                    problem_banner_action_text: data.problem_banner_action_text ?? "Explore Programs",
+                    problem_banner_action_url: data.problem_banner_action_url ?? "/events",
+                    problem_banner_icon: data.problem_banner_icon ?? "fas fa-rocket",
 
                     show_info_box: data.show_info_box !== false,
-                    info_box_title: data.info_box_title ?? "When should you contact us?",
+                    info_box_title: data.info_box_title ?? "How we can help you",
                     info_box_icon: data.info_box_icon ?? "fas fa-question-circle",
                     info_box_items: Array.isArray(data.info_box_items) ? data.info_box_items : [],
 
-                    form_heading: data.form_heading ?? "Send Us a Message",
-                    form_subheading: data.form_subheading ?? "Fill in the form below and our team will get back to you within 24 hours.",
                     lead_source_tag: data.lead_source_tag ?? "contact_page",
-                    submit_btn_text: data.submit_btn_text ?? "Submit Inquiry",
-                    success_heading: data.success_heading ?? "Message Sent Successfully!",
-                    success_message: data.success_message ?? "Thank you for reaching out! A member of the Setu Startup School team will connect with you shortly.",
-
                     email: data.email ?? "info@setustartupschool.com",
                     phone: data.phone ?? "+91 92891 21121",
-                    address: data.address ?? "98-103, Aditya Industrial Estate, behind Evershine Mall, Chincholi Bunder, Malad West, Mumbai, Maharashtra 400064",
                     chat_link: data.chat_link ?? "https://chat.whatsapp.com/BJ5RIXujFJG7ceB06nVqa4",
-
-                    social_links: Array.isArray(data.social_links) ? data.social_links : [],
-                    show_founder_card: data.show_founder_card === true,
-                    founder_name: data.founder_name ?? "Gaurav Bansal",
-                    founder_title: data.founder_title ?? "Founder & Chief Mentor • Setu Startup School",
-                    founder_tag: data.founder_tag ?? "Founder Profile",
-                    founder_photo_url: data.founder_photo_url ?? "/gaurav.webp",
-                    founder_link: data.founder_link ?? "/gauravbansal",
-                    show_faqs: data.show_faqs === true,
-                    faqs: Array.isArray(data.faqs) ? data.faqs : [],
                 });
             }
 
@@ -237,13 +184,18 @@ export default function AdminContactPageManager() {
         setErrorMessage("");
 
         try {
+            const payload = {
+                ...formData,
+                description: cleanHtml(formData.description),
+            };
+
             const res = await fetch(`${API}/api/admin/contact-page`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token()}`,
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             if (res.ok) {
@@ -271,7 +223,7 @@ export default function AdminContactPageManager() {
             button_url: "",
             action_type: "url",
             icon: "users",
-            badge: "Support",
+            badge: "Community",
             is_active: true,
             display_order: formData.action_cards.length,
         });
@@ -320,7 +272,6 @@ export default function AdminContactPageManager() {
         const temp = newCards[index];
         newCards[index] = newCards[targetIndex];
         newCards[targetIndex] = temp;
-        // Update display_order
         newCards.forEach((c, idx) => {
             c.display_order = idx;
         });
@@ -403,7 +354,7 @@ export default function AdminContactPageManager() {
                         </span>
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
-                        Customize Support Cards, Course Problem Banner, &quot;When to contact us&quot; checklist, and routing channels.
+                        Customize Support Cards, page headline, guidance checklist, and direct reach channels.
                     </p>
                 </div>
 
@@ -417,10 +368,11 @@ export default function AdminContactPageManager() {
                         <span>Live Preview</span>
                     </Link>
 
+                    {/* Top Save button with matching brand color */}
                     <button
                         onClick={() => handleSave()}
                         disabled={isSaving}
-                        className="px-6 py-2.5 bg-gradient-to-r from-[#6B21A8] to-[#7C3AED] hover:from-[#581C87] hover:to-[#6D28D9] text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#5A1EEB] text-white font-bold text-sm rounded-xl shadow-md hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                         {isSaving ? (
                             <>
@@ -457,8 +409,7 @@ export default function AdminContactPageManager() {
                 {[
                     { key: "cards", label: "Support Action Cards", icon: LayoutGrid },
                     { key: "header", label: "Header & Navigation", icon: Heading },
-                    { key: "banner", label: "Problem in Course Banner", icon: AlertOctagon },
-                    { key: "checklist", label: "When to Contact Checklist", icon: ListChecks },
+                    { key: "checklist", label: "How We Help Checklist", icon: ListChecks },
                     { key: "contact", label: "Direct Channels & Tagging", icon: AtSign },
                 ].map((tab) => {
                     const Icon = tab.icon;
@@ -468,7 +419,7 @@ export default function AdminContactPageManager() {
                             onClick={() => setActiveTab(tab.key as any)}
                             className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
                                 activeTab === tab.key
-                                    ? "bg-[#6B21A8] text-white shadow-sm"
+                                    ? "bg-[#7C3AED] text-white shadow-sm"
                                     : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
                             }`}
                         >
@@ -494,12 +445,12 @@ export default function AdminContactPageManager() {
                                 <div>
                                     <h2 className="text-lg font-bold text-gray-900">Support Action Cards</h2>
                                     <p className="text-xs text-gray-500">
-                                        Manage the 2-column grid cards shown on `/contact` (WhatsApp, Feedback, Bookings, Mail, Call).
+                                        Manage the 2-column cards shown on `/contact` (WhatsApp, Feedback, Bookings, Mail, Collabs).
                                     </p>
                                 </div>
                                 <button
                                     onClick={openAddCard}
-                                    className="px-4 py-2 bg-[#6B21A8] hover:bg-[#581C87] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer self-start"
+                                    className="px-4 py-2 bg-[#7C3AED] hover:bg-[#5A1EEB] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] transition-all flex items-center gap-1.5 cursor-pointer self-start"
                                 >
                                     <Plus className="w-4 h-4" />
                                     <span>Add Action Card</span>
@@ -621,7 +572,7 @@ export default function AdminContactPageManager() {
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900 mb-1">Header &amp; Navigation Settings</h2>
                                 <p className="text-xs text-gray-500">
-                                    Configure back button target, page headline with HTML/purple highlights, and subtitle text.
+                                    Configure back button target, headline with purple styling, and clean description.
                                 </p>
                             </div>
 
@@ -654,142 +605,52 @@ export default function AdminContactPageManager() {
                                 </div>
                             </div>
 
-                            {/* Title with Rich Text */}
-                            <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                        Page Title (Rich Text Editor)
-                                    </label>
-                                    <span className="text-[11px] text-gray-400">
-                                        Tip: Highlight words to apply purple color: &apos;Support &amp; &lt;span class=&quot;text-[#7C3AED]&quot;&gt;Contact&lt;/span&gt;&apos;
-                                    </span>
-                                </div>
-                                <div className="border border-gray-300 rounded-xl overflow-hidden">
-                                    <ReactQuill
-                                        theme="snow"
-                                        value={formData.title}
-                                        onChange={(val) => setFormData({ ...formData, title: val })}
-                                        modules={quillModules}
-                                        className="bg-white min-h-[120px]"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Subtitle */}
+                            {/* Title with HTML/Custom Styling */}
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Page Subtitle / Helper Description
+                                    Page Headline (Supports HTML span for purple color)
                                 </label>
                                 <input
                                     type="text"
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                    placeholder="Stuck on something? We're one message away."
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-semibold"
+                                    placeholder='Support & <span class="text-[#7C3AED]">Contact</span>'
                                 />
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ── TAB 3: PROBLEM IN COURSE BANNER ────────────────────────────── */}
-                    {activeTab === "banner" && (
-                        <div className="space-y-6 max-w-4xl">
-                            <div>
-                                <h2 className="text-lg font-bold text-gray-900 mb-1">Problem in Course Banner</h2>
-                                <p className="text-xs text-gray-500">
-                                    Manage the highlighted amber banner for reporting mistakes, broken links, or date issues.
+                                <p className="text-[11px] text-gray-400 mt-1">
+                                    Example: <code>Support &amp; &lt;span class=&quot;text-[#7C3AED]&quot;&gt;Contact&lt;/span&gt;</code>
                                 </p>
                             </div>
 
-                            {/* Visibility Toggle */}
-                            <label className="flex items-center gap-3 p-4 bg-amber-50/60 border border-amber-200 rounded-2xl cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.show_problem_banner}
-                                    onChange={(e) => setFormData({ ...formData, show_problem_banner: e.target.checked })}
-                                    className="w-5 h-5 text-[#E86A17] rounded cursor-pointer"
+                            {/* Clean Description Input without HTML tags */}
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Page Subtitle / Description (Clean Text)
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: cleanHtml(e.target.value) })}
+                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none resize-none leading-relaxed"
+                                    placeholder="Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team."
                                 />
-                                <div>
-                                    <span className="font-bold text-sm text-gray-900 block">Show Course Problem Banner</span>
-                                    <span className="text-xs text-gray-500">
-                                        When enabled, an amber banner is shown below the support cards.
-                                    </span>
-                                </div>
-                            </label>
-
-                            {formData.show_problem_banner && (
-                                <div className="space-y-4 pt-2">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                            Banner Title
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.problem_banner_title}
-                                            onChange={(e) => setFormData({ ...formData, problem_banner_title: e.target.value })}
-                                            className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                            placeholder="Found a problem in a course?"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                            Banner Description / Helper Subtext
-                                        </label>
-                                        <textarea
-                                            rows={2}
-                                            value={formData.problem_banner_desc}
-                                            onChange={(e) => setFormData({ ...formData, problem_banner_desc: e.target.value })}
-                                            className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none resize-none"
-                                            placeholder="Report a mistake, broken link, or wrong date — pick the course and we'll get a ticket."
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                                Action Button / Status Text
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={formData.problem_banner_action_text}
-                                                onChange={(e) => setFormData({ ...formData, problem_banner_action_text: e.target.value })}
-                                                className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                                placeholder="Enroll in a course to report an issue."
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                                Action Target URL (Optional)
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={formData.problem_banner_action_url}
-                                                onChange={(e) => setFormData({ ...formData, problem_banner_action_url: e.target.value })}
-                                                className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                                placeholder="/courses"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                            </div>
                         </div>
                     )}
 
-                    {/* ── TAB 4: WHEN TO CONTACT CHECKLIST ───────────────────────────── */}
+                    {/* ── TAB 3: CHECKLIST / HOW WE HELP ─────────────────────────────── */}
                     {activeTab === "checklist" && (
                         <div className="space-y-6 max-w-4xl">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div>
-                                    <h2 className="text-lg font-bold text-gray-900">&quot;When should you contact us?&quot; Box</h2>
+                                    <h2 className="text-lg font-bold text-gray-900">&quot;How we can help you&quot; Checklist</h2>
                                     <p className="text-xs text-gray-500">
-                                        Configure the scenarios &amp; checklist items displayed in the FAQ / guidelines container.
+                                        Configure the guidance scenarios &amp; checklist items displayed on the contact page.
                                     </p>
                                 </div>
                                 <button
                                     onClick={openAddCheck}
-                                    className="px-4 py-2 bg-[#6B21A8] hover:bg-[#581C87] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer self-start"
+                                    className="px-4 py-2 bg-[#7C3AED] hover:bg-[#5A1EEB] text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] transition-all flex items-center gap-1.5 cursor-pointer self-start"
                                 >
                                     <Plus className="w-4 h-4" />
                                     <span>Add Bullet Item</span>
@@ -807,7 +668,7 @@ export default function AdminContactPageManager() {
                                 <div>
                                     <span className="font-bold text-sm text-gray-900 block">Show Checklist Container</span>
                                     <span className="text-xs text-gray-500">
-                                        When enabled, the &quot;When should you contact us?&quot; container is visible on `/contact`.
+                                        When enabled, the &quot;How we can help you&quot; container is visible on `/contact`.
                                     </span>
                                 </div>
                             </label>
@@ -823,7 +684,7 @@ export default function AdminContactPageManager() {
                                             value={formData.info_box_title}
                                             onChange={(e) => setFormData({ ...formData, info_box_title: e.target.value })}
                                             className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                            placeholder="When should you contact us?"
+                                            placeholder="How we can help you"
                                         />
                                     </div>
 
@@ -882,7 +743,7 @@ export default function AdminContactPageManager() {
                         </div>
                     )}
 
-                    {/* ── TAB 5: DIRECT CHANNELS & LEAD TAGGING ──────────────────────── */}
+                    {/* ── TAB 4: DIRECT CHANNELS & LEAD TAGGING ──────────────────────── */}
                     {activeTab === "contact" && (
                         <div className="space-y-6 max-w-4xl">
                             <div>
@@ -1010,8 +871,8 @@ export default function AdminContactPageManager() {
                                     rows={2}
                                     required
                                     value={cardForm.description}
-                                    onChange={(e) => setCardForm({ ...cardForm, description: e.target.value })}
-                                    placeholder="e.g. Ask questions and meet other founders."
+                                    onChange={(e) => setCardForm({ ...cardForm, description: cleanHtml(e.target.value) })}
+                                    placeholder="e.g. Join founders across Bharat. Ask questions, collaborate, and get peer feedback."
                                     className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-sm text-gray-900 outline-none resize-none"
                                 />
                             </div>
@@ -1026,7 +887,7 @@ export default function AdminContactPageManager() {
                                         required
                                         value={cardForm.button_text}
                                         onChange={(e) => setCardForm({ ...cardForm, button_text: e.target.value })}
-                                        placeholder="Open community →"
+                                        placeholder="Join community →"
                                         className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-sm text-gray-900 outline-none font-medium"
                                     />
                                 </div>
@@ -1042,8 +903,8 @@ export default function AdminContactPageManager() {
                                     >
                                         <option value="whatsapp">WhatsApp Link</option>
                                         <option value="url">External / Custom URL</option>
+                                        <option value="inquiry_modal">Open Program Inquiry Modal</option>
                                         <option value="feedback_modal">Open Feedback Modal</option>
-                                        <option value="inquiry_modal">Open Email Inquiry Modal</option>
                                         <option value="email">Direct mailto: link</option>
                                         <option value="phone">Direct tel: call</option>
                                     </select>
@@ -1074,12 +935,12 @@ export default function AdminContactPageManager() {
                                         className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3 py-2 text-sm text-gray-900 outline-none cursor-pointer"
                                     >
                                         <option value="users">Users / Community</option>
-                                        <option value="message">Message / Chat</option>
-                                        <option value="calendar">Calendar / Call Booking</option>
+                                        <option value="message">Message / WhatsApp</option>
+                                        <option value="calendar">Calendar / Mentorship</option>
+                                        <option value="mail">Mail / Inquiry</option>
+                                        <option value="sparkles">Sparkles / Collabs</option>
                                         <option value="feedback">Feedback / Star</option>
-                                        <option value="mail">Mail / Email</option>
                                         <option value="phone">Phone / Call</option>
-                                        <option value="sparkles">Sparkles / General</option>
                                     </select>
                                 </div>
 
@@ -1119,7 +980,7 @@ export default function AdminContactPageManager() {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-5 py-2 text-xs font-bold text-white bg-[#6B21A8] hover:bg-[#581C87] rounded-xl shadow-xs transition-all cursor-pointer"
+                                    className="px-5 py-2 text-xs font-bold text-white bg-[#7C3AED] hover:bg-[#5A1EEB] rounded-xl shadow-xs hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] transition-all cursor-pointer"
                                 >
                                     Save Card
                                 </button>
@@ -1155,7 +1016,7 @@ export default function AdminContactPageManager() {
                                     required
                                     value={checkForm.text}
                                     onChange={(e) => setCheckForm({ ...checkForm, text: e.target.value })}
-                                    placeholder="e.g. You can't access a course you paid for, or a lesson won't load."
+                                    placeholder="e.g. Guidance on choosing the right cohort or incubation program for your startup stage."
                                     className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-xs text-gray-900 outline-none resize-none"
                                 />
                             </div>
@@ -1170,7 +1031,7 @@ export default function AdminContactPageManager() {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-5 py-2 text-xs font-bold text-white bg-[#6B21A8] hover:bg-[#581C87] rounded-xl shadow-xs transition-all cursor-pointer"
+                                    className="px-5 py-2 text-xs font-bold text-white bg-[#7C3AED] hover:bg-[#5A1EEB] rounded-xl shadow-xs hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] transition-all cursor-pointer"
                                 >
                                     Save Item
                                 </button>

@@ -4,6 +4,31 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
+import {
+    Users,
+    MessageSquare,
+    Calendar,
+    MessageCircle,
+    Mail,
+    Phone,
+    Flag,
+    HelpCircle,
+    Plus,
+    Trash2,
+    Edit3,
+    ArrowUp,
+    ArrowDown,
+    Save,
+    ExternalLink,
+    CheckCircle2,
+    AlertCircle,
+    LayoutGrid,
+    Heading,
+    AlertOctagon,
+    ListChecks,
+    AtSign,
+    Sparkles,
+} from "lucide-react";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -17,15 +42,25 @@ const quillModules = {
     ],
 };
 
-const DEFAULT_SOCIAL_COLORS: Record<string, string> = {
-    LinkedIn: "text-[#0A66C2] bg-blue-50 border-blue-100 hover:bg-[#0A66C2] hover:text-white",
-    Instagram: "text-[#E1306C] bg-pink-50 border-pink-100 hover:bg-[#E1306C] hover:text-white",
-    YouTube: "text-[#FF0000] bg-red-50 border-red-100 hover:bg-[#FF0000] hover:text-white",
-    "WhatsApp Community": "text-[#25D366] bg-emerald-50 border-emerald-100 hover:bg-[#25D366] hover:text-white",
-    "Twitter / X": "text-slate-900 bg-slate-100 border-slate-200 hover:bg-black hover:text-white",
-    Telegram: "text-[#229ED9] bg-sky-50 border-sky-100 hover:bg-[#229ED9] hover:text-white",
-    Discord: "text-[#5865F2] bg-indigo-50 border-indigo-100 hover:bg-[#5865F2] hover:text-white",
-};
+interface ActionCardItem {
+    id: string;
+    title: string;
+    description: string;
+    button_text: string;
+    button_url?: string;
+    action_type?: "whatsapp" | "url" | "email" | "phone" | "feedback_modal" | "inquiry_modal";
+    icon?: string;
+    badge?: string;
+    display_order?: number;
+    is_active: boolean;
+}
+
+interface InfoBoxItem {
+    id: string;
+    text: string;
+    display_order?: number;
+    is_active: boolean;
+}
 
 interface SocialLinkItem {
     id: string;
@@ -33,22 +68,13 @@ interface SocialLinkItem {
     handle: string;
     url: string;
     icon: string;
-    color?: string;
     badge: string;
     is_active: boolean;
     display_order?: number;
 }
 
-interface FaqItem {
-    id: string;
-    q: string;
-    a: string;
-    is_active: boolean;
-    display_order?: number;
-}
-
 export default function AdminContactPageManager() {
-    const [activeTab, setActiveTab] = useState<"hero" | "form" | "contact" | "social" | "founder" | "faqs">("hero");
+    const [activeTab, setActiveTab] = useState<"cards" | "header" | "banner" | "checklist" | "contact" | "social">("cards");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [savedSuccess, setSavedSuccess] = useState(false);
@@ -60,9 +86,25 @@ export default function AdminContactPageManager() {
     // Form / CMS Data
     const [formData, setFormData] = useState({
         badge_text: "Get in Touch • We're Here For You",
-        title: 'Connect with <span class="text-[#A855F7]">Setu Startup School</span>',
-        description: "Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.",
+        title: 'Support & <span class="text-[#7C3AED]">Contact</span>',
+        description: "Stuck on something? We're one message away.",
+        back_btn_text: "← Back",
+        back_btn_link: "/",
         
+        action_cards: [] as ActionCardItem[],
+
+        show_problem_banner: true,
+        problem_banner_title: "Found a problem in a course?",
+        problem_banner_desc: "Report a mistake, broken link, or wrong date — pick the course and we'll get a ticket.",
+        problem_banner_action_text: "Enroll in a course to report an issue.",
+        problem_banner_action_url: "/courses",
+        problem_banner_icon: "fas fa-flag",
+
+        show_info_box: true,
+        info_box_title: "When should you contact us?",
+        info_box_icon: "fas fa-question-circle",
+        info_box_items: [] as InfoBoxItem[],
+
         form_heading: "Send Us a Message",
         form_subheading: "Fill in the form below and our team will get back to you within 24 hours.",
         lead_source_tag: "contact_page",
@@ -76,38 +118,40 @@ export default function AdminContactPageManager() {
         chat_link: "https://chat.whatsapp.com/BJ5RIXujFJG7ceB06nVqa4",
 
         social_links: [] as SocialLinkItem[],
-
-        show_founder_card: true,
+        show_founder_card: false,
         founder_name: "Gaurav Bansal",
         founder_title: "Founder & Chief Mentor • Setu Startup School",
         founder_tag: "Founder Profile",
         founder_photo_url: "/gaurav.webp",
         founder_link: "/gauravbansal",
-
-        show_faqs: true,
-        faqs: [] as FaqItem[],
+        show_faqs: false,
+        faqs: [] as any[],
     });
 
-    // Modals
-    const [socialModalOpen, setSocialModalOpen] = useState(false);
-    const [editingSocial, setEditingSocial] = useState<SocialLinkItem | null>(null);
-    const [socialForm, setSocialForm] = useState<SocialLinkItem>({
+    // Card Modal State
+    const [cardModalOpen, setCardModalOpen] = useState(false);
+    const [editingCard, setEditingCard] = useState<ActionCardItem | null>(null);
+    const [cardForm, setCardForm] = useState<ActionCardItem>({
         id: "",
-        name: "",
-        handle: "",
-        url: "",
-        icon: "fab fa-linkedin-in",
-        badge: "Official Channel",
+        title: "",
+        description: "",
+        button_text: "Open →",
+        button_url: "",
+        action_type: "url",
+        icon: "users",
+        badge: "Support",
         is_active: true,
+        display_order: 0,
     });
 
-    const [faqModalOpen, setFaqModalOpen] = useState(false);
-    const [editingFaq, setEditingFaq] = useState<FaqItem | null>(null);
-    const [faqForm, setFaqForm] = useState<FaqItem>({
+    // Checklist Item Modal State
+    const [checkModalOpen, setCheckModalOpen] = useState(false);
+    const [editingCheck, setEditingCheck] = useState<InfoBoxItem | null>(null);
+    const [checkForm, setCheckForm] = useState<InfoBoxItem>({
         id: "",
-        q: "",
-        a: "",
+        text: "",
         is_active: true,
+        display_order: 0,
     });
 
     const token = () => localStorage.getItem("adminToken");
@@ -116,7 +160,6 @@ export default function AdminContactPageManager() {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            // Fetch contact page content
             const res = await fetch(`${API}/api/admin/contact-page`, {
                 headers: { Authorization: `Bearer ${token()}` },
             });
@@ -124,26 +167,45 @@ export default function AdminContactPageManager() {
                 const data = await res.json();
                 setFormData({
                     badge_text: data.badge_text ?? "Get in Touch • We're Here For You",
-                    title: data.title ?? 'Connect with <span class="text-[#A855F7]">Setu Startup School</span>',
-                    description: data.description ?? "Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships?",
+                    title: data.title ?? 'Support & <span class="text-[#7C3AED]">Contact</span>',
+                    description: data.description ?? "Stuck on something? We're one message away.",
+                    back_btn_text: data.back_btn_text ?? "← Back",
+                    back_btn_link: data.back_btn_link ?? "/",
+
+                    action_cards: Array.isArray(data.action_cards) ? data.action_cards : [],
+
+                    show_problem_banner: data.show_problem_banner !== false,
+                    problem_banner_title: data.problem_banner_title ?? "Found a problem in a course?",
+                    problem_banner_desc: data.problem_banner_desc ?? "Report a mistake, broken link, or wrong date — pick the course and we'll get a ticket.",
+                    problem_banner_action_text: data.problem_banner_action_text ?? "Enroll in a course to report an issue.",
+                    problem_banner_action_url: data.problem_banner_action_url ?? "/courses",
+                    problem_banner_icon: data.problem_banner_icon ?? "fas fa-flag",
+
+                    show_info_box: data.show_info_box !== false,
+                    info_box_title: data.info_box_title ?? "When should you contact us?",
+                    info_box_icon: data.info_box_icon ?? "fas fa-question-circle",
+                    info_box_items: Array.isArray(data.info_box_items) ? data.info_box_items : [],
+
                     form_heading: data.form_heading ?? "Send Us a Message",
                     form_subheading: data.form_subheading ?? "Fill in the form below and our team will get back to you within 24 hours.",
                     lead_source_tag: data.lead_source_tag ?? "contact_page",
                     submit_btn_text: data.submit_btn_text ?? "Submit Inquiry",
                     success_heading: data.success_heading ?? "Message Sent Successfully!",
                     success_message: data.success_message ?? "Thank you for reaching out! A member of the Setu Startup School team will connect with you shortly.",
+
                     email: data.email ?? "info@setustartupschool.com",
                     phone: data.phone ?? "+91 92891 21121",
                     address: data.address ?? "98-103, Aditya Industrial Estate, behind Evershine Mall, Chincholi Bunder, Malad West, Mumbai, Maharashtra 400064",
                     chat_link: data.chat_link ?? "https://chat.whatsapp.com/BJ5RIXujFJG7ceB06nVqa4",
+
                     social_links: Array.isArray(data.social_links) ? data.social_links : [],
-                    show_founder_card: data.show_founder_card !== false,
+                    show_founder_card: data.show_founder_card === true,
                     founder_name: data.founder_name ?? "Gaurav Bansal",
                     founder_title: data.founder_title ?? "Founder & Chief Mentor • Setu Startup School",
                     founder_tag: data.founder_tag ?? "Founder Profile",
                     founder_photo_url: data.founder_photo_url ?? "/gaurav.webp",
                     founder_link: data.founder_link ?? "/gauravbansal",
-                    show_faqs: data.show_faqs !== false,
+                    show_faqs: data.show_faqs === true,
                     faqs: Array.isArray(data.faqs) ? data.faqs : [],
                 });
             }
@@ -198,119 +260,150 @@ export default function AdminContactPageManager() {
         }
     };
 
-    // Social Links Operations
-    const openAddSocial = () => {
-        setEditingSocial(null);
-        setSocialForm({
-            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-            name: "",
-            handle: "",
-            url: "",
-            icon: "fab fa-linkedin-in",
-            color: DEFAULT_SOCIAL_COLORS["LinkedIn"],
-            badge: "Official Channel",
+    // ── Card Operations ────────────────────────────────────────────────────────
+    const openAddCard = () => {
+        setEditingCard(null);
+        setCardForm({
+            id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+            title: "",
+            description: "",
+            button_text: "Open →",
+            button_url: "",
+            action_type: "url",
+            icon: "users",
+            badge: "Support",
             is_active: true,
-            display_order: formData.social_links.length,
+            display_order: formData.action_cards.length,
         });
-        setSocialModalOpen(true);
+        setCardModalOpen(true);
     };
 
-    const openEditSocial = (item: SocialLinkItem) => {
-        setEditingSocial(item);
-        setSocialForm({ ...item });
-        setSocialModalOpen(true);
+    const openEditCard = (card: ActionCardItem) => {
+        setEditingCard(card);
+        setCardForm({ ...card });
+        setCardModalOpen(true);
     };
 
-    const handleSaveSocial = (e: React.FormEvent) => {
+    const handleSaveCard = (e: React.FormEvent) => {
         e.preventDefault();
-        let updated: SocialLinkItem[];
-        if (editingSocial) {
-            updated = formData.social_links.map((s) => (s.id === editingSocial.id ? socialForm : s));
+        let updated: ActionCardItem[];
+        if (editingCard) {
+            updated = formData.action_cards.map((c) => (c.id === editingCard.id ? cardForm : c));
         } else {
-            updated = [...formData.social_links, { ...socialForm, id: socialForm.id || String(Date.now()) }];
+            updated = [...formData.action_cards, { ...cardForm, id: cardForm.id || String(Date.now()) }];
         }
-        setFormData({ ...formData, social_links: updated });
-        setSocialModalOpen(false);
+        setFormData({ ...formData, action_cards: updated });
+        setCardModalOpen(false);
     };
 
-    const handleDeleteSocial = (id: string) => {
-        if (!confirm("Are you sure you want to remove this social link?")) return;
+    const handleDeleteCard = (id: string) => {
+        if (!confirm("Are you sure you want to delete this action card?")) return;
         setFormData({
             ...formData,
-            social_links: formData.social_links.filter((s) => s.id !== id),
+            action_cards: formData.action_cards.filter((c) => c.id !== id),
         });
     };
 
-    const handleToggleSocial = (id: string) => {
+    const handleToggleCard = (id: string) => {
         setFormData({
             ...formData,
-            social_links: formData.social_links.map((s) =>
-                s.id === id ? { ...s, is_active: !s.is_active } : s
+            action_cards: formData.action_cards.map((c) =>
+                c.id === id ? { ...c, is_active: !c.is_active } : c
             ),
         });
     };
 
-    // FAQ Operations
-    const openAddFaq = () => {
-        setEditingFaq(null);
-        setFaqForm({
-            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-            q: "",
-            a: "",
+    const moveCard = (index: number, direction: "up" | "down") => {
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= formData.action_cards.length) return;
+        const newCards = [...formData.action_cards];
+        const temp = newCards[index];
+        newCards[index] = newCards[targetIndex];
+        newCards[targetIndex] = temp;
+        // Update display_order
+        newCards.forEach((c, idx) => {
+            c.display_order = idx;
+        });
+        setFormData({ ...formData, action_cards: newCards });
+    };
+
+    // ── Checklist Operations ───────────────────────────────────────────────────
+    const openAddCheck = () => {
+        setEditingCheck(null);
+        setCheckForm({
+            id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+            text: "",
             is_active: true,
-            display_order: formData.faqs.length,
+            display_order: formData.info_box_items.length,
         });
-        setFaqModalOpen(true);
+        setCheckModalOpen(true);
     };
 
-    const openEditFaq = (item: FaqItem) => {
-        setEditingFaq(item);
-        setFaqForm({ ...item });
-        setFaqModalOpen(true);
+    const openEditCheck = (item: InfoBoxItem) => {
+        setEditingCheck(item);
+        setCheckForm({ ...item });
+        setCheckModalOpen(true);
     };
 
-    const handleSaveFaq = (e: React.FormEvent) => {
+    const handleSaveCheck = (e: React.FormEvent) => {
         e.preventDefault();
-        let updated: FaqItem[];
-        if (editingFaq) {
-            updated = formData.faqs.map((f) => (f.id === editingFaq.id ? faqForm : f));
+        let updated: InfoBoxItem[];
+        if (editingCheck) {
+            updated = formData.info_box_items.map((i) => (i.id === editingCheck.id ? checkForm : i));
         } else {
-            updated = [...formData.faqs, { ...faqForm, id: faqForm.id || String(Date.now()) }];
+            updated = [...formData.info_box_items, { ...checkForm, id: checkForm.id || String(Date.now()) }];
         }
-        setFormData({ ...formData, faqs: updated });
-        setFaqModalOpen(false);
+        setFormData({ ...formData, info_box_items: updated });
+        setCheckModalOpen(false);
     };
 
-    const handleDeleteFaq = (id: string) => {
-        if (!confirm("Delete this FAQ?")) return;
+    const handleDeleteCheck = (id: string) => {
+        if (!confirm("Delete this checklist item?")) return;
         setFormData({
             ...formData,
-            faqs: formData.faqs.filter((f) => f.id !== id),
+            info_box_items: formData.info_box_items.filter((i) => i.id !== id),
         });
     };
 
-    const handleToggleFaq = (id: string) => {
-        setFormData({
-            ...formData,
-            faqs: formData.faqs.map((f) =>
-                f.id === id ? { ...f, is_active: !f.is_active } : f
-            ),
+    const moveCheck = (index: number, direction: "up" | "down") => {
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= formData.info_box_items.length) return;
+        const newItems = [...formData.info_box_items];
+        const temp = newItems[index];
+        newItems[index] = newItems[targetIndex];
+        newItems[targetIndex] = temp;
+        newItems.forEach((item, idx) => {
+            item.display_order = idx;
         });
+        setFormData({ ...formData, info_box_items: newItems });
+    };
+
+    // Render icon helper in admin preview
+    const renderIconBadge = (iconType?: string) => {
+        const key = (iconType || "").toLowerCase();
+        if (key.includes("user") || key.includes("community")) return <Users className="w-5 h-5 text-[#7C3AED]" />;
+        if (key.includes("message") || key.includes("chat") || key.includes("whatsapp")) return <MessageSquare className="w-5 h-5 text-[#7C3AED]" />;
+        if (key.includes("calendar") || key.includes("call") || key.includes("book")) return <Calendar className="w-5 h-5 text-[#7C3AED]" />;
+        if (key.includes("feedback") || key.includes("comment")) return <MessageCircle className="w-5 h-5 text-[#7C3AED]" />;
+        if (key.includes("mail") || key.includes("email")) return <Mail className="w-5 h-5 text-[#7C3AED]" />;
+        if (key.includes("phone") || key.includes("tel")) return <Phone className="w-5 h-5 text-[#7C3AED]" />;
+        return <Sparkles className="w-5 h-5 text-[#7C3AED]" />;
     };
 
     return (
         <div className="space-y-6">
-            {/* Top Bar Header */}
+            
+            {/* ── Top Bar Header ─────────────────────────────────────────────── */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-xs">
                 <div>
                     <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold text-gray-900">Contact Us Page CMS</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">Support &amp; Contact Portal CMS</h1>
                         <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
                             /contact
                         </span>
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
-                        Customize page title, rich text description, lead collection tag, contact details, social channels, and FAQs.
+                        Customize Support Cards, Course Problem Banner, &quot;When to contact us&quot; checklist, and routing channels.
                     </p>
                 </div>
 
@@ -320,23 +413,23 @@ export default function AdminContactPageManager() {
                         target="_blank"
                         className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-xl transition-all flex items-center gap-1.5"
                     >
-                        <i className="fas fa-external-link-alt text-xs"></i>
+                        <ExternalLink className="w-4 h-4 text-gray-500" />
                         <span>Live Preview</span>
                     </Link>
 
                     <button
                         onClick={() => handleSave()}
                         disabled={isSaving}
-                        className="px-6 py-2.5 bg-gradient-to-r from-[#7C3AED] to-[#A855F7] hover:from-[#6D28D9] hover:to-[#9333EA] text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="px-6 py-2.5 bg-gradient-to-r from-[#6B21A8] to-[#7C3AED] hover:from-[#581C87] hover:to-[#6D28D9] text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                         {isSaving ? (
                             <>
-                                <i className="fas fa-spinner fa-spin"></i>
+                                <span className="animate-spin">⏳</span>
                                 <span>Saving...</span>
                             </>
                         ) : (
                             <>
-                                <i className="fas fa-save"></i>
+                                <Save className="w-4 h-4" />
                                 <span>Save All Changes</span>
                             </>
                         )}
@@ -347,72 +440,218 @@ export default function AdminContactPageManager() {
             {/* Notification Alerts */}
             {savedSuccess && (
                 <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-sm font-semibold flex items-center gap-3 shadow-xs animate-in fade-in">
-                    <i className="fas fa-check-circle text-emerald-600 text-lg"></i>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                     <span>Contact page settings successfully saved and published!</span>
                 </div>
             )}
 
             {errorMessage && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 text-sm font-semibold flex items-center gap-3 shadow-xs">
-                    <i className="fas fa-exclamation-triangle text-red-600 text-lg"></i>
+                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
                     <span>{errorMessage}</span>
                 </div>
             )}
 
-            {/* Navigation Tabs */}
+            {/* ── Navigation Tabs ────────────────────────────────────────────── */}
             <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2">
                 {[
-                    { key: "hero", label: "Hero & Description", icon: "fas fa-heading" },
-                    { key: "form", label: "Form & Lead Tag", icon: "fas fa-envelope-open-text" },
-                    { key: "contact", label: "Direct Reach & Address", icon: "fas fa-phone-alt" },
-                    { key: "social", label: "Social & Chat Links", icon: "fas fa-share-alt" },
-                    { key: "founder", label: "Founder Highlight", icon: "fas fa-user-tie" },
-                    { key: "faqs", label: "FAQ Accordion", icon: "fas fa-question-circle" },
-                ].map((tab) => (
-                    <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key as any)}
-                        className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
-                            activeTab === tab.key
-                                ? "bg-accent-blue text-white shadow-sm"
-                                : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
-                        }`}
-                    >
-                        <i className={tab.icon}></i>
-                        <span>{tab.label}</span>
-                    </button>
-                ))}
+                    { key: "cards", label: "Support Action Cards", icon: LayoutGrid },
+                    { key: "header", label: "Header & Navigation", icon: Heading },
+                    { key: "banner", label: "Problem in Course Banner", icon: AlertOctagon },
+                    { key: "checklist", label: "When to Contact Checklist", icon: ListChecks },
+                    { key: "contact", label: "Direct Channels & Tagging", icon: AtSign },
+                ].map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                        <button
+                            key={tab.key}
+                            onClick={() => setActiveTab(tab.key as any)}
+                            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
+                                activeTab === tab.key
+                                    ? "bg-[#6B21A8] text-white shadow-sm"
+                                    : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                            }`}
+                        >
+                            <Icon className="w-4 h-4" />
+                            <span>{tab.label}</span>
+                        </button>
+                    );
+                })}
             </div>
 
             {isLoading ? (
                 <div className="p-12 text-center text-gray-500 bg-white rounded-2xl border border-gray-200">
-                    <i className="fas fa-spinner fa-spin text-2xl mb-2 text-accent-blue"></i>
+                    <span className="animate-spin text-2xl mb-2 inline-block">⏳</span>
                     <p className="font-semibold text-sm">Loading contact page settings...</p>
                 </div>
             ) : (
                 <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-xs">
-                    {/* ── TAB 1: HERO & DESCRIPTION ─────────────────────────────────── */}
-                    {activeTab === "hero" && (
+                    
+                    {/* ── TAB 1: SUPPORT ACTION CARDS ────────────────────────────────── */}
+                    {activeTab === "cards" && (
+                        <div className="space-y-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <h2 className="text-lg font-bold text-gray-900">Support Action Cards</h2>
+                                    <p className="text-xs text-gray-500">
+                                        Manage the 2-column grid cards shown on `/contact` (WhatsApp, Feedback, Bookings, Mail, Call).
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={openAddCard}
+                                    className="px-4 py-2 bg-[#6B21A8] hover:bg-[#581C87] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer self-start"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Add Action Card</span>
+                                </button>
+                            </div>
+
+                            <div className="space-y-3">
+                                {formData.action_cards.length === 0 ? (
+                                    <div className="p-8 text-center bg-gray-50 border border-gray-200 rounded-2xl text-gray-500 text-sm">
+                                        No action cards configured. Click &quot;Add Action Card&quot; to create one.
+                                    </div>
+                                ) : (
+                                    formData.action_cards.map((card, idx) => (
+                                        <div
+                                            key={card.id || idx}
+                                            className={`flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-5 rounded-2xl border transition-all gap-4 ${
+                                                card.is_active ? "bg-white border-gray-200 shadow-2xs" : "bg-gray-50 border-gray-200 opacity-60"
+                                            }`}
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                <div className="w-11 h-11 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0 shadow-2xs">
+                                                    {renderIconBadge(card.icon || card.title)}
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <span className="font-bold text-sm text-gray-900">{card.title}</span>
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                                                            {card.action_type || "url"}
+                                                        </span>
+                                                        {card.badge && (
+                                                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                                                {card.badge}
+                                                            </span>
+                                                        )}
+                                                        {!card.is_active && (
+                                                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                                                                Hidden
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                                        {card.description}
+                                                    </p>
+
+                                                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 pt-1">
+                                                        <span className="font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md">
+                                                            Button: {card.button_text}
+                                                        </span>
+                                                        {card.button_url && (
+                                                            <span className="text-gray-400 truncate max-w-xs">
+                                                                • {card.button_url}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 self-end md:self-center">
+                                                {/* Reorder Buttons */}
+                                                <button
+                                                    onClick={() => moveCard(idx, "up")}
+                                                    disabled={idx === 0}
+                                                    className="p-1.5 text-gray-500 hover:text-gray-900 disabled:opacity-30 rounded-lg hover:bg-gray-100 cursor-pointer"
+                                                    title="Move Up"
+                                                >
+                                                    <ArrowUp className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => moveCard(idx, "down")}
+                                                    disabled={idx === formData.action_cards.length - 1}
+                                                    className="p-1.5 text-gray-500 hover:text-gray-900 disabled:opacity-30 rounded-lg hover:bg-gray-100 cursor-pointer"
+                                                    title="Move Down"
+                                                >
+                                                    <ArrowDown className="w-4 h-4" />
+                                                </button>
+
+                                                {/* Active Toggle */}
+                                                <button
+                                                    onClick={() => handleToggleCard(card.id)}
+                                                    className={`px-3 py-1 text-xs font-bold rounded-lg border cursor-pointer transition-all ${
+                                                        card.is_active
+                                                            ? "text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100"
+                                                            : "text-gray-700 bg-gray-100 border-gray-300 hover:bg-gray-200"
+                                                    }`}
+                                                >
+                                                    {card.is_active ? "Active" : "Hidden"}
+                                                </button>
+
+                                                {/* Edit */}
+                                                <button
+                                                    onClick={() => openEditCard(card)}
+                                                    className="px-3 py-1 text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 cursor-pointer flex items-center gap-1"
+                                                >
+                                                    <Edit3 className="w-3.5 h-3.5" />
+                                                    <span>Edit</span>
+                                                </button>
+
+                                                {/* Delete */}
+                                                <button
+                                                    onClick={() => handleDeleteCard(card.id)}
+                                                    className="p-1.5 text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 cursor-pointer"
+                                                    title="Delete Card"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── TAB 2: HEADER & NAVIGATION ─────────────────────────────────── */}
+                    {activeTab === "header" && (
                         <div className="space-y-6 max-w-4xl">
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900 mb-1">Header & Hero Content</h2>
+                                <h2 className="text-lg font-bold text-gray-900 mb-1">Header &amp; Navigation Settings</h2>
                                 <p className="text-xs text-gray-500">
-                                    Edit the top pill badge, rich text headline, and description shown at the top of the /contact page.
+                                    Configure back button target, page headline with HTML/purple highlights, and subtitle text.
                                 </p>
                             </div>
 
-                            {/* Badge */}
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                    Top Badge Tag
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.badge_text}
-                                    onChange={(e) => setFormData({ ...formData, badge_text: e.target.value })}
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                    placeholder="Get in Touch • We're Here For You"
-                                />
+                            {/* Back Button Settings */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-200">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        Back Button Text
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.back_btn_text}
+                                        onChange={(e) => setFormData({ ...formData, back_btn_text: e.target.value })}
+                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
+                                        placeholder="← Back"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        Back Button Target URL
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.back_btn_link}
+                                        onChange={(e) => setFormData({ ...formData, back_btn_link: e.target.value })}
+                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
+                                        placeholder="/"
+                                    />
+                                </div>
                             </div>
 
                             {/* Title with Rich Text */}
@@ -422,7 +661,7 @@ export default function AdminContactPageManager() {
                                         Page Title (Rich Text Editor)
                                     </label>
                                     <span className="text-[11px] text-gray-400">
-                                        Tip: Highlight words to apply purple gradient or bold emphasis
+                                        Tip: Highlight words to apply purple color: &apos;Support &amp; &lt;span class=&quot;text-[#7C3AED]&quot;&gt;Contact&lt;/span&gt;&apos;
                                     </span>
                                 </div>
                                 <div className="border border-gray-300 rounded-xl overflow-hidden">
@@ -436,179 +675,279 @@ export default function AdminContactPageManager() {
                                 </div>
                             </div>
 
-                            {/* Description with Rich Text */}
-                            <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                        Page Description / Subtitle (Rich Text Editor)
-                                    </label>
-                                </div>
-                                <div className="border border-gray-300 rounded-xl overflow-hidden">
-                                    <ReactQuill
-                                        theme="snow"
-                                        value={formData.description}
-                                        onChange={(val) => setFormData({ ...formData, description: val })}
-                                        modules={quillModules}
-                                        className="bg-white min-h-[140px]"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ── TAB 2: FORM & LEAD COLLECTION ─────────────────────────────── */}
-                    {activeTab === "form" && (
-                        <div className="space-y-6 max-w-4xl">
-                            <div>
-                                <h2 className="text-lg font-bold text-gray-900 mb-1">Form & Lead Tagging Settings</h2>
-                                <p className="text-xs text-gray-500">
-                                    Configure under which lead source/tag inquiries from this page are logged, button texts, and success messages.
-                                </p>
-                            </div>
-
-                            <div className="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl flex items-start gap-3.5">
-                                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
-                                    <i className="fas fa-tag"></i>
-                                </div>
-                                <div className="flex-1">
-                                    <label className="block text-xs font-bold text-purple-900 uppercase tracking-wider mb-1">
-                                        Default Lead Source / Tag for Submissions *
-                                    </label>
-                                    <p className="text-xs text-purple-700 mb-2">
-                                        All inquiries submitted via the Contact Us page form will be recorded in the Admin Leads database tagged under this source.
-                                    </p>
-                                    
-                                    <div className="flex flex-col sm:flex-row gap-3">
-                                        <select
-                                            value={formData.lead_source_tag}
-                                            onChange={(e) => setFormData({ ...formData, lead_source_tag: e.target.value })}
-                                            className="bg-white border border-purple-300 focus:border-purple-600 rounded-xl px-4 py-2.5 text-sm text-gray-900 font-semibold outline-none cursor-pointer flex-1"
-                                        >
-                                            <option value="contact_page">contact_page (Default)</option>
-                                            <option value="website_inquiry">website_inquiry</option>
-                                            <option value="cohort_2026">cohort_2026</option>
-                                            {leadSources.map((ls) => (
-                                                <option key={ls.id} value={ls.id}>
-                                                    {ls.label} ({ls.id})
-                                                </option>
-                                            ))}
-                                        </select>
-
-                                        <input
-                                            type="text"
-                                            value={formData.lead_source_tag}
-                                            onChange={(e) => setFormData({ ...formData, lead_source_tag: e.target.value })}
-                                            placeholder="Or type custom tag slug..."
-                                            className="bg-white border border-purple-300 focus:border-purple-600 rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none flex-1"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        Form Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.form_heading}
-                                        onChange={(e) => setFormData({ ...formData, form_heading: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                        placeholder="Send Us a Message"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        Submit Button Text
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.submit_btn_text}
-                                        onChange={(e) => setFormData({ ...formData, submit_btn_text: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                        placeholder="Submit Inquiry"
-                                    />
-                                </div>
-                            </div>
-
+                            {/* Subtitle */}
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Form Subheading / Instructions
+                                    Page Subtitle / Helper Description
                                 </label>
                                 <input
                                     type="text"
-                                    value={formData.form_subheading}
-                                    onChange={(e) => setFormData({ ...formData, form_subheading: e.target.value })}
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                    placeholder="Fill in the form below and our team will get back to you within 24 hours."
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
+                                    placeholder="Stuck on something? We're one message away."
                                 />
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        Success Heading
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.success_heading}
-                                        onChange={(e) => setFormData({ ...formData, success_heading: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                        placeholder="Message Sent Successfully!"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        Success Message Text
-                                    </label>
-                                    <textarea
-                                        rows={2}
-                                        value={formData.success_message}
-                                        onChange={(e) => setFormData({ ...formData, success_message: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2 text-sm text-gray-900 outline-none resize-none"
-                                        placeholder="Thank you for reaching out! A member of our team will connect shortly."
-                                    />
-                                </div>
                             </div>
                         </div>
                     )}
 
-                    {/* ── TAB 3: DIRECT CONTACT & ADDRESS ───────────────────────────── */}
+                    {/* ── TAB 3: PROBLEM IN COURSE BANNER ────────────────────────────── */}
+                    {activeTab === "banner" && (
+                        <div className="space-y-6 max-w-4xl">
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-900 mb-1">Problem in Course Banner</h2>
+                                <p className="text-xs text-gray-500">
+                                    Manage the highlighted amber banner for reporting mistakes, broken links, or date issues.
+                                </p>
+                            </div>
+
+                            {/* Visibility Toggle */}
+                            <label className="flex items-center gap-3 p-4 bg-amber-50/60 border border-amber-200 rounded-2xl cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.show_problem_banner}
+                                    onChange={(e) => setFormData({ ...formData, show_problem_banner: e.target.checked })}
+                                    className="w-5 h-5 text-[#E86A17] rounded cursor-pointer"
+                                />
+                                <div>
+                                    <span className="font-bold text-sm text-gray-900 block">Show Course Problem Banner</span>
+                                    <span className="text-xs text-gray-500">
+                                        When enabled, an amber banner is shown below the support cards.
+                                    </span>
+                                </div>
+                            </label>
+
+                            {formData.show_problem_banner && (
+                                <div className="space-y-4 pt-2">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                            Banner Title
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.problem_banner_title}
+                                            onChange={(e) => setFormData({ ...formData, problem_banner_title: e.target.value })}
+                                            className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
+                                            placeholder="Found a problem in a course?"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                            Banner Description / Helper Subtext
+                                        </label>
+                                        <textarea
+                                            rows={2}
+                                            value={formData.problem_banner_desc}
+                                            onChange={(e) => setFormData({ ...formData, problem_banner_desc: e.target.value })}
+                                            className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none resize-none"
+                                            placeholder="Report a mistake, broken link, or wrong date — pick the course and we'll get a ticket."
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                                Action Button / Status Text
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.problem_banner_action_text}
+                                                onChange={(e) => setFormData({ ...formData, problem_banner_action_text: e.target.value })}
+                                                className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
+                                                placeholder="Enroll in a course to report an issue."
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                                Action Target URL (Optional)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.problem_banner_action_url}
+                                                onChange={(e) => setFormData({ ...formData, problem_banner_action_url: e.target.value })}
+                                                className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
+                                                placeholder="/courses"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* ── TAB 4: WHEN TO CONTACT CHECKLIST ───────────────────────────── */}
+                    {activeTab === "checklist" && (
+                        <div className="space-y-6 max-w-4xl">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <h2 className="text-lg font-bold text-gray-900">&quot;When should you contact us?&quot; Box</h2>
+                                    <p className="text-xs text-gray-500">
+                                        Configure the scenarios &amp; checklist items displayed in the FAQ / guidelines container.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={openAddCheck}
+                                    className="px-4 py-2 bg-[#6B21A8] hover:bg-[#581C87] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer self-start"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Add Bullet Item</span>
+                                </button>
+                            </div>
+
+                            {/* Visibility Toggle */}
+                            <label className="flex items-center gap-3 p-4 bg-purple-50/50 border border-purple-200 rounded-2xl cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.show_info_box}
+                                    onChange={(e) => setFormData({ ...formData, show_info_box: e.target.checked })}
+                                    className="w-5 h-5 text-[#7C3AED] rounded cursor-pointer"
+                                />
+                                <div>
+                                    <span className="font-bold text-sm text-gray-900 block">Show Checklist Container</span>
+                                    <span className="text-xs text-gray-500">
+                                        When enabled, the &quot;When should you contact us?&quot; container is visible on `/contact`.
+                                    </span>
+                                </div>
+                            </label>
+
+                            {formData.show_info_box && (
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                            Container Headline
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.info_box_title}
+                                            onChange={(e) => setFormData({ ...formData, info_box_title: e.target.value })}
+                                            className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
+                                            placeholder="When should you contact us?"
+                                        />
+                                    </div>
+
+                                    {/* Items List */}
+                                    <div className="space-y-2.5 pt-2">
+                                        {formData.info_box_items.map((item, idx) => (
+                                            <div
+                                                key={item.id || idx}
+                                                className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${
+                                                    item.is_active ? "bg-white border-gray-200 shadow-2xs" : "bg-gray-50 border-gray-200 opacity-60"
+                                                }`}
+                                            >
+                                                <div className="flex items-start gap-3 flex-1 pr-4">
+                                                    <span className="w-2 h-2 rounded-full bg-[#7C3AED] mt-2 shrink-0"></span>
+                                                    <span className="text-xs font-medium text-gray-800 leading-relaxed">
+                                                        {item.text}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    <button
+                                                        onClick={() => moveCheck(idx, "up")}
+                                                        disabled={idx === 0}
+                                                        className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20 cursor-pointer"
+                                                        title="Move Up"
+                                                    >
+                                                        <ArrowUp className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => moveCheck(idx, "down")}
+                                                        disabled={idx === formData.info_box_items.length - 1}
+                                                        className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20 cursor-pointer"
+                                                        title="Move Down"
+                                                    >
+                                                        <ArrowDown className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => openEditCheck(item)}
+                                                        className="px-2.5 py-1 text-xs font-bold text-[#7C3AED] bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 cursor-pointer"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteCheck(item.id)}
+                                                        className="p-1 text-red-500 hover:bg-red-50 rounded-lg cursor-pointer"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* ── TAB 5: DIRECT CHANNELS & LEAD TAGGING ──────────────────────── */}
                     {activeTab === "contact" && (
                         <div className="space-y-6 max-w-4xl">
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900 mb-1">Direct Contact Details</h2>
+                                <h2 className="text-lg font-bold text-gray-900 mb-1">Direct Channels &amp; Lead Source Tag</h2>
                                 <p className="text-xs text-gray-500">
-                                    Update official email, telephone helpline number, address, and live chat/WhatsApp links.
+                                    Configure default fallback emails, phone helplines, WhatsApp links, and lead tagging for CRM sync.
                                 </p>
+                            </div>
+
+                            {/* Lead Source Tag */}
+                            <div className="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl space-y-2">
+                                <label className="block text-xs font-bold text-purple-900 uppercase tracking-wider">
+                                    Default Lead Source / Tag for Inquiries
+                                </label>
+                                <p className="text-xs text-purple-700">
+                                    All inquiries sent via the Contact page modals will be logged into Admin Leads tagged under this source.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                                    <select
+                                        value={formData.lead_source_tag}
+                                        onChange={(e) => setFormData({ ...formData, lead_source_tag: e.target.value })}
+                                        className="bg-white border border-purple-300 focus:border-purple-600 rounded-xl px-4 py-2.5 text-sm text-gray-900 font-semibold outline-none cursor-pointer flex-1"
+                                    >
+                                        <option value="contact_page">contact_page (Default)</option>
+                                        <option value="contact_support">contact_support</option>
+                                        <option value="website_inquiry">website_inquiry</option>
+                                        {leadSources.map((ls) => (
+                                            <option key={ls.id} value={ls.id}>
+                                                {ls.label} ({ls.id})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        type="text"
+                                        value={formData.lead_source_tag}
+                                        onChange={(e) => setFormData({ ...formData, lead_source_tag: e.target.value })}
+                                        placeholder="Or type custom tag slug..."
+                                        className="bg-white border border-purple-300 focus:border-purple-600 rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none flex-1"
+                                    />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        <i className="fas fa-envelope text-accent-blue mr-1"></i> Official Email
+                                        Official Support Email
                                     </label>
                                     <input
                                         type="email"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-medium"
+                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-medium"
                                         placeholder="info@setustartupschool.com"
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        <i className="fas fa-phone text-emerald-600 mr-1"></i> Phone / WhatsApp Helpline
+                                        Helpline / Call Number
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.phone}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                        className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-medium"
+                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-medium"
                                         placeholder="+91 92891 21121"
                                     />
                                 </div>
@@ -616,517 +955,231 @@ export default function AdminContactPageManager() {
 
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    <i className="fas fa-map-marker-alt text-red-500 mr-1"></i> Campus &amp; Office Address
-                                </label>
-                                <textarea
-                                    rows={3}
-                                    value={formData.address}
-                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-medium resize-none"
-                                    placeholder="Enter physical address of office / hub..."
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    <i className="fab fa-whatsapp text-emerald-500 mr-1"></i> Quick Chat / WhatsApp Group Link
+                                    Official WhatsApp Community / Group Link
                                 </label>
                                 <input
                                     type="url"
                                     value={formData.chat_link}
                                     onChange={(e) => setFormData({ ...formData, chat_link: e.target.value })}
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
+                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
                                     placeholder="https://chat.whatsapp.com/..."
                                 />
                             </div>
                         </div>
                     )}
 
-                    {/* ── TAB 4: SOCIAL & CHAT LINKS ────────────────────────────────── */}
-                    {activeTab === "social" && (
-                        <div className="space-y-6 max-w-4xl">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div>
-                                    <h2 className="text-lg font-bold text-gray-900">Official Social &amp; Chat Channels</h2>
-                                    <p className="text-xs text-gray-500">
-                                        Manage social links shown on the contact page, their badges, handles, and icons.
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={openAddSocial}
-                                    className="px-4 py-2 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer self-start"
-                                >
-                                    <i className="fas fa-plus"></i>
-                                    <span>Add Social Channel</span>
-                                </button>
-                            </div>
-
-                            <div className="space-y-3">
-                                {formData.social_links.length === 0 ? (
-                                    <div className="p-8 text-center bg-gray-50 border border-gray-200 rounded-2xl text-gray-500 text-sm">
-                                        No social links configured. Click &quot;Add Social Channel&quot; above to add one.
-                                    </div>
-                                ) : (
-                                    formData.social_links.map((s) => (
-                                        <div
-                                            key={s.id}
-                                            className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
-                                                s.is_active ? "bg-white border-gray-200 shadow-2xs" : "bg-gray-50 border-gray-200 opacity-60"
-                                            }`}
-                                        >
-                                            <div className="flex items-center gap-3.5">
-                                                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center text-lg shrink-0">
-                                                    <i className={s.icon || "fas fa-link"}></i>
-                                                </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-bold text-sm text-gray-900">{s.name}</span>
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-                                                            {s.badge}
-                                                        </span>
-                                                        {!s.is_active && (
-                                                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
-                                                                Hidden
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                                                        <span>{s.handle}</span>
-                                                        <span>•</span>
-                                                        <a
-                                                            href={s.url}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-accent-blue hover:underline truncate max-w-xs"
-                                                        >
-                                                            {s.url}
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => handleToggleSocial(s.id)}
-                                                    className={`px-3 py-1 text-xs font-bold rounded-lg border cursor-pointer transition-all ${
-                                                        s.is_active
-                                                            ? "text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100"
-                                                            : "text-gray-700 bg-gray-100 border-gray-300 hover:bg-gray-200"
-                                                    }`}
-                                                >
-                                                    {s.is_active ? "Active" : "Hidden"}
-                                                </button>
-                                                <button
-                                                    onClick={() => openEditSocial(s)}
-                                                    className="px-3 py-1 text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 cursor-pointer"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteSocial(s.id)}
-                                                    className="px-3 py-1 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 cursor-pointer"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ── TAB 5: FOUNDER HIGHLIGHT CARD ─────────────────────────────── */}
-                    {activeTab === "founder" && (
-                        <div className="space-y-6 max-w-4xl">
-                            <div>
-                                <h2 className="text-lg font-bold text-gray-900 mb-1">Founder Highlight Card</h2>
-                                <p className="text-xs text-gray-500">
-                                    Configure the quick direct connect card displayed on the contact page linking to Gaurav Bansal&apos;s profile.
-                                </p>
-                            </div>
-
-                            <label className="flex items-center gap-3 p-4 bg-purple-50/50 border border-purple-200 rounded-2xl cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.show_founder_card}
-                                    onChange={(e) => setFormData({ ...formData, show_founder_card: e.target.checked })}
-                                    className="w-5 h-5 text-accent-blue rounded cursor-pointer"
-                                />
-                                <div>
-                                    <span className="font-bold text-sm text-gray-900 block">Show Founder Highlight Card</span>
-                                    <span className="text-xs text-gray-500">
-                                        When checked, a sleek card linking to the mentor profile is displayed on /contact.
-                                    </span>
-                                </div>
-                            </label>
-
-                            {formData.show_founder_card && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                            Founder / Mentor Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.founder_name}
-                                            onChange={(e) => setFormData({ ...formData, founder_name: e.target.value })}
-                                            className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                            placeholder="Gaurav Bansal"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                            Title / Subtext
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.founder_title}
-                                            onChange={(e) => setFormData({ ...formData, founder_title: e.target.value })}
-                                            className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                            placeholder="Founder & Chief Mentor • Setu Startup School"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                            Card Tag Badge
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.founder_tag}
-                                            onChange={(e) => setFormData({ ...formData, founder_tag: e.target.value })}
-                                            className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                            placeholder="Founder Profile"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                            Target Profile Link
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.founder_link}
-                                            onChange={(e) => setFormData({ ...formData, founder_link: e.target.value })}
-                                            className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                            placeholder="/gauravbansal"
-                                        />
-                                    </div>
-
-                                    <div className="sm:col-span-2">
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                            Photo URL
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.founder_photo_url}
-                                            onChange={(e) => setFormData({ ...formData, founder_photo_url: e.target.value })}
-                                            className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none"
-                                            placeholder="/gaurav.webp"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* ── TAB 6: FAQ ACCORDION ───────────────────────────────────────── */}
-                    {activeTab === "faqs" && (
-                        <div className="space-y-6 max-w-4xl">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div>
-                                    <h2 className="text-lg font-bold text-gray-900">Frequently Asked Questions</h2>
-                                    <p className="text-xs text-gray-500">
-                                        Manage questions and answers displayed in the accordion at the bottom of the contact page.
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={openAddFaq}
-                                    className="px-4 py-2 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer self-start"
-                                >
-                                    <i className="fas fa-plus"></i>
-                                    <span>Add Question &amp; Answer</span>
-                                </button>
-                            </div>
-
-                            <label className="flex items-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-2xl cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.show_faqs}
-                                    onChange={(e) => setFormData({ ...formData, show_faqs: e.target.checked })}
-                                    className="w-5 h-5 text-accent-blue rounded cursor-pointer"
-                                />
-                                <div>
-                                    <span className="font-bold text-sm text-gray-900 block">Show FAQ Accordion Section</span>
-                                    <span className="text-xs text-gray-500">
-                                        Toggle whether the FAQ block appears on the live /contact page.
-                                    </span>
-                                </div>
-                            </label>
-
-                            <div className="space-y-3">
-                                {formData.faqs.length === 0 ? (
-                                    <div className="p-8 text-center bg-gray-50 border border-gray-200 rounded-2xl text-gray-500 text-sm">
-                                        No FAQs added yet. Click &quot;Add Question &amp; Answer&quot; to create one.
-                                    </div>
-                                ) : (
-                                    formData.faqs.map((faq, idx) => (
-                                        <div
-                                            key={faq.id || idx}
-                                            className={`p-4 rounded-2xl border transition-all ${
-                                                faq.is_active ? "bg-white border-gray-200 shadow-2xs" : "bg-gray-50 border-gray-200 opacity-60"
-                                            }`}
-                                        >
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="space-y-1 flex-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-700">
-                                                            Q{idx + 1}
-                                                        </span>
-                                                        <h4 className="font-bold text-sm text-gray-900">{faq.q}</h4>
-                                                        {!faq.is_active && (
-                                                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
-                                                                Hidden
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-xs text-gray-600 leading-relaxed pl-8">{faq.a}</p>
-                                                </div>
-
-                                                <div className="flex items-center gap-2 shrink-0">
-                                                    <button
-                                                        onClick={() => handleToggleFaq(faq.id)}
-                                                        className={`px-3 py-1 text-xs font-bold rounded-lg border cursor-pointer transition-all ${
-                                                            faq.is_active
-                                                                ? "text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100"
-                                                                : "text-gray-700 bg-gray-100 border-gray-300 hover:bg-gray-200"
-                                                        }`}
-                                                    >
-                                                        {faq.is_active ? "Active" : "Hidden"}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => openEditFaq(faq)}
-                                                        className="px-3 py-1 text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 cursor-pointer"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDeleteFaq(faq.id)}
-                                                        className="px-3 py-1 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 cursor-pointer"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    )}
                 </div>
             )}
 
-            {/* ── MODAL: Social Link ─────────────────────────────────────────── */}
-            {socialModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-lg p-6 sm:p-7 animate-in fade-in zoom-in-95">
-                        <div className="flex items-center justify-between mb-5">
+            {/* ── CARD EDIT MODAL ────────────────────────────────────────────── */}
+            {cardModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-lg w-full p-6 sm:p-8 space-y-5">
+                        <div className="flex items-center justify-between">
                             <h3 className="text-lg font-bold text-gray-900">
-                                {editingSocial ? "Edit Social Channel" : "Add Social Channel"}
+                                {editingCard ? "Edit Support Action Card" : "Add New Support Action Card"}
                             </h3>
                             <button
-                                onClick={() => setSocialModalOpen(false)}
+                                onClick={() => setCardModalOpen(false)}
                                 className="text-gray-400 hover:text-gray-600 text-lg cursor-pointer"
                             >
-                                <i className="fas fa-times"></i>
+                                ✕
                             </button>
                         </div>
 
-                        <form onSubmit={handleSaveSocial} className="space-y-4">
+                        <form onSubmit={handleSaveCard} className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Platform Name *
+                                    Card Title <span className="text-red-500">*</span>
                                 </label>
                                 <input
-                                    required
                                     type="text"
-                                    value={socialForm.name}
-                                    onChange={(e) => {
-                                        const name = e.target.value;
-                                        setSocialForm({
-                                            ...socialForm,
-                                            name,
-                                            color: DEFAULT_SOCIAL_COLORS[name] || socialForm.color || "text-slate-900 bg-slate-100 border-slate-200",
-                                        });
-                                    }}
-                                    placeholder="e.g. LinkedIn, Instagram, WhatsApp Community, Telegram"
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2 text-sm text-gray-900 outline-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Account Handle / Subtitle *
-                                </label>
-                                <input
                                     required
-                                    type="text"
-                                    value={socialForm.handle}
-                                    onChange={(e) => setSocialForm({ ...socialForm, handle: e.target.value })}
-                                    placeholder="e.g. @the__startup__school or Join Founder Group"
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2 text-sm text-gray-900 outline-none"
+                                    value={cardForm.title}
+                                    onChange={(e) => setCardForm({ ...cardForm, title: e.target.value })}
+                                    placeholder="e.g. WhatsApp community"
+                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-sm text-gray-900 outline-none font-medium"
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Target URL *
-                                </label>
-                                <input
-                                    required
-                                    type="url"
-                                    value={socialForm.url}
-                                    onChange={(e) => setSocialForm({ ...socialForm, url: e.target.value })}
-                                    placeholder="https://..."
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2 text-sm text-gray-900 outline-none"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        FontAwesome Icon Class
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={socialForm.icon}
-                                        onChange={(e) => setSocialForm({ ...socialForm, icon: e.target.value })}
-                                        placeholder="fab fa-linkedin-in"
-                                        className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2 text-sm text-gray-900 outline-none"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                        Badge Label
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={socialForm.badge}
-                                        onChange={(e) => setSocialForm({ ...socialForm, badge: e.target.value })}
-                                        placeholder="e.g. Professional Network"
-                                        className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2 text-sm text-gray-900 outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            <label className="flex items-center gap-2 pt-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={socialForm.is_active}
-                                    onChange={(e) => setSocialForm({ ...socialForm, is_active: e.target.checked })}
-                                    className="w-4 h-4 text-accent-blue rounded cursor-pointer"
-                                />
-                                <span className="text-xs font-bold text-gray-700">Active (Visible on public page)</span>
-                            </label>
-
-                            <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
-                                <button
-                                    type="button"
-                                    onClick={() => setSocialModalOpen(false)}
-                                    className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-5 py-2 bg-gradient-to-r from-[#7C3AED] to-[#A855F7] text-white font-bold text-sm rounded-xl shadow-sm cursor-pointer hover:opacity-90"
-                                >
-                                    Save Channel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* ── MODAL: FAQ Item ───────────────────────────────────────────── */}
-            {faqModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-lg p-6 sm:p-7 animate-in fade-in zoom-in-95">
-                        <div className="flex items-center justify-between mb-5">
-                            <h3 className="text-lg font-bold text-gray-900">
-                                {editingFaq ? "Edit FAQ" : "Add FAQ Question & Answer"}
-                            </h3>
-                            <button
-                                onClick={() => setFaqModalOpen(false)}
-                                className="text-gray-400 hover:text-gray-600 text-lg cursor-pointer"
-                            >
-                                <i className="fas fa-times"></i>
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSaveFaq} className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Question *
-                                </label>
-                                <input
-                                    required
-                                    type="text"
-                                    value={faqForm.q}
-                                    onChange={(e) => setFaqForm({ ...faqForm, q: e.target.value })}
-                                    placeholder="e.g. Who is Setu Startup School for?"
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2 text-sm text-gray-900 outline-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Answer *
+                                    Card Description <span className="text-red-500">*</span>
                                 </label>
                                 <textarea
+                                    rows={2}
                                     required
-                                    rows={4}
-                                    value={faqForm.a}
-                                    onChange={(e) => setFaqForm({ ...faqForm, a: e.target.value })}
-                                    placeholder="Enter clear, comprehensive response..."
-                                    className="w-full bg-white border border-gray-300 focus:border-accent-blue rounded-xl px-4 py-2 text-sm text-gray-900 outline-none resize-none"
+                                    value={cardForm.description}
+                                    onChange={(e) => setCardForm({ ...cardForm, description: e.target.value })}
+                                    placeholder="e.g. Ask questions and meet other founders."
+                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-sm text-gray-900 outline-none resize-none"
                                 />
                             </div>
 
-                            <label className="flex items-center gap-2 pt-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={faqForm.is_active}
-                                    onChange={(e) => setFaqForm({ ...faqForm, is_active: e.target.checked })}
-                                    className="w-4 h-4 text-accent-blue rounded cursor-pointer"
-                                />
-                                <span className="text-xs font-bold text-gray-700">Active (Visible in accordion)</span>
-                            </label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        Button Text <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={cardForm.button_text}
+                                        onChange={(e) => setCardForm({ ...cardForm, button_text: e.target.value })}
+                                        placeholder="Open community →"
+                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-sm text-gray-900 outline-none font-medium"
+                                    />
+                                </div>
 
-                            <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        Action Type
+                                    </label>
+                                    <select
+                                        value={cardForm.action_type || "url"}
+                                        onChange={(e) => setCardForm({ ...cardForm, action_type: e.target.value as any })}
+                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3 py-2 text-sm text-gray-900 outline-none cursor-pointer"
+                                    >
+                                        <option value="whatsapp">WhatsApp Link</option>
+                                        <option value="url">External / Custom URL</option>
+                                        <option value="feedback_modal">Open Feedback Modal</option>
+                                        <option value="inquiry_modal">Open Email Inquiry Modal</option>
+                                        <option value="email">Direct mailto: link</option>
+                                        <option value="phone">Direct tel: call</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Target Link / URL / Phone
+                                </label>
+                                <input
+                                    type="text"
+                                    value={cardForm.button_url || ""}
+                                    onChange={(e) => setCardForm({ ...cardForm, button_url: e.target.value })}
+                                    placeholder="https://chat.whatsapp.com/... or tel:+91... or leave blank for modal"
+                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-sm text-gray-900 outline-none"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        Icon
+                                    </label>
+                                    <select
+                                        value={cardForm.icon || "users"}
+                                        onChange={(e) => setCardForm({ ...cardForm, icon: e.target.value })}
+                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3 py-2 text-sm text-gray-900 outline-none cursor-pointer"
+                                    >
+                                        <option value="users">Users / Community</option>
+                                        <option value="message">Message / Chat</option>
+                                        <option value="calendar">Calendar / Call Booking</option>
+                                        <option value="feedback">Feedback / Star</option>
+                                        <option value="mail">Mail / Email</option>
+                                        <option value="phone">Phone / Call</option>
+                                        <option value="sparkles">Sparkles / General</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        Badge Label (Optional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={cardForm.badge || ""}
+                                        onChange={(e) => setCardForm({ ...cardForm, badge: e.target.value })}
+                                        placeholder="e.g. Community, Mentorship"
+                                        className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-sm text-gray-900 outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 pt-2">
+                                <label className="flex items-center gap-2 text-xs font-semibold text-gray-800 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={cardForm.is_active}
+                                        onChange={(e) => setCardForm({ ...cardForm, is_active: e.target.checked })}
+                                        className="w-4 h-4 text-[#7C3AED] rounded cursor-pointer"
+                                    />
+                                    <span>Card is active (visible on page)</span>
+                                </label>
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-100">
                                 <button
                                     type="button"
-                                    onClick={() => setFaqModalOpen(false)}
-                                    className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer"
+                                    onClick={() => setCardModalOpen(false)}
+                                    className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-all cursor-pointer"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-5 py-2 bg-gradient-to-r from-[#7C3AED] to-[#A855F7] text-white font-bold text-sm rounded-xl shadow-sm cursor-pointer hover:opacity-90"
+                                    className="px-5 py-2 text-xs font-bold text-white bg-[#6B21A8] hover:bg-[#581C87] rounded-xl shadow-xs transition-all cursor-pointer"
                                 >
-                                    Save FAQ
+                                    Save Card
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
+            {/* ── CHECKLIST ITEM EDIT MODAL ──────────────────────────────────── */}
+            {checkModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-md w-full p-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-base font-bold text-gray-900">
+                                {editingCheck ? "Edit Checklist Item" : "Add Checklist Item"}
+                            </h3>
+                            <button
+                                onClick={() => setCheckModalOpen(false)}
+                                className="text-gray-400 hover:text-gray-600 text-lg cursor-pointer"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSaveCheck} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Bullet Scenario / Condition Text <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    required
+                                    value={checkForm.text}
+                                    onChange={(e) => setCheckForm({ ...checkForm, text: e.target.value })}
+                                    placeholder="e.g. You can't access a course you paid for, or a lesson won't load."
+                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-xs text-gray-900 outline-none resize-none"
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setCheckModalOpen(false)}
+                                    className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-all cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-5 py-2 text-xs font-bold text-white bg-[#6B21A8] hover:bg-[#581C87] rounded-xl shadow-xs transition-all cursor-pointer"
+                                >
+                                    Save Item
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }

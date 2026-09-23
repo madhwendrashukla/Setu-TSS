@@ -215,7 +215,7 @@ export default function ContactPage() {
             {/* Ambient Background Elements matching Tools page */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-violet/5 rounded-full blur-[120px] pointer-events-none -z-10" />
 
-            <div className="text-center px-4 sm:px-6 relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">
+            <div className="text-center px-4 sm:px-6 relative z-10 w-full max-w-5xl mx-auto">
                 
                 {/* ── 1. Top Navigation & Centered Header ────────────────────── */}
                 <div className="w-full flex justify-start mb-6">
@@ -230,14 +230,14 @@ export default function ContactPage() {
 
                 {/* Main Headline (Rich Text Enabled) */}
                 <h1 
-                    className="text-4xl md:text-6xl font-black text-black mb-4 tracking-tight text-center leading-tight [&_p]:m-0"
-                    dangerouslySetInnerHTML={{ __html: pageContent.title || 'Connect with <span style="color: #7C3AED;">Setu Startup School</span>' }}
+                    className="text-4xl md:text-6xl font-black text-black mb-6 tracking-tight text-center leading-tight [&_p]:inline [&_p]:m-0"
+                    dangerouslySetInnerHTML={{ __html: (pageContent.title || 'Connect with <span style="color: #7C3AED;">Setu Startup School</span>').replace(/&nbsp;/g, ' ') }}
                 />
 
                 {/* Subtitle / Tagline (Rich Text Enabled) */}
                 <div 
-                    className="text-base sm:text-lg md:text-xl text-text-secondary font-medium max-w-2xl mx-auto mb-14 text-center leading-relaxed [&_p]:m-0"
-                    dangerouslySetInnerHTML={{ __html: pageContent.description || '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>' }}
+                    className="text-base sm:text-lg md:text-xl text-text-secondary font-medium max-w-2xl mx-auto mb-16 text-center leading-relaxed [&_p]:inline [&_p]:m-0"
+                    dangerouslySetInnerHTML={{ __html: (pageContent.description || '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>').replace(/&nbsp;/g, ' ') }}
                 />
 
                 {/* ── 2. Action Cards Grid (2-Column) ─────────────────────────── */}

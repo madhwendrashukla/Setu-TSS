@@ -9,7 +9,6 @@ import {
     MessageCircle, 
     Mail, 
     Phone, 
-    Flag, 
     HelpCircle, 
     ArrowRight, 
     ArrowLeft, 
@@ -49,12 +48,6 @@ interface ContactPageData {
     back_btn_text: string;
     back_btn_link: string;
     action_cards: ActionCard[];
-    show_problem_banner: boolean;
-    problem_banner_title: string;
-    problem_banner_desc: string;
-    problem_banner_action_text: string;
-    problem_banner_action_url: string;
-    problem_banner_icon: string;
     show_info_box: boolean;
     info_box_title: string;
     info_box_icon: string;
@@ -65,19 +58,10 @@ interface ContactPageData {
     lead_source_tag: string;
 }
 
-function cleanHtml(raw?: string): string {
-    if (!raw) return '';
-    return raw
-        .replace(/<[^>]*>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
 const DEFAULT_CONTENT: ContactPageData = {
     badge_text: "Get in Touch • We're Here For You",
-    title: 'Support & <span class="text-[#7C3AED]">Contact</span>',
-    description: 'Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.',
+    title: 'Connect with <span class="text-accent-violet">Setu Startup School.</span>',
+    description: '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>',
     back_btn_text: '← Back',
     back_btn_link: '/',
     action_cards: [
@@ -154,12 +138,6 @@ const DEFAULT_CONTENT: ContactPageData = {
             is_active: true,
         },
     ],
-    show_problem_banner: false,
-    problem_banner_title: 'Need Custom Mentorship for your Startup?',
-    problem_banner_desc: 'Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.',
-    problem_banner_action_text: 'Explore Programs',
-    problem_banner_action_url: '/events',
-    problem_banner_icon: 'fas fa-rocket',
     show_info_box: true,
     info_box_title: 'How we can help you',
     info_box_icon: 'fas fa-question-circle',
@@ -210,23 +188,16 @@ export default function ContactPage() {
             .then((res) => (res.ok ? res.json() : null))
             .then((data) => {
                 if (data && typeof data === 'object') {
-                    const cleanedDesc = cleanHtml(data.description) || DEFAULT_CONTENT.description;
                     setPageContent((prev) => ({
                         ...prev,
                         badge_text: data.badge_text ?? prev.badge_text,
-                        title: data.title ?? prev.title,
-                        description: cleanedDesc,
+                        title: data.title || prev.title,
+                        description: data.description || prev.description,
                         back_btn_text: data.back_btn_text ?? prev.back_btn_text,
                         back_btn_link: data.back_btn_link ?? prev.back_btn_link,
                         action_cards: Array.isArray(data.action_cards) && data.action_cards.length > 0 
                             ? data.action_cards 
                             : prev.action_cards,
-                        show_problem_banner: data.show_problem_banner === true,
-                        problem_banner_title: data.problem_banner_title ?? prev.problem_banner_title,
-                        problem_banner_desc: data.problem_banner_desc ?? prev.problem_banner_desc,
-                        problem_banner_action_text: data.problem_banner_action_text ?? prev.problem_banner_action_text,
-                        problem_banner_action_url: data.problem_banner_action_url ?? prev.problem_banner_action_url,
-                        problem_banner_icon: data.problem_banner_icon ?? prev.problem_banner_icon,
                         show_info_box: data.show_info_box !== false,
                         info_box_title: data.info_box_title ?? prev.info_box_title,
                         info_box_icon: data.info_box_icon ?? prev.info_box_icon,
@@ -416,71 +387,63 @@ export default function ContactPage() {
     const activeInfoItems = (pageContent.info_box_items || []).filter((i) => i.is_active !== false);
 
     return (
-        <div className="min-h-screen bg-[#F8F9FD] text-gray-900 pt-28 sm:pt-32 md:pt-36 pb-24 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+        <div className="pt-32 pb-24 min-h-screen bg-bg-main relative overflow-hidden flex items-center justify-center">
             
-            {/* Ambient Background Glow */}
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-purple-200/20 blur-[140px] pointer-events-none -z-10" />
+            {/* Ambient Background Elements matching Tools page */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-violet/5 rounded-full blur-[120px] pointer-events-none -z-10" />
 
-            <div className="w-full max-w-5xl mx-auto space-y-8">
+            <div className="text-center px-4 sm:px-6 relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">
                 
-                {/* ── 1. Top Navigation & Header ─────────────────────────────── */}
-                <div className="space-y-3.5 text-left">
-                    {/* Back Link */}
-                    <div>
-                        <Link
-                            href={pageContent.back_btn_link || '/'}
-                            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors group cursor-pointer"
-                        >
-                            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-                            <span>{pageContent.back_btn_text?.replace('←', '').trim() || 'Back'}</span>
-                        </Link>
-                    </div>
-
-                    {/* Page Headline with Icon */}
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-[#7C3AED] shadow-2xs shrink-0">
-                            {/* Hexagon/Support Icon */}
-                            <svg className="w-5 h-5 text-[#7C3AED]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <circle cx="12" cy="12" r="4" />
-                                <line x1="4.93" y1="4.93" x2="9.17" y2="9.17" />
-                                <line x1="14.83" y1="14.83" x2="19.07" y2="19.07" />
-                                <line x1="14.83" y1="9.17" x2="19.07" y2="4.93" />
-                                <line x1="4.93" y1="19.07" x2="9.17" y2="14.83" />
-                            </svg>
-                        </div>
-                        <h1 
-                            className="text-3xl sm:text-4xl md:text-4xl font-extrabold text-gray-900 tracking-tight [&_span]:text-[#7C3AED]"
-                            dangerouslySetInnerHTML={{ __html: pageContent.title || 'Support & <span class="text-[#7C3AED]">Contact</span>' }}
-                        />
-                    </div>
-
-                    {/* Clean Subtitle without HTML entities */}
-                    <p className="text-base text-gray-600 font-normal leading-relaxed max-w-3xl">
-                        {pageContent.description || 'Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.'}
-                    </p>
+                {/* ── 1. Top Navigation & Centered Header ────────────────────── */}
+                <div className="w-full flex justify-start mb-6">
+                    <Link
+                        href={pageContent.back_btn_link || '/'}
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-black transition-colors group cursor-pointer"
+                    >
+                        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                        <span>{pageContent.back_btn_text?.replace('←', '').trim() || 'Back'}</span>
+                    </Link>
                 </div>
 
+                {/* Main Headline (Rich Text Enabled) */}
+                <h1 
+                    className="text-4xl md:text-6xl font-black text-black mb-4 tracking-tight text-center leading-tight [&_p]:m-0"
+                    dangerouslySetInnerHTML={{ __html: pageContent.title || 'Connect with <span class="text-accent-violet">Setu Startup School.</span>' }}
+                />
+
+                {/* Subtitle / Tagline (Rich Text Enabled) */}
+                <div 
+                    className="text-base sm:text-lg md:text-xl text-text-secondary font-medium max-w-2xl mx-auto mb-14 text-center leading-relaxed [&_p]:m-0"
+                    dangerouslySetInnerHTML={{ __html: pageContent.description || '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>' }}
+                />
+
                 {/* ── 2. Action Cards Grid (2-Column) ─────────────────────────── */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left relative z-10 w-full mb-8">
                     {activeCards.map((card) => (
                         <div
                             key={card.id || card.title}
-                            className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_30px_rgba(124,58,237,0.08)] hover:border-purple-100 transition-all duration-300 p-6 sm:p-7 flex flex-col justify-between group"
+                            className="bg-white p-8 md:p-9 rounded-3xl border border-black/5 relative overflow-hidden flex flex-col items-start justify-between gap-4 hover:border-accent-violet/30 hover:shadow-[0_8px_30px_rgba(124,58,237,0.08)] group transition-all duration-200"
                         >
-                            <div>
-                                {/* Icon container in soft lavender squircle */}
-                                <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-200 shadow-2xs">
-                                    {renderCardIcon(card.icon || card.title)}
+                            <div className="w-full">
+                                {card.badge && (
+                                    <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest inline-block bg-accent-violet/10 text-accent-violet mb-4">
+                                        {card.badge}
+                                    </span>
+                                )}
+
+                                <div className="flex items-start gap-4 mb-2">
+                                    <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#7C3AED] border border-purple-100/60 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200 shadow-2xs">
+                                        {renderCardIcon(card.icon || card.title)}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl md:text-2xl font-bold text-black tracking-tight mb-1">
+                                            {card.title}
+                                        </h3>
+                                        <div className="w-8 h-0.5 bg-accent-violet/30 mb-2"></div>
+                                    </div>
                                 </div>
 
-                                {/* Title */}
-                                <h3 className="text-lg font-bold text-gray-900 tracking-tight mb-1.5">
-                                    {card.title}
-                                </h3>
-
-                                {/* Description */}
-                                <p className="text-sm text-gray-500 font-normal mb-6 leading-relaxed">
+                                <p className="text-text-secondary leading-relaxed text-sm mb-6 max-w-sm">
                                     {card.description}
                                 </p>
                             </div>
@@ -489,7 +452,7 @@ export default function ContactPage() {
                             <div>
                                 <button
                                     onClick={() => handleCardAction(card)}
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#7C3AED] hover:bg-[#5A1EEB] text-white text-sm font-bold shadow-md hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#7C3AED] hover:bg-[#5A1EEB] text-white text-sm font-bold shadow-md hover:shadow-[0_8px_20px_rgba(124,58,237,0.25)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                                 >
                                     <span>{card.button_text || 'Open →'}</span>
                                 </button>
@@ -498,50 +461,23 @@ export default function ContactPage() {
                     ))}
                 </div>
 
-                {/* ── 3. Banner (Optional) ────────────────────────────────────── */}
-                {pageContent.show_problem_banner && (
-                    <div className="bg-[#FFF9F2] border border-[#FDE6CA] rounded-2xl p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs">
-                        <div className="flex items-start sm:items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#FFEBD4] text-[#E86A17] flex items-center justify-center shrink-0 shadow-2xs">
-                                <Flag className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                                    {pageContent.problem_banner_title}
-                                </h3>
-                                <p className="text-sm text-gray-600 mt-0.5">
-                                    {pageContent.problem_banner_desc}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="self-start md:self-center shrink-0">
-                            {pageContent.problem_banner_action_url && (
-                                <Link
-                                    href={pageContent.problem_banner_action_url}
-                                    className="text-xs sm:text-sm font-bold text-[#7C3AED] hover:text-[#5A1EEB] bg-white border border-purple-200 px-4 py-2 rounded-full shadow-2xs inline-block transition-all"
-                                >
-                                    {pageContent.problem_banner_action_text || 'Explore'}
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* ── 4. "How we can help you" Info Box ───────────────────────── */}
+                {/* ── 3. "How we can help you" Info Box ───────────────────────── */}
                 {pageContent.show_info_box && (
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-6 sm:p-8 space-y-4">
-                        <div className="flex items-center gap-2.5">
-                            <HelpCircle className="w-5 h-5 text-[#7C3AED]" />
-                            <h2 className="text-lg font-bold text-gray-900 tracking-tight">
+                    <div className="bg-white p-8 md:p-10 rounded-3xl border border-black/5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] w-full text-left space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-2xl bg-purple-50 text-[#7C3AED] flex items-center justify-center">
+                                <HelpCircle className="w-5 h-5" />
+                            </div>
+                            <h2 className="text-xl md:text-2xl font-bold text-black tracking-tight">
                                 {pageContent.info_box_title || 'How we can help you'}
                             </h2>
                         </div>
+                        <div className="w-10 h-0.5 bg-accent-violet/30 mb-3"></div>
 
-                        <ul className="space-y-3 pl-1">
+                        <ul className="space-y-3 pt-1">
                             {activeInfoItems.map((item) => (
-                                <li key={item.id} className="flex items-start gap-3 text-sm text-gray-600 leading-relaxed font-normal">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] mt-2 shrink-0"></span>
+                                <li key={item.id} className="flex items-start gap-3 text-sm text-text-secondary leading-relaxed font-medium">
+                                    <span className="w-2 h-2 rounded-full bg-[#7C3AED] mt-2 shrink-0"></span>
                                     <span>{item.text}</span>
                                 </li>
                             ))}
@@ -551,7 +487,7 @@ export default function ContactPage() {
 
             </div>
 
-            {/* ── 5. Interactive Feedback Modal ───────────────────────────────── */}
+            {/* ── 4. Interactive Feedback Modal ───────────────────────────────── */}
             {feedbackModalOpen && (
                 <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-lg w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
@@ -596,7 +532,6 @@ export default function ContactPage() {
                             </div>
                         ) : (
                             <form onSubmit={handleFeedbackSubmit} className="space-y-4">
-                                {/* Rating */}
                                 <div>
                                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                                         Overall Experience Rating
@@ -620,7 +555,6 @@ export default function ContactPage() {
                                     </div>
                                 </div>
 
-                                {/* Category */}
                                 <div>
                                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                                         Feedback Category
@@ -639,7 +573,6 @@ export default function ContactPage() {
                                     </select>
                                 </div>
 
-                                {/* Name & Email */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
                                         <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
@@ -667,7 +600,6 @@ export default function ContactPage() {
                                     </div>
                                 </div>
 
-                                {/* Message */}
                                 <div>
                                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                                         Your Feedback / Message <span className="text-red-500">*</span>
@@ -703,7 +635,7 @@ export default function ContactPage() {
                 </div>
             )}
 
-            {/* ── 6. Interactive Email / Inquiry Modal ────────────────────────── */}
+            {/* ── 5. Interactive Email / Inquiry Modal ────────────────────────── */}
             {inquiryModalOpen && (
                 <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-lg w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">

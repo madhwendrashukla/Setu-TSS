@@ -8,15 +8,6 @@ const { randomUUID } = require('crypto');
 // Defaults & Helpers (Tailored for Setu Startup School Website)
 // ────────────────────────────────────────────────────────────────────────────
 
-function cleanHtmlText(text) {
-  if (!text || typeof text !== 'string') return '';
-  return text
-    .replace(/<[^>]*>/g, '') // remove HTML tags
-    .replace(/&nbsp;/g, ' ')  // replace non-breaking spaces
-    .replace(/\s+/g, ' ')     // collapse extra spaces
-    .trim();
-}
-
 function defaultActionCards() {
   return [
     {
@@ -135,17 +126,12 @@ async function getOrCreateContactContent() {
   if (!content) {
     content = await prisma.contactPageContent.create({
       data: {
-        title: 'Support & <span class="text-[#7C3AED]">Contact</span>',
-        description: 'Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.',
+        title: 'Connect with <span style="color: #7C3AED;">Setu Startup School</span>',
+        description: '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>',
         back_btn_text: '← Back',
         back_btn_link: '/',
         action_cards: defaultActionCards(),
         show_problem_banner: false,
-        problem_banner_title: 'Need Custom Mentorship for your Startup?',
-        problem_banner_desc: 'Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.',
-        problem_banner_action_text: 'Explore Programs',
-        problem_banner_action_url: '/events',
-        problem_banner_icon: 'fas fa-rocket',
         show_info_box: true,
         info_box_title: 'How we can help you',
         info_box_icon: 'fas fa-question-circle',
@@ -183,22 +169,14 @@ publicRouter.get('/', async (_req, res) => {
       .filter(i => i && i.is_active !== false)
       .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
 
-    const cleanDescription = cleanHtmlText(content.description) || 
-      'Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.';
-
     res.json({
       ...content,
-      title: content.title || 'Support & <span class="text-[#7C3AED]">Contact</span>',
-      description: cleanDescription,
+      title: content.title || 'Connect with <span style="color: #7C3AED;">Setu Startup School</span>',
+      description: content.description || '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>',
       back_btn_text: content.back_btn_text || '← Back',
       back_btn_link: content.back_btn_link || '/',
       action_cards: actionCards,
-      show_problem_banner: content.show_problem_banner === true,
-      problem_banner_title: content.problem_banner_title || 'Need Custom Mentorship for your Startup?',
-      problem_banner_desc: content.problem_banner_desc || 'Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.',
-      problem_banner_action_text: content.problem_banner_action_text || 'Explore Programs',
-      problem_banner_action_url: content.problem_banner_action_url || '/events',
-      problem_banner_icon: content.problem_banner_icon || 'fas fa-rocket',
+      show_problem_banner: false,
       show_info_box: content.show_info_box !== false,
       info_box_title: content.info_box_title || 'How we can help you',
       info_box_icon: content.info_box_icon || 'fas fa-question-circle',
@@ -206,20 +184,14 @@ publicRouter.get('/', async (_req, res) => {
     });
   } catch (error) {
     console.error('Failed to fetch public contact content:', error);
-    // Fallback response with website-tailored defaults
     res.json({
       badge_text: "Get in Touch • We're Here For You",
-      title: 'Support & <span class="text-[#7C3AED]">Contact</span>',
-      description: 'Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.',
+      title: 'Connect with <span style="color: #7C3AED;">Setu Startup School</span>',
+      description: '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>',
       back_btn_text: '← Back',
       back_btn_link: '/',
       action_cards: defaultActionCards(),
       show_problem_banner: false,
-      problem_banner_title: 'Need Custom Mentorship for your Startup?',
-      problem_banner_desc: 'Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.',
-      problem_banner_action_text: 'Explore Programs',
-      problem_banner_action_url: '/events',
-      problem_banner_icon: 'fas fa-rocket',
       show_info_box: true,
       info_box_title: 'How we can help you',
       info_box_icon: 'fas fa-question-circle',
@@ -250,12 +222,8 @@ const adminRouter = express.Router();
 adminRouter.get('/', authMiddleware, async (_req, res) => {
   try {
     const content = await getOrCreateContactContent();
-    const cleanDescription = cleanHtmlText(content.description) || 
-      'Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.';
-
     res.json({
       ...content,
-      description: cleanDescription,
       action_cards: Array.isArray(content.action_cards) && content.action_cards.length > 0 ? content.action_cards : defaultActionCards(),
       info_box_items: Array.isArray(content.info_box_items) && content.info_box_items.length > 0 ? content.info_box_items : defaultInfoBoxItems(),
     });
@@ -270,26 +238,19 @@ adminRouter.put('/', authMiddleware, async (req, res) => {
     const current = await getOrCreateContactContent();
     const data = req.body || {};
 
-    const cleanDescription = data.description !== undefined ? cleanHtmlText(data.description) : current.description;
-
     const updated = await prisma.contactPageContent.update({
       where: { id: current.id },
       data: {
         badge_text: data.badge_text !== undefined ? String(data.badge_text) : current.badge_text,
         title: data.title !== undefined ? String(data.title) : current.title,
-        description: cleanDescription,
+        description: data.description !== undefined ? String(data.description) : current.description,
         
         back_btn_text: data.back_btn_text !== undefined ? String(data.back_btn_text) : (current.back_btn_text || '← Back'),
         back_btn_link: data.back_btn_link !== undefined ? String(data.back_btn_link) : (current.back_btn_link || '/'),
 
         action_cards: Array.isArray(data.action_cards) ? data.action_cards : (current.action_cards || defaultActionCards()),
 
-        show_problem_banner: data.show_problem_banner !== undefined ? Boolean(data.show_problem_banner) : current.show_problem_banner,
-        problem_banner_title: data.problem_banner_title !== undefined ? String(data.problem_banner_title) : current.problem_banner_title,
-        problem_banner_desc: data.problem_banner_desc !== undefined ? String(data.problem_banner_desc) : current.problem_banner_desc,
-        problem_banner_action_text: data.problem_banner_action_text !== undefined ? String(data.problem_banner_action_text) : current.problem_banner_action_text,
-        problem_banner_action_url: data.problem_banner_action_url !== undefined ? String(data.problem_banner_action_url) : current.problem_banner_action_url,
-        problem_banner_icon: data.problem_banner_icon !== undefined ? String(data.problem_banner_icon) : current.problem_banner_icon,
+        show_problem_banner: false,
 
         show_info_box: data.show_info_box !== undefined ? Boolean(data.show_info_box) : current.show_info_box,
         info_box_title: data.info_box_title !== undefined ? String(data.info_box_title) : current.info_box_title,
@@ -309,9 +270,8 @@ adminRouter.put('/', authMiddleware, async (req, res) => {
         chat_link: data.chat_link !== undefined ? String(data.chat_link) : current.chat_link,
 
         social_links: Array.isArray(data.social_links) ? data.social_links : current.social_links,
-
-        show_founder_card: data.show_founder_card !== undefined ? Boolean(data.show_founder_card) : current.show_founder_card,
-        show_faqs: data.show_faqs !== undefined ? Boolean(data.show_faqs) : current.show_faqs,
+        show_founder_card: false,
+        show_faqs: false,
         faqs: Array.isArray(data.faqs) ? data.faqs : current.faqs,
       },
     });

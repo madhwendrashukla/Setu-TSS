@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import "react-quill-new/dist/quill.snow.css";
 import {
     Users,
     MessageSquare,
@@ -25,6 +27,21 @@ import {
     Sparkles,
 } from "lucide-react";
 
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+
+const quillModules = {
+    toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        [{ font: [] }],
+        ["bold", "italic", "underline", "strike", "blockquote"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ color: [] }, { background: [] }],
+        [{ align: [] }],
+        ["link"],
+        ["clean"],
+    ],
+};
+
 interface ActionCardItem {
     id: string;
     title: string;
@@ -45,15 +62,6 @@ interface InfoBoxItem {
     is_active: boolean;
 }
 
-function cleanHtml(raw?: string): string {
-    if (!raw) return "";
-    return raw
-        .replace(/<[^>]*>/g, "")
-        .replace(/&nbsp;/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
 export default function AdminContactPageManager() {
     const [activeTab, setActiveTab] = useState<"cards" | "header" | "checklist" | "contact">("cards");
     const [isLoading, setIsLoading] = useState(true);
@@ -67,19 +75,12 @@ export default function AdminContactPageManager() {
     // Form / CMS Data
     const [formData, setFormData] = useState({
         badge_text: "Get in Touch • We're Here For You",
-        title: 'Support & <span class="text-[#7C3AED]">Contact</span>',
-        description: "Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.",
+        title: 'Connect with <span class="text-accent-violet">Setu Startup School.</span>',
+        description: '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>',
         back_btn_text: "← Back",
         back_btn_link: "/",
         
         action_cards: [] as ActionCardItem[],
-
-        show_problem_banner: false,
-        problem_banner_title: "Need Custom Mentorship for your Startup?",
-        problem_banner_desc: "Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.",
-        problem_banner_action_text: "Explore Programs",
-        problem_banner_action_url: "/events",
-        problem_banner_icon: "fas fa-rocket",
 
         show_info_box: true,
         info_box_title: "How we can help you",
@@ -103,7 +104,7 @@ export default function AdminContactPageManager() {
         button_url: "",
         action_type: "url",
         icon: "users",
-        badge: "Support",
+        badge: "Community",
         is_active: true,
         display_order: 0,
     });
@@ -131,19 +132,12 @@ export default function AdminContactPageManager() {
                 const data = await res.json();
                 setFormData({
                     badge_text: data.badge_text ?? "Get in Touch • We're Here For You",
-                    title: data.title ?? 'Support & <span class="text-[#7C3AED]">Contact</span>',
-                    description: cleanHtml(data.description) || "Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team.",
+                    title: data.title || 'Connect with <span class="text-accent-violet">Setu Startup School.</span>',
+                    description: data.description || '<p>Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Drop your details below or connect directly across our channels.</p>',
                     back_btn_text: data.back_btn_text ?? "← Back",
                     back_btn_link: data.back_btn_link ?? "/",
 
                     action_cards: Array.isArray(data.action_cards) ? data.action_cards : [],
-
-                    show_problem_banner: data.show_problem_banner === true,
-                    problem_banner_title: data.problem_banner_title ?? "Need Custom Mentorship for your Startup?",
-                    problem_banner_desc: data.problem_banner_desc ?? "Looking for tailored 1-on-1 guidance or institutional partnership? Let us know your goals.",
-                    problem_banner_action_text: data.problem_banner_action_text ?? "Explore Programs",
-                    problem_banner_action_url: data.problem_banner_action_url ?? "/events",
-                    problem_banner_icon: data.problem_banner_icon ?? "fas fa-rocket",
 
                     show_info_box: data.show_info_box !== false,
                     info_box_title: data.info_box_title ?? "How we can help you",
@@ -184,18 +178,13 @@ export default function AdminContactPageManager() {
         setErrorMessage("");
 
         try {
-            const payload = {
-                ...formData,
-                description: cleanHtml(formData.description),
-            };
-
             const res = await fetch(`${API}/api/admin/contact-page`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token()}`,
                 },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(formData),
             });
 
             if (res.ok) {
@@ -408,7 +397,7 @@ export default function AdminContactPageManager() {
             <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-2">
                 {[
                     { key: "cards", label: "Support Action Cards", icon: LayoutGrid },
-                    { key: "header", label: "Header & Navigation", icon: Heading },
+                    { key: "header", label: "Header & Tagline", icon: Heading },
                     { key: "checklist", label: "How We Help Checklist", icon: ListChecks },
                     { key: "contact", label: "Direct Channels & Tagging", icon: AtSign },
                 ].map((tab) => {
@@ -566,13 +555,13 @@ export default function AdminContactPageManager() {
                         </div>
                     )}
 
-                    {/* ── TAB 2: HEADER & NAVIGATION ─────────────────────────────────── */}
+                    {/* ── TAB 2: HEADER & TAGLINE (RICH TEXT EDITORS) ──────────────── */}
                     {activeTab === "header" && (
                         <div className="space-y-6 max-w-4xl">
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900 mb-1">Header &amp; Navigation Settings</h2>
+                                <h2 className="text-lg font-bold text-gray-900 mb-1">Header &amp; Tagline Content</h2>
                                 <p className="text-xs text-gray-500">
-                                    Configure back button target, headline with purple styling, and clean description.
+                                    Use the visual rich text editor below to format text colors, bold highlights, and alignment.
                                 </p>
                             </div>
 
@@ -605,35 +594,36 @@ export default function AdminContactPageManager() {
                                 </div>
                             </div>
 
-                            {/* Title with HTML/Custom Styling */}
+                            {/* Main Heading (Rich Text Editor) */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Page Headline (Supports HTML span for purple color)
+                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                                    MAIN HEADING (RICH TEXT EDITOR)
                                 </label>
-                                <input
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none font-semibold"
-                                    placeholder='Support & <span class="text-[#7C3AED]">Contact</span>'
-                                />
-                                <p className="text-[11px] text-gray-400 mt-1">
-                                    Example: <code>Support &amp; &lt;span class=&quot;text-[#7C3AED]&quot;&gt;Contact&lt;/span&gt;</code>
-                                </p>
+                                <div className="border border-gray-300 rounded-xl overflow-hidden bg-white">
+                                    <ReactQuill
+                                        theme="snow"
+                                        value={formData.title}
+                                        onChange={(val) => setFormData({ ...formData, title: val })}
+                                        modules={quillModules}
+                                        className="bg-white"
+                                    />
+                                </div>
                             </div>
 
-                            {/* Clean Description Input without HTML tags */}
+                            {/* Tagline / Subtitle (Rich Text Editor) */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Page Subtitle / Description (Clean Text)
+                                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                                    TAGLINE / SUBTITLE DESCRIPTION (RICH TEXT EDITOR)
                                 </label>
-                                <textarea
-                                    rows={3}
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: cleanHtml(e.target.value) })}
-                                    className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-sm text-gray-900 outline-none resize-none leading-relaxed"
-                                    placeholder="Have a question about our founder cohorts, incubation programs, masterclasses, or partnerships? Reach out across our channels below or connect with our team."
-                                />
+                                <div className="border border-gray-300 rounded-xl overflow-hidden bg-white">
+                                    <ReactQuill
+                                        theme="snow"
+                                        value={formData.description}
+                                        onChange={(val) => setFormData({ ...formData, description: val })}
+                                        modules={quillModules}
+                                        className="bg-white"
+                                    />
+                                </div>
                             </div>
                         </div>
                     )}
@@ -871,7 +861,7 @@ export default function AdminContactPageManager() {
                                     rows={2}
                                     required
                                     value={cardForm.description}
-                                    onChange={(e) => setCardForm({ ...cardForm, description: cleanHtml(e.target.value) })}
+                                    onChange={(e) => setCardForm({ ...cardForm, description: e.target.value })}
                                     placeholder="e.g. Join founders across Bharat. Ask questions, collaborate, and get peer feedback."
                                     className="w-full bg-white border border-gray-300 focus:border-[#7C3AED] rounded-xl px-3.5 py-2 text-sm text-gray-900 outline-none resize-none"
                                 />

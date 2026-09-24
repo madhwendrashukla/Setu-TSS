@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
 
                 <div className="glass-card rounded-[2rem] p-8 md:p-12 space-y-10 text-text-primary border border-functional-border bg-white/5 backdrop-blur-xl leading-relaxed font-normal">
                     <section>
-                        <p>
+                        <p className="text-text-primary">
                             This Privacy Policy describes how Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD) ("Setu - TheStartupSchool", "we", "us", or "our") collects, uses, and discloses your information when you use our website located at <a href="https://www.foundersschool.in/" className="text-accent-blue hover:underline">https://www.foundersschool.in/</a> and <a href="https://thestartupschool.org.in" className="text-accent-blue hover:underline">setu-tss.org.in</a> (hereinafter referred as the "Website").
                         </p>
                     </section>
@@ -67,7 +67,7 @@ export default function PrivacyPolicyPage() {
 
                     <section>
                         <h2 className="text-xl font-bold text-text-primary mb-4">3. Sharing Your Information</h2>
-                        <p>
+                        <p className="text-text-primary">
                             We may share your information with third-party service providers who help us operate the Website, assist us in various business functions and assist in delivering the content.
                         </p>
                     </section>
@@ -82,31 +82,31 @@ export default function PrivacyPolicyPage() {
 
                     <section>
                         <h2 className="text-xl font-bold text-text-primary mb-4">5. Cookies and Similar Technologies</h2>
-                        <p className="mb-4">
+                        <p className="mb-4 text-text-primary">
                             We may use cookies and similar technologies to collect information about your use of the Website. Cookies are small data files that are stored on your device when you visit a website. They can be used to remember your preferences and settings, track your activity on the website, and analyze how users interact with the website.
                         </p>
-                        <p>
+                        <p className="text-text-primary">
                             You can configure your browser to block or delete cookies. However, this may limit your ability to use certain features of the Website.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-xl font-bold text-text-primary mb-4">6. Data Security</h2>
-                        <p>
+                        <p className="text-text-primary">
                             We take reasonable steps to protect your information from unauthorized access, disclosure, alteration, or destruction. However, no website or internet transmission is completely secure. We cannot guarantee the security of your information.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-xl font-bold text-text-primary mb-4">7. Children's Privacy</h2>
-                        <p>
+                        <p className="text-text-primary">
                             The Website is not intended for children under the age of 13. We do not knowingly collect personal information from children under 13.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-xl font-bold text-text-primary mb-4">8. Changes to This Privacy Policy</h2>
-                        <p>
+                        <p className="text-text-primary">
                             We may update this Privacy Policy from time to time. We encourage you to review this Privacy Policy periodically for any updates.
                         </p>
                     </section>

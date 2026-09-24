@@ -13,24 +13,106 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
     // Sort by priority_order
     const sortedItems = [...visibleItems].sort((a: any, b: any) => (a.priority_order || 0) - (b.priority_order || 0));
 
+    const decodeHtmlEntities = (str: string): string => {
+        if (!str) return '';
+        return str
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/&amp;/gi, '&')
+            .replace(/&quot;/gi, '"')
+            .replace(/&#39;|&apos;|&#x27;/gi, "'")
+            .replace(/&lt;/gi, '<')
+            .replace(/&gt;/gi, '>')
+            .replace(/&#160;/gi, ' ')
+            .replace(/&#(\d+);/g, (_, dec) => {
+                try {
+                    return String.fromCharCode(parseInt(dec, 10));
+                } catch {
+                    return '';
+                }
+            })
+            .replace(/&#x([0-9a-f]+);/gi, (_, hex) => {
+                try {
+                    return String.fromCharCode(parseInt(hex, 16));
+                } catch {
+                    return '';
+                }
+            });
+    };
+
+    const cleanFeatureItem = (item: string): string => {
+        let text = decodeHtmlEntities(item);
+        // Strip any HTML tags
+        text = text.replace(/<[^>]*>/g, ' ');
+        // Decode entities again in case entities were inside tags or nested
+        text = decodeHtmlEntities(text);
+        // Remove leading bullet characters / dashes / list counters
+        text = text.replace(/^[\s•·●▪▫◆✦✓✔★\-\*–—\d+\.\)]+/, '');
+        // Collapse multiple whitespace
+        text = text.replace(/\s+/g, ' ').trim();
+        return text;
+    };
+
     const parseFeatures = (featuresStr?: string): string[] => {
-        if (!featuresStr) return [];
-        if (featuresStr.includes('<li>')) {
-            const matches = featuresStr.match(/<li>(.*?)<\/li>/g);
-            if (matches) {
-                return matches.map(m => m.replace(/<\/?li>/g, '').replace(/<[^>]*>?/gm, '').trim()).filter(Boolean);
+        if (!featuresStr || typeof featuresStr !== 'string') return [];
+
+        let raw = featuresStr.trim();
+        if (!raw) return [];
+
+        // If it contains <li> tags, extract each <li> item
+        if (/<li[^>]*>/i.test(raw)) {
+            const matches = raw.match(/<li[^>]*>([\s\S]*?)<\/li>/gi);
+            if (matches && matches.length > 0) {
+                return matches
+                    .map(m => cleanFeatureItem(m))
+                    .filter(Boolean);
             }
         }
-        if (featuresStr.includes('·')) {
-            return featuresStr.split('·').map(s => s.trim()).filter(Boolean);
+
+        // Convert block-level closing/opening tags and line breaks to newlines before stripping tags
+        let normalized = raw
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/(p|div|h[1-6]|tr|li|section|article)>/gi, '\n')
+            .replace(/<(p|div|h[1-6]|tr|li|section|article)[^>]*>/gi, '\n');
+
+        // Strip remaining HTML tags
+        normalized = normalized.replace(/<[^>]*>/g, ' ');
+        // Decode entities
+        normalized = decodeHtmlEntities(normalized);
+
+        // Split on newlines
+        const lines = normalized
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(Boolean);
+
+        // If any line contains middle dots or bullets, split them
+        const items: string[] = [];
+        for (const line of lines) {
+            if (/[·•●▪▫◆✦]/.test(line)) {
+                const subItems = line.split(/[·•●▪▫◆✦]/);
+                items.push(...subItems);
+            } else {
+                items.push(line);
+            }
         }
-        if (featuresStr.includes('•')) {
-            return featuresStr.split('•').map(s => s.trim()).filter(Boolean);
+
+        // Clean and normalize each item
+        let cleaned = items
+            .map(item => cleanFeatureItem(item))
+            .filter(Boolean);
+
+        // Fallback: If only 1 line was found but it contains comma-separated phrases
+        if (cleaned.length === 1 && cleaned[0].includes(',')) {
+            const commaSplit = cleaned[0]
+                .split(',')
+                .map(s => cleanFeatureItem(s))
+                .filter(Boolean);
+            if (commaSplit.length > 1) {
+                return commaSplit;
+            }
         }
-        if (featuresStr.includes('\n')) {
-            return featuresStr.split('\n').map(s => s.trim()).filter(Boolean);
-        }
-        return [featuresStr.replace(/<[^>]*>?/gm, '').trim()];
+
+        return cleaned;
     };
 
     const getBulletMeta = (text: string, index: number) => {
@@ -87,11 +169,11 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                     <div className="text-center mb-5">
                                         {item.heading && (
                                             <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] tracking-wider uppercase mb-3 border border-blue-200/60 shadow-2xs">
-                                                {item.heading}
+                                                {decodeHtmlEntities(item.heading).replace(/<[^>]*>/g, '')}
                                             </div>
                                         )}
                                         <h3 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight">
-                                            {item.title}
+                                            {decodeHtmlEntities(item.title).replace(/<[^>]*>/g, '')}
                                         </h3>
                                     </div>
 
@@ -152,7 +234,7 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                                     <div className="w-8 h-8 rounded-xl bg-rose-100/80 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
                                                         <i className="fas fa-map-marker-alt text-xs"></i>
                                                     </div>
-                                                    <span className="text-xs text-slate-600 leading-snug">{item.pricing.address}</span>
+                                                    <span className="text-xs text-slate-600 leading-snug">{decodeHtmlEntities(item.pricing.address).replace(/<[^>]*>/g, '')}</span>
                                                 </div>
                                             )}
                                         </div>

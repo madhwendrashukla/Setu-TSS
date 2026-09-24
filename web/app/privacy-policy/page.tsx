@@ -15,10 +15,10 @@ export default function PrivacyPolicyPage() {
                     <h1 className="text-4xl md:text-6xl font-black text-text-primary tracking-tight mb-4">
                         Privacy <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-blue to-accent-violet">Policy.</span>
                     </h1>
-                    <p className="text-gray-400 font-medium">Effective Date: January 23, 2026</p>
+                    <p className="text-text-secondary font-medium">Effective Date: January 23, 2026</p>
                 </header>
 
-                <div className="glass-card rounded-[2rem] p-8 md:p-12 space-y-10 text-gray-300 border border-functional-border bg-white/5 backdrop-blur-xl leading-relaxed font-light">
+                <div className="glass-card rounded-[2rem] p-8 md:p-12 space-y-10 text-text-secondary border border-functional-border bg-white/5 backdrop-blur-xl leading-relaxed font-light">
                     <section>
                         <p>
                             This Privacy Policy describes how Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD) ("Setu - TheStartupSchool", "we", "us", or "our") collects, uses, and discloses your information when you use our website located at <a href="https://www.foundersschool.in/" className="text-accent-blue hover:underline">https://www.foundersschool.in/</a> and <a href="https://thestartupschool.org.in" className="text-accent-blue hover:underline">setu-tss.org.in</a> (hereinafter referred as the "Website").
@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
                             <div>
                                 <h3 className="text-text-primary font-semibold mb-2">Information You Provide Directly:</h3>
                                 <p className="mb-2">You may provide us with certain personal information when you use the Website, such as:</p>
-                                <ul className="list-disc list-inside space-y-1 ml-4 text-gray-400">
+                                <ul className="list-disc list-inside space-y-1 ml-4 text-text-secondary">
                                     <li>Your name</li>
                                     <li>Your email address</li>
                                     <li>Your phone number</li>
@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
                             <div>
                                 <h3 className="text-text-primary font-semibold mb-2">Information Collected Automatically:</h3>
                                 <p className="mb-2">We may also collect certain information automatically when you visit the Website, such as:</p>
-                                <ul className="list-disc list-inside space-y-1 ml-4 text-gray-400">
+                                <ul className="list-disc list-inside space-y-1 ml-4 text-text-secondary">
                                     <li>Your IP address</li>
                                     <li>Your browser type and operating system</li>
                                     <li>The pages you visit on the Website</li>
@@ -56,7 +56,7 @@ export default function PrivacyPolicyPage() {
                     <section>
                         <h2 className="text-xl font-bold text-text-primary mb-4">2. Use of Your Information</h2>
                         <p className="mb-4">We use the information we collect to:</p>
-                        <ul className="list-disc list-inside space-y-1 ml-4 text-gray-400">
+                        <ul className="list-disc list-inside space-y-1 ml-4 text-text-secondary">
                             <li>Operate and maintain the Website</li>
                             <li>Respond to your inquiries and requests</li>
                             <li>Send you information about our products and services</li>
@@ -74,7 +74,7 @@ export default function PrivacyPolicyPage() {
 
                     <section>
                         <h2 className="text-xl font-bold text-text-primary mb-4">4. Your Choices</h2>
-                        <ul className="list-disc list-inside space-y-2 ml-4 text-gray-400">
+                        <ul className="list-disc list-inside space-y-2 ml-4 text-text-secondary">
                             <li>You can choose not to provide us with any information. However, this may limit your ability to use certain features of the Website.</li>
                             <li>You can unsubscribe from our marketing emails by clicking on the "unsubscribe" link in any email we send you.</li>
                         </ul>

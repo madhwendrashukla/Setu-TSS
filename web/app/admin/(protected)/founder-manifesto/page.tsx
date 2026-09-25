@@ -581,12 +581,12 @@ export default function AdminFounderManifesto() {
                         <span className="text-[11px] text-gray-400">Updates in real-time</span>
                     </div>
 
-                    <div className="bg-[#FAF8F5] rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-inner overflow-hidden max-h-[calc(100vh-140px)] overflow-y-auto">
+                    <div className="bg-[#FAF8F5] rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-inner max-h-[calc(100vh-140px)] overflow-x-auto overflow-y-auto">
                         
                         {/* Preview Section Header Pill */}
                         <div className="flex justify-center mb-10">
                             <span
-                                className="text-[#A855F7] bg-white border border-[#A855F7]/40 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-[0.2em] shadow-sm"
+                                className="text-[#A855F7] bg-white border border-[#A855F7]/40 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-[0.2em] shadow-sm whitespace-nowrap"
                                 dangerouslySetInnerHTML={{ __html: formData.prefix || "The Founder's Manifesto." }}
                             />
                         </div>
@@ -603,7 +603,7 @@ export default function AdminFounderManifesto() {
                                     }}
                                 />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <h3 className="text-gray-900 text-xl font-bold tracking-tight">
                                     {formData.founder_name || "Gaurav Bansal"}
                                 </h3>
@@ -612,7 +612,7 @@ export default function AdminFounderManifesto() {
                                         href={formData.founder_linkedin_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-1.5 text-[#A855F7] text-xs font-semibold hover:underline mt-0.5"
+                                        className="inline-flex items-center gap-1.5 text-[#A855F7] text-xs font-semibold hover:underline mt-0.5 whitespace-nowrap"
                                     >
                                         <Linkedin className="w-3.5 h-3.5" /> Connect on LinkedIn
                                     </a>

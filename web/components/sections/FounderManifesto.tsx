@@ -16,7 +16,7 @@ export function FounderManifesto({ headings = {} }: { headings?: any }) {
 
     return (
         <section id="manifesto" className="w-full bg-bg-main py-20 md:py-24 px-4 sm:px-6 relative overflow-hidden scroll-mt-28 md:scroll-mt-36">
-            <div className="w-full max-w-3xl mx-auto relative z-10">
+            <div className="w-full max-w-3xl mx-auto relative z-10 overflow-x-auto">
                 {/* Small Heading Pill */}
                 <div className="flex justify-center mb-12 md:mb-16">
                     <span

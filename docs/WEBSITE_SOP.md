@@ -7,6 +7,35 @@
 
 ---
 
+> ## ⚠️ THIS SOP WAS LAST REVISED IN AUGUST. 93 COMMITS LANDED IN SEPTEMBER.
+>
+> **Everything below this banner describes the site as of late August 2026.** Between **10 and 24
+> September** Ishaan Jha (47 commits) and Madhwendra (46) shipped the features listed here, and they
+> are **live in production** (`f7a5031`). **They are not yet described in the sections below** — so
+> if a screen does not match this document, check this list before assuming the document is right.
+>
+> | Area | What changed |
+> |---|---|
+> | **Contact page** | Now fully CMS-editable — rich-text editor, configurable **action cards** (direct URL, phone, email) with FontAwesome icons and image upload, a course-issue banner, and a lead-tag selector. The old modal-based cards are gone |
+> | **Founder profile** | New CMS-driven page at **`/gauravbansal`** — ⚠️ **no hyphen.** The previous `/gaurav-bansal` route no longer exists, and the sitemap was corrected to match |
+> | **Admin auth** | **Dual admin login** — primary and secondary admins, shared MFA, in-panel password management. Primary admins can be deleted **except** the master seeded admin |
+> | **Admin audit** | Login audit logging with IP, geolocation and device detection |
+> | **Gallery** | Drag-and-drop reordering on a 2D dense CSS-grid, configurable block sizes, Google Drive video links |
+> | **Events** | Customisable confirmation emails with a builder editor, anti-spam headers, `Closed` state in the event navbar when registrations are shut, **free-event registration that skips Razorpay entirely** for ₹0 events, and restored coupon support at event checkout with server-side validation |
+> | **CRM** | Registrations and leads separated, segmented lead filters, payment-failure tracking, pagination |
+> | **Email** | Clean white theme, brand violet/emerald accents, no emojis, duplicate-greeting fix |
+>
+> 🔴 **A `/gaurav-bansal` link anywhere still 404s, and the vCard on the new page carries
+> `Gauravbansal@foundersschool.in` — a mailbox that does not exist.** `foundersschool.in` has **no MX
+> records**; the real mailboxes are on `setustartupschool.com`. Gaurav must supply a working address.
+>
+> 🟢 **All six QA security fixes survived this merge** — re-verified 25 Sep: `trust proxy`,
+> `checkLength()` on `/api/leads`, the helpdesk rate limiter, helpdesk `ALLOWED_TYPES` upload
+> validation, the `FooterLoader` server-side gate, and the middleware `x-pathname` header.
+> **None of them has a test, so a revert would be silent. Re-check after every large merge.**
+
+---
+
 ## TABLE OF CONTENTS
 
 1. [Global Layout & Persistent Components](#1-global-layout--persistent-components)

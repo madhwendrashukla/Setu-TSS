@@ -50,30 +50,30 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                 )}
                 
                 {/* Tabs & Navigation */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-functional-border pb-4">
-                    <div className="flex items-center justify-center md:justify-start gap-4">
+                <div className="flex items-center justify-between gap-4 mb-8 border-b border-functional-border pb-4">
+                    <div className="flex items-center gap-6">
                         <button 
                             onClick={() => { setActiveTab('upcoming'); if(scrollRef.current) scrollRef.current.scrollLeft = 0; }}
-                            className={`text-lg md:text-xl font-bold transition-colors pb-2 relative ${activeTab === 'upcoming' ? 'text-[#A855F7]' : 'text-text-secondary hover:text-text-primary'}`}
+                            className={`text-base sm:text-lg md:text-xl font-bold transition-colors pb-4 -mb-4 relative ${activeTab === 'upcoming' ? 'text-[#A855F7]' : 'text-text-secondary hover:text-text-primary'}`}
                         >
                             Upcoming
-                            {activeTab === 'upcoming' && <div className="absolute -bottom-[17px] left-0 w-full h-1 bg-[#A855F7] rounded-full"></div>}
+                            {activeTab === 'upcoming' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#A855F7] rounded-full"></div>}
                         </button>
                         <button 
                             onClick={() => { setActiveTab('concluded'); if(scrollRef.current) scrollRef.current.scrollLeft = 0; }}
-                            className={`text-lg md:text-xl font-bold transition-colors pb-2 relative ${activeTab === 'concluded' ? 'text-[#A855F7]' : 'text-text-secondary hover:text-text-primary'}`}
+                            className={`text-base sm:text-lg md:text-xl font-bold transition-colors pb-4 -mb-4 relative ${activeTab === 'concluded' ? 'text-[#A855F7]' : 'text-text-secondary hover:text-text-primary'}`}
                         >
                             Concluded
-                            {activeTab === 'concluded' && <div className="absolute -bottom-[17px] left-0 w-full h-1 bg-[#A855F7] rounded-full"></div>}
+                            {activeTab === 'concluded' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#A855F7] rounded-full"></div>}
                         </button>
                     </div>
                     {displayEvents.length > 1 && (
-                        <div className="flex gap-3 shrink-0 justify-center">
-                            <button onClick={() => scrollEvents('left')} className="w-10 h-10 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Previous events">
-                                <i className="fas fa-arrow-left text-text-primary text-sm"></i>
+                        <div className="flex gap-2 sm:gap-3 shrink-0">
+                            <button onClick={() => scrollEvents('left')} className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Previous events">
+                                <i className="fas fa-arrow-left text-text-primary text-xs sm:text-sm"></i>
                             </button>
-                            <button onClick={() => scrollEvents('right')} className="w-10 h-10 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Next events">
-                                <i className="fas fa-arrow-right text-text-primary text-sm"></i>
+                            <button onClick={() => scrollEvents('right')} className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-gray-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Next events">
+                                <i className="fas fa-arrow-right text-text-primary text-xs sm:text-sm"></i>
                             </button>
                         </div>
                     )}

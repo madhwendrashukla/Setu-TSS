@@ -3,6 +3,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
+import Image from 'next/image';
 import { PageData } from '@/types/cms';
 import { DynamicSections } from '@/components/sections/dynamic/DynamicSections';
 
@@ -81,32 +82,35 @@ export default async function DynamicEventPage({ params, searchParams }: { param
                 backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px)',
                 backgroundSize: '30px 30px',
             }} />
-            {/* Custom Pill Navigation (Matching Global Nav Style but only with CTA) */}
-            <div className="fixed top-2 sm:top-4 left-1/2 -translate-x-1/2 w-[96%] sm:w-[95%] max-w-5xl z-50 flex justify-center">
-                <nav className="w-full bg-white/90 backdrop-blur-3xl border border-slate-200/60 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.08)] px-2 sm:px-4 md:px-6">
-                    <div className="flex justify-between items-center h-12 sm:h-14 md:h-16">
-                        <div className="flex items-center flex-shrink-0 overflow-hidden">
-                            <Link href="/" className="flex items-center gap-1.5 sm:gap-3">
-                                <div className="flex items-center gap-1.5 sm:gap-3">
-                                    <img 
+            {/* Custom Pill Navigation (Matching Global Nav Style but with Event CTA) */}
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-5xl z-50 flex justify-center">
+                <nav className="w-full bg-white/90 backdrop-blur-3xl border border-functional-border rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-4 sm:px-6">
+                    <div className="flex justify-between items-center h-14 md:h-16">
+                        <div className="flex items-center flex-shrink-0">
+                            <Link href="/" className="flex items-center gap-3">
+                                <div className="flex items-center gap-3">
+                                    <Image 
                                         src="/setu-logo-nav.png" 
                                         alt="Setu Logo" 
-                                        className="w-[50px] sm:w-[65px] md:w-[85px] h-auto object-contain flex-shrink-0"
+                                        width={85} 
+                                        height={28} 
+                                        className="object-contain"
+                                        priority
                                     />
-                                    <div className="h-4 sm:h-5 w-px bg-slate-300 flex-shrink-0"></div>
-                                    <span className="text-[7px] sm:text-[9px] md:text-[13px] font-black tracking-[0.1em] sm:tracking-[0.2em] text-[#0B1120] uppercase mt-0.5 truncate max-w-[120px] sm:max-w-none"><span className="text-accent-violet">Startup</span> School</span>
+                                    <div className="h-5 w-px bg-text-secondary/20"></div>
+                                    <span className="text-[10px] md:text-[13px] font-black tracking-[0.2em] text-[#0B1120] uppercase mt-0.5"><span className="text-accent-violet">Startup</span> School</span>
                                 </div>
                             </Link>
                         </div>
-                        <div className="flex-shrink-0 ml-1 sm:ml-4">
+                        <div className="flex-shrink-0 ml-4">
                             {!event.is_past && event.registration_url && pageData.registrations_open !== false ? (
                                 // LMS-linked events sell through the course checkout
                                 // (account + enrollment + welcome email)
-                                <a href={event.lms_course_slug ? `/courses/${event.lms_course_slug}` : (pageData.section_visibility?.pricing ? "#pricing" : "#workshop-breakdown")} className="bg-accent-violet text-white px-3 sm:px-5 py-1.5 sm:py-2 md:px-8 md:py-2.5 rounded-full text-[10px] sm:text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block">
+                                <a href={event.lms_course_slug ? `/courses/${event.lms_course_slug}` : (pageData.section_visibility?.pricing ? "#pricing" : "#workshop-breakdown")} className="bg-accent-violet text-white px-5 sm:px-8 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block shadow-sm">
                                     Enroll Now
                                 </a>
                             ) : (
-                                <span className="bg-slate-100 text-slate-500 border border-slate-200 px-3 sm:px-4 py-1.5 sm:py-2 md:px-6 md:py-2.5 rounded-full text-[9px] sm:text-[10px] md:text-sm font-bold cursor-not-allowed whitespace-nowrap block">
+                                <span className="bg-slate-100 text-slate-500 border border-slate-200 px-4 sm:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold cursor-not-allowed whitespace-nowrap block">
                                     Closed
                                 </span>
                             )}

@@ -88,6 +88,11 @@ const quillModules = {
     ],
 };
 
+function cleanHtml(str?: string) {
+    if (!str) return '';
+    return str.replace(/&nbsp;/gi, ' ').replace(/\u00A0/g, ' ');
+}
+
 export default function AdminFounderManifesto() {
     const [formData, setFormData] = useState(DEFAULT_DATA);
     const [allHeadings, setAllHeadings] = useState<any>({});
@@ -127,13 +132,13 @@ export default function AdminFounderManifesto() {
                 if (headings.founder_manifesto) {
                     const fm = headings.founder_manifesto;
                     setFormData({
-                        prefix: fm.prefix !== undefined ? fm.prefix : DEFAULT_DATA.prefix,
+                        prefix: cleanHtml(fm.prefix !== undefined ? fm.prefix : DEFAULT_DATA.prefix),
                         founder_name: fm.founder_name !== undefined ? fm.founder_name : DEFAULT_DATA.founder_name,
                         founder_photo_url: fm.founder_photo_url !== undefined ? fm.founder_photo_url : DEFAULT_DATA.founder_photo_url,
                         founder_linkedin_url: fm.founder_linkedin_url !== undefined ? fm.founder_linkedin_url : DEFAULT_DATA.founder_linkedin_url,
-                        quote_heading: fm.quote_heading !== undefined ? fm.quote_heading : DEFAULT_DATA.quote_heading,
-                        body_html: fm.body_html !== undefined ? fm.body_html : DEFAULT_DATA.body_html,
-                        cta_text: fm.cta_text !== undefined ? fm.cta_text : DEFAULT_DATA.cta_text,
+                        quote_heading: cleanHtml(fm.quote_heading !== undefined ? fm.quote_heading : DEFAULT_DATA.quote_heading),
+                        body_html: cleanHtml(fm.body_html !== undefined ? fm.body_html : DEFAULT_DATA.body_html),
+                        cta_text: cleanHtml(fm.cta_text !== undefined ? fm.cta_text : DEFAULT_DATA.cta_text),
                     });
                 }
             }
@@ -195,16 +200,21 @@ export default function AdminFounderManifesto() {
         setSavedSuccess(false);
 
         try {
+            const cleanBody = cleanHtml(formData.body_html);
+            const cleanQuote = cleanHtml(formData.quote_heading);
+            const cleanPrefix = cleanHtml(formData.prefix);
+            const cleanCta = cleanHtml(formData.cta_text);
+
             const updatedHeadings = {
                 ...allHeadings,
                 founder_manifesto: {
-                    prefix: formData.prefix,
+                    prefix: cleanPrefix,
                     founder_name: formData.founder_name,
                     founder_photo_url: formData.founder_photo_url,
                     founder_linkedin_url: formData.founder_linkedin_url,
-                    quote_heading: formData.quote_heading,
-                    body_html: formData.body_html,
-                    cta_text: formData.cta_text,
+                    quote_heading: cleanQuote,
+                    body_html: cleanBody,
+                    cta_text: cleanCta,
                 },
             };
 
@@ -219,6 +229,13 @@ export default function AdminFounderManifesto() {
 
             if (res.ok) {
                 setAllHeadings(updatedHeadings);
+                setFormData(prev => ({
+                    ...prev,
+                    prefix: cleanPrefix,
+                    quote_heading: cleanQuote,
+                    body_html: cleanBody,
+                    cta_text: cleanCta
+                }));
                 setSavedSuccess(true);
                 setTimeout(() => setSavedSuccess(false), 4000);
             } else {

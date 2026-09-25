@@ -26,7 +26,13 @@ export function Programs({ data = [], headings = {} }: { data?: any[], headings?
                     <div className="w-12 h-0.5 bg-[#A855F7] mx-auto rounded-full"></div>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8 md:gap-12 max-w-6xl mx-auto items-stretch">
+                <div className={`grid gap-8 md:gap-12 mx-auto items-stretch ${
+                    programs.length === 1 
+                        ? 'max-w-xl' 
+                        : programs.length === 2 
+                            ? 'max-w-6xl lg:grid-cols-2' 
+                            : 'max-w-6xl md:grid-cols-2 lg:grid-cols-3'
+                }`}>
                     {programs.map((program: any, index: number) => {
                         const cardBg = 'bg-[#13113B] border-functional-border/20';
                         const btnStyle = 'bg-[#A855F7] hover:bg-[#9333ea] text-white';

@@ -470,19 +470,19 @@ export default function CheckoutCard({ slug, title, price }: { slug: string; tit
                         </button>
                     </div>
                 ) : (
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2 w-full">
                         <input
                             type="text"
                             placeholder="Coupon code (optional)"
                             value={couponInput}
                             onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null); }}
-                            className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 uppercase placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
+                            className="flex-1 min-w-0 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 uppercase placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent-violet"
                         />
                         <button
                             type="button"
                             onClick={applyCoupon}
                             disabled={couponChecking || !couponInput.trim()}
-                            className="rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                            className="shrink-0 rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 whitespace-nowrap"
                         >
                             {couponChecking ? "Checking…" : "Apply"}
                         </button>

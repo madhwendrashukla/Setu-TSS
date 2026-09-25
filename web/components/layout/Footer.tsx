@@ -91,18 +91,18 @@ export function Footer({ siteSettings }: { siteSettings?: any }) {
                 {/* Top row: Brand + Tagline */}
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left gap-6 md:gap-8 mb-10">
                     <div>
-                        <Link href="/" className="inline-flex items-center gap-3.5 mb-4 group hover:opacity-95 transition-opacity">
-                            <div className="bg-white px-3.5 py-1.5 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <Link href="/" className="inline-flex items-center gap-4 mb-4 group hover:opacity-95 transition-opacity">
+                            <div className="bg-white px-4 py-2 md:px-5 md:py-2.5 rounded-2xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
                                 <Image 
                                     src="/setu-logo-nav.png" 
                                     alt="Setu Logo" 
-                                    width={90} 
-                                    height={30} 
-                                    className="object-contain"
+                                    width={125} 
+                                    height={42} 
+                                    className="h-8 md:h-9 w-auto object-contain"
                                 />
                             </div>
-                            <div className="h-6 w-px bg-white/20"></div>
-                            <span className="text-xs md:text-sm font-black tracking-[0.2em] text-white uppercase mt-0.5">
+                            <div className="h-8 md:h-9 w-px bg-white/25"></div>
+                            <span className="text-sm md:text-base font-black tracking-[0.2em] text-white uppercase mt-0.5">
                                 <span className="text-[#A855F7]">Startup</span> School
                             </span>
                         </Link>

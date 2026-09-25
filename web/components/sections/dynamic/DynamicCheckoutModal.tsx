@@ -53,7 +53,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
     }
     const finalPrice = Math.max(0, basePrice - discount);
 
-    const handleApplyCoupon = async (codeToApply?: string | React.MouseEvent) => {
+    const handleApplyCoupon = async (codeToApply?: string | React.MouseEvent, overrideEmail?: string) => {
         const code = typeof codeToApply === 'string' ? codeToApply : couponCode;
         setError(null);
         if (!code) {
@@ -64,12 +64,13 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
         setIsProcessing(true);
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const userEmail = overrideEmail !== undefined ? overrideEmail : (guestUser?.email || '');
             const res = await fetch(`${apiUrl}/api/coupons/validate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     code: code, 
-                    email: guestUser?.email || '',
+                    email: userEmail,
                     eventSlug: eventSlug
                 })
             });
@@ -380,19 +381,19 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                                             </div>
                                         )}
                                         <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Have a coupon code?</label>
-                                        <div className="flex gap-2">
+                                        <div className="flex items-center gap-2 w-full">
                                             <input
                                                 type="text"
                                                 value={couponCode}
                                                 onChange={(e) => setCouponCode(e.target.value)}
                                                 placeholder="Enter code"
                                                 disabled={isCouponApplied}
-                                                className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 uppercase disabled:bg-slate-100 disabled:text-slate-500"
+                                                className="flex-1 min-w-0 w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 uppercase disabled:bg-slate-100 disabled:text-slate-500"
                                             />
                                             <button
                                                 onClick={handleApplyCoupon}
                                                 disabled={!couponCode || isCouponApplied}
-                                                className="px-4 py-2 bg-text-primary text-white text-sm font-bold rounded-xl hover:bg-black disabled:opacity-50 transition-all"
+                                                className="shrink-0 px-4 py-2 bg-text-primary text-white text-sm font-bold rounded-xl hover:bg-black disabled:opacity-50 transition-all whitespace-nowrap"
                                             >
                                                 {isCouponApplied ? 'Applied ✓' : 'Apply'}
                                             </button>
@@ -474,11 +475,9 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
                 onVerified={(user) => {
                     setGuestUser(user);
                     setShowOtpModal(false);
-                    // Auto-proceed: free events skip Razorpay entirely
-                    if (isFreeEvent) {
-                        handleFreeRegister(user);
-                    } else {
-                        startPayment(user);
+                    setError(null);
+                    if (couponCode && !isCouponApplied) {
+                        handleApplyCoupon(couponCode, user.email);
                     }
                 }}
             />

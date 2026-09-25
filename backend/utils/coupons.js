@@ -42,13 +42,18 @@ async function validateCouponForCourse({ code, email, courseSlug }) {
     return { ok: false, error: 'Coupon usage limit reached' };
   }
   if (coupon.applicable_emails && coupon.applicable_emails.length > 0) {
-    if (!email || !coupon.applicable_emails.includes(email)) {
+    if (!email || !String(email).trim()) {
+      return { ok: false, error: 'Please enter your details first' };
+    }
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedApplicable = coupon.applicable_emails.map(e => String(e).trim().toLowerCase());
+    if (!normalizedApplicable.includes(normalizedEmail)) {
       return { ok: false, error: 'Coupon is not applicable for this email' };
     }
   }
   if (coupon.max_uses_per_user !== null && email) {
     const used = await prisma.couponUsage.count({
-      where: { coupon_id: coupon.id, user_email: email },
+      where: { coupon_id: coupon.id, user_email: String(email).trim().toLowerCase() },
     });
     if (used >= coupon.max_uses_per_user) {
       return { ok: false, error: 'You have reached the maximum usage for this coupon' };

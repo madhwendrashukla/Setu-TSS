@@ -19,9 +19,9 @@ export function DynamicMentors({ data }: { data: PageData }) {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="flex flex-wrap justify-center gap-8">
                     {visibleMentors.map((mentor: MentorData, idx: number) => (
-                        <div key={mentor.id || idx} className="bg-white rounded-[24px] overflow-hidden shadow-xl border border-slate-100 hover:-translate-y-2 transition-transform duration-300 p-8 flex flex-col items-start text-left">
+                        <div key={mentor.id || idx} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-md bg-white rounded-[24px] overflow-hidden shadow-xl border border-slate-100 hover:-translate-y-2 transition-transform duration-300 p-8 flex flex-col items-start text-left">
                             
                             {mentor.image_url && (
                                 <div className="relative mb-6 rounded-2xl p-[3px] bg-gradient-to-r from-purple-500 to-indigo-500 inline-block shadow-sm">

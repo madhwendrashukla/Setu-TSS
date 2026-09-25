@@ -55,23 +55,23 @@ export function FounderManifesto({ headings = {} }: { headings?: any }) {
                     </p>
 
                     <p>
-                        My mission is not just to give founders real courage and strength through knowledge, but also to give <span className="text-[#A855F7] font-bold">rocket speed</span> to their dreams by providing access to the right resources.
+                        My mission is not just to give founders real courage and strength through knowledge, but <span className="text-[#A855F7] font-bold">also to give rocket speed to their dreams</span> by providing access to the right resources.
                     </p>
 
                     <p>
-                        Having built startups in my career, I have experienced these challenges up close and felt this pain firsthand.
+                        <span className="text-[#A855F7] font-bold">Having built startups in my career</span>, I have experienced these challenges up close and felt this pain firsthand.
                     </p>
 
                     <p>
-                        India today has thousands of B-schools. Yet, a fundamental question remains: <span className="text-[#A855F7] font-bold">Are they producing an equal number of startups?</span> And more importantly, what percentage of aspiring founders would realistically invest two years and ₹10-30 lakhs in a B-School simply to learn how to build a successful startup?
+                        India today has thousands of B-schools. Yet, a fundamental question remains: Are they producing an equal number of startups? And more importantly, <span className="text-[#A855F7] font-bold">what percentage of aspiring founders would realistically invest two years and ₹10-30 lakhs in a B-School simply to learn how to build a successful startup?</span>
                     </p>
 
                     <p>
-                        Additionally for the middle-class dreamer, choosing a startup over a steady paycheck is an act of war against social security. For a founder the &ldquo;Opportunity Cost&rdquo; of building a startup isn&apos;t just a line on a spreadsheet, it is a <span className="text-[#A855F7] font-bold">weight on a founder&apos;s soul</span>, because Startups in India aren&apos;t built in garages, they are built at <span className="text-[#A855F7] font-bold">kitchen tables</span> amidst family debates, silent sacrifices, and financial anxiety.
+                        Additionally for the middle-class dreamer, choosing a startup over a steady paycheck is an act of war against social security. For a founder <span className="text-[#A855F7] font-bold">the &ldquo;Opportunity Cost&rdquo; of building a startup</span> isn&apos;t just a line on a spreadsheet, it is a weight on a founder&apos;s soul, because Startups in India aren&apos;t built in garages, they are built at kitchen tables amidst family debates, silent sacrifices, and financial anxiety.
                     </p>
 
                     <p>
-                        A startup&apos;s greatest enemy isn&apos;t competition, it&apos;s the <span className="text-[#A855F7] font-bold">&ldquo;Initial Days Vacuum&rdquo;</span>. We talk about &ldquo;funding&rdquo;, but we forget about &ldquo;foundation&rdquo;. Many have the <span className="text-[#A855F7] font-bold">&lsquo;Keeda&rsquo;</span> (the itch) and the <span className="text-[#A855F7] font-bold">&lsquo;Himmat&rsquo;</span> (the courage), but courage without a compass is just a slow way to get lost.
+                        A startup&apos;s greatest enemy isn&apos;t competition, it&apos;s the &ldquo;Initial Days Vacuum&rdquo;. <span className="text-[#A855F7] font-bold">We talk about &ldquo;funding&rdquo;, but we forget about &ldquo;foundation&rdquo;</span>. Many have the <span className="text-[#A855F7] font-bold">&lsquo;Keeda&rsquo;</span> (the itch) and the <span className="text-[#A855F7] font-bold">&lsquo;Himmat&rsquo;</span> (the courage), but courage without a compass is just a slow way to get lost.
                     </p>
 
                     <p>
@@ -83,11 +83,11 @@ export function FounderManifesto({ headings = {} }: { headings?: any }) {
                     </p>
 
                     <p>
-                        If we provide the right scaffolding to the aspiring founder, we won&apos;t just see more startups — we will unlock an era of <span className="text-[#A855F7] font-bold">unstoppable builders.</span>
+                        If we provide the right scaffolding to the aspiring founder, we won&apos;t just see more startups but also <span className="text-[#A855F7] font-bold">will unlock an era of unstoppable builders.</span>
                     </p>
 
                     <p>
-                        I am not here just to teach. I am here to make sure the fire that made a founder start does not go out before the sun rises.
+                        I am not here just to teach. <span className="text-[#A855F7] font-bold">I am here to make sure the fire that made a founder start does not go out before the sun rises.</span>
                     </p>
 
                     <p className="pt-2 font-bold text-lg md:text-xl text-[#A855F7]">

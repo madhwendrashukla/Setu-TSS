@@ -232,6 +232,119 @@ const MentorsEditor = ({ items, onChange, onUpload }: { items: any[], onChange: 
     );
 };
 
+const STORY_ICON_PRESETS = [
+    { value: "", label: "No Icon / Default" },
+    { value: "fas fa-user-times", label: "🤦 Unprepared Founder (Problem / Pain Point)" },
+    { value: "fas fa-times", label: "❌ Cross (Mistake / Failure)" },
+    { value: "fas fa-times-circle", label: "🔴 Cross Circle (Error / Pitfall)" },
+    { value: "fas fa-exclamation-triangle", label: "⚠️ Warning (Caution / Trap)" },
+    { value: "fas fa-bomb", label: "💣 Bomb (Fatal Blunder)" },
+    { value: "fas fa-fire", label: "🔥 Fire (Burning Cash / Chaos)" },
+    { value: "fas fa-skull-crossbones", label: "☠️ Skull (Deadly Trap)" },
+    { value: "fas fa-frown", label: "🙁 Sad / Struggling" },
+    { value: "fas fa-user-check", label: "🧑‍💼 Prepared Founder (Solution / Win)" },
+    { value: "fas fa-user-tie", label: "👔 Professional / Seasoned Founder" },
+    { value: "fas fa-check", label: "✅ Check (Success / Solution)" },
+    { value: "fas fa-check-circle", label: "🟢 Check Circle (Verified / Approved)" },
+    { value: "fas fa-rocket", label: "🚀 Rocket (Launch / Scale / Speed)" },
+    { value: "fas fa-lightbulb", label: "💡 Lightbulb (Ideation / Clarity)" },
+    { value: "fas fa-trophy", label: "🏆 Trophy (Award / Category Leader)" },
+    { value: "fas fa-medal", label: "🥇 Medal (Top Tier Execution)" },
+    { value: "fas fa-crown", label: "👑 Crown (Market Leader)" },
+    { value: "fas fa-chart-line", label: "📈 Chart Line (Traction / Growth)" },
+    { value: "fas fa-chart-pie", label: "📊 Chart Pie (Cap Table / Finance)" },
+    { value: "fas fa-shield-alt", label: "🛡️ Shield (Legal / DPDP / Security)" },
+    { value: "fas fa-balance-scale", label: "⚖️ Scale (Legal / Term Sheets)" },
+    { value: "fas fa-file-contract", label: "📜 Document (Agreements / SHA)" },
+    { value: "fas fa-robot", label: "🤖 Robot (AI / Automation)" },
+    { value: "fas fa-laptop-code", label: "💻 Laptop (Coding / MVP)" },
+    { value: "fas fa-handshake", label: "🤝 Handshake (Partnership / Deals)" },
+    { value: "fas fa-bullseye", label: "🎯 Target (PMF / Execution)" },
+    { value: "fas fa-gem", label: "💎 Gem (Value / Unfair Advantage)" },
+    { value: "fas fa-graduation-cap", label: "🎓 Cap (Masterclass / Framework)" },
+    { value: "fas fa-mug-hot", label: "☕ Chai & Coffee (Discussion)" },
+    { value: "fas fa-users", label: "👥 Community / Co-founders" },
+];
+
+const StoryIconSelector = ({
+    label,
+    value,
+    onChange,
+    placeholder = "e.g. fas fa-user"
+}: {
+    label: string;
+    value: string;
+    onChange: (val: string) => void;
+    placeholder?: string;
+}) => {
+    const isPreset = STORY_ICON_PRESETS.some(opt => opt.value === (value || ""));
+    const [isCustom, setIsCustom] = useState(!isPreset && Boolean(value));
+
+    useEffect(() => {
+        if (value && !STORY_ICON_PRESETS.some(opt => opt.value === value)) {
+            setIsCustom(true);
+        }
+    }, [value]);
+
+    return (
+        <div>
+            <div className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500">
+                <span>{label}</span>
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setIsCustom(!isCustom)}
+                        className="text-blue-500 hover:text-blue-700 hover:underline font-normal text-[11px]"
+                    >
+                        {isCustom ? "Choose from list" : "Custom class"}
+                    </button>
+                    <a
+                        href="https://fontawesome.com/v5/search?m=free"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-gray-600 hover:underline font-normal text-[11px]"
+                    >
+                        Find Icons
+                    </a>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0 text-gray-700 text-sm">
+                    {value ? <i className={value}></i> : <span className="text-[10px] text-gray-400">None</span>}
+                </div>
+                {isCustom ? (
+                    <input
+                        className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs"
+                        placeholder={placeholder}
+                        value={value || ""}
+                        onChange={(e) => onChange(e.target.value)}
+                    />
+                ) : (
+                    <select
+                        className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs text-gray-700 font-medium"
+                        value={isPreset ? (value || "") : "__custom__"}
+                        onChange={(e) => {
+                            if (e.target.value === "__custom__") {
+                                setIsCustom(true);
+                            } else {
+                                onChange(e.target.value);
+                            }
+                        }}
+                    >
+                        {STORY_ICON_PRESETS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                        <option value="__custom__">✏️ Custom FontAwesome Class...</option>
+                    </select>
+                )}
+            </div>
+        </div>
+    );
+};
+
 const StoryBoxesEditor = ({ boxes, onChange, onUpload }: { boxes: any[], onChange: (b: any[]) => void, onUpload: (file: File) => Promise<string | null> }) => {
     const handleAdd = () => onChange([...(Array.isArray(boxes) ? boxes : []), { title: "", description: "", bullets: [] }]);
     const handleRemove = (index: number) => { const newArr = [...(Array.isArray(boxes) ? boxes : [])]; newArr.splice(index, 1); onChange(newArr); };
@@ -245,13 +358,14 @@ const StoryBoxesEditor = ({ boxes, onChange, onUpload }: { boxes: any[], onChang
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-10 mb-3">
                         <div><label className="block text-xs font-bold mb-1 text-gray-500">Box Title</label><input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={b.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
                         <div><label className="block text-xs font-bold mb-1 text-gray-500">Box Description</label><textarea className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none h-10" value={b.description || ""} onChange={e => handleChange(index, 'description', e.target.value)} /></div>
-                        <div>
-                            <label className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500">
-                                Top Icon Class
-                                <a href="https://fontawesome.com/v5/search?m=free" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 hover:underline font-normal">Find Icons</a>
-                            </label>
-                            <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" placeholder="e.g. fas fa-user" value={b.icon_class || ""} onChange={e => handleChange(index, 'icon_class', e.target.value)} />
-                        </div>
+                        
+                        <StoryIconSelector
+                            label="Top Icon"
+                            placeholder="e.g. fas fa-user-times"
+                            value={b.icon_class || ""}
+                            onChange={val => handleChange(index, 'icon_class', val)}
+                        />
+
                         <div>
                             <label className="block text-xs font-bold mb-1 text-gray-500">Top Image Upload (Overrides Icon)</label>
                             <input type="file" accept="image/*" onChange={async (e) => {
@@ -262,13 +376,13 @@ const StoryBoxesEditor = ({ boxes, onChange, onUpload }: { boxes: any[], onChang
                             }} className="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-1" />
                             <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-[10px]" placeholder="Or paste image URL..." value={b.image_url || ""} onChange={e => handleChange(index, 'image_url', e.target.value)} />
                         </div>
-                        <div>
-                            <label className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500">
-                                Watermark Icon (Optional)
-                                <a href="https://fontawesome.com/v5/search?m=free" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 hover:underline font-normal">Find Icons</a>
-                            </label>
-                            <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" placeholder="e.g. fas fa-times" value={b.watermark_icon || ""} onChange={e => handleChange(index, 'watermark_icon', e.target.value)} />
-                        </div>
+
+                        <StoryIconSelector
+                            label="Watermark Icon (Optional)"
+                            placeholder="e.g. fas fa-times"
+                            value={b.watermark_icon || ""}
+                            onChange={val => handleChange(index, 'watermark_icon', val)}
+                        />
                     </div>
                     <div className="mt-4 border-t border-gray-100 pt-3">
                         <label className="block text-xs font-bold mb-2 text-gray-500">Bullets (Check/Cross)</label>

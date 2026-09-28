@@ -55,10 +55,10 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
     }
 
     return (
-        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-14 mb-14 md:mb-20">
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-12 mb-14 md:mb-20">
             {/* Optional Section Header if headings are passed */}
             {headings?.title && (
-                <div className="text-center mb-8 md:mb-12">
+                <div className="text-center mb-8 md:mb-10">
                     {headings.tag && (
                         <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs md:text-sm font-extrabold uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200 mb-3">
                             <Sparkles className="w-4 h-4 text-purple-600" />
@@ -99,61 +99,63 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
                                 isCurrent ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 z-0 pointer-events-none'
                             }`}
                         >
-                            <div className="flex flex-col lg:flex-row w-full items-stretch min-h-[420px] md:min-h-[460px]">
+                            <div className="flex flex-col lg:flex-row w-full items-stretch min-h-[380px] md:min-h-[440px]">
                                 {/* Left Content Column */}
-                                <div className="w-full lg:w-7/12 p-8 sm:p-12 md:p-14 lg:p-16 flex flex-col justify-center relative z-10 order-2 lg:order-1">
+                                <div className="w-full lg:w-1/2 p-6 sm:p-10 md:p-12 lg:p-14 flex flex-col justify-center relative z-10 order-2 lg:order-1 bg-white">
                                     
                                     {/* Clean Badges Row */}
-                                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 mb-6">
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-5">
                                         {fullDateStr && (
-                                            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs" suppressHydrationWarning>
+                                            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs" suppressHydrationWarning>
                                                 <Clock className="w-4 h-4 text-purple-600 shrink-0" />
                                                 <span>{fullDateStr}</span>
                                             </span>
                                         )}
 
-                                        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs">
+                                        <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs">
                                             <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
                                             <span>{locationLabel}</span>
                                         </span>
                                     </div>
 
-                                    {/* Title - Bold, Commanding & High Visibility */}
-                                    <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-black tracking-tight leading-[1.18] text-slate-900 mb-4 group-hover:text-purple-700 transition-colors duration-300">
+                                    {/* Title */}
+                                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight leading-[1.18] text-slate-900 mb-3.5 group-hover:text-purple-700 transition-colors duration-300">
                                         {event.title}
                                     </h3>
                                     
                                     {/* Description */}
-                                    <p className="text-slate-600 text-sm sm:text-base md:text-lg font-normal leading-relaxed mb-8 line-clamp-3 max-w-2xl">
+                                    <p className="text-slate-600 text-sm sm:text-base md:text-lg font-normal leading-relaxed mb-7 line-clamp-3">
                                         {event.description}
                                     </p>
 
                                     {/* CTA Button */}
-                                    <div className="pt-1">
-                                        <div className="inline-flex items-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl md:rounded-2xl font-bold text-sm sm:text-base md:text-lg text-white bg-gradient-to-r from-[#7C3AED] via-[#8B3DFF] to-[#A855F7] shadow-lg shadow-purple-500/25 group-hover:shadow-xl group-hover:shadow-purple-500/40 group-hover:scale-[1.03] active:scale-[0.98] transition-all duration-300">
+                                    <div>
+                                        <div className="inline-flex items-center gap-2.5 px-7 sm:px-8 py-3.5 rounded-xl font-bold text-sm sm:text-base text-white bg-gradient-to-r from-[#7C3AED] via-[#8B3DFF] to-[#A855F7] shadow-lg shadow-purple-500/25 group-hover:shadow-xl group-hover:shadow-purple-500/40 group-hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
                                             <span>Know More</span>
-                                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+                                            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Right Image Banner Column */}
-                                <div className="w-full lg:w-5/12 p-6 sm:p-8 md:p-10 lg:p-12 flex items-center justify-center bg-gradient-to-br from-purple-50/70 via-slate-50/60 to-indigo-50/50 order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-slate-100">
-                                    <div className="relative w-full aspect-[16/10] max-w-[540px] rounded-2xl md:rounded-3xl overflow-hidden shadow-md border border-slate-200/80 bg-white group-hover:shadow-xl transition-all duration-500 flex items-center justify-center">
-                                        {event.banner_url ? (
-                                            <img 
-                                                src={encodeURI(event.banner_url)} 
-                                                alt={event.title} 
-                                                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                                            />
-                                        ) : (
-                                            <img 
-                                                src="/ai-workshop-banner.webp" 
-                                                alt={event.title} 
-                                                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                                            />
-                                        )}
-                                    </div>
+                                {/* Right Image Banner Column - Submerged & Edge-to-Edge */}
+                                <div className="w-full lg:w-1/2 relative min-h-[260px] sm:min-h-[340px] lg:min-h-[440px] overflow-hidden order-1 lg:order-2 bg-slate-100">
+                                    {/* Subtle gradient feather to seamlessly submerge the banner into the card */}
+                                    <div className="hidden lg:block absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white via-white/40 to-transparent pointer-events-none z-10"></div>
+                                    <div className="block lg:hidden absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/40 to-transparent pointer-events-none z-10"></div>
+                                    
+                                    {event.banner_url ? (
+                                        <img 
+                                            src={encodeURI(event.banner_url)} 
+                                            alt={event.title} 
+                                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out absolute inset-0"
+                                        />
+                                    ) : (
+                                        <img 
+                                            src="/ai-workshop-banner.webp" 
+                                            alt={event.title} 
+                                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out absolute inset-0"
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </Link>

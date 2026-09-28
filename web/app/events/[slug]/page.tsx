@@ -103,15 +103,24 @@ export default async function DynamicEventPage({ params, searchParams }: { param
                             </Link>
                         </div>
                         <div className="flex-shrink-0 ml-4">
-                            {!event.is_past && event.registration_url && pageData.registrations_open !== false ? (
-                                // LMS-linked events sell through the course checkout
-                                // (account + enrollment + welcome email)
-                                <a href={event.lms_course_slug ? `/courses/${event.lms_course_slug}` : (pageData.section_visibility?.pricing ? "#pricing" : "#workshop-breakdown")} className="bg-accent-violet text-white px-5 sm:px-8 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block shadow-sm">
-                                    Enroll Now
+                            {!event.is_past && pageData.registrations_open !== false ? (
+                                <a 
+                                    href={
+                                        event.lms_course_slug 
+                                            ? `/courses/${event.lms_course_slug}` 
+                                            : (event.registration_url && /^https?:\/\//i.test(event.registration_url)
+                                                ? event.registration_url
+                                                : (pageData.section_visibility?.pricing ? "#pricing" : "#workshops"))
+                                    }
+                                    target={event.registration_url && /^https?:\/\//i.test(event.registration_url) && !event.lms_course_slug ? "_blank" : "_self"}
+                                    rel={event.registration_url && /^https?:\/\//i.test(event.registration_url) && !event.lms_course_slug ? "noopener noreferrer" : ""}
+                                    className="bg-accent-violet hover:bg-[#9333ea] text-white px-5 sm:px-8 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block shadow-sm"
+                                >
+                                    {event.lms_course_slug ? "Enroll Now" : "Register Now"}
                                 </a>
                             ) : (
                                 <span className="bg-slate-100 text-slate-500 border border-slate-200 px-4 sm:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold cursor-not-allowed whitespace-nowrap block">
-                                    Closed
+                                    {event.is_past ? "Concluded" : "Closed"}
                                 </span>
                             )}
                         </div>

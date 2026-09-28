@@ -703,21 +703,11 @@ ${mentorsList ? `Featured Speakers / Mentors: ${mentorsList}` : ''}
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <div>
-                    <label className="block text-sm font-bold text-gray-800">Supporting Image</label>
-                    <p className="text-xs text-gray-500">
-                        This image is displayed in the "The Output" section on the frontend as a vertical/square card (h: 600px).
-                    </p>
-                </div>
-                <button
-                    type="button"
-                    onClick={() => setShowPromptBox(!showPromptBox)}
-                    className="text-xs font-bold text-accent-blue hover:text-purple-700 flex items-center gap-1.5 bg-accent-blue/10 hover:bg-accent-blue/20 px-3 py-1.5 rounded-lg transition-all"
-                >
-                    <i className="fas fa-magic"></i>
-                    <span>{showPromptBox ? 'Hide AI Prompt Tool' : 'Generate AI Image Prompt'}</span>
-                </button>
+            <div>
+                <label className="block text-sm font-bold text-gray-800">Supporting Image</label>
+                <p className="text-xs text-gray-500">
+                    This image is displayed in the "The Output" section on the frontend as a vertical/square card (h: 600px).
+                </p>
             </div>
 
             <div className="border-2 border-dashed border-gray-200 rounded-xl p-5 bg-gray-50 space-y-4">

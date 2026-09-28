@@ -102,7 +102,16 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                             const dateStr = formatEventDateRange(event.start_date, event.end_date);
                             
                             const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
-                            const locationStr = isOnline ? "Live Cohort (Online)" : `${event.venue}${event.city ? `, ${event.city}` : ''}`;
+                            let locationStr = "Live Cohort (Online)";
+                            if (!isOnline) {
+                                const venue = (event.venue || '').trim();
+                                const city = (event.city || '').trim();
+                                if (city && !venue.toLowerCase().includes(city.toLowerCase())) {
+                                    locationStr = `${venue}, ${city}`;
+                                } else {
+                                    locationStr = venue || "In-Person";
+                                }
+                            }
 
                             const CardContent = (
                                 <div className={`w-full glass-card rounded-[24px] overflow-hidden border border-functional-border group flex flex-col h-full bg-[#13113B] transition-all duration-300 ${activeTab === 'upcoming' ? 'hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)] cursor-pointer' : ''}`}>
@@ -126,11 +135,19 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                                             <span className="absolute top-3 left-3 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded-md font-bold">CONCLUDED</span>
                                         )}
                                     </div>
-                                    <div className="p-5 bg-white flex flex-col justify-center items-start grow text-left rounded-b-[24px] gap-2">
-                                        <h3 className="text-[#0B1120] font-black text-lg leading-tight tracking-tight text-balance">{event.title}</h3>
-                                        <div className="text-gray-600 text-sm font-semibold flex items-center gap-4 flex-wrap">
-                                            <span className="flex items-center gap-1.5 whitespace-nowrap">📍 {locationStr}</span>
-                                            <span className="flex items-center gap-1.5 whitespace-nowrap" suppressHydrationWarning>📅 {dateStr}</span>
+                                    <div className="p-4 sm:p-5 bg-white flex flex-col justify-between grow text-left rounded-b-[24px] gap-2.5">
+                                        <h3 className="text-[#0B1120] font-black text-base sm:text-lg leading-snug tracking-tight line-clamp-2" title={event.title}>
+                                            {event.title}
+                                        </h3>
+                                        <div className="w-full flex flex-col gap-1.5 text-slate-600 text-xs sm:text-sm font-semibold pt-2 border-t border-slate-100/90">
+                                            <div className="flex items-center gap-1.5 text-slate-700 min-w-0" title={locationStr}>
+                                                <span className="shrink-0 text-rose-500 text-sm leading-none">📍</span>
+                                                <span className="truncate">{locationStr}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-slate-600 shrink-0" suppressHydrationWarning>
+                                                <span className="shrink-0 text-purple-600 text-sm leading-none">🗓️</span>
+                                                <span>{dateStr}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

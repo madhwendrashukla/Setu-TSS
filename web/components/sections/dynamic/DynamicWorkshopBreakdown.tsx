@@ -45,6 +45,32 @@ export function DynamicWorkshopBreakdown({ data, onCheckoutClick }: { data: Page
     );
 }
 
+function cleanFontAwesomeClass(raw?: string): string {
+    if (!raw) return "";
+    let str = String(raw).trim();
+    // If user pasted HTML like <i class="fas fa-ambulance" ...>
+    const match = str.match(/class=["']([^"']+)["']/i);
+    if (match && match[1]) {
+        str = match[1];
+    } else {
+        // Strip HTML tags
+        str = str.replace(/<[^>]*>/g, '').trim();
+    }
+    // Convert 'fad ' to 'fas ' if duotone is not supported
+    if (str.startsWith('fad ')) {
+        str = str.replace(/^fad\s+/, 'fas ');
+    }
+    // Ensure prefix exists if only icon name was given (e.g. 'fa-ambulance' or 'ambulance')
+    if (!str.startsWith('fas ') && !str.startsWith('fa-solid ') && !str.startsWith('far ') && !str.startsWith('fa-regular ') && !str.startsWith('fab ') && !str.startsWith('fa-brands ')) {
+        if (str.startsWith('fa-')) {
+            str = `fa-solid ${str}`;
+        } else if (str) {
+            str = `fa-solid fa-${str}`;
+        }
+    }
+    return str.trim();
+}
+
 function getWorkshopVectorIcon(workshop: WorkshopData): string {
     const rawIcon = (workshop.icon || '').trim();
     
@@ -78,8 +104,10 @@ function getWorkshopVectorIcon(workshop: WorkshopData): string {
     }
 
     if (rawIcon) {
-        const clean = rawIcon.replace(/^(fas\s+|fa-solid\s+|fa-|far\s+)/, '');
-        if (clean && clean !== 'undefined') return `fa-solid fa-${clean}`;
+        const cleaned = cleanFontAwesomeClass(rawIcon);
+        if (cleaned && cleaned !== 'undefined') {
+            return cleaned;
+        }
     }
 
     // Smart detection from title / heading / key features

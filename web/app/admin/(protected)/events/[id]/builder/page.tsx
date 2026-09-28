@@ -315,34 +315,35 @@ const StoryIconSelector = ({
 
     return (
         <div>
-            <div className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500">
-                <span>{label}</span>
-                <div className="flex items-center gap-2">
+            <div className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500 gap-1 flex-wrap">
+                <span className="shrink-0">{label}</span>
+                <div className="flex items-center gap-1.5 shrink-0">
                     <button
                         type="button"
                         onClick={() => setIsCustom(!isCustom)}
-                        className="text-blue-500 hover:text-blue-700 hover:underline font-normal text-[11px]"
+                        className="text-blue-600 hover:text-blue-800 hover:underline font-medium text-[11px] cursor-pointer"
                     >
                         {isCustom ? "Choose from list" : "Custom class"}
                     </button>
+                    <span className="text-gray-300">|</span>
                     <a
                         href="https://fontawesome.com/v5/search?m=free"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-gray-600 hover:underline font-normal text-[11px]"
+                        className="text-gray-400 hover:text-gray-600 hover:underline font-medium text-[11px] inline-flex items-center gap-0.5"
                     >
-                        Find Icons
+                        Find Icons <i className="fas fa-external-link-alt text-[9px]"></i>
                     </a>
                 </div>
             </div>
 
             <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0 text-gray-700 text-sm">
+                <div className="w-9 h-9 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0 text-gray-700 text-sm shadow-sm">
                     {cleanedValue ? <i className={cleanedValue}></i> : <span className="text-[10px] text-gray-400">None</span>}
                 </div>
                 {isCustom ? (
                     <input
-                        className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs"
+                        className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded-lg outline-none text-xs text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono"
                         placeholder={placeholder}
                         value={value || ""}
                         onChange={(e) => {
@@ -357,7 +358,7 @@ const StoryIconSelector = ({
                     />
                 ) : (
                     <select
-                        className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs text-gray-700 font-medium"
+                        className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded-lg outline-none text-xs text-gray-700 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer"
                         value={isPreset ? (cleanedValue || "") : "__custom__"}
                         onChange={(e) => {
                             if (e.target.value === "__custom__") {
@@ -405,7 +406,7 @@ const WorkshopIconSelector = ({
     label = "Vector Icon",
     value,
     onChange,
-    placeholder = "e.g. mug-hot or fas fa-mug-hot"
+    placeholder = "e.g. mug-saucer or fa-solid fa-mug-saucer"
 }: {
     label?: string;
     value: string;
@@ -425,34 +426,35 @@ const WorkshopIconSelector = ({
 
     return (
         <div>
-            <div className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500">
-                <span>{label}</span>
-                <div className="flex items-center gap-2">
+            <div className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500 gap-1 flex-wrap">
+                <span className="shrink-0">{label}</span>
+                <div className="flex items-center gap-1.5 shrink-0">
                     <button
                         type="button"
                         onClick={() => setIsCustom(!isCustom)}
-                        className="text-blue-500 hover:text-blue-700 hover:underline font-normal text-[11px]"
+                        className="text-blue-600 hover:text-blue-800 hover:underline font-medium text-[11px] cursor-pointer"
                     >
                         {isCustom ? "Choose from list" : "Custom class"}
                     </button>
+                    <span className="text-gray-300">|</span>
                     <a
                         href="https://fontawesome.com/v5/search?m=free"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-gray-600 hover:underline font-normal text-[11px]"
+                        className="text-gray-400 hover:text-gray-600 hover:underline font-medium text-[11px] inline-flex items-center gap-0.5"
                     >
-                        Find Icons
+                        Find Icons <i className="fas fa-external-link-alt text-[9px]"></i>
                     </a>
                 </div>
             </div>
 
             <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded bg-white border border-gray-200 flex items-center justify-center shrink-0 text-gray-700 text-sm shadow-sm">
-                    {cleanedValue ? <i className={cleanedValue}></i> : <span className="text-[10px] text-gray-400">Auto</span>}
+                <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0 text-gray-700 text-sm shadow-sm">
+                    {cleanedValue ? <i className={cleanedValue}></i> : <span className="text-[10px] text-gray-400 font-semibold">Auto</span>}
                 </div>
                 {isCustom ? (
                     <input
-                        className="flex-1 bg-white border border-gray-200 p-2 rounded outline-none text-xs"
+                        className="flex-1 bg-white border border-gray-200 p-2 rounded-lg outline-none text-xs text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono"
                         placeholder={placeholder}
                         value={value || ""}
                         onChange={(e) => {
@@ -466,7 +468,7 @@ const WorkshopIconSelector = ({
                     />
                 ) : (
                     <select
-                        className="flex-1 bg-white border border-gray-200 p-2 rounded outline-none text-xs text-gray-700 font-medium"
+                        className="flex-1 bg-white border border-gray-200 p-2 rounded-lg outline-none text-xs text-gray-700 font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer"
                         value={isPreset ? (WORKSHOP_ICON_PRESETS.find(p => p.value === value || (cleanedValue && cleanFontAwesomeClass(p.value) === cleanedValue))?.value || value || "") : "__custom__"}
                         onChange={(e) => {
                             if (e.target.value === "__custom__") {
@@ -595,21 +597,45 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                         <button onClick={() => handleRemove(index)} className="text-red-500 hover:text-red-700 bg-white w-7 h-7 rounded shadow-sm"><i className="fas fa-trash text-xs"></i></button>
                     </div>
                     <div className="p-5 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Priority Order</label><input type="number" className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.priority_order || 0} onChange={e => handleChange(index, 'priority_order', parseInt(e.target.value)||0)} /></div>
-                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Badge / Day (e.g. DAY 1)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
-                            <div><label className="block text-xs font-bold mb-1 text-gray-500">Title</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
-                            <div>
+                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-start">
+                            <div className="sm:col-span-2 lg:col-span-1">
+                                <label className="block text-xs font-bold mb-1 text-gray-500">Order</label>
+                                <input 
+                                    type="number" 
+                                    className="w-full bg-white border border-gray-200 p-2 rounded-lg outline-none text-xs text-center font-bold text-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm" 
+                                    value={w.priority_order || 0} 
+                                    onChange={e => handleChange(index, 'priority_order', parseInt(e.target.value)||0)} 
+                                />
+                            </div>
+                            <div className="sm:col-span-4 lg:col-span-3">
+                                <label className="block text-xs font-bold mb-1 text-gray-500">Badge / Day (e.g. DAY 1)</label>
+                                <input 
+                                    className="w-full bg-white border border-gray-200 p-2 rounded-lg outline-none text-xs text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-medium shadow-sm" 
+                                    placeholder="e.g. DAY 1 or Open Discussion" 
+                                    value={w.heading || ""} 
+                                    onChange={e => handleChange(index, 'heading', e.target.value)} 
+                                />
+                            </div>
+                            <div className="sm:col-span-6 lg:col-span-4">
+                                <label className="block text-xs font-bold mb-1 text-gray-500">Workshop Title</label>
+                                <input 
+                                    className="w-full bg-white border border-gray-200 p-2 rounded-lg outline-none text-xs text-gray-800 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-semibold shadow-sm" 
+                                    placeholder="e.g. Chai & Conversation: Idea Validation" 
+                                    value={w.title || ""} 
+                                    onChange={e => handleChange(index, 'title', e.target.value)} 
+                                />
+                            </div>
+                            <div className="sm:col-span-12 lg:col-span-4">
                                 <WorkshopIconSelector
                                     label="Vector Icon"
                                     value={w.icon || ""}
                                     onChange={val => handleChange(index, 'icon', val)}
-                                    placeholder="e.g. mug-hot or fas fa-mug-hot"
+                                    placeholder="e.g. mug-saucer or fa-solid fa-mug-saucer"
                                 />
                             </div>
                         </div>
-                        <div className="bg-white rounded border border-gray-200">
-                            <label className="block text-xs font-bold mb-2 text-gray-500 p-2 pb-0">Key Features</label>
+                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                            <label className="block text-xs font-bold text-gray-500 p-2.5 pb-1">Key Features</label>
                             <ReactQuill modules={quillModules} theme="snow" value={w.key_features || ""} onChange={val => handleChange(index, 'key_features', val)} placeholder="Enter features using bullets..." />
                         </div>
                         

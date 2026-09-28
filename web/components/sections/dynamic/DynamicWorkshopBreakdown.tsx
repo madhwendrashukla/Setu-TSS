@@ -122,6 +122,14 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                             if (workshop.sessions && workshop.sessions.length > 0) {
                                 return null; // We render sessions as individual calendar pills below instead
                             }
+                            if (workshop.date_time_html && workshop.date_time_html.replace(/<[^>]*>/g, '').trim()) {
+                                return (
+                                    <span 
+                                        className="text-xs sm:text-sm md:text-base font-bold text-slate-700 [&_p]:inline [&_p]:m-0"
+                                        dangerouslySetInnerHTML={{ __html: workshop.date_time_html }}
+                                    />
+                                );
+                            }
                             if (workshop.date && workshop.start_time && workshop.end_time) {
                                 const dateObj = new Date(workshop.date);
                                 const dateStr = !isNaN(dateObj.getTime()) ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : workshop.date;

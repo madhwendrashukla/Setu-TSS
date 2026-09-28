@@ -668,7 +668,7 @@ const initialPageData = {
             pricing: {
                 strike_price: 999,
                 actual_price: 499,
-                date_time_bullets: ["May 15", "6:00 PM - 8:00 PM"],
+                date_time_bullets: [],
                 mode: "online",
                 address: null
             },

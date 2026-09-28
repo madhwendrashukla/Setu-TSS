@@ -35,8 +35,14 @@ export function DynamicCurriculum({ data }: { data: any }) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex flex-wrap items-center gap-3 mb-2">
-                                        <span className="inline-block px-3 py-1 text-xs font-extrabold rounded uppercase tracking-widest text-slate-900 shadow-sm" style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}>{ws.heading || ws.badge}</span>
-                                        <span className="text-sm md:text-base font-semibold text-slate-900">{ws.pricing?.date_time_bullets?.[0] || (ws.pricing?.date_time_bullets || []).join(' ')}</span>
+                                        {(ws.heading || ws.badge) && (
+                                            <span className="inline-block px-3 py-1 text-xs font-extrabold rounded uppercase tracking-widest text-slate-900 shadow-sm" style={{ background: `linear-gradient(135deg, #8b5cf6, #d946ef)` }}>{ws.heading || ws.badge}</span>
+                                        )}
+                                        {ws.date_time_html && ws.date_time_html.replace(/<[^>]*>/g, '').trim() ? (
+                                            <span className="text-sm md:text-base font-semibold text-slate-900 [&_p]:inline [&_p]:m-0" dangerouslySetInnerHTML={{ __html: ws.date_time_html }} />
+                                        ) : (
+                                            <span className="text-sm md:text-base font-semibold text-slate-900">{ws.pricing?.date_time_bullets?.[0] || (ws.pricing?.date_time_bullets || []).join(' ')}</span>
+                                        )}
                                     </div>
                                     <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-1">{ws.title}</h3>
                                     <p className="text-sm text-slate-600 font-light">by <span className="text-slate-900 font-medium">{ws.mentor}</span> · {ws.duration}</p>

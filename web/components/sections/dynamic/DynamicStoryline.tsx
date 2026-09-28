@@ -2,6 +2,32 @@
 import React from 'react';
 import { PageData } from '@/types/cms';
 
+function cleanFontAwesomeClass(raw?: string): string {
+    if (!raw) return "";
+    let str = String(raw).trim();
+    // If user pasted HTML like <i class="fas fa-ambulance" ...>
+    const match = str.match(/class=["']([^"']+)["']/i);
+    if (match && match[1]) {
+        str = match[1];
+    } else {
+        // Strip HTML tags
+        str = str.replace(/<[^>]*>/g, '').trim();
+    }
+    // Convert 'fad ' to 'fas ' if duotone is not supported
+    if (str.startsWith('fad ')) {
+        str = str.replace(/^fad\s+/, 'fas ');
+    }
+    // Ensure prefix exists if only icon name was given (e.g. 'fa-ambulance' or 'ambulance')
+    if (!str.startsWith('fas ') && !str.startsWith('fa-solid ') && !str.startsWith('far ') && !str.startsWith('fa-regular ') && !str.startsWith('fab ') && !str.startsWith('fa-brands ')) {
+        if (str.startsWith('fa-')) {
+            str = `fas ${str}`;
+        } else if (str) {
+            str = `fas fa-${str}`;
+        }
+    }
+    return str.trim();
+}
+
 export function DynamicStoryline({ data }: { data: PageData }) {
     if (!data?.story) return null;
 
@@ -120,7 +146,9 @@ export function DynamicStoryline({ data }: { data: PageData }) {
                         )}
 
                         {story.boxes.map((box: any, idx: number) => {
-                            const watermarkIcon = box.watermark_icon || box.icon_class;
+                            const rawWatermark = box.watermark_icon || box.icon_class;
+                            const watermarkIcon = cleanFontAwesomeClass(rawWatermark);
+                            const topIcon = cleanFontAwesomeClass(box.icon_class);
                             
                             return (
                                 <div key={idx} className={`rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 md:p-10 transition-all duration-500 relative group overflow-hidden flex flex-col h-full ${getBoxThemeClasses()}`}>
@@ -131,7 +159,7 @@ export function DynamicStoryline({ data }: { data: PageData }) {
                                     )}
 
                                     {/* Icon Header */}
-                                    {(box.icon_class || box.image_url) && (
+                                    {(topIcon || box.image_url) && (
                                         <div className="mb-4 sm:mb-6 relative z-10">
                                             {box.image_url ? (
                                                 <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex items-center justify-center bg-white">
@@ -139,7 +167,7 @@ export function DynamicStoryline({ data }: { data: PageData }) {
                                                 </div>
                                             ) : (
                                                 <div className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl bg-[#f0f1f5] text-slate-600`}>
-                                                    <i className={box.icon_class}></i>
+                                                    <i className={topIcon}></i>
                                                 </div>
                                             )}
                                         </div>

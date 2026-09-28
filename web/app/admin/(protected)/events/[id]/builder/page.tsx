@@ -266,6 +266,32 @@ const STORY_ICON_PRESETS = [
     { value: "fas fa-users", label: "👥 Community / Co-founders" },
 ];
 
+function cleanFontAwesomeClass(raw?: string): string {
+    if (!raw) return "";
+    let str = String(raw).trim();
+    // If user pasted HTML like <i class="fas fa-ambulance" ...>
+    const match = str.match(/class=["']([^"']+)["']/i);
+    if (match && match[1]) {
+        str = match[1];
+    } else {
+        // Strip HTML tags
+        str = str.replace(/<[^>]*>/g, '').trim();
+    }
+    // Convert 'fad ' to 'fas ' if duotone is not supported
+    if (str.startsWith('fad ')) {
+        str = str.replace(/^fad\s+/, 'fas ');
+    }
+    // Ensure prefix exists if only icon name was given
+    if (!str.startsWith('fas ') && !str.startsWith('fa-solid ') && !str.startsWith('far ') && !str.startsWith('fa-regular ') && !str.startsWith('fab ') && !str.startsWith('fa-brands ')) {
+        if (str.startsWith('fa-')) {
+            str = `fas ${str}`;
+        } else if (str) {
+            str = `fas fa-${str}`;
+        }
+    }
+    return str.trim();
+}
+
 const StoryIconSelector = ({
     label,
     value,
@@ -277,14 +303,15 @@ const StoryIconSelector = ({
     onChange: (val: string) => void;
     placeholder?: string;
 }) => {
-    const isPreset = STORY_ICON_PRESETS.some(opt => opt.value === (value || ""));
-    const [isCustom, setIsCustom] = useState(!isPreset && Boolean(value));
+    const cleanedValue = cleanFontAwesomeClass(value);
+    const isPreset = STORY_ICON_PRESETS.some(opt => opt.value === (cleanedValue || ""));
+    const [isCustom, setIsCustom] = useState(!isPreset && Boolean(cleanedValue));
 
     useEffect(() => {
-        if (value && !STORY_ICON_PRESETS.some(opt => opt.value === value)) {
+        if (cleanedValue && !STORY_ICON_PRESETS.some(opt => opt.value === cleanedValue)) {
             setIsCustom(true);
         }
-    }, [value]);
+    }, [cleanedValue]);
 
     return (
         <div>
@@ -311,19 +338,27 @@ const StoryIconSelector = ({
 
             <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0 text-gray-700 text-sm">
-                    {value ? <i className={value}></i> : <span className="text-[10px] text-gray-400">None</span>}
+                    {cleanedValue ? <i className={cleanedValue}></i> : <span className="text-[10px] text-gray-400">None</span>}
                 </div>
                 {isCustom ? (
                     <input
                         className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs"
                         placeholder={placeholder}
                         value={value || ""}
-                        onChange={(e) => onChange(e.target.value)}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            // If pasted HTML tag, automatically clean it immediately
+                            if (val.includes('<i') || val.includes('class=')) {
+                                onChange(cleanFontAwesomeClass(val));
+                            } else {
+                                onChange(val);
+                            }
+                        }}
                     />
                 ) : (
                     <select
                         className="flex-1 bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs text-gray-700 font-medium"
-                        value={isPreset ? (value || "") : "__custom__"}
+                        value={isPreset ? (cleanedValue || "") : "__custom__"}
                         onChange={(e) => {
                             if (e.target.value === "__custom__") {
                                 setIsCustom(true);

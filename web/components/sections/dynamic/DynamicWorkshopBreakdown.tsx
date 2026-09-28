@@ -192,22 +192,53 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                     {/* Google Calendar Link Logic */}
                     {(() => {
                         const sessions = workshop.sessions || [];
-                        const oldHasDateAndTime = workshop.date && workshop.start_time && workshop.end_time;
-                        
+                        const oldHasDateAndTime = workshop.date && (workshop.start_time || workshop.end_time);
+
+                        const parseTimeToHM = (timeStr?: string) => {
+                            if (!timeStr) return { hours: 10, minutes: 0 };
+                            const clean = timeStr.trim();
+                            const match12 = clean.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+                            if (match12) {
+                                let h = parseInt(match12[1], 10);
+                                const m = parseInt(match12[2], 10);
+                                const ampm = match12[3].toUpperCase();
+                                if (ampm === 'PM' && h < 12) h += 12;
+                                if (ampm === 'AM' && h === 12) h = 0;
+                                return { hours: h, minutes: m };
+                            }
+                            const match24 = clean.match(/^(\d{1,2}):(\d{2})$/);
+                            if (match24) {
+                                return { hours: parseInt(match24[1], 10), minutes: parseInt(match24[2], 10) };
+                            }
+                            return { hours: 10, minutes: 0 };
+                        };
+
+                        const buildDate = (dateVal: string, timeVal?: string) => {
+                            if (!dateVal) return null;
+                            const dStr = dateVal.includes('T') ? dateVal.split('T')[0] : dateVal;
+                            const { hours, minutes } = parseTimeToHM(timeVal);
+                            const hh = String(hours).padStart(2, '0');
+                            const mm = String(minutes).padStart(2, '0');
+                            const d = new Date(`${dStr}T${hh}:${mm}:00+05:30`);
+                            return isNaN(d.getTime()) ? null : d;
+                        };
+
+                        const formatGCalDate = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+
                         if (sessions.length > 0) {
                             return (
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     {sessions.map((session: any, sIdx: number) => {
                                         let calendarUrl = '#';
                                         try {
-                                            const startIstStr = `${session.date}T${session.start_time}:00+05:30`;
-                                            const endIstStr = `${session.date}T${session.end_time}:00+05:30`;
-                                            const startDate = new Date(startIstStr);
-                                            const endDate = new Date(endIstStr);
+                                            const startDate = buildDate(session.date || workshop.date || "", session.start_time);
+                                            let endDate = buildDate(session.date || workshop.date || "", session.end_time);
+                                            if (startDate && !endDate) {
+                                                endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+                                            }
                                             
-                                            if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-                                                const formatGCalDate = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
-                                                const title = encodeURIComponent(`${workshop.title || "Startup Workshop"} - ${session.title}`);
+                                            if (startDate && endDate) {
+                                                const title = encodeURIComponent(`${workshop.title || "Startup Workshop"} - ${session.title || `Session ${sIdx+1}`}`);
                                                 const details = encodeURIComponent((workshop.key_features || "").replace(/<[^>]*>?/gm, ''));
                                                 calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatGCalDate(startDate)}/${formatGCalDate(endDate)}&details=${details}`;
                                             }
@@ -216,18 +247,19 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                                         }
 
                                         const formatTime = (t: string) => {
-                                            if (!t || !t.includes(':')) return t;
+                                            if (!t) return '';
+                                            if (!t.includes(':')) return t;
                                             const [h, m] = t.split(':');
                                             const hNum = parseInt(h);
                                             const ampm = hNum >= 12 ? 'PM' : 'AM';
                                             return `${hNum % 12 || 12}:${m} ${ampm}`;
                                         };
-                                        const dateObj = new Date(session.date);
-                                        const dateStr = !isNaN(dateObj.getTime()) ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : session.date;
+                                        const dateObj = new Date(session.date || workshop.date || "");
+                                        const dateStr = !isNaN(dateObj.getTime()) ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : (session.date || "");
 
                                         return (
-                                            <a key={sIdx} href={calendarUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-[11px] md:text-xs text-slate-600 font-bold hover:bg-slate-200 transition-all cursor-pointer" suppressHydrationWarning>
-                                                <i className="fa-brands fa-google text-blue-500"></i> {session.title} — {dateStr}, {formatTime(session.start_time)} — {formatTime(session.end_time)}
+                                            <a key={sIdx} href={calendarUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[11px] md:text-xs text-slate-700 font-bold transition-all cursor-pointer shadow-sm hover:scale-[1.02]" suppressHydrationWarning>
+                                                <i className="fa-brands fa-google text-blue-500"></i> {session.title || `Session ${sIdx+1}`} {dateStr ? `— ${dateStr}` : ''} {session.start_time ? `(${formatTime(session.start_time)}${session.end_time ? ` - ${formatTime(session.end_time)}` : ''})` : ''}
                                             </a>
                                         );
                                     })}
@@ -238,13 +270,13 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                         let calendarUrl = '#';
                         if (oldHasDateAndTime) {
                             try {
-                                const startIstStr = `${workshop.date}T${workshop.start_time}:00+05:30`;
-                                const endIstStr = `${workshop.date}T${workshop.end_time}:00+05:30`;
-                                const startDate = new Date(startIstStr);
-                                const endDate = new Date(endIstStr);
+                                const startDate = buildDate(workshop.date || "", workshop.start_time);
+                                let endDate = buildDate(workshop.date || "", workshop.end_time);
+                                if (startDate && !endDate) {
+                                    endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+                                }
                                 
-                                if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-                                    const formatGCalDate = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+                                if (startDate && endDate) {
                                     const title = encodeURIComponent(workshop.title || "Startup Workshop");
                                     const details = encodeURIComponent((workshop.key_features || "").replace(/<[^>]*>?/gm, ''));
                                     calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatGCalDate(startDate)}/${formatGCalDate(endDate)}&details=${details}`;
@@ -257,8 +289,8 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                         if (oldHasDateAndTime && calendarUrl !== '#') {
                             return (
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    <a href={calendarUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-[11px] md:text-xs text-slate-600 font-bold hover:bg-slate-200 transition-all cursor-pointer">
-                                       <i className="fa-brands fa-google text-blue-500"></i> Add to Google Calendar
+                                    <a href={calendarUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[11px] md:text-xs text-blue-800 font-bold transition-all cursor-pointer shadow-sm hover:scale-[1.02]">
+                                       <i className="fa-brands fa-google text-blue-600"></i> Add to Google Calendar
                                     </a>
                                 </div>
                             );

@@ -613,10 +613,154 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                             <ReactQuill modules={quillModules} theme="snow" value={w.key_features || ""} onChange={val => handleChange(index, 'key_features', val)} placeholder="Enter features using bullets..." />
                         </div>
                         
-                        <div className="bg-gray-100 p-4 rounded border border-gray-200">
-                            <label className="block text-sm font-bold mb-2 text-gray-700">Date & Time / Sessions (Rich Text)</label>
-                            <div className="bg-white">
-                                <ReactQuill modules={quillModules} theme="snow" value={w.date_time_html || ""} onChange={val => handleChange(index, 'date_time_html', val)} placeholder="Enter dates, times, and sessions with bullets..." />
+                        {/* Schedule & Google Calendar Integration */}
+                        <div className="bg-blue-50/70 p-4 rounded-xl border border-blue-200 space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-200/70 pb-3">
+                                <div>
+                                    <h5 className="font-bold text-xs text-blue-950 flex items-center gap-1.5">
+                                        <i className="fa-brands fa-google text-blue-600"></i> Schedule & Google Calendar Link
+                                    </h5>
+                                    <p className="text-[11px] text-blue-700/80">Sets the date/time and automatically generates "Add to Google Calendar" buttons on your landing page.</p>
+                                </div>
+                                <div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const hasSessions = Array.isArray(w.sessions) && w.sessions.length > 0;
+                                            if (hasSessions) {
+                                                handleChange(index, 'sessions', []);
+                                            } else {
+                                                handleChange(index, 'sessions', [
+                                                    { title: "Session 1", date: w.date || "", start_time: w.start_time || "14:00", end_time: w.end_time || "18:00" }
+                                                ]);
+                                            }
+                                        }}
+                                        className="text-xs font-bold text-blue-700 hover:text-blue-900 bg-white px-2.5 py-1.5 rounded-lg border border-blue-200 shadow-sm transition-colors cursor-pointer"
+                                    >
+                                        {Array.isArray(w.sessions) && w.sessions.length > 0 ? "Switch to Single Date" : "➕ Multiple Sessions"}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Single Date/Time Mode */}
+                            {(!Array.isArray(w.sessions) || w.sessions.length === 0) ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white p-3.5 rounded-lg border border-blue-100 shadow-sm">
+                                    <div>
+                                        <label className="block text-[11px] font-bold mb-1 text-gray-700">Workshop Date</label>
+                                        <input
+                                            type="date"
+                                            className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs text-gray-800"
+                                            value={w.date || ""}
+                                            onChange={e => handleChange(index, 'date', e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] font-bold mb-1 text-gray-700">Start Time</label>
+                                        <input
+                                            type="time"
+                                            className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs text-gray-800"
+                                            value={w.start_time || ""}
+                                            onChange={e => handleChange(index, 'start_time', e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] font-bold mb-1 text-gray-700">End Time</label>
+                                        <input
+                                            type="time"
+                                            className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none text-xs text-gray-800"
+                                            value={w.end_time || ""}
+                                            onChange={e => handleChange(index, 'end_time', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                /* Multi-Session Builder */
+                                <div className="space-y-2.5">
+                                    {w.sessions.map((session: any, sIdx: number) => (
+                                        <div key={sIdx} className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                                            <input
+                                                className="w-full sm:w-1/3 bg-gray-50 border border-gray-200 p-1.5 rounded outline-none text-xs font-semibold text-gray-800"
+                                                placeholder="e.g. Session 1: Ideation"
+                                                value={session.title || ""}
+                                                onChange={e => {
+                                                    const newSessions = [...w.sessions];
+                                                    newSessions[sIdx] = { ...newSessions[sIdx], title: e.target.value };
+                                                    handleChange(index, 'sessions', newSessions);
+                                                }}
+                                            />
+                                            <input
+                                                type="date"
+                                                className="w-full sm:w-1/4 bg-gray-50 border border-gray-200 p-1.5 rounded outline-none text-xs text-gray-800"
+                                                value={session.date || ""}
+                                                onChange={e => {
+                                                    const newSessions = [...w.sessions];
+                                                    newSessions[sIdx] = { ...newSessions[sIdx], date: e.target.value };
+                                                    handleChange(index, 'sessions', newSessions);
+                                                }}
+                                            />
+                                            <div className="flex items-center gap-1.5 w-full sm:w-auto flex-1">
+                                                <input
+                                                    type="time"
+                                                    className="w-full sm:w-1/2 bg-gray-50 border border-gray-200 p-1.5 rounded outline-none text-xs text-gray-800"
+                                                    value={session.start_time || ""}
+                                                    onChange={e => {
+                                                        const newSessions = [...w.sessions];
+                                                        newSessions[sIdx] = { ...newSessions[sIdx], start_time: e.target.value };
+                                                        handleChange(index, 'sessions', newSessions);
+                                                    }}
+                                                />
+                                                <span className="text-gray-400 text-xs">to</span>
+                                                <input
+                                                    type="time"
+                                                    className="w-full sm:w-1/2 bg-gray-50 border border-gray-200 p-1.5 rounded outline-none text-xs text-gray-800"
+                                                    value={session.end_time || ""}
+                                                    onChange={e => {
+                                                        const newSessions = [...w.sessions];
+                                                        newSessions[sIdx] = { ...newSessions[sIdx], end_time: e.target.value };
+                                                        handleChange(index, 'sessions', newSessions);
+                                                    }}
+                                                />
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newSessions = [...w.sessions];
+                                                    newSessions.splice(sIdx, 1);
+                                                    handleChange(index, 'sessions', newSessions);
+                                                }}
+                                                className="text-red-500 hover:bg-red-50 p-1.5 rounded cursor-pointer"
+                                            >
+                                                <i className="fas fa-trash text-xs"></i>
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const newSessions = [...(w.sessions || []), { title: `Session ${(w.sessions?.length || 0) + 1}`, date: w.date || "", start_time: "14:00", end_time: "18:00" }];
+                                            handleChange(index, 'sessions', newSessions);
+                                        }}
+                                        className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 mt-1 cursor-pointer"
+                                    >
+                                        <i className="fas fa-plus"></i> Add Another Session
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Optional Rich Text Notes / Custom Schedule Description */}
+                            <div className="pt-2">
+                                <label className="block text-[11px] font-bold mb-1 text-gray-600">
+                                    Additional Schedule Notes / Custom Text (Optional)
+                                </label>
+                                <div className="bg-white rounded border border-gray-200">
+                                    <ReactQuill
+                                        modules={quillModules}
+                                        theme="snow"
+                                        value={w.date_time_html || ""}
+                                        onChange={val => handleChange(index, 'date_time_html', val)}
+                                        placeholder="Optional descriptive text to display alongside dates (e.g. 2 October 2026, 2:00 PM to 6:00 PM)..."
+                                    />
+                                </div>
                             </div>
                         </div>
                         

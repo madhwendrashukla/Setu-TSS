@@ -9,14 +9,14 @@ export function DynamicWorkshopBreakdown({ data, onCheckoutClick }: { data: Page
     const sortedWorkshops = [...data.workshops].sort((a, b) => (a.priority_order || 0) - (b.priority_order || 0));
 
     return (
-        <section className="py-16 md:py-24 relative z-10 bg-slate-50" id="workshop-breakdown">
+        <section className="py-12 sm:py-16 md:py-24 relative z-10 bg-slate-50" id="workshop-breakdown">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12 md:mb-20">
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 text-slate-900">Workshop Breakdown</h2>
-                    <div className="w-24 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-4"></div>
-                    <p className="text-slate-500 text-base md:text-lg font-medium max-w-2xl mx-auto">Three battle-tested workshops designed to take you from zero to launch.</p>
+                <div className="text-center mb-8 sm:mb-12 md:mb-16">
+                    <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold mb-3 text-slate-900">Workshop Breakdown</h2>
+                    <div className="w-20 sm:w-24 h-1 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] mx-auto rounded-full mb-3 sm:mb-4"></div>
+                    <p className="text-slate-500 text-sm sm:text-base md:text-lg font-medium max-w-2xl mx-auto">Three battle-tested workshops designed to take you from zero to launch.</p>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                     {sortedWorkshops.map((workshop: WorkshopData, idx: number) => {
                         if (!workshop.visible) return null;
                         
@@ -104,17 +104,17 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
     const [expanded, setExpanded] = useState(true);
 
     return (
-        <div className={`bg-white rounded-2xl md:rounded-3xl border overflow-hidden transition-all duration-500 border-slate-200 hover:border-slate-300 shadow-xl hover:shadow-2xl`}>
-            <div onClick={() => setExpanded(!expanded)} className="w-full text-left px-6 md:px-10 py-6 md:py-8 flex items-start gap-4 md:gap-6 group relative cursor-pointer">
+        <div className={`bg-white rounded-2xl md:rounded-3xl border overflow-hidden transition-all duration-500 border-slate-200 hover:border-slate-300 shadow-lg hover:shadow-2xl`}>
+            <div onClick={() => setExpanded(!expanded)} className="w-full text-left px-4 sm:px-6 md:px-10 py-4 sm:py-6 md:py-8 flex items-start gap-3 sm:gap-4 md:gap-6 group relative cursor-pointer">
                 
-                <div className="mt-1 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110 shadow-sm" style={{ background: theme.bg, borderColor: theme.border }}>
-                    <i className={`${getWorkshopVectorIcon(workshop)} text-base md:text-lg`} style={{ color: theme.primary }}></i>
+                <div className="mt-0.5 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110 shadow-sm" style={{ background: theme.bg, borderColor: theme.border }}>
+                    <i className={`${getWorkshopVectorIcon(workshop)} text-sm sm:text-base md:text-lg`} style={{ color: theme.primary }}></i>
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
                         {workshop.heading && (
-                            <span className="inline-block px-3 py-1 text-[10px] md:text-xs font-extrabold rounded uppercase tracking-widest text-white shadow-sm" style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` }}>
+                            <span className="inline-block px-2.5 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[10px] md:text-xs font-extrabold rounded uppercase tracking-wider sm:tracking-widest text-white shadow-sm" style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` }}>
                                 {workshop.heading}
                             </span>
                         )}
@@ -133,14 +133,14 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                                     return `${hNum % 12 || 12}:${m} ${ampm}`;
                                 };
                                 return (
-                                    <span className="text-sm md:text-base font-bold text-slate-700" suppressHydrationWarning>
+                                    <span className="text-xs sm:text-sm md:text-base font-bold text-slate-700" suppressHydrationWarning>
                                         {dateStr} &bull; {formatTime(workshop.start_time)} - {formatTime(workshop.end_time)}
                                     </span>
                                 );
                             }
                             if (workshop.pricing?.date_time_bullets && workshop.pricing.date_time_bullets[0]) {
                                 return (
-                                    <span className="text-sm md:text-base font-bold text-slate-700">
+                                    <span className="text-xs sm:text-sm md:text-base font-bold text-slate-700">
                                         <span dangerouslySetInnerHTML={{ __html: workshop.pricing.date_time_bullets[0] }} />
                                     </span>
                                 );
@@ -149,10 +149,10 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                         })()}
                     </div>
                     
-                    <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 mb-1">{workshop.title}</h3>
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 mb-1">{workshop.title}</h3>
                     
                     {(workshop.mentor || workshop.duration) && (
-                        <p className="text-sm text-slate-500 font-medium mb-1">
+                        <p className="text-xs sm:text-sm text-slate-500 font-medium mb-1">
                             {workshop.mentor && <>by <span className="text-slate-900 font-bold">{workshop.mentor}</span></>}
                             {workshop.mentor && workshop.duration && ' · '}
                             {workshop.duration && <>{workshop.duration}</>}

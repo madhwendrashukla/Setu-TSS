@@ -84,7 +84,7 @@ export function DynamicStoryline({ data }: { data: PageData }) {
     let sectionBg = "bg-[#FAFAFC]";
 
     return (
-        <section className={`py-24 relative overflow-hidden ${sectionBg}`}>
+        <section className={`py-12 sm:py-20 md:py-24 relative overflow-hidden ${sectionBg}`}>
             {/* Grid Pattern Background for both light and dark */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className={`absolute inset-0 opacity-[0.03]`} style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.5) 1px, transparent 1px)`, backgroundSize: '40px 40px' }}></div>
@@ -97,23 +97,23 @@ export function DynamicStoryline({ data }: { data: PageData }) {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="text-center mb-16 max-w-3xl mx-auto">
+                <div className="text-center mb-8 sm:mb-12 md:mb-16 max-w-3xl mx-auto">
                     {story.headline && (
                         <h2 
-                            className={`text-4xl md:text-5xl font-bold mb-5 tracking-tight text-slate-900`}
+                            className={`text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-5 tracking-tight text-slate-900`}
                             dangerouslySetInnerHTML={{ __html: story.headline }}
                         />
                     )}
                     {story.description && (
                         <div 
-                            className={`text-lg md:text-xl text-slate-500`}
+                            className={`text-sm sm:text-lg md:text-xl text-slate-500`}
                             dangerouslySetInnerHTML={{ __html: story.description }}
                         />
                     )}
                 </div>
 
                 {story.boxes && story.boxes.length > 0 && (
-                    <div className={`grid grid-cols-1 ${gridCols} gap-6 lg:gap-8 items-stretch relative`}>
+                    <div className={`grid grid-cols-1 ${gridCols} gap-4 sm:gap-6 lg:gap-8 items-stretch relative`}>
                         {/* Connecting Line if exactly 2 boxes */}
                         {story.boxes.length === 2 && (
                             <div className={`hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 w-24 h-[1px] -z-10 bg-purple-200`}></div>
@@ -123,7 +123,7 @@ export function DynamicStoryline({ data }: { data: PageData }) {
                             const watermarkIcon = box.watermark_icon || box.icon_class;
                             
                             return (
-                                <div key={idx} className={`rounded-[2rem] p-8 md:p-10 transition-all duration-500 relative group overflow-hidden flex flex-col h-full ${getBoxThemeClasses()}`}>
+                                <div key={idx} className={`rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 md:p-10 transition-all duration-500 relative group overflow-hidden flex flex-col h-full ${getBoxThemeClasses()}`}>
                                     
                                     {/* Giant Watermark Background Icon */}
                                     {watermarkIcon && (
@@ -132,29 +132,29 @@ export function DynamicStoryline({ data }: { data: PageData }) {
 
                                     {/* Icon Header */}
                                     {(box.icon_class || box.image_url) && (
-                                        <div className="mb-6 relative z-10">
+                                        <div className="mb-4 sm:mb-6 relative z-10">
                                             {box.image_url ? (
-                                                <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex items-center justify-center bg-white">
+                                                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex items-center justify-center bg-white">
                                                     <img src={box.image_url} alt="" className="w-full h-full object-contain p-1" />
                                                 </div>
                                             ) : (
-                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl bg-[#f0f1f5] text-slate-600`}>
+                                                <div className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl bg-[#f0f1f5] text-slate-600`}>
                                                     <i className={box.icon_class}></i>
                                                 </div>
                                             )}
                                         </div>
                                     )}
 
-                                    <h3 className={`text-xl md:text-[22px] font-bold mb-3 relative z-10 ${getTitleClasses()}`}>{box.title}</h3>
+                                    <h3 className={`text-lg sm:text-xl md:text-[22px] font-bold mb-2 sm:mb-3 relative z-10 ${getTitleClasses()}`}>{box.title}</h3>
                                     
-                                    <div className={`text-sm md:text-[15px] mb-8 relative z-10 ${getDescriptionClasses()}`} dangerouslySetInnerHTML={{__html: box.description}}></div>
+                                    <div className={`text-xs sm:text-sm md:text-[15px] mb-4 sm:mb-8 relative z-10 ${getDescriptionClasses()}`} dangerouslySetInnerHTML={{__html: box.description}}></div>
                                     
-                                    <ul className="space-y-5 flex-1 relative z-10">
+                                    <ul className="space-y-3 sm:space-y-5 flex-1 relative z-10">
                                         {box.bullets && box.bullets.map((bullet: any, bIdx: number) => (
-                                            <li key={bIdx} className="flex items-start gap-4">
+                                            <li key={bIdx} className="flex items-start gap-3 sm:gap-4">
                                                 {renderBulletIcon(bullet.style)}
                                                 <span 
-                                                    className={`text-[14px] leading-relaxed pt-0.5 ${getBulletTextClasses(bullet.style)}`}
+                                                    className={`text-xs sm:text-[14px] leading-relaxed pt-0.5 ${getBulletTextClasses(bullet.style)}`}
                                                     dangerouslySetInnerHTML={{ __html: bullet.text }}
                                                 />
                                             </li>

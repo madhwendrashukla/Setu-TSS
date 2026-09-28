@@ -83,26 +83,28 @@ export default async function DynamicEventPage({ params, searchParams }: { param
                 backgroundSize: '30px 30px',
             }} />
             {/* Custom Pill Navigation (Matching Global Nav Style but with Event CTA) */}
-            <div className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-5xl z-50 flex justify-center">
-                <nav className="w-full bg-white/90 backdrop-blur-3xl border border-functional-border rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-4 sm:px-6">
-                    <div className="flex justify-between items-center h-14 md:h-16">
+            <div className="fixed top-2.5 sm:top-4 left-1/2 -translate-x-1/2 w-[94%] sm:w-[95%] max-w-5xl z-50 flex justify-center">
+                <nav className="w-full bg-white/95 backdrop-blur-3xl border border-functional-border rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-3.5 sm:px-6">
+                    <div className="flex justify-between items-center h-12 sm:h-14 md:h-16">
                         <div className="flex items-center flex-shrink-0">
-                            <Link href="/" className="flex items-center gap-3">
-                                <div className="flex items-center gap-3">
+                            <Link href="/" className="flex items-center gap-2 sm:gap-3">
+                                <div className="flex items-center gap-2 sm:gap-3">
                                     <Image 
                                         src="/setu-logo-nav.png" 
                                         alt="Setu Logo" 
-                                        width={85} 
-                                        height={28} 
-                                        className="object-contain"
+                                        width={75} 
+                                        height={25} 
+                                        className="object-contain w-14 sm:w-20"
                                         priority
                                     />
-                                    <div className="h-5 w-px bg-text-secondary/20"></div>
-                                    <span className="text-[10px] md:text-[13px] font-black tracking-[0.2em] text-[#0B1120] uppercase mt-0.5"><span className="text-accent-violet">Startup</span> School</span>
+                                    <div className="h-4 sm:h-5 w-px bg-text-secondary/20 hidden sm:block"></div>
+                                    <span className="hidden sm:inline-block text-[10px] md:text-[13px] font-black tracking-[0.15em] sm:tracking-[0.2em] text-[#0B1120] uppercase mt-0.5">
+                                        <span className="text-accent-violet">Startup</span> School
+                                    </span>
                                 </div>
                             </Link>
                         </div>
-                        <div className="flex-shrink-0 ml-4">
+                        <div className="flex-shrink-0 ml-2 sm:ml-4">
                             {!event.is_past && pageData.registrations_open !== false ? (
                                 <a 
                                     href={
@@ -114,12 +116,12 @@ export default async function DynamicEventPage({ params, searchParams }: { param
                                     }
                                     target={event.registration_url && /^https?:\/\//i.test(event.registration_url) && !event.lms_course_slug ? "_blank" : "_self"}
                                     rel={event.registration_url && /^https?:\/\//i.test(event.registration_url) && !event.lms_course_slug ? "noopener noreferrer" : ""}
-                                    className="bg-accent-violet hover:bg-[#9333ea] text-white px-5 sm:px-8 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block shadow-sm"
+                                    className="bg-accent-violet hover:bg-[#9333ea] text-white px-3.5 sm:px-6 md:px-8 py-1.5 sm:py-2 md:py-2.5 rounded-full text-[11px] sm:text-xs md:text-sm font-bold transition duration-300 hover:shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:-translate-y-0.5 whitespace-nowrap block shadow-sm"
                                 >
                                     {event.lms_course_slug ? "Enroll Now" : "Register Now"}
                                 </a>
                             ) : (
-                                <span className="bg-slate-100 text-slate-500 border border-slate-200 px-4 sm:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold cursor-not-allowed whitespace-nowrap block">
+                                <span className="bg-slate-100 text-slate-500 border border-slate-200 px-3 sm:px-6 py-1.5 sm:py-2 md:py-2.5 rounded-full text-[11px] sm:text-xs md:text-sm font-bold cursor-not-allowed whitespace-nowrap block">
                                     {event.is_past ? "Concluded" : "Closed"}
                                 </span>
                             )}
@@ -128,7 +130,7 @@ export default async function DynamicEventPage({ params, searchParams }: { param
                 </nav>
             </div>
 
-            <main className="relative z-10 pt-20">
+            <main className="relative z-10 pt-16 sm:pt-20">
                 {isArrayFormat ? (
                     // Legacy Support if needed
                     (pageData as any).map((block: any, index: number) => {

@@ -450,10 +450,6 @@ const PricingEditor = ({ options, onChange, lmsCoursePrice }: { options: any[], 
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Heading (e.g. OFFER)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={o.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Title</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={o.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
                         </div>
-                        <div className="bg-white rounded border border-gray-200">
-                            <label className="block text-xs font-bold mb-2 text-gray-500 p-2 pb-0">Key Features / Description</label>
-                            <ReactQuill modules={quillModules} theme="snow" value={o.key_features || ""} onChange={val => handleChange(index, 'key_features', val)} placeholder="Enter features using bullets..." />
-                        </div>
 
                         <div className="bg-white p-4 rounded border border-gray-200 space-y-4">
                             <h5 className="font-bold text-xs text-gray-700 uppercase tracking-wide">Pricing & Details</h5>
@@ -468,10 +464,18 @@ const PricingEditor = ({ options, onChange, lmsCoursePrice }: { options: any[], 
                             <div className="bg-gray-100 p-4 rounded border border-gray-200">
                                 <label className="block text-sm font-bold mb-2 text-gray-700">Date & Time / Sessions (Rich Text)</label>
                                 <div className="bg-white">
-                                    <ReactQuill modules={quillModules} theme="snow" value={o.date_time_html || ""} onChange={val => handleChange(index, 'date_time_html', val)} placeholder="Enter dates, times, and sessions with bullets..." />
+                                    <ReactQuill modules={quillModules} theme="snow" value={o.date_time_html || ""} onChange={val => handleChange(index, 'date_time_html', val)} placeholder="Enter dates, times, and sessions with bullets (e.g. • 2 October 2026, • 2:00 PM to 6:00 PM)..." />
                                 </div>
                             </div>
-                            <div className="border-t pt-4 mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        </div>
+
+                        <div className="bg-white rounded border border-gray-200">
+                            <label className="block text-xs font-bold mb-2 text-gray-500 p-2 pb-0">Key Features / What&apos;s Included (Deliverables & Perks)</label>
+                            <ReactQuill modules={quillModules} theme="snow" value={o.key_features || ""} onChange={val => handleChange(index, 'key_features', val)} placeholder="Enter included features using bullets (e.g. • Chai & Networking, • Community Access)..." />
+                        </div>
+
+                        <div className="bg-white p-4 rounded border border-gray-200">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold mb-1 text-gray-500">CTA Button Text</label>
                                     <input className="w-full bg-gray-50 border border-gray-200 p-2 rounded outline-none" value={o.cta?.text || ""} onChange={e => handleChange(index, 'cta', { ...o.cta, text: e.target.value })} placeholder="Book Your Seat Now" />

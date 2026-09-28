@@ -55,21 +55,21 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
     }
 
     return (
-        <section className="w-full max-w-5xl mx-auto px-4 sm:px-6 mt-4 md:mt-8 mb-10 md:mb-14">
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-14 mb-14 md:mb-20">
             {/* Optional Section Header if headings are passed */}
             {headings?.title && (
-                <div className="text-center mb-6">
+                <div className="text-center mb-8 md:mb-12">
                     {headings.tag && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200 mb-2">
-                            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                        <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs md:text-sm font-extrabold uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200 mb-3">
+                            <Sparkles className="w-4 h-4 text-purple-600" />
                             {headings.tag}
                         </span>
                     )}
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
                         {headings.title}
                     </h2>
                     {headings.subtitle && (
-                        <p className="mt-1.5 text-sm md:text-base text-slate-600 max-w-xl mx-auto">
+                        <p className="mt-3 text-base md:text-xl text-slate-600 max-w-2xl mx-auto font-medium">
                             {headings.subtitle}
                         </p>
                     )}
@@ -81,8 +81,8 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
                     const fullDateStr = formatEventWhen(event);
                     const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
                     const locationLabel = isOnline 
-                        ? "Online Live" 
-                        : (event.city ? event.city : (event.venue || "Offline"));
+                        ? "Live Online" 
+                        : (event.city ? event.city : (event.venue || "In-Person"));
                         
                     const targetUrl = event.slug ? `/events/${event.slug}` : (event.registration_url || "#");
                     const targetAttr = event.slug ? "_self" : (event.registration_url ? "_blank" : "_self");
@@ -95,51 +95,51 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
                             href={targetUrl} 
                             target={targetAttr}
                             rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} 
-                            className={`block w-full rounded-2xl md:rounded-3xl overflow-hidden border border-slate-200/90 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] hover:shadow-[0_16px_40px_rgba(124,58,237,0.12)] transition-all duration-500 ease-in-out group isolate ${
+                            className={`block w-full rounded-3xl md:rounded-[36px] overflow-hidden border border-slate-200/90 bg-white shadow-[0_16px_45px_rgba(15,23,42,0.08)] hover:shadow-[0_24px_60px_rgba(124,58,237,0.16)] transition-all duration-700 ease-in-out group isolate ${
                                 isCurrent ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 z-0 pointer-events-none'
                             }`}
                         >
-                            <div className="flex flex-col lg:flex-row w-full items-stretch">
+                            <div className="flex flex-col lg:flex-row w-full items-stretch min-h-[420px] md:min-h-[460px]">
                                 {/* Left Content Column */}
-                                <div className="w-full lg:w-7/12 p-5 sm:p-7 md:p-8 flex flex-col justify-center relative z-10 order-2 lg:order-1">
+                                <div className="w-full lg:w-7/12 p-8 sm:p-12 md:p-14 lg:p-16 flex flex-col justify-center relative z-10 order-2 lg:order-1">
                                     
-                                    {/* Clean Badges Row (No Featured Event Tag) */}
-                                    <div className="flex flex-wrap items-center gap-2 mb-3.5">
+                                    {/* Clean Badges Row */}
+                                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 mb-6">
                                         {fullDateStr && (
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200/80" suppressHydrationWarning>
-                                                <Clock className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                                            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs" suppressHydrationWarning>
+                                                <Clock className="w-4 h-4 text-purple-600 shrink-0" />
                                                 <span>{fullDateStr}</span>
                                             </span>
                                         )}
 
-                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200/80">
-                                            <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs">
+                                            <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
                                             <span>{locationLabel}</span>
                                         </span>
                                     </div>
 
-                                    {/* Title */}
-                                    <h3 className="text-xl sm:text-2xl md:text-[26px] font-black tracking-tight leading-snug text-slate-900 mb-2.5 group-hover:text-purple-700 transition-colors duration-300">
+                                    {/* Title - Bold, Commanding & High Visibility */}
+                                    <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-black tracking-tight leading-[1.18] text-slate-900 mb-4 group-hover:text-purple-700 transition-colors duration-300">
                                         {event.title}
                                     </h3>
                                     
                                     {/* Description */}
-                                    <p className="text-slate-600 text-xs sm:text-sm md:text-[15px] font-normal leading-relaxed mb-5 line-clamp-2">
+                                    <p className="text-slate-600 text-sm sm:text-base md:text-lg font-normal leading-relaxed mb-8 line-clamp-3 max-w-2xl">
                                         {event.description}
                                     </p>
 
                                     {/* CTA Button */}
-                                    <div>
-                                        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#7C3AED] via-[#8B3DFF] to-[#A855F7] shadow-md shadow-purple-500/20 group-hover:shadow-lg group-hover:shadow-purple-500/35 group-hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
+                                    <div className="pt-1">
+                                        <div className="inline-flex items-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-xl md:rounded-2xl font-bold text-sm sm:text-base md:text-lg text-white bg-gradient-to-r from-[#7C3AED] via-[#8B3DFF] to-[#A855F7] shadow-lg shadow-purple-500/25 group-hover:shadow-xl group-hover:shadow-purple-500/40 group-hover:scale-[1.03] active:scale-[0.98] transition-all duration-300">
                                             <span>Know More</span>
-                                            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Right Image Banner Column */}
-                                <div className="w-full lg:w-5/12 p-3 sm:p-5 md:p-6 flex items-center justify-center bg-gradient-to-br from-purple-50/50 via-slate-50/40 to-indigo-50/30 order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-slate-100">
-                                    <div className="relative w-full aspect-[16/10] max-w-[420px] rounded-xl md:rounded-2xl overflow-hidden shadow-sm border border-slate-200/80 bg-white group-hover:shadow-md transition-all duration-500 flex items-center justify-center">
+                                <div className="w-full lg:w-5/12 p-6 sm:p-8 md:p-10 lg:p-12 flex items-center justify-center bg-gradient-to-br from-purple-50/70 via-slate-50/60 to-indigo-50/50 order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-slate-100">
+                                    <div className="relative w-full aspect-[16/10] max-w-[540px] rounded-2xl md:rounded-3xl overflow-hidden shadow-md border border-slate-200/80 bg-white group-hover:shadow-xl transition-all duration-500 flex items-center justify-center">
                                         {event.banner_url ? (
                                             <img 
                                                 src={encodeURI(event.banner_url)} 
@@ -162,7 +162,7 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
 
                 {/* Pagination Dots (if multiple pinned events) */}
                 {events.length > 1 && (
-                    <div className="flex justify-center items-center gap-2 mt-4">
+                    <div className="flex justify-center items-center gap-2.5 mt-6">
                         {events.map((_, idx) => (
                             <button
                                 key={idx}
@@ -171,7 +171,7 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
                                     setCurrentIndex(idx);
                                 }}
                                 className={`transition-all duration-300 rounded-full cursor-pointer ${
-                                    idx === currentIndex ? 'w-7 h-2 bg-purple-600' : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
+                                    idx === currentIndex ? 'w-8 h-2.5 bg-purple-600' : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
                                 }`}
                                 aria-label={`Go to slide ${idx + 1}`}
                             />

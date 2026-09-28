@@ -2,9 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Calendar } from 'lucide-react';
+import { Calendar, ArrowRight, MapPin, Clock, Sparkles } from 'lucide-react';
 import { formatEventWhen } from '@/lib/event-date';
-export function WorkshopPreview() {
+
+interface WorkshopPreviewProps {
+    headings?: {
+        tag?: string;
+        title?: string;
+        subtitle?: string;
+    };
+}
+
+export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
     const [events, setEvents] = useState<any[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -18,7 +27,7 @@ export function WorkshopPreview() {
                     if (Array.isArray(data)) {
                         setEvents(data);
                     } else if (data) {
-                        setEvents([data]); // fallback in case API returns single object
+                        setEvents([data]);
                     }
                 }
             } catch (e) {
@@ -34,7 +43,7 @@ export function WorkshopPreview() {
         if (events.length > 1) {
             const timer = setInterval(() => {
                 setCurrentIndex((prev) => (prev + 1) % events.length);
-            }, 5000);
+            }, 7000);
             return () => clearInterval(timer);
         }
     }, [events.length]);
@@ -42,110 +51,136 @@ export function WorkshopPreview() {
     if (loading) return null;
 
     if (!events || events.length === 0) {
-        return (
-            <div className="w-full max-w-7xl mx-auto rounded-[32px] md:rounded-[48px] border border-functional-border bg-bg-surface/70 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.2)] mt-10 p-12 md:p-20 flex flex-col items-center justify-center text-center isolate">
-                <div className="w-16 h-16 rounded-2xl bg-[#A855F7]/10 flex items-center justify-center mb-6 border border-[#A855F7]/20">
-                    <Calendar className="w-8 h-8 text-[#A855F7]" />
-                </div>
-                <h3 className="text-3xl md:text-5xl font-black mb-4 text-text-primary tracking-tight">New Events Coming Soon</h3>
-                <p className="text-text-secondary text-lg max-w-2xl font-medium">We are currently curating our next set of exclusive offline meetups and workshops for founders. Stay tuned!</p>
-            </div>
-        );
+        return null;
     }
 
     return (
-        <div className="relative w-full max-w-7xl mx-auto mt-10">
-            {events.map((event, index) => {
-                const fullDateStr = formatEventWhen(event);
-                    
-                const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
-                const locationStr = isOnline ? "Online" : `Offline • Venue: ${event.venue}${event.city ? `, ${event.city}` : ''}`;
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 md:mt-10 mb-12 md:mb-16">
+            {/* Optional Section Header if headings are passed */}
+            {headings?.title && (
+                <div className="text-center mb-8">
+                    {headings.tag && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200 mb-2">
+                            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                            {headings.tag}
+                        </span>
+                    )}
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                        {headings.title}
+                    </h2>
+                    {headings.subtitle && (
+                        <p className="mt-2 text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
+                            {headings.subtitle}
+                        </p>
+                    )}
+                </div>
+            )}
 
-                const targetUrl = event.slug ? `/events/${event.slug}` : (event.registration_url || "#");
-                const targetAttr = event.slug ? "_self" : (event.registration_url ? "_blank" : "_self");
+            <div className="relative w-full">
+                {events.map((event, index) => {
+                    const fullDateStr = formatEventWhen(event);
+                    const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
+                    const locationLabel = isOnline ? "Online Live" : (event.city ? `${event.city}` : "Offline In-Person");
+                    const targetUrl = event.slug ? `/events/${event.slug}` : (event.registration_url || "#");
+                    const targetAttr = event.slug ? "_self" : (event.registration_url ? "_blank" : "_self");
 
-                return (
-                    <Link 
-                        key={event.id}
-                        href={targetUrl} 
-                        target={targetAttr}
-                        rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} 
-                        className={`absolute top-0 left-0 w-full block rounded-[32px] md:rounded-[48px] overflow-hidden border border-functional-border shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_40px_rgba(168,85,247,0.1)] bg-bg-surface cursor-pointer group isolate transition-all duration-1000 ease-in-out ${
-                            index === currentIndex ? 'opacity-100 z-10 translate-x-0' : 'opacity-0 z-0 translate-x-8 pointer-events-none'
-                        }`}
-                    >
-                        <div className="flex flex-col md:flex-row w-full h-full">
-                            {/* Text Content Column */}
-                            <div className="w-full md:w-1/2 px-8 py-12 md:px-16 md:py-20 flex flex-col justify-center relative z-10 order-2 md:order-1">
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-functional-border text-[10px] md:text-xs font-bold mb-6 w-fit text-text-primary uppercase tracking-wider">
-                                    <span className="w-2 h-2 rounded-full bg-[#A855F7] animate-pulse"></span>
-                                    <span suppressHydrationWarning>Live Event • {fullDateStr} • {locationStr}</span>
+                    const isCurrent = index === currentIndex;
+
+                    return (
+                        <Link 
+                            key={event.id || index}
+                            href={targetUrl} 
+                            target={targetAttr}
+                            rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} 
+                            className={`block w-full rounded-3xl md:rounded-[36px] overflow-hidden border border-slate-200/90 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_50px_rgba(124,58,237,0.12)] transition-all duration-700 ease-in-out group isolate ${
+                                isCurrent ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 z-0 pointer-events-none'
+                            }`}
+                        >
+                            <div className="flex flex-col lg:flex-row w-full items-stretch">
+                                {/* Left Content Column */}
+                                <div className="w-full lg:w-7/12 p-6 sm:p-9 md:p-12 lg:p-14 flex flex-col justify-center relative z-10 order-2 lg:order-1">
+                                    
+                                    {/* Clean Badges Row */}
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-5">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200 shadow-2xs">
+                                            <span className="w-2 h-2 rounded-full bg-purple-600 shrink-0 animate-pulse"></span>
+                                            Featured Event
+                                        </span>
+
+                                        {fullDateStr && (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200/80" suppressHydrationWarning>
+                                                <Clock className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                                                <span>{fullDateStr}</span>
+                                            </span>
+                                        )}
+
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200/80">
+                                            <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                            <span>{locationLabel}</span>
+                                        </span>
+                                    </div>
+
+                                    {/* Title */}
+                                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight leading-[1.2] text-slate-900 mb-3.5 group-hover:text-purple-700 transition-colors duration-300">
+                                        {event.title}
+                                    </h3>
+                                    
+                                    {/* Description */}
+                                    <p className="text-slate-600 text-sm sm:text-base md:text-lg font-normal leading-relaxed mb-6 line-clamp-3">
+                                        {event.description}
+                                    </p>
+
+                                    {/* CTA Button */}
+                                    <div className="pt-1">
+                                        <div className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl font-bold text-sm sm:text-base text-white bg-gradient-to-r from-[#7C3AED] via-[#8B3DFF] to-[#A855F7] shadow-md shadow-purple-500/20 group-hover:shadow-lg group-hover:shadow-purple-500/35 group-hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
+                                            <span>Know More</span>
+                                            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <h3 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 tracking-tight leading-tight text-text-primary">
-                                    {event.title}
-                                </h3>
-                                
-                                <p className="text-text-secondary text-sm md:text-base lg:text-lg font-medium mb-10 leading-relaxed line-clamp-3">
-                                    {event.description}
-                                </p>
-
-                                <div className="relative inline-block w-fit">
-                                    <div className="bg-[#A855F7] text-text-primary px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition duration-300 group-hover:bg-[#9333ea] group-hover:shadow-lg group-hover:-translate-y-0.5">
-                                        Know More <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                {/* Right Image Banner Column */}
+                                <div className="w-full lg:w-5/12 p-4 sm:p-7 md:p-9 flex items-center justify-center bg-gradient-to-br from-purple-50/70 via-slate-50/60 to-indigo-50/40 order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-slate-100">
+                                    <div className="relative w-full aspect-[16/10] max-w-[540px] rounded-2xl overflow-hidden shadow-md border border-slate-200/80 bg-white group-hover:shadow-xl transition-all duration-500 flex items-center justify-center">
+                                        {event.banner_url ? (
+                                            <img 
+                                                src={encodeURI(event.banner_url)} 
+                                                alt={event.title} 
+                                                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
+                                            />
+                                        ) : (
+                                            <img 
+                                                src="/ai-workshop-banner.webp" 
+                                                alt={event.title} 
+                                                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </div>
+                        </Link>
+                    );
+                })}
 
-                            {/* Image Column */}
-                            <div className="w-full md:w-1/2 h-64 md:h-auto relative order-1 md:order-2 shrink-0 flex items-center justify-center p-4">
-                                {event.banner_url ? (
-                                    <img 
-                                        src={encodeURI(event.banner_url)} 
-                                        alt={event.title} 
-                                        className="w-full h-full object-contain rounded-xl shadow-sm"
-                                    />
-                                ) : (
-                                    <img 
-                                        src="/ai-workshop-banner.webp" 
-                                        alt={event.title} 
-                                        className="w-full h-full object-contain rounded-xl shadow-sm"
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    </Link>
-                );
-            })}
-            
-            {/* To maintain layout height since elements are absolute */}
-            <div className="w-full invisible pointer-events-none">
-                <div className="flex flex-col md:flex-row w-full h-full">
-                    <div className="w-full h-64 md:hidden shrink-0"></div>
-                    <div className="w-full md:w-1/2 px-8 py-12 md:px-16 md:py-20 flex flex-col justify-center">
-                        <div className="h-8 mb-6"></div>
-                        <h3 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 leading-tight">Placeholder Text For Height</h3>
-                        <p className="text-lg font-medium mb-10 line-clamp-3 leading-relaxed">Description placeholder for multiple lines of text that might take up space</p>
-                        <div className="px-8 py-4 h-14"></div>
+                {/* Pagination Dots (if multiple pinned events) */}
+                {events.length > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-6">
+                        {events.map((_, idx) => (
+                            <button
+                                key={idx}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setCurrentIndex(idx);
+                                }}
+                                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                                    idx === currentIndex ? 'w-8 h-2.5 bg-purple-600' : 'w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400'
+                                }`}
+                                aria-label={`Go to slide ${idx + 1}`}
+                            />
+                        ))}
                     </div>
-                </div>
+                )}
             </div>
-
-            {/* Navigation Dots */}
-            {events.length > 1 && (
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
-                    {events.map((_, idx) => (
-                        <button
-                            key={idx}
-                            onClick={() => setCurrentIndex(idx)}
-                            className={`transition-all duration-300 rounded-full ${
-                                idx === currentIndex ? 'w-6 h-2 bg-[#A855F7]' : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
-                            }`}
-                            aria-label={`Go to slide ${idx + 1}`}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
+        </section>
     );
 }

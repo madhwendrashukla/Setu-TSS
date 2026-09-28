@@ -167,11 +167,11 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                 
                                 <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
                                 
-                                <div className="p-7 sm:p-8 flex-1 flex flex-col">
+                                <div className="p-6 sm:p-7 flex-1 flex flex-col">
                                     {/* Header: Centered Tag & Title */}
-                                    <div className="text-center mb-5">
+                                    <div className="text-center mb-4">
                                         {item.heading && (
-                                            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] tracking-wider uppercase mb-3 border border-blue-200/60 shadow-2xs">
+                                            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] tracking-wider uppercase mb-2.5 border border-blue-200/60 shadow-2xs">
                                                 {decodeHtmlEntities(item.heading).replace(/<[^>]*>/g, '')}
                                             </div>
                                         )}
@@ -182,9 +182,9 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
 
                                     {/* Centered Pricing Display */}
                                     {data.registrations_open !== false && (
-                                        <div className="text-center mb-6 pb-6 border-b border-slate-100 flex flex-col items-center justify-center">
+                                        <div className="text-center mb-5 pb-5 border-b border-slate-100 flex flex-col items-center justify-center">
                                             {(item.pricing?.strike_price || 0) > 0 && (
-                                                <div className="flex items-center justify-center gap-2 mb-1.5">
+                                                <div className="flex items-center justify-center gap-2 mb-1">
                                                     <span className="text-base text-slate-400 line-through font-semibold">
                                                         ₹{item.pricing.strike_price}
                                                     </span>
@@ -212,16 +212,16 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
 
                                     {/* Session Details Box (Clean aligned icon column) */}
                                     {(dateBullets.length > 0 || (item.date_time_html && !htmlDateBullets.length) || item.pricing?.mode) && (
-                                        <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-100/90 mb-6 space-y-3">
+                                        <div className="bg-slate-50/90 rounded-2xl p-3.5 border border-slate-100/90 mb-4 space-y-2.5">
                                             {dateBullets.length > 0 ? (
                                                 dateBullets.map((dt: string, i: number) => {
                                                     const meta = getBulletMeta(dt, i);
                                                     return (
                                                         <div key={i} className="flex items-center gap-3 text-sm text-slate-700 font-medium">
-                                                            <div className={`w-8 h-8 rounded-xl ${meta.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
+                                                            <div className={`w-7 h-7 rounded-lg ${meta.bg} flex items-center justify-center shrink-0 shadow-2xs`}>
                                                                 <i className={`${meta.icon} text-xs`}></i>
                                                             </div>
-                                                            <span className="flex-1 leading-snug" dangerouslySetInnerHTML={{ __html: dt }} />
+                                                            <span className="flex-1 leading-snug text-xs sm:text-sm" dangerouslySetInnerHTML={{ __html: dt }} />
                                                         </div>
                                                     );
                                                 })
@@ -234,7 +234,7 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
 
                                             {item.pricing?.mode === 'offline' && item.pricing?.address && (
                                                 <div className="flex items-center gap-3 text-sm text-slate-700 font-medium pt-2 border-t border-slate-200/60">
-                                                    <div className="w-8 h-8 rounded-xl bg-rose-100/80 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
+                                                    <div className="w-7 h-7 rounded-lg bg-rose-100/80 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
                                                         <i className="fas fa-map-marker-alt text-xs"></i>
                                                     </div>
                                                     <span className="text-xs text-slate-600 leading-snug">{decodeHtmlEntities(item.pricing.address).replace(/<[^>]*>/g, '')}</span>
@@ -245,7 +245,7 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
 
                                     {/* Features Checklist */}
                                     {features.length > 0 && (
-                                        <div className="space-y-2.5 mb-6 flex-1 px-1">
+                                        <div className="space-y-2 mb-2 px-1">
                                             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
                                                 What&apos;s Included:
                                             </div>
@@ -260,7 +260,7 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                 </div>
 
                                 {/* CTA Footer Button */}
-                                <div className="p-6 bg-slate-50 border-t border-slate-100 mt-auto">
+                                <div className="p-5 bg-slate-50 border-t border-slate-100 mt-auto">
                                     {data.registrations_open !== false ? (
                                         <button 
                                             onClick={() => onCheckoutClick && onCheckoutClick(item.id)}

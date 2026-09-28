@@ -131,7 +131,8 @@ Please convert and adapt this into a high-resolution portrait/square poster form
 
     const fetchEvents = () => {
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?all=true`, {
+        const API = process.env.NEXT_PUBLIC_API_URL || "";
+        fetch(`${API}/api/events?all=true`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -175,9 +176,10 @@ Please convert and adapt this into a high-resolution portrait/square poster form
 
         if (file) data.append("banner", file);
 
+        const API = process.env.NEXT_PUBLIC_API_URL || "";
         const url = editingEvent 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${editingEvent.id}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/events`;
+            ? `${API}/api/admin/events/${editingEvent.id}`
+            : `${API}/api/admin/events`;
         const method = editingEvent ? "PUT" : "POST";
 
         try {
@@ -204,8 +206,9 @@ Please convert and adapt this into a high-resolution portrait/square poster form
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this event?")) return;
         const token = localStorage.getItem("adminToken");
+        const API = process.env.NEXT_PUBLIC_API_URL || "";
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${id}`, {
+            const res = await fetch(`${API}/api/admin/events/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -219,11 +222,12 @@ Please convert and adapt this into a high-resolution portrait/square poster form
     // by the backend, so hiding here also hides there — the two cannot diverge.
     const toggleVisibility = async (event: any) => {
         const token = localStorage.getItem("adminToken");
+        const API = process.env.NEXT_PUBLIC_API_URL || "";
         try {
             const fd = new FormData();
             fd.append('is_active', String(event.is_active === false));
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${event.id}`, {
+            const res = await fetch(`${API}/api/admin/events/${event.id}`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${token}` },
                 body: fd
@@ -236,11 +240,12 @@ Please convert and adapt this into a high-resolution portrait/square poster form
 
     const togglePin = async (event: any) => {
         const token = localStorage.getItem("adminToken");
+        const API = process.env.NEXT_PUBLIC_API_URL || "";
         try {
             const fd = new FormData();
             fd.append('is_pinned', String(!event.is_pinned));
             
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${event.id}`, {
+            const res = await fetch(`${API}/api/admin/events/${event.id}`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${token}` },
                 body: fd
@@ -253,11 +258,12 @@ Please convert and adapt this into a high-resolution portrait/square poster form
 
     const toggleStatus = async (event: any) => {
         const token = localStorage.getItem("adminToken");
+        const API = process.env.NEXT_PUBLIC_API_URL || "";
         try {
             const fd = new FormData();
             fd.append('is_past', String(!event.is_past));
             
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${event.id}`, {
+            const res = await fetch(`${API}/api/admin/events/${event.id}`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${token}` },
                 body: fd

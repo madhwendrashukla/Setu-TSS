@@ -23,12 +23,14 @@ export default function AdminLogin() {
         router.push("/admin/dashboard");
     };
 
+    const API = process.env.NEXT_PUBLIC_API_URL || "";
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setIsLoading(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, {
+            const res = await fetch(`${API}/api/admin/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
@@ -58,7 +60,7 @@ export default function AdminLogin() {
 
     const handleSetupRequest = async (token: string) => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/setup-2fa`, {
+            const res = await fetch(`${API}/api/admin/setup-2fa`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ tempToken: token })
@@ -82,7 +84,7 @@ export default function AdminLogin() {
         setError("");
         setIsLoading(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/verify-2fa-setup`, {
+            const res = await fetch(`${API}/api/admin/verify-2fa-setup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ tempToken, token: otpCode, secret })
@@ -105,7 +107,7 @@ export default function AdminLogin() {
         setError("");
         setIsLoading(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/verify-otp`, {
+            const res = await fetch(`${API}/api/admin/verify-otp`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ tempToken, token: otpCode })

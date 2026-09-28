@@ -50,6 +50,12 @@ function getWorkshopVectorIcon(workshop: WorkshopData): string {
     
     // Direct emoji mapping to appropriate FontAwesome vectors
     const emojiMap: Record<string, string> = {
+        '☕': 'fa-solid fa-mug-hot',
+        '☕️': 'fa-solid fa-mug-hot',
+        '👥': 'fa-solid fa-users',
+        '🎯': 'fa-solid fa-bullseye',
+        '💎': 'fa-solid fa-gem',
+        '🔥': 'fa-solid fa-fire',
         '🛡️': 'fa-solid fa-shield-halved',
         '🛡': 'fa-solid fa-shield-halved',
         '⚖️': 'fa-solid fa-scale-balanced',
@@ -78,6 +84,12 @@ function getWorkshopVectorIcon(workshop: WorkshopData): string {
 
     // Smart detection from title / heading / key features
     const text = `${workshop.title || ''} ${workshop.heading || ''} ${workshop.key_features || ''}`.toLowerCase();
+    if (text.includes('chai') || text.includes('coffee') || text.includes('discussion') || text.includes('meetup') || text.includes('conversation')) {
+        return 'fa-solid fa-mug-hot';
+    }
+    if (text.includes('community') || text.includes('network') || text.includes('founders') || text.includes('peers')) {
+        return 'fa-solid fa-users';
+    }
     if (text.includes('dpdp') || text.includes('privacy') || text.includes('security') || text.includes('protection')) {
         return 'fa-solid fa-shield-halved';
     }
@@ -95,6 +107,9 @@ function getWorkshopVectorIcon(workshop: WorkshopData): string {
     }
     if (text.includes('code') || text.includes('prototype') || text.includes('mvp') || text.includes('tech')) {
         return 'fa-solid fa-laptop-code';
+    }
+    if (text.includes('target') || text.includes('goal') || text.includes('pmf')) {
+        return 'fa-solid fa-bullseye';
     }
 
     return 'fa-solid fa-lightbulb';

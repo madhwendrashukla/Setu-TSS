@@ -380,6 +380,115 @@ const StoryIconSelector = ({
     );
 };
 
+const WORKSHOP_ICON_PRESETS = [
+    { value: "", label: "✨ Auto-detect from Title / Content" },
+    { value: "mug-hot", label: "☕ Chai & Coffee (Discussion / Meetup)" },
+    { value: "lightbulb", label: "💡 Lightbulb (Ideation / Validation)" },
+    { value: "rocket", label: "🚀 Rocket (Pitch / Launch / Scale)" },
+    { value: "users", label: "👥 Community & Networking (Founders)" },
+    { value: "shield-halved", label: "🛡️ Shield (DPDP / Security / Protection)" },
+    { value: "scale-balanced", label: "⚖️ Scale (Legal / Contracts / SHA)" },
+    { value: "file-contract", label: "📜 Document (Agreements / Term Sheet)" },
+    { value: "robot", label: "🤖 Robot (AI / Automation / LLMs)" },
+    { value: "chart-pie", label: "📊 Chart Pie (Finance / Cap Table / Valuation)" },
+    { value: "chart-line", label: "📈 Chart Line (Traction / Growth / Revenue)" },
+    { value: "laptop-code", label: "💻 Laptop (Coding / MVP / Prototyping)" },
+    { value: "handshake", label: "🤝 Handshake (Partnership / Co-founders)" },
+    { value: "graduation-cap", label: "🎓 Cap (Masterclass / Framework)" },
+    { value: "award", label: "🏆 Trophy / Award (Category Leader)" },
+    { value: "bullseye", label: "🎯 Target (Execution / PMF)" },
+    { value: "gem", label: "💎 Gem (Value / Unfair Advantage)" },
+    { value: "fire", label: "🔥 Fire (Momentum / Scale)" },
+];
+
+const WorkshopIconSelector = ({
+    label = "Vector Icon",
+    value,
+    onChange,
+    placeholder = "e.g. mug-hot or fas fa-mug-hot"
+}: {
+    label?: string;
+    value: string;
+    onChange: (val: string) => void;
+    placeholder?: string;
+}) => {
+    const cleanedValue = cleanFontAwesomeClass(value);
+    const isPreset = WORKSHOP_ICON_PRESETS.some(opt => opt.value === (value || "") || (cleanedValue && cleanFontAwesomeClass(opt.value) === cleanedValue));
+    const [isCustom, setIsCustom] = useState(!isPreset && Boolean(value));
+
+    useEffect(() => {
+        const matchesPreset = WORKSHOP_ICON_PRESETS.some(opt => opt.value === (value || "") || (cleanedValue && cleanFontAwesomeClass(opt.value) === cleanedValue));
+        if (value && !matchesPreset) {
+            setIsCustom(true);
+        }
+    }, [value, cleanedValue]);
+
+    return (
+        <div>
+            <div className="flex justify-between items-center text-xs font-bold mb-1 text-gray-500">
+                <span>{label}</span>
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setIsCustom(!isCustom)}
+                        className="text-blue-500 hover:text-blue-700 hover:underline font-normal text-[11px]"
+                    >
+                        {isCustom ? "Choose from list" : "Custom class"}
+                    </button>
+                    <a
+                        href="https://fontawesome.com/v5/search?m=free"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-gray-600 hover:underline font-normal text-[11px]"
+                    >
+                        Find Icons
+                    </a>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded bg-white border border-gray-200 flex items-center justify-center shrink-0 text-gray-700 text-sm shadow-sm">
+                    {cleanedValue ? <i className={cleanedValue}></i> : <span className="text-[10px] text-gray-400">Auto</span>}
+                </div>
+                {isCustom ? (
+                    <input
+                        className="flex-1 bg-white border border-gray-200 p-2 rounded outline-none text-xs"
+                        placeholder={placeholder}
+                        value={value || ""}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if (val.includes('<i') || val.includes('class=')) {
+                                onChange(cleanFontAwesomeClass(val));
+                            } else {
+                                onChange(val);
+                            }
+                        }}
+                    />
+                ) : (
+                    <select
+                        className="flex-1 bg-white border border-gray-200 p-2 rounded outline-none text-xs text-gray-700 font-medium"
+                        value={isPreset ? (WORKSHOP_ICON_PRESETS.find(p => p.value === value || (cleanedValue && cleanFontAwesomeClass(p.value) === cleanedValue))?.value || value || "") : "__custom__"}
+                        onChange={(e) => {
+                            if (e.target.value === "__custom__") {
+                                setIsCustom(true);
+                            } else {
+                                onChange(e.target.value);
+                            }
+                        }}
+                    >
+                        {WORKSHOP_ICON_PRESETS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                        <option value="__custom__">✏️ Custom FontAwesome Class...</option>
+                    </select>
+                )}
+            </div>
+        </div>
+    );
+};
+
 const StoryBoxesEditor = ({ boxes, onChange, onUpload }: { boxes: any[], onChange: (b: any[]) => void, onUpload: (file: File) => Promise<string | null> }) => {
     const handleAdd = () => onChange([...(Array.isArray(boxes) ? boxes : []), { title: "", description: "", bullets: [] }]);
     const handleRemove = (index: number) => { const newArr = [...(Array.isArray(boxes) ? boxes : [])]; newArr.splice(index, 1); onChange(newArr); };
@@ -491,21 +600,12 @@ const WorkshopsEditor = ({ workshops, onChange }: { workshops: any[], onChange: 
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Badge / Day (e.g. DAY 1)</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.heading || ""} onChange={e => handleChange(index, 'heading', e.target.value)} /></div>
                             <div><label className="block text-xs font-bold mb-1 text-gray-500">Title</label><input className="w-full bg-white border border-gray-200 p-2 rounded outline-none" value={w.title || ""} onChange={e => handleChange(index, 'title', e.target.value)} /></div>
                             <div>
-                                <label className="block text-xs font-bold mb-1 text-gray-500">Vector Icon</label>
-                                <select className="w-full bg-white border border-gray-200 p-2 rounded outline-none text-xs text-gray-700 font-medium" value={w.icon || ""} onChange={e => handleChange(index, 'icon', e.target.value)}>
-                                    <option value="">Auto-detect / Lightbulb</option>
-                                    <option value="shield-halved">🛡️ Shield (DPDP / Security)</option>
-                                    <option value="scale-balanced">⚖️ Scale (Legal / Contracts)</option>
-                                    <option value="file-contract">📜 Document / Agreement</option>
-                                    <option value="robot">🤖 Robot (AI / Automation)</option>
-                                    <option value="rocket">🚀 Rocket (Pitch / Launch)</option>
-                                    <option value="chart-pie">📊 Chart (Finance / Cap Table)</option>
-                                    <option value="laptop-code">💻 Laptop (Coding / MVP)</option>
-                                    <option value="lightbulb">💡 Lightbulb (Ideation)</option>
-                                    <option value="handshake">🤝 Handshake (Partnership)</option>
-                                    <option value="graduation-cap">🎓 Cap (Masterclass)</option>
-                                    <option value="award">🏆 Trophy / Award</option>
-                                </select>
+                                <WorkshopIconSelector
+                                    label="Vector Icon"
+                                    value={w.icon || ""}
+                                    onChange={val => handleChange(index, 'icon', val)}
+                                    placeholder="e.g. mug-hot or fas fa-mug-hot"
+                                />
                             </div>
                         </div>
                         <div className="bg-white rounded border border-gray-200">

@@ -95,39 +95,12 @@ export default function AdminEvents() {
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
     const [cropAspect, setCropAspect] = useState<number | undefined>(16 / 9);
-    const [promptCopied, setPromptCopied] = useState(false);
 
     const [formData, setFormData] = useState({
         title: "", registration_url: "", description: "", venue: "", 
         start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: "",
         whatsapp_link: "", zoom_link: "", confirmation_message: ""
     });
-
-    const handleCopyPrompt = () => {
-        const promptText = `I have uploaded a 16:9 landscape event banner image. 
-Please convert and adapt this into a high-resolution portrait/square poster format with an aspect ratio of [1:1 / 4:5] while strictly maintaining brand consistency:
-
-1. COMPOSITION & LAYOUT:
-- Reorganize the landscape layout into a balanced, professional vertical/square poster composition.
-- Place the "Setu STARTUP SCHOOL" logo and event title at the top: "${formData.title || 'DPDP ACT FOR STARTUPS - A Practical Founder\'s Guide to Data Privacy Compliance'}".
-- Keep the purple and deep navy blue (#13113B) color palette, modern typography, and clean aesthetic.
-
-2. SPEAKERS / MENTORS:
-- Prominently feature the speakers with circular or curved portrait photo frames, including their names, designations, and credentials.
-
-3. EVENT DETAILS & BADGES:
-- Include the "FREE SESSION" or "REGISTRATION" tag, Date (${formData.start_date || 'Saturday, September 12, 2026'}), Time (${formData.start_time || '11:00 AM – 12:00 PM IST'}), and Mode (${formData.venue || 'Online Zoom'}).
-- Include the "JOIN HERE TO REGISTER" button / QR code block.
-- At the bottom, include highlight icons with text: "Stay Compliant", "Practical Insights", "Expert Guidance".
-
-4. OUTPUT REQUIREMENTS:
-- Aspect ratio: Exactly 1:1 (Square 1080x1080) or 4:5 (Vertical 1080x1350).
-- Do not crop faces, do not distort text or logos, keep all elements sharp, centered, and legible.`;
-
-        navigator.clipboard.writeText(promptText);
-        setPromptCopied(true);
-        setTimeout(() => setPromptCopied(false), 2500);
-    };
 
     const fetchEvents = () => {
         const token = localStorage.getItem("adminToken");
@@ -525,18 +498,7 @@ Please convert and adapt this into a high-resolution portrait/square poster form
                             </div>
 
                             <div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Banner Image</label>
-                                    <button
-                                        type="button"
-                                        onClick={handleCopyPrompt}
-                                        className="text-xs font-semibold text-accent-blue hover:text-purple-700 flex items-center gap-1.5 transition-colors"
-                                        title="Copy prompt for ChatGPT to convert 16:9 banner to 1:1 or 4:5 poster"
-                                    >
-                                        <i className={`fas fa-${promptCopied ? 'check text-emerald-600' : 'magic'}`}></i>
-                                        <span>{promptCopied ? 'Prompt Copied!' : 'Copy ChatGPT Prompt (16:9 ➔ Poster)'}</span>
-                                    </button>
-                                </div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Banner Image</label>
                                 <div className="relative w-full">
                                     <input type="file" accept="image/*" onChange={onFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                                     <div className="w-full bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">

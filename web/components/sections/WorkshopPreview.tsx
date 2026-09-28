@@ -99,20 +99,20 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
                                 isCurrent ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 z-0 pointer-events-none'
                             }`}
                         >
-                            <div className="flex flex-col lg:flex-row w-full items-stretch min-h-[380px] md:min-h-[440px]">
+                            <div className="flex flex-col lg:flex-row w-full items-stretch">
                                 {/* Left Content Column */}
                                 <div className="w-full lg:w-1/2 p-6 sm:p-10 md:p-12 lg:p-14 flex flex-col justify-center relative z-10 order-2 lg:order-1 bg-white">
                                     
                                     {/* Clean Badges Row */}
                                     <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-5">
                                         {fullDateStr && (
-                                            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs" suppressHydrationWarning>
+                                            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs" suppressHydrationWarning>
                                                 <Clock className="w-4 h-4 text-purple-600 shrink-0" />
                                                 <span>{fullDateStr}</span>
                                             </span>
                                         )}
 
-                                        <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs">
+                                        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200/90 shadow-2xs">
                                             <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
                                             <span>{locationLabel}</span>
                                         </span>
@@ -137,25 +137,23 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
                                     </div>
                                 </div>
 
-                                {/* Right Image Banner Column - Submerged & Edge-to-Edge */}
-                                <div className="w-full lg:w-1/2 relative min-h-[260px] sm:min-h-[340px] lg:min-h-[440px] overflow-hidden order-1 lg:order-2 bg-slate-100">
-                                    {/* Subtle gradient feather to seamlessly submerge the banner into the card */}
-                                    <div className="hidden lg:block absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white via-white/40 to-transparent pointer-events-none z-10"></div>
-                                    <div className="block lg:hidden absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/40 to-transparent pointer-events-none z-10"></div>
-                                    
-                                    {event.banner_url ? (
-                                        <img 
-                                            src={encodeURI(event.banner_url)} 
-                                            alt={event.title} 
-                                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out absolute inset-0"
-                                        />
-                                    ) : (
-                                        <img 
-                                            src="/ai-workshop-banner.webp" 
-                                            alt={event.title} 
-                                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out absolute inset-0"
-                                        />
-                                    )}
+                                {/* Right Image Banner Column - Full Artwork Legibility */}
+                                <div className="w-full lg:w-1/2 p-4 sm:p-6 md:p-8 flex items-center justify-center bg-gradient-to-br from-purple-50/50 via-slate-50/40 to-indigo-50/30 order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-slate-100/80">
+                                    <div className="relative w-full aspect-[16/9] max-w-[580px] rounded-2xl overflow-hidden shadow-[0_8px_25px_rgba(0,0,0,0.08)] bg-white group-hover:shadow-xl transition-all duration-500 flex items-center justify-center">
+                                        {event.banner_url ? (
+                                            <img 
+                                                src={encodeURI(event.banner_url)} 
+                                                alt={event.title} 
+                                                className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <img 
+                                                src="/ai-workshop-banner.webp" 
+                                                alt={event.title} 
+                                                className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </Link>

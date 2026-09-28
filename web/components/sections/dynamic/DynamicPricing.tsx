@@ -45,8 +45,8 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
         text = text.replace(/<[^>]*>/g, ' ');
         // Decode entities again in case entities were inside tags or nested
         text = decodeHtmlEntities(text);
-        // Remove leading bullet characters / dashes / list counters
-        text = text.replace(/^[\s•·●▪▫◆✦✓✔★\-\*–—\d+\.\)]+/, '');
+        // Remove only leading bullet characters / dashes / list counters (e.g. •, -, or 1. / 1) )
+        text = text.replace(/^\s*(?:[•·●▪▫◆✦✓✔★\-\*–—]+|(?:\d+[\.\)]))\s*/, '');
         // Collapse multiple whitespace
         text = text.replace(/\s+/g, ' ').trim();
         return text;

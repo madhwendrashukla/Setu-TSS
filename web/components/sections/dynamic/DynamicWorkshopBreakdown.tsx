@@ -45,6 +45,11 @@ export function DynamicWorkshopBreakdown({ data, onCheckoutClick }: { data: Page
     );
 }
 
+function cleanRichText(html?: string): string {
+    if (!html) return "";
+    return html.replace(/&nbsp;/g, ' ').replace(/\u00a0/g, ' ');
+}
+
 function cleanFontAwesomeClass(raw?: string): string {
     if (!raw) return "";
     let str = String(raw).trim();
@@ -157,7 +162,7 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                 <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
                         {workshop.heading && (
-                            <span className="inline-block px-2.5 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[10px] md:text-xs font-extrabold rounded uppercase tracking-wider sm:tracking-widest text-white shadow-sm" style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` }}>
+                            <span className="inline-block px-2.5 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[10px] md:text-xs font-extrabold rounded uppercase tracking-wider sm:tracking-widest text-white shadow-sm shrink-0" style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` }}>
                                 {workshop.heading}
                             </span>
                         )}
@@ -168,8 +173,8 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                             if (workshop.date_time_html && workshop.date_time_html.replace(/<[^>]*>/g, '').trim()) {
                                 return (
                                     <span 
-                                        className="text-xs sm:text-sm md:text-base font-bold text-slate-700 [&_p]:inline [&_p]:m-0"
-                                        dangerouslySetInnerHTML={{ __html: workshop.date_time_html }}
+                                        className="text-xs sm:text-sm md:text-base font-bold text-slate-700 [&_p]:inline [&_p]:m-0 break-words"
+                                        dangerouslySetInnerHTML={{ __html: cleanRichText(workshop.date_time_html) }}
                                     />
                                 );
                             }
@@ -184,15 +189,15 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                                     return `${hNum % 12 || 12}:${m} ${ampm}`;
                                 };
                                 return (
-                                    <span className="text-xs sm:text-sm md:text-base font-bold text-slate-700" suppressHydrationWarning>
+                                    <span className="text-xs sm:text-sm md:text-base font-bold text-slate-700 break-words" suppressHydrationWarning>
                                         {dateStr} &bull; {formatTime(workshop.start_time)} - {formatTime(workshop.end_time)}
                                     </span>
                                 );
                             }
                             if (workshop.pricing?.date_time_bullets && workshop.pricing.date_time_bullets[0]) {
                                 return (
-                                    <span className="text-xs sm:text-sm md:text-base font-bold text-slate-700">
-                                        <span dangerouslySetInnerHTML={{ __html: workshop.pricing.date_time_bullets[0] }} />
+                                    <span className="text-xs sm:text-sm md:text-base font-bold text-slate-700 break-words">
+                                        <span dangerouslySetInnerHTML={{ __html: cleanRichText(workshop.pricing.date_time_bullets[0]) }} />
                                     </span>
                                 );
                             }
@@ -200,10 +205,10 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                         })()}
                     </div>
                     
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 mb-1">{workshop.title}</h3>
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-extrabold text-slate-900 mb-1 break-words leading-snug">{workshop.title}</h3>
                     
                     {(workshop.mentor || workshop.duration) && (
-                        <p className="text-xs sm:text-sm text-slate-500 font-medium mb-1">
+                        <p className="text-xs sm:text-sm text-slate-500 font-medium mb-1 break-words">
                             {workshop.mentor && <>by <span className="text-slate-900 font-bold">{workshop.mentor}</span></>}
                             {workshop.mentor && workshop.duration && ' · '}
                             {workshop.duration && <>{workshop.duration}</>}
@@ -212,8 +217,8 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                     
                     {workshop.key_features && (
                         <div 
-                            className="text-xs md:text-sm mt-2 font-medium text-slate-600"
-                            dangerouslySetInnerHTML={{ __html: workshop.key_features }}
+                            className="text-xs md:text-sm mt-2 font-medium text-slate-600 break-words [overflow-wrap:anywhere] leading-relaxed [&_p]:m-0"
+                            dangerouslySetInnerHTML={{ __html: cleanRichText(workshop.key_features) }}
                         />
                     )}
 
@@ -356,7 +361,7 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                                                 {workshop.detail_bullets.what_youll_learn.map((item: string, i: number) => (
                                                     <li key={i} className="flex items-start gap-3 text-sm text-slate-600 font-medium min-w-0">
                                                         <i className="fa-solid fa-circle-dot mt-1.5 shrink-0 text-[8px]" style={{ color: theme.primary }}></i>
-                                                        <span className="flex-1 min-w-0 break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: item }} />
+                                                        <span className="flex-1 min-w-0 break-words [overflow-wrap:anywhere] leading-relaxed" dangerouslySetInnerHTML={{ __html: cleanRichText(item) }} />
                                                     </li>
                                                 ))}
                                             </ul>
@@ -365,9 +370,9 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                                 ) : (
                                     <div className="relative pl-4 border-l-2 border-slate-200 min-w-0 overflow-hidden">
                                         <div 
-                                            className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-600 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm break-words [overflow-wrap:anywhere] min-w-0 [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
+                                            className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-600 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm break-words [overflow-wrap:anywhere] min-w-0 [&_*]:break-words [&_*]:[overflow-wrap:anywhere] leading-relaxed"
                                             style={{'--marker-color': theme.primary} as React.CSSProperties}
-                                            dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.what_youll_learn }} 
+                                            dangerouslySetInnerHTML={{ __html: cleanRichText(workshop.detail_bullets.what_youll_learn) }} 
                                         />
                                     </div>
                                 )}
@@ -388,15 +393,15 @@ function WorkshopBreakdownCard({ workshop, index, theme, onCheckoutClick, regist
                                                 {workshop.detail_bullets.your_deliverables.map((item: string, i: number) => (
                                                     <li key={i} className="flex items-start gap-3 min-w-0">
                                                         <i className="fa-solid fa-check mt-0.5 text-xs shrink-0" style={{ color: theme.primary }}></i>
-                                                        <span className="text-sm text-slate-700 font-medium flex-1 min-w-0 break-words [overflow-wrap:anywhere]" dangerouslySetInnerHTML={{ __html: item }} />
+                                                        <span className="text-sm text-slate-700 font-medium flex-1 min-w-0 break-words [overflow-wrap:anywhere] leading-relaxed" dangerouslySetInnerHTML={{ __html: cleanRichText(item) }} />
                                                     </li>
                                                 ))}
                                             </ul>
                                         ) : (
                                             <div 
-                                                className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-700 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm break-words [overflow-wrap:anywhere] min-w-0 [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
+                                                className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_li]:text-slate-700 [&_li]:font-medium [&_li]:marker:text-[var(--marker-color)] text-sm break-words [overflow-wrap:anywhere] min-w-0 [&_*]:break-words [&_*]:[overflow-wrap:anywhere] leading-relaxed"
                                                 style={{'--marker-color': theme.primary} as React.CSSProperties}
-                                                dangerouslySetInnerHTML={{ __html: workshop.detail_bullets.your_deliverables }} 
+                                                dangerouslySetInnerHTML={{ __html: cleanRichText(workshop.detail_bullets.your_deliverables) }} 
                                             />
                                         )}
                                     </div>

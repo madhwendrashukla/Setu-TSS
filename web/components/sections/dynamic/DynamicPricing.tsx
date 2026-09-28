@@ -149,7 +149,10 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                 <div className="flex flex-wrap justify-center gap-8 items-stretch">
                     {sortedItems.map((item: any, idx: number) => {
                         const features = parseFeatures(item.key_features);
-                        const dateBullets = item.pricing?.date_time_bullets || [];
+                        const htmlDateBullets = item.date_time_html ? parseFeatures(item.date_time_html) : [];
+                        const dateBullets = (item.pricing?.date_time_bullets && item.pricing.date_time_bullets.length > 0)
+                            ? item.pricing.date_time_bullets
+                            : htmlDateBullets;
 
                         return (
                             <div 
@@ -208,14 +211,9 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                     )}
 
                                     {/* Session Details Box (Clean aligned icon column) */}
-                                    {(dateBullets.length > 0 || item.date_time_html || item.pricing?.mode) && (
+                                    {(dateBullets.length > 0 || (item.date_time_html && !htmlDateBullets.length) || item.pricing?.mode) && (
                                         <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-100/90 mb-6 space-y-3">
-                                            {item.date_time_html ? (
-                                                <div 
-                                                    className="pricing-datetime text-sm text-slate-600"
-                                                    dangerouslySetInnerHTML={{ __html: item.date_time_html }}
-                                                />
-                                            ) : dateBullets.length > 0 ? (
+                                            {dateBullets.length > 0 ? (
                                                 dateBullets.map((dt: string, i: number) => {
                                                     const meta = getBulletMeta(dt, i);
                                                     return (
@@ -227,6 +225,11 @@ export function DynamicPricing({ data, onCheckoutClick }: { data: PageData, onCh
                                                         </div>
                                                     );
                                                 })
+                                            ) : item.date_time_html ? (
+                                                <div 
+                                                    className="pricing-datetime text-sm text-slate-600"
+                                                    dangerouslySetInnerHTML={{ __html: item.date_time_html }}
+                                                />
                                             ) : null}
 
                                             {item.pricing?.mode === 'offline' && item.pricing?.address && (

@@ -617,8 +617,9 @@ export default function AdminLeads() {
                                                         <i className="fas fa-comment-dots text-blue-600"></i> Callback / Inquiry
                                                     </span>
                                                 )}
-                                                <span className="text-[10px] text-gray-500 block truncate max-w-[180px]" title={sourceFormatted}>
-                                                    {sourceFormatted}
+                                                <span className="text-xs font-bold text-gray-900 bg-purple-50/90 text-purple-950 border border-purple-200/80 px-2 py-0.5 rounded-md inline-flex items-center gap-1.5 max-w-[220px] truncate shadow-2xs" title={sourceFormatted}>
+                                                    <i className="fas fa-bullseye text-[10px] text-purple-600 shrink-0"></i>
+                                                    <span className="truncate">{sourceFormatted}</span>
                                                 </span>
                                             </div>
                                         </td>
@@ -752,7 +753,7 @@ export default function AdminLeads() {
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-gray-500">
-                                <div><span className="font-bold text-gray-700">Source:</span> {viewLead.source || '—'}</div>
+                                <div><span className="font-bold text-gray-700">Origin:</span> <span className="font-bold text-gray-900 bg-purple-50 text-purple-900 border border-purple-200 px-2 py-0.5 rounded text-xs ml-1 inline-flex items-center gap-1"><i className="fas fa-bullseye text-[9px] text-purple-600"></i>{formatSourceDisplay(viewLead.source)}</span></div>
                                 <div><span className="font-bold text-gray-700">City:</span> {viewLead.city || '—'}</div>
                                 <div><span className="font-bold text-gray-700">Date:</span> {formatDate(viewLead.created_at)}</div>
                                 <div><span className="font-bold text-gray-700">Status:</span> {viewLead.status}</div>

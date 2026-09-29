@@ -1473,6 +1473,32 @@ app.get('/api/admin/hero_slides', authMiddleware, async (req, res) => {
 });
 
 // ─── BOTTOM VIDEO GALLERY ROUTES ─────────────────────────────────────────────
+async function fetchYouTubeTitleFromUrl(videoUrl) {
+  if (!videoUrl) return null;
+  try {
+    const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`);
+    if (res.ok) {
+      const data = await res.json();
+      return data.title || null;
+    }
+  } catch (e) {
+    console.error('Error fetching YouTube title via oEmbed:', e.message);
+  }
+  return null;
+}
+
+app.get('/api/admin/bottom_videos/fetch_title', authMiddleware, async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) return res.status(400).json({ error: 'url query parameter is required' });
+    const title = await fetchYouTubeTitleFromUrl(url);
+    if (!title) return res.status(404).json({ error: 'Could not fetch title from YouTube URL' });
+    res.json({ title });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch YouTube title' });
+  }
+});
+
 app.get('/api/admin/bottom_videos', authMiddleware, async (req, res) => {
   try {
     const videos = await prisma.bottomVideoGallery.findMany({ orderBy: { display_order: 'asc' } });
@@ -1482,9 +1508,24 @@ app.get('/api/admin/bottom_videos', authMiddleware, async (req, res) => {
 
 app.post('/api/admin/bottom_videos', authMiddleware, async (req, res) => {
   try {
-    const video = await prisma.bottomVideoGallery.create({ data: req.body });
+    let { title, youtube_url, display_order, is_active } = req.body;
+    if (!title && youtube_url) {
+      const fetchedTitle = await fetchYouTubeTitleFromUrl(youtube_url);
+      if (fetchedTitle) title = fetchedTitle;
+    }
+    const video = await prisma.bottomVideoGallery.create({
+      data: {
+        title: title || null,
+        youtube_url,
+        display_order: display_order !== undefined ? Number(display_order) : 0,
+        is_active: is_active !== undefined ? Boolean(is_active) : true
+      }
+    });
     res.json(video);
-  } catch (error) { res.status(500).json({ error: 'Failed to add bottom video' }); }
+  } catch (error) {
+    console.error('Failed to add bottom video:', error);
+    res.status(500).json({ error: 'Failed to add bottom video' });
+  }
 });
 
 app.put('/api/admin/bottom_videos/reorder', authMiddleware, async (req, res) => {
@@ -1509,12 +1550,19 @@ app.put('/api/admin/bottom_videos/reorder', authMiddleware, async (req, res) => 
 
 app.put('/api/admin/bottom_videos/:id', authMiddleware, async (req, res) => {
   try {
+    const { id, created_at, updated_at, ...updateData } = req.body;
+    if (updateData.display_order !== undefined) updateData.display_order = Number(updateData.display_order);
+    if (updateData.is_active !== undefined) updateData.is_active = Boolean(updateData.is_active);
+
     const video = await prisma.bottomVideoGallery.update({
       where: { id: req.params.id },
-      data: req.body
+      data: updateData
     });
     res.json(video);
-  } catch (error) { res.status(500).json({ error: 'Failed to update bottom video' }); }
+  } catch (error) {
+    console.error('Failed to update bottom video:', error);
+    res.status(500).json({ error: 'Failed to update bottom video' });
+  }
 });
 
 app.delete('/api/admin/bottom_videos/:id', authMiddleware, async (req, res) => {

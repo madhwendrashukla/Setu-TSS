@@ -8,8 +8,17 @@ function formatDate(iso: string) {
 }
 
 function exportCsv(leads: any[]) {
-    const headers = ['Name', 'Email', 'Phone', 'City', 'Source', 'Status', 'Date'];
-    const rows = leads.map(l => [l.full_name, l.email, l.phone ?? '', l.city ?? '', l.source ?? '', l.status, formatDate(l.created_at)]);
+    const headers = ['Name', 'Email', 'Phone', 'City', 'Source', 'Status', 'Short Note / Message', 'Date'];
+    const rows = leads.map(l => [
+        l.full_name ?? '',
+        l.email ?? '',
+        l.phone ?? '',
+        l.city ?? '',
+        l.source ?? '',
+        l.status ?? '',
+        (l.message ?? '').replace(/"/g, '""'),
+        formatDate(l.created_at)
+    ]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -737,9 +746,9 @@ export default function AdminLeads() {
                         </div>
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Inquiry Message</label>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Short Note / Message</label>
                                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-800 whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto">
-                                    {viewLead.message || 'No message provided.'}
+                                    {viewLead.message || 'No short note provided.'}
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-gray-500">

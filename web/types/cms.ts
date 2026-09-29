@@ -148,8 +148,9 @@ export interface ContactLeadForm {
 }
 
 export interface ContactData {
-  whatsapp: ContactWhatsApp;
-  lead_form: ContactLeadForm;
+  whatsapp?: ContactWhatsApp;
+  lead_form?: ContactLeadForm;
+  lead_gen?: any;
 }
 
 export interface CouponData {

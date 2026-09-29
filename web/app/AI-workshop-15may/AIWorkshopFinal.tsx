@@ -16,7 +16,7 @@ const faqs = [
 ];
 
 export function AIWorkshopFinal() {
-    const [queryForm, setQueryForm] = useState({ name: '', city: '', email: '', phone: '' });
+    const [queryForm, setQueryForm] = useState({ name: '', city: '', email: '', phone: '', message: '' });
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
     const handleQuerySubmit = async (e: React.FormEvent) => {
@@ -34,13 +34,14 @@ export function AIWorkshopFinal() {
                     city: queryForm.city,
                     phone: queryForm.phone,
                     email: queryForm.email,
+                    message: queryForm.message || null,
                     source: 'ai_workshop'
                 }),
             });
 
             if (response.ok) {
                 setStatus('success');
-                setQueryForm({ name: '', city: '', email: '', phone: '' });
+                setQueryForm({ name: '', city: '', email: '', phone: '', message: '' });
                 setTimeout(() => setStatus('idle'), 5000);
             } else {
                 setStatus('error');
@@ -154,6 +155,10 @@ export function AIWorkshopFinal() {
                                     <div className="space-y-1.5">
                                         <label className="text-xs font-medium text-slate-300">Contact Number</label>
                                         <input type="tel" required placeholder="+91 XXXXXXXXXX" value={queryForm.phone} onChange={e => setQueryForm(p => ({ ...p, phone: e.target.value }))} className="w-full bg-[#161e31] border border-slate-700/50 rounded-lg px-4 py-3 text-slate-50 text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-medium text-slate-300">Short Note</label>
+                                        <textarea rows={2} maxLength={1000} placeholder="Briefly describe your startup or query..." value={queryForm.message} onChange={e => setQueryForm(p => ({ ...p, message: e.target.value }))} className="w-full bg-[#161e31] border border-slate-700/50 rounded-lg px-4 py-3 text-slate-50 text-sm focus:outline-none focus:border-[#8b5cf6] transition-colors placeholder:text-slate-600 resize-none" />
                                     </div>
                                     <button type="submit" disabled={status === 'loading'} className="w-full mt-6 bg-gradient-to-r from-[#8b5cf6] to-[#d946ef] text-slate-50 font-bold py-3.5 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(217,70,239,0.3)] flex items-center justify-center gap-2 disabled:opacity-50">
                                         {status === 'loading' ? 'Submitting...' : <><i className="fa-regular fa-paper-plane" /> Send Inquiry</>}

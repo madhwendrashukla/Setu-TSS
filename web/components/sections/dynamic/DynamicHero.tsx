@@ -7,6 +7,14 @@ export function DynamicHero({ data }: { data: PageData }) {
 
     const { hero } = data;
 
+    const headlineHtml = typeof hero.headline === 'string' 
+        ? hero.headline 
+        : (hero.headline as any)?.text || '';
+
+    const descriptionHtml = typeof hero.description === 'string'
+        ? hero.description
+        : (hero.description as any)?.text || '';
+
     return (
         <section className="relative w-full min-h-[50vh] md:min-h-[70vh] flex items-center justify-center pt-20 pb-12 md:pt-28 md:pb-20 lg:pt-32 lg:pb-28 px-4 sm:px-6 overflow-hidden isolate">
             <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center w-full">
@@ -17,17 +25,17 @@ export function DynamicHero({ data }: { data: PageData }) {
                     </div>
                 )}
                 
-                {hero.headline && (
+                {headlineHtml && (
                     <h1 
                         className="w-full text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-text-primary mb-6 md:mb-8 tracking-tight md:tracking-tighter leading-[1.15] sm:leading-[1.1] !whitespace-normal ![&_*]:whitespace-normal ![&_*]:max-w-full"
-                        dangerouslySetInnerHTML={{ __html: hero.headline.replace(/&nbsp;/g, ' ') }} 
+                        dangerouslySetInnerHTML={{ __html: headlineHtml.replace(/&nbsp;/g, ' ') }} 
                     />
                 )}
                 
-                {hero.description && (
+                {descriptionHtml && (
                     <div 
                         className="w-full text-base sm:text-xl md:text-3xl text-text-secondary font-medium max-w-3xl mb-8 md:mb-12 leading-relaxed px-2 sm:px-4 overflow-hidden !whitespace-normal ![&_*]:whitespace-normal ![&_*]:max-w-full"
-                        dangerouslySetInnerHTML={{ __html: hero.description.replace(/&nbsp;/g, ' ') }}
+                        dangerouslySetInnerHTML={{ __html: descriptionHtml.replace(/&nbsp;/g, ' ') }}
                     />
                 )}
                 
@@ -36,9 +44,12 @@ export function DynamicHero({ data }: { data: PageData }) {
                         <div className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:gap-4 md:gap-6 text-[11px] sm:text-xs md:text-base text-text-primary font-bold tracking-wide glass-card px-4 py-3 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl w-full sm:w-auto">
                             {hero.key_highlights.map((stat: string, idx: number) => (
                                 <React.Fragment key={idx}>
-                                    <span className="whitespace-nowrap">{stat}</span>
+                                    <span 
+                                        className="whitespace-normal sm:whitespace-nowrap [&_p]:inline [&_p]:m-0 [&_a]:underline [&_a]:text-accent-blue"
+                                        dangerouslySetInnerHTML={{ __html: (stat || '').replace(/&nbsp;/g, ' ') }}
+                                    />
                                     {idx < hero.key_highlights.length - 1 && (
-                                        <span className="text-accent-violet font-extrabold opacity-50 sm:opacity-100">•</span>
+                                        <span className="text-accent-violet font-extrabold opacity-50 sm:opacity-100 shrink-0">•</span>
                                     )}
                                 </React.Fragment>
                             ))}

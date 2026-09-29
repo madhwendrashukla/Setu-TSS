@@ -6,7 +6,7 @@ export function DynamicContact({ data }: { data: PageData }) {
     if (!data?.contact) return null;
 
     const { whatsapp, lead_gen } = data.contact;
-    const [formData, setFormData] = useState({ name: '', city: '', email: '', phone: '' });
+    const [formData, setFormData] = useState({ name: '', city: '', email: '', phone: '', message: '' });
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
@@ -22,6 +22,7 @@ export function DynamicContact({ data }: { data: PageData }) {
                     city: formData.city,
                     email: formData.email,
                     phone: formData.phone,
+                    message: formData.message || null,
                     source: lead_gen?.lead_source_tag || 'Event Page - Lead Gen Form'
                 })
             });
@@ -128,6 +129,15 @@ export function DynamicContact({ data }: { data: PageData }) {
                                             required type="email" placeholder="Email Address" 
                                             value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
                                             className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors"
+                                        />
+                                    </div>
+                                    <div>
+                                        <textarea 
+                                            rows={2}
+                                            maxLength={1000}
+                                            placeholder="Short Note (Tell us briefly about your startup or query...)" 
+                                            value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
+                                            className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors resize-none"
                                         />
                                     </div>
                                     <button 

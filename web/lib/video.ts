@@ -29,3 +29,35 @@ export function getEmbedUrl(videoUrl: string): string {
         return videoUrl;
     }
 }
+
+export async function fetchYouTubeTitle(videoUrl: string, apiBaseUrl?: string, authToken?: string): Promise<string | null> {
+    if (!videoUrl) return null;
+
+    // 1. Try backend proxy if available
+    if (apiBaseUrl) {
+        try {
+            const res = await fetch(`${apiBaseUrl}/api/admin/bottom_videos/fetch_title?url=${encodeURIComponent(videoUrl)}`, {
+                headers: authToken ? { "Authorization": `Bearer ${authToken}` } : {}
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.title) return data.title;
+            }
+        } catch (e) {
+            // fallback to direct oEmbed
+        }
+    }
+
+    // 2. Direct oEmbed fallback
+    try {
+        const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`);
+        if (res.ok) {
+            const data = await res.json();
+            return data.title || null;
+        }
+    } catch (e) {
+        console.error("Failed to fetch title from YouTube oEmbed:", e);
+    }
+
+    return null;
+}

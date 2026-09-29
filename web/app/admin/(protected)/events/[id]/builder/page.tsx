@@ -107,6 +107,76 @@ const StringArrayEditor = ({ value, onChange, placeholder }: { value: string[], 
     );
 };
 
+const RichTextArrayEditor = ({ 
+    value, 
+    onChange, 
+    placeholder,
+    itemLabel = "Highlight"
+}: { 
+    value: string[]; 
+    onChange: (val: string[]) => void; 
+    placeholder?: string;
+    itemLabel?: string;
+}) => {
+    const handleAdd = () => onChange([...(Array.isArray(value) ? value : []), ""]);
+    const handleRemove = (index: number) => {
+        const newArr = [...(Array.isArray(value) ? value : [])];
+        newArr.splice(index, 1);
+        onChange(newArr);
+    };
+    const handleChange = (index: number, val: string) => {
+        const newArr = [...(Array.isArray(value) ? value : [])];
+        newArr[index] = val;
+        onChange(newArr);
+    };
+
+    const items = Array.isArray(value) ? value : [];
+
+    return (
+        <div className="space-y-4">
+            {items.map((item, index) => (
+                <div key={index} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative group hover:border-accent-blue/50 transition">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-black text-[11px]">
+                                {index + 1}
+                            </span>
+                            <span>{itemLabel} #{index + 1}</span>
+                        </span>
+                        <button 
+                            type="button"
+                            onClick={() => handleRemove(index)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-lg transition-colors cursor-pointer"
+                            title={`Remove ${itemLabel.toLowerCase()}`}
+                        >
+                            <i className="fas fa-trash text-xs"></i>
+                            <span>Remove</span>
+                        </button>
+                    </div>
+                    <div className="bg-white rounded-xl overflow-hidden border border-gray-100">
+                        <ReactQuill 
+                            modules={quillModules} 
+                            theme="snow" 
+                            value={item || ""} 
+                            onChange={(val) => handleChange(index, val)} 
+                            placeholder={placeholder || `Enter ${itemLabel.toLowerCase()} text (Rich Text)...`} 
+                        />
+                    </div>
+                </div>
+            ))}
+            
+            <button 
+                type="button"
+                onClick={handleAdd} 
+                className="text-sm font-bold text-accent-blue hover:text-blue-700 bg-blue-50/70 hover:bg-blue-100/70 px-4 py-2.5 rounded-xl border border-blue-200/80 flex items-center gap-2 transition cursor-pointer"
+            >
+                <i className="fas fa-plus text-xs"></i>
+                <span>Add {itemLabel}</span>
+            </button>
+        </div>
+    );
+};
+
 const FaqsEditor = ({ faqs, onChange }: { faqs: any[], onChange: (f: any[]) => void }) => {
     const handleAdd = () => onChange([...(Array.isArray(faqs) ? faqs : []), { priority_order: (faqs?.length || 0) + 1, question: "", answer: "" }]);
     const handleRemove = (index: number) => { const newArr = [...(Array.isArray(faqs) ? faqs : [])]; newArr.splice(index, 1); onChange(newArr); };
@@ -2071,7 +2141,15 @@ export default function EventBuilderPage() {
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Top Badge (e.g. Live Workshop Series • May 15-17)</label><input className="w-full bg-white border border-gray-200 p-3 rounded-xl focus:border-accent-blue outline-none text-sm" value={pageData.hero?.top_badge || ""} onChange={e => updateData('hero', 'top_badge', e.target.value)} placeholder="Enter badge text (optional)..." /></div>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Headline (Rich Text)</label><div className="bg-white"><ReactQuill modules={quillModules} theme="snow" value={pageData.hero?.headline || ""} onChange={val => updateData('hero', 'headline', val)} placeholder="Enter headline text or HTML..." /></div></div>
                             <div><label className="block text-sm font-bold mb-2 text-gray-700">Description (Rich Text)</label><div className="bg-white"><ReactQuill modules={quillModules} theme="snow" value={pageData.hero?.description || ""} onChange={val => updateData('hero', 'description', val)} /></div></div>
-                            <div><label className="block text-sm font-bold mb-2 text-gray-700">Key Highlights</label><StringArrayEditor value={pageData.hero?.key_highlights || []} onChange={v => updateData('hero', 'key_highlights', v)} placeholder='e.g. "3 Mentors", "3 Days"' /></div>
+                            <div>
+                                <label className="block text-sm font-bold mb-2 text-gray-700">Key Highlights (Rich Text)</label>
+                                <RichTextArrayEditor 
+                                    value={pageData.hero?.key_highlights || []} 
+                                    onChange={v => updateData('hero', 'key_highlights', v)} 
+                                    placeholder='e.g. by Gaurav Bansal, Ex-Mentor Startups - IITs, IIM' 
+                                    itemLabel="Highlight"
+                                />
+                            </div>
                         </div>
                     )}
 

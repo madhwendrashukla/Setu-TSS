@@ -9,6 +9,7 @@ export function Contact() {
         city: '',
         phone: '',
         email: '',
+        message: '',
         source: 'contact_section'
     });
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -21,14 +22,16 @@ export function Contact() {
             .catch(console.error);
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { id, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [id === 'form-name' ? 'name' :
                 id === 'form-city' ? 'city' :
                     id === 'form-contact' ? 'phone' :
-                        id === 'form-source' ? 'source' : 'email']: value
+                        id === 'form-email' ? 'email' :
+                            id === 'form-message' ? 'message' :
+                                id === 'form-source' ? 'source' : id]: value
         }));
     };
 
@@ -47,13 +50,14 @@ export function Contact() {
                     city: formData.city,
                     phone: formData.phone,
                     email: formData.email,
+                    message: formData.message || null,
                     source: formData.source
                 }),
             });
 
             if (response.ok) {
                 setStatus('success');
-                setFormData({ name: '', city: '', phone: '', email: '', source: 'contact_section' });
+                setFormData({ name: '', city: '', phone: '', email: '', message: '', source: 'contact_section' });
                 setTimeout(() => setStatus('idle'), 5000);
             } else {
                 setStatus('error');
@@ -141,6 +145,19 @@ export function Contact() {
                                     placeholder="john@example.com"
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="form-message" className="block text-xs font-bold tracking-wider text-slate-200 uppercase mb-2">Short Note</label>
+                            <textarea
+                                id="form-message"
+                                rows={3}
+                                maxLength={1000}
+                                value={formData.message}
+                                onChange={handleChange}
+                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#A855F7] focus:border-[#A855F7] transition-all placeholder:text-slate-400 shadow-sm resize-none"
+                                placeholder="Briefly tell us about your startup or query..."
+                            />
                         </div>
 
                         <div>

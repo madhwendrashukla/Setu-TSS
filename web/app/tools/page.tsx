@@ -62,7 +62,7 @@ export default async function ToolsPage() {
         {
             key: 'tool_investors',
             title: "Investor Database",
-            desc: "Connect with 250+ active angel investors and VCs tailored to your startup's stage and industry.",
+            desc: "Connect with active angel investors and VCs tailored to your startup's stage and industry.",
             href: "/tools/incubator-search/investors",
             icon: "fas fa-wallet",
             colorClass: "text-accent-violet",

@@ -35,7 +35,7 @@ const CATEGORIES = [
     },
     {
         title: "Investor Database",
-        description: "Connect with 250+ active angel investors and VCs tailored to your startup's stage and industry.",
+        description: "Connect with active angel investors and VCs tailored to your startup's stage and industry.",
         icon: <Wallet className="w-8 h-8 text-[#A855F7]" />,
         href: "/tools/incubator-search/investors",
         color: "bg-[#A855F7]/10"

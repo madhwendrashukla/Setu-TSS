@@ -12,6 +12,13 @@ function IncubatorLogo({ name, logo_url, website }: { name: string, logo_url?: s
                 alt={name}
                 className="w-full h-full object-contain p-2.5 rounded-2xl bg-white"
                 loading="lazy"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                    // Fallback to avatar if logo fails to load
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0A0A0A&color=508cff&bold=true&size=128`;
+                    e.currentTarget.classList.remove('bg-white');
+                }}
             />
         );
     }

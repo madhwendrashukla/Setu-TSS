@@ -194,7 +194,7 @@ export default function IncubatorsManager() {
                                 {paginatedItems.map(item => (
                                     <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="p-4">
-                                            {item.logo_url ? <img src={item.logo_url} alt="" className="h-10 w-auto rounded object-contain bg-white" /> : <div className="h-10 w-10 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">No img</div>}
+                                            {item.logo_url ? <img src={item.logo_url} alt="" className="h-10 w-auto rounded object-contain bg-white" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=0A0A0A&color=508cff&bold=true&size=128`; }} /> : <div className="h-10 w-10 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">No img</div>}
                                         </td>
                                         <td className="p-4 font-medium">{item.name}</td>
                                         <td className="p-4 text-gray-600">{item.city}{item.city && item.state ? ', ' : ''}{item.state}</td>
@@ -265,7 +265,7 @@ export default function IncubatorsManager() {
                                     </div>
                                     {formData.logo_url && (
                                         <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200 inline-block">
-                                            <img src={formData.logo_url} alt="Preview" className="h-10 object-contain" />
+                                            <img src={formData.logo_url} alt="Preview" className="h-10 object-contain" referrerPolicy="no-referrer" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || 'Incubator')}&background=0A0A0A&color=508cff&bold=true&size=128`; }} />
                                         </div>
                                     )}
                                 </div>

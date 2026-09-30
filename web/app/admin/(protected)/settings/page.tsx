@@ -297,17 +297,20 @@ export default function AdminSettings() {
                                 currentVal = val;
                             }
                             
-                            const isVisible = currentVal !== 'disabled' && currentVal !== 'disabled_live' && currentVal !== 'disabled_upcoming' && currentVal !== false;
-                            const isLive = currentVal === 'live' || currentVal === 'disabled_live' || currentVal === true || currentVal === 'disabled';
+                            const isVisible = !String(currentVal).startsWith('disabled') && currentVal !== false;
+                            
+                            let baseStatus = String(currentVal).replace('disabled_', '');
+                            if (baseStatus === 'false') baseStatus = 'upcoming';
+                            if (baseStatus === 'true') baseStatus = 'live';
+                            if (!['live', 'beta', 'upcoming', 'coming_soon'].includes(baseStatus)) baseStatus = 'live';
 
                             const handleVisibilityChange = (checked: boolean) => {
-                                const newVal = checked ? (isLive ? 'live' : 'upcoming') : (isLive ? 'disabled_live' : 'disabled_upcoming');
+                                const newVal = checked ? baseStatus : `disabled_${baseStatus}`;
                                 setFormData({ ...formData, section_toggles: { ...formData.section_toggles, [section.key]: newVal } });
                             };
 
                             const handleStatusChange = (statusStr: string) => {
-                                const liveChecked = statusStr === 'live';
-                                const newVal = isVisible ? (liveChecked ? 'live' : 'upcoming') : (liveChecked ? 'disabled_live' : 'disabled_upcoming');
+                                const newVal = isVisible ? statusStr : `disabled_${statusStr}`;
                                 setFormData({ ...formData, section_toggles: { ...formData.section_toggles, [section.key]: newVal } });
                             };
 
@@ -327,12 +330,14 @@ export default function AdminSettings() {
                                         <div className="flex flex-1 items-center gap-2">
                                             <span className="text-xs font-bold text-gray-600">Status:</span>
                                             <select 
-                                                value={isLive ? 'live' : 'upcoming'}
+                                                value={baseStatus}
                                                 onChange={e => handleStatusChange(e.target.value)}
                                                 className="bg-gray-50 border border-gray-200 text-xs rounded focus:ring-accent-blue focus:border-accent-blue block w-full p-1 font-semibold text-gray-700 outline-none"
                                             >
                                                 <option value="live">Live</option>
+                                                <option value="beta">Beta (Live)</option>
                                                 <option value="upcoming">Upcoming</option>
+                                                <option value="coming_soon">Coming Soon</option>
                                             </select>
                                         </div>
                                     </div>

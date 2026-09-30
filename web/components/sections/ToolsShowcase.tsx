@@ -102,11 +102,12 @@ export function ToolsShowcase({ toggles = {}, headings = {} }: { toggles?: any, 
 
             <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-wrap justify-center gap-6">
                 {displayCategories.map((category, idx) => {
-                    const isUnclickable = category.status !== 'live';
+                    const isUnclickable = category.status !== 'live' && category.status !== 'beta';
                     
                     let badgeText = "";
                     if (category.status === 'coming_soon') badgeText = "COMING SOON";
                     else if (category.status === 'upcoming') badgeText = "UPCOMING";
+                    else if (category.status === 'beta') badgeText = "BETA";
                     else if (category.status === 'disabled') badgeText = "HIDDEN";
 
                     return (
@@ -121,7 +122,7 @@ export function ToolsShowcase({ toggles = {}, headings = {} }: { toggles?: any, 
                                     {category.icon}
                                 </div>
                                 {badgeText && (
-                                    <span className={`text-[10px] font-bold tracking-widest uppercase border border-functional-border px-3 py-1.5 rounded-full ${category.status === 'disabled' ? 'text-red-400 bg-red-500/10 border-red-500/20' : category.status === 'upcoming' ? 'text-orange-400 bg-white/5' : 'text-text-secondary bg-white/5'}`}>
+                                    <span className={`text-[10px] font-bold tracking-widest uppercase border border-functional-border px-3 py-1.5 rounded-full ${category.status === 'disabled' ? 'text-red-400 bg-red-500/10 border-red-500/20' : category.status === 'beta' ? 'text-blue-400 bg-blue-500/10 border-blue-500/20' : category.status === 'upcoming' ? 'text-orange-400 bg-white/5' : 'text-text-secondary bg-white/5'}`}>
                                         {badgeText}
                                     </span>
                                 )}

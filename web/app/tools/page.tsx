@@ -99,10 +99,11 @@ export default async function ToolsPage() {
                 
                 <div className="grid md:grid-cols-2 gap-6 text-left relative z-10 w-full mb-8">
                     {displayTools.map((tool, idx) => {
-                        const isUnclickable = tool.status !== 'live';
+                        const isUnclickable = tool.status !== 'live' && tool.status !== 'beta';
                         let badgeText = "Live Now";
                         if (tool.status === 'coming_soon') badgeText = "COMING SOON";
                         else if (tool.status === 'upcoming') badgeText = "UPCOMING";
+                        else if (tool.status === 'beta') badgeText = "BETA";
                         
                         if (isUnclickable) {
                             return (

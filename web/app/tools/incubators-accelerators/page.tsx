@@ -8,7 +8,7 @@ function MultiSelectDropdown({ label, options, selected, onChange }: { label: st
     const [open, setOpen] = useState(false);
     return (
         <div className="relative group flex-1">
-            <label className="absolute left-4 -top-2 px-2 bg-white dark:bg-[#0A0A0B] text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">{label}</label>
+            <label className="absolute left-4 -top-2 px-2 bg-white text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">{label}</label>
             <div onClick={() => setOpen(!open)} className="w-full bg-white/5 border border-functional-border rounded-2xl py-4 px-4 text-sm text-text-primary focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer flex justify-between items-center select-none">
                 <span className="truncate">{selected.length === 0 ? `All ${label}s` : selected.join(', ')}</span>
                 <Search size={16} className="rotate-90 text-text-tertiary shrink-0" />
@@ -307,7 +307,7 @@ export default function IncubatorsPage() {
 
                         {/* Search Input */}
                         <div className="relative group">
-                            <label className="absolute left-4 -top-2 px-2 bg-white dark:bg-[#0A0A0B] text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">Search</label>
+                            <label className="absolute left-4 -top-2 px-2 bg-white text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">Search</label>
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent-blue transition-colors">
                                 <Search size={18} />
                             </div>

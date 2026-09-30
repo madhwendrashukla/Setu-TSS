@@ -101,7 +101,7 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                             // computed here and never rendered, even before the helper.)
                             const dateStr = formatEventDateRange(event.start_date, event.end_date);
                             
-                            const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
+                            const isOnline = event.venue?.toLowerCase().includes('online') || event.city?.toLowerCase() === 'online' || !event.venue;
                             let locationStr = "Live Cohort (Online)";
                             if (!isOnline) {
                                 const venue = (event.venue || '').trim();
@@ -113,14 +113,22 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                                 }
                             }
 
+                            const sanitizeExternalUrl = (url: string) => {
+                                if (!url || url === "#") return "#";
+                                return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+                            };
+                            const targetUrl = event.slug ? `/events/${event.slug}` : sanitizeExternalUrl(event.registration_url);
+                            const targetAttr = event.slug ? "_self" : "_blank";
+                            const isClickable = Boolean(targetUrl && targetUrl !== "#");
+
                             const CardContent = (
-                                <div className={`w-full glass-card rounded-[24px] overflow-hidden border border-functional-border group flex flex-col h-full bg-[#13113B] transition-all duration-300 ${activeTab === 'upcoming' ? 'hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)] cursor-pointer' : ''}`}>
+                                <div className={`w-full glass-card rounded-[24px] overflow-hidden border border-functional-border group flex flex-col h-full bg-[#13113B] transition-all duration-300 ${isClickable ? 'hover:shadow-[0_8px_40px_rgba(168,85,247,0.15)] cursor-pointer' : ''}`}>
                                     <div className="relative h-56 w-full overflow-hidden bg-white/5 shrink-0 flex items-center justify-center p-2">
                                         <Image 
                                             src={event.banner_url ? encodeURI(event.banner_url) : "/ai-workshop-banner.webp"} 
                                             alt={event.title} 
                                             fill 
-                                            className={`object-contain rounded-xl ${activeTab === 'upcoming' ? 'group-hover:scale-105 transition duration-500' : ''}`} 
+                                            className={`object-contain rounded-xl ${isClickable ? 'group-hover:scale-105 transition duration-500' : ''}`} 
                                             unoptimized={true}
                                         />
                                         {/* 🔴 THE POSTER IS LEFT ALONE. The title used to sit on top of
@@ -153,14 +161,7 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
                                 </div>
                             );
 
-                            const sanitizeExternalUrl = (url: string) => {
-                                if (!url || url === "#") return "#";
-                                return /^https?:\/\//i.test(url) ? url : `https://${url}`;
-                            };
-                            const targetUrl = event.slug ? `/events/${event.slug}` : sanitizeExternalUrl(event.registration_url);
-                            const targetAttr = event.slug ? "_self" : "_blank";
-
-                            return activeTab === 'upcoming' ? (
+                            return isClickable ? (
                                 <Link key={event.id} href={targetUrl} target={targetAttr} rel={targetAttr === "_blank" ? "noopener noreferrer" : ""} className="block h-full snap-start">
                                     {CardContent}
                                 </Link>

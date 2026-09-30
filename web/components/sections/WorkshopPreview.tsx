@@ -79,7 +79,7 @@ export function WorkshopPreview({ headings }: WorkshopPreviewProps) {
             <div className="relative w-full">
                 {events.map((event, index) => {
                     const fullDateStr = formatEventWhen(event);
-                    const isOnline = event.venue?.toLowerCase().includes('online') || !event.venue;
+                    const isOnline = event.venue?.toLowerCase().includes('online') || event.city?.toLowerCase() === 'online' || !event.venue;
                     const locationLabel = isOnline 
                         ? "Live Online" 
                         : (event.city ? event.city : (event.venue || "In-Person"));

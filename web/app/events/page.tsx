@@ -32,6 +32,16 @@ async function getCourses(): Promise<Course[]> {
 const formatPrice = (rupees: number) =>
     rupees <= 0 ? 'Free' : `₹${rupees.toLocaleString('en-IN')}`;
 
+function formatDate(dateInput: string | Date | null | undefined): string {
+    if (!dateInput) return 'TBA';
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return 'TBA';
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 async function getEvents() {
     try {
         const upcomingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?upcoming=true`, { cache: 'no-store' });
@@ -159,12 +169,14 @@ export default async function EventsPage() {
                                     <div className="flex flex-col grow justify-between">
                                         <h3 className="text-xl md:text-2xl font-bold text-white mb-4 leading-tight group-hover:text-[#A855F7] transition duration-300 line-clamp-2" title={event.title}>{event.title}</h3>
                                         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-end mt-auto pt-4 border-t border-white/10">
-                                            <div className="space-y-2">
-                                                <div className="flex items-center text-gray-400 text-sm font-medium">
-                                                    <i className="far fa-calendar text-gray-400 w-5"></i> {event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'}
+                                            <div className="space-y-2 flex-1 min-w-0">
+                                                <div className="flex items-center gap-2.5 text-gray-400 text-sm font-medium">
+                                                    <i className="far fa-calendar text-gray-400 w-4 shrink-0"></i>
+                                                    <span>{formatDate(event.start_date)}</span>
                                                 </div>
-                                                <div className="flex items-center text-gray-400 text-sm font-medium">
-                                                    <i className="fas fa-map-marker-alt text-gray-400 w-5"></i> {event.venue}
+                                                <div className="flex items-start gap-2.5 text-gray-400 text-sm font-medium">
+                                                    <i className="fas fa-map-marker-alt text-gray-400 w-4 shrink-0 mt-0.5"></i>
+                                                    <span className="leading-snug">{event.venue}</span>
                                                 </div>
                                             </div>
                                             {(event.slug || event.registration_url) && (
@@ -206,12 +218,14 @@ export default async function EventsPage() {
                                 <div className="flex flex-col grow justify-between">
                                     <h3 className="text-xl md:text-2xl font-bold text-white mb-4 leading-tight group-hover:text-[#A855F7] transition duration-300 line-clamp-2" title={event.title}>{event.title}</h3>
                                     <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-end mt-auto pt-4 border-t border-white/10">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center text-gray-400 text-sm font-medium">
-                                                <i className="far fa-calendar text-gray-400 w-5"></i> {event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'}
+                                        <div className="space-y-2 flex-1 min-w-0">
+                                            <div className="flex items-center gap-2.5 text-gray-400 text-sm font-medium">
+                                                <i className="far fa-calendar text-gray-400 w-4 shrink-0"></i>
+                                                <span>{formatDate(event.start_date)}</span>
                                             </div>
-                                            <div className="flex items-center text-gray-400 text-sm font-medium">
-                                                <i className="fas fa-map-marker-alt text-gray-400 w-5"></i> {event.venue}
+                                            <div className="flex items-start gap-2.5 text-gray-400 text-sm font-medium">
+                                                <i className="fas fa-map-marker-alt text-gray-400 w-4 shrink-0 mt-0.5"></i>
+                                                <span className="leading-snug">{event.venue}</span>
                                             </div>
                                         </div>
                                         {(event.slug || event.registration_url) && (

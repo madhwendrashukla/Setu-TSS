@@ -40,8 +40,8 @@ function SortableEventRow({ event, toggleStatus, toggleVisibility, togglePin, op
                     {new Date(event.start_date).toLocaleDateString()}
                 </div>
                 <div className="text-gray-500 text-xs flex items-center gap-2">
-                    <i className="fas fa-map-marker-alt text-xs"></i>
-                    {event.venue}
+                    <i className="fas fa-map-marker-alt text-xs text-rose-500"></i>
+                    <span>{event.city ? `${event.city} • ${event.venue}` : event.venue}</span>
                 </div>
             </td>
             <td className="p-5 text-center">
@@ -89,6 +89,7 @@ export default function AdminEvents() {
     const [events, setEvents] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState<any>(null);
+    const [eventMode, setEventMode] = useState<'online' | 'in_person'>('online');
     const [file, setFile] = useState<File | null>(null);
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -97,7 +98,7 @@ export default function AdminEvents() {
     const [cropAspect, setCropAspect] = useState<number | undefined>(16 / 9);
 
     const [formData, setFormData] = useState({
-        title: "", registration_url: "", description: "", venue: "", 
+        title: "", registration_url: "", description: "", venue: "Online", city: "Online",
         start_date: "", start_time: "", end_date: "", end_time: "", is_past: false, is_pinned: false, display_order: 0, slug: "",
         whatsapp_link: "", zoom_link: "", confirmation_message: ""
     });
@@ -282,8 +283,9 @@ export default function AdminEvents() {
     };
 
     const resetForm = () => {
+        setEventMode('online');
         setFormData({ 
-            title: "", registration_url: "", description: "", venue: "", 
+            title: "", registration_url: "", description: "", venue: "Online", city: "Online",
             start_date: "", start_time: "", end_date: "", end_time: "", 
             is_past: false, is_pinned: false, display_order: 0, slug: "",
             whatsapp_link: "", zoom_link: "", confirmation_message: "" 
@@ -300,12 +302,16 @@ export default function AdminEvents() {
             } catch(e) {}
         }
 
+        const isOnline = !event.venue || event.venue.toLowerCase().includes('online') || event.city?.toLowerCase() === 'online';
+        setEventMode(isOnline ? 'online' : 'in_person');
+
         setFormData({
             title: event.title,
             slug: event.slug || "",
             registration_url: event.registration_url || "",
             description: event.description,
-            venue: event.venue || "",
+            venue: event.venue || (isOnline ? "Online" : ""),
+            city: event.city || (isOnline ? "Online" : ""),
             start_date: event.start_date ? new Date(event.start_date).toISOString().split('T')[0] : "",
             start_time: event.start_time || "",
             end_date: event.end_date ? new Date(event.end_date).toISOString().split('T')[0] : "",
@@ -408,6 +414,7 @@ export default function AdminEvents() {
                         </div>
                         
                         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                            {/* Basic Details */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Title</label>
@@ -417,15 +424,120 @@ export default function AdminEvents() {
                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Slug (URL)</label>
                                     <input placeholder="e.g. ai-workshop-15may" value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Registration URL</label>
-                                    <input placeholder="https://example.com/register" value={formData.registration_url} onChange={e => setFormData({...formData, registration_url: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">External Registration URL (Optional)</label>
+                                    <input placeholder="https://example.com/register (leave blank to use built-in checkout & builder)" value={formData.registration_url} onChange={e => setFormData({...formData, registration_url: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Venue</label>
-                                    <input placeholder="Venue" value={formData.venue} onChange={e => setFormData({...formData, venue: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
+                            </div>
+
+                            {/* Event Format Selector (Online vs In-Person) */}
+                            <div className="flex flex-col gap-2">
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Event Format</label>
+                                <div className="grid grid-cols-2 gap-3 p-1.5 bg-gray-100 rounded-2xl border border-gray-200">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setEventMode('online');
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                city: 'Online',
+                                                venue: prev.venue && !prev.venue.toLowerCase().includes('online') ? 'Online' : (prev.venue || 'Online')
+                                            }));
+                                        }}
+                                        className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                                            eventMode === 'online'
+                                                ? 'bg-white text-purple-700 shadow-sm border border-purple-200'
+                                                : 'text-gray-500 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <i className="fa-solid fa-video text-xs text-purple-600"></i>
+                                        <span>Live Online</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setEventMode('in_person');
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                city: prev.city === 'Online' ? '' : prev.city,
+                                                venue: prev.venue === 'Online' || prev.venue?.toLowerCase().includes('online') ? '' : prev.venue
+                                            }));
+                                        }}
+                                        className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                                            eventMode === 'in_person'
+                                                ? 'bg-white text-rose-600 shadow-sm border border-rose-200'
+                                                : 'text-gray-500 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <i className="fa-solid fa-location-dot text-xs text-rose-500"></i>
+                                        <span>In-Person (Physical Venue)</span>
+                                    </button>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                            </div>
+
+                            {/* Dynamic Location Fields based on Format */}
+                            {eventMode === 'online' ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-purple-50/70 border border-purple-100">
+                                    <div>
+                                        <label className="block text-xs font-bold text-purple-900 uppercase tracking-wider mb-1.5">
+                                            Platform / Location Note
+                                        </label>
+                                        <input 
+                                            placeholder="e.g. Online (Zoom) or Live on Google Meet" 
+                                            value={formData.venue} 
+                                            onChange={e => setFormData({...formData, venue: e.target.value, city: 'Online'})} 
+                                            required 
+                                            className="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
+                                        />
+                                        <p className="text-[11px] text-purple-600 mt-1">Badge displays: <span className="font-semibold">📍 Live Online</span></p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-purple-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                            <i className="fa-solid fa-video text-purple-600"></i> Zoom / Meeting Join Link
+                                        </label>
+                                        <input 
+                                            placeholder="https://zoom.us/j/... or Meet link" 
+                                            value={formData.zoom_link} 
+                                            onChange={e => setFormData({...formData, zoom_link: e.target.value})} 
+                                            className="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
+                                        />
+                                        <p className="text-[11px] text-gray-500 mt-1">Unlocks for attendees after payment.</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                            <i className="fa-solid fa-city text-rose-500"></i> City Name (Location Badge)
+                                        </label>
+                                        <input 
+                                            placeholder="e.g. Bhubaneswar, Delhi NCR, Bangalore" 
+                                            value={formData.city} 
+                                            onChange={e => setFormData({...formData, city: e.target.value})} 
+                                            required 
+                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-accent-blue outline-none transition-all" 
+                                        />
+                                        <p className="text-[11px] text-gray-500 mt-1">Badge displays: <span className="font-semibold text-rose-600">📍 {formData.city || 'City Name'}</span></p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                            <i className="fa-solid fa-location-dot text-rose-500"></i> Full Venue Address
+                                        </label>
+                                        <input 
+                                            placeholder="e.g. STPI ELITE, Gothapatna, Bhubaneswar" 
+                                            value={formData.venue} 
+                                            onChange={e => setFormData({...formData, venue: e.target.value})} 
+                                            required 
+                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-accent-blue outline-none transition-all" 
+                                        />
+                                        <p className="text-[11px] text-gray-500 mt-1">Full address shown on cards & confirmations.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Schedule (Dates & Times) */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Start Date</label>
                                         <input type="date" value={formData.start_date} onChange={e => setFormData({...formData, start_date: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
@@ -435,7 +547,7 @@ export default function AdminEvents() {
                                         <input type="time" value={formData.start_time} onChange={e => setFormData({...formData, start_time: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">End Date</label>
                                         <input type="date" value={formData.end_date} onChange={e => setFormData({...formData, end_date: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" />
@@ -471,17 +583,19 @@ export default function AdminEvents() {
                                             className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                            <i className="fa-solid fa-video text-blue-600 text-sm"></i> Zoom / Meeting Link
-                                        </label>
-                                        <input 
-                                            placeholder="https://zoom.us/j/... or Meet link" 
-                                            value={formData.zoom_link} 
-                                            onChange={e => setFormData({...formData, zoom_link: e.target.value})} 
-                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
-                                        />
-                                    </div>
+                                    {eventMode === 'in_person' && (
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                                <i className="fa-solid fa-video text-blue-600 text-sm"></i> Optional Online / Backup Link
+                                            </label>
+                                            <input 
+                                                placeholder="https://zoom.us/j/... or Meet link" 
+                                                value={formData.zoom_link} 
+                                                onChange={e => setFormData({...formData, zoom_link: e.target.value})} 
+                                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
+                                            />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
@@ -489,7 +603,7 @@ export default function AdminEvents() {
                                         Custom Confirmation Instructions / Note
                                     </label>
                                     <textarea 
-                                        placeholder="e.g. Please join the WhatsApp group for materials. Meeting credentials will be emailed 1 hour before the session." 
+                                        placeholder="e.g. Please join the WhatsApp group for materials. Venue entry passes will be sent 24 hours prior." 
                                         value={formData.confirmation_message} 
                                         onChange={e => setFormData({...formData, confirmation_message: e.target.value})} 
                                         className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all h-20 resize-none custom-scrollbar" 

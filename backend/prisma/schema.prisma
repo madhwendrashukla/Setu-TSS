@@ -299,15 +299,34 @@ model Investor {
 }
 
 model Incubator {
-  id            String   @id @default(uuid()) @db.Uuid
-  name          String
-  location      String?
-  focus         String[]
-  programLength String?
-  equityTaken   String?
-  website       String?
-  is_active     Boolean  @default(true)
-  created_at    DateTime @default(now())
+  id                        String   @id @default(uuid()) @db.Uuid
+  name                      String
+  logo_url                  String?
+  description               String?
+  country                   String?
+  state                     String?
+  city                      String?
+  full_address              String?
+  pincode                   String?
+  website                   String?
+  contact_person            String?
+  contact_designation       String?
+  contact_email             String?
+  contact_mobile            String?
+  date_of_establishment     String?
+  program_duration_months   String?
+  no_of_current_incubatees  String?
+  no_of_graduated_incubatees String?
+  portfolio_companies       String?
+  industries                String?
+  sectors                   String?
+  industries_detailed       String?
+  sectors_detailed          String?
+  stages                    String?
+  preferred_stages          String?
+  
+  is_active                 Boolean  @default(true)
+  created_at                DateTime @default(now())
 
   @@map("incubators")
 }

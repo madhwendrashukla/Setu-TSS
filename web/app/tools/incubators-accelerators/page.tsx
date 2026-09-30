@@ -16,9 +16,9 @@ function MultiSelectDropdown({ label, options, selected, onChange }: { label: st
             {open && (
                 <>
                     <div className="fixed inset-0 z-30" onClick={() => setOpen(false)}></div>
-                    <div className="absolute top-full mt-2 left-0 w-full bg-white dark:bg-[#111113] border border-functional-border rounded-xl shadow-xl z-40 max-h-60 overflow-y-auto p-2 custom-scrollbar">
+                    <div className="absolute top-full mt-2 left-0 w-full bg-white border border-functional-border rounded-xl shadow-xl z-40 max-h-60 overflow-y-auto p-2 custom-scrollbar">
                         {options.map(opt => (
-                            <label key={opt} className="flex items-center gap-3 p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg cursor-pointer text-sm text-text-primary transition-colors">
+                            <label key={opt} className="flex items-center gap-3 p-3 hover:bg-black/5 rounded-lg cursor-pointer text-sm text-text-primary transition-colors">
                                 <input 
                                     type="checkbox" 
                                     checked={selected.includes(opt)} 
@@ -230,7 +230,12 @@ export default function IncubatorsPage() {
                 if (res.ok) {
                     const data = await res.json();
                     let arr = Array.isArray(data) ? data : [];
-                    arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                    arr.sort((a, b) => {
+                        const aTotal = (parseInt(a.no_of_current_incubatees) || 0) + (parseInt(a.no_of_graduated_incubatees) || 0);
+                        const bTotal = (parseInt(b.no_of_current_incubatees) || 0) + (parseInt(b.no_of_graduated_incubatees) || 0);
+                        if (aTotal !== bTotal) return bTotal - aTotal;
+                        return (a.name || '').localeCompare(b.name || '');
+                    });
                     setIncubatorsData(arr);
                 }
             } catch (error) {

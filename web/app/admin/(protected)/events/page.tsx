@@ -433,7 +433,7 @@ export default function AdminEvents() {
                             {/* Event Format Selector (Online vs In-Person) */}
                             <div className="flex flex-col gap-2">
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Event Format</label>
-                                <div className="grid grid-cols-2 gap-3 p-1.5 bg-gray-100 rounded-2xl border border-gray-200">
+                                <div className="grid grid-cols-2 gap-3 p-1.5 bg-gray-100 rounded-xl border border-gray-200">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -444,14 +444,13 @@ export default function AdminEvents() {
                                                 venue: prev.venue && !prev.venue.toLowerCase().includes('online') ? 'Online' : (prev.venue || 'Online')
                                             }));
                                         }}
-                                        className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                                        className={`flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                                             eventMode === 'online'
-                                                ? 'bg-white text-purple-700 shadow-sm border border-purple-200'
+                                                ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
                                                 : 'text-gray-500 hover:text-gray-900'
                                         }`}
                                     >
-                                        <i className="fa-solid fa-video text-xs text-purple-600"></i>
-                                        <span>Live Online</span>
+                                        Live Online
                                     </button>
                                     <button
                                         type="button"
@@ -463,74 +462,56 @@ export default function AdminEvents() {
                                                 venue: prev.venue === 'Online' || prev.venue?.toLowerCase().includes('online') ? '' : prev.venue
                                             }));
                                         }}
-                                        className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                                        className={`flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                                             eventMode === 'in_person'
-                                                ? 'bg-white text-rose-600 shadow-sm border border-rose-200'
+                                                ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
                                                 : 'text-gray-500 hover:text-gray-900'
                                         }`}
                                     >
-                                        <i className="fa-solid fa-location-dot text-xs text-rose-500"></i>
-                                        <span>In-Person (Physical Venue)</span>
+                                        In-Person (Physical Venue)
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Dynamic Location Fields based on Format */}
+                            {/* Location Fields based on Format */}
                             {eventMode === 'online' ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-purple-50/70 border border-purple-100">
-                                    <div>
-                                        <label className="block text-xs font-bold text-purple-900 uppercase tracking-wider mb-1.5">
-                                            Platform / Location Note
-                                        </label>
-                                        <input 
-                                            placeholder="e.g. Online (Zoom) or Live on Google Meet" 
-                                            value={formData.venue} 
-                                            onChange={e => setFormData({...formData, venue: e.target.value, city: 'Online'})} 
-                                            required 
-                                            className="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
-                                        />
-                                        <p className="text-[11px] text-purple-600 mt-1">Badge displays: <span className="font-semibold">📍 Live Online</span></p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-purple-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                            <i className="fa-solid fa-video text-purple-600"></i> Zoom / Meeting Join Link
-                                        </label>
-                                        <input 
-                                            placeholder="https://zoom.us/j/... or Meet link" 
-                                            value={formData.zoom_link} 
-                                            onChange={e => setFormData({...formData, zoom_link: e.target.value})} 
-                                            className="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
-                                        />
-                                        <p className="text-[11px] text-gray-500 mt-1">Unlocks for attendees after payment.</p>
-                                    </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                        Platform / Location Note
+                                    </label>
+                                    <input 
+                                        placeholder="e.g. Online (Zoom) or Live on Google Meet" 
+                                        value={formData.venue} 
+                                        onChange={e => setFormData({...formData, venue: e.target.value, city: 'Online'})} 
+                                        required 
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" 
+                                    />
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                            <i className="fa-solid fa-city text-rose-500"></i> City Name (Location Badge)
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            City Name
                                         </label>
                                         <input 
                                             placeholder="e.g. Bhubaneswar, Delhi NCR, Bangalore" 
                                             value={formData.city} 
                                             onChange={e => setFormData({...formData, city: e.target.value})} 
                                             required 
-                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-accent-blue outline-none transition-all" 
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" 
                                         />
-                                        <p className="text-[11px] text-gray-500 mt-1">Badge displays: <span className="font-semibold text-rose-600">📍 {formData.city || 'City Name'}</span></p>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                            <i className="fa-solid fa-location-dot text-rose-500"></i> Full Venue Address
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            Full Venue Address
                                         </label>
                                         <input 
                                             placeholder="e.g. STPI ELITE, Gothapatna, Bhubaneswar" 
                                             value={formData.venue} 
                                             onChange={e => setFormData({...formData, venue: e.target.value})} 
                                             required 
-                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-accent-blue outline-none transition-all" 
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue focus:bg-white outline-none transition-all" 
                                         />
-                                        <p className="text-[11px] text-gray-500 mt-1">Full address shown on cards & confirmations.</p>
                                     </div>
                                 </div>
                             )}
@@ -565,48 +546,45 @@ export default function AdminEvents() {
                             </div>
 
                             {/* Post-Registration Links & Notes */}
-                            <div className="bg-purple-50/60 border border-purple-100 p-5 rounded-2xl space-y-4">
-                                <div className="flex items-center gap-2">
-                                    <i className="fas fa-link text-purple-600"></i>
-                                    <h4 className="text-sm font-bold text-gray-900">Post-Registration Links & Notes (Shown on Confirmation Screen)</h4>
-                                </div>
+                            <div className="bg-gray-50 border border-gray-200 p-5 rounded-2xl space-y-4">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    Post-Registration Details (Shown on Confirmation Screen)
+                                </h4>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                            <i className="fa-brands fa-whatsapp text-green-600 text-sm"></i> WhatsApp Group Link
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            WhatsApp Group Link
                                         </label>
                                         <input 
                                             placeholder="https://chat.whatsapp.com/..." 
                                             value={formData.whatsapp_link} 
                                             onChange={e => setFormData({...formData, whatsapp_link: e.target.value})} 
-                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
+                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue outline-none transition-all" 
                                         />
                                     </div>
-                                    {eventMode === 'in_person' && (
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                                <i className="fa-solid fa-video text-blue-600 text-sm"></i> Optional Online / Backup Link
-                                            </label>
-                                            <input 
-                                                placeholder="https://zoom.us/j/... or Meet link" 
-                                                value={formData.zoom_link} 
-                                                onChange={e => setFormData({...formData, zoom_link: e.target.value})} 
-                                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all" 
-                                            />
-                                        </div>
-                                    )}
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            Zoom / Meeting Join Link
+                                        </label>
+                                        <input 
+                                            placeholder="https://zoom.us/j/... or Meet link" 
+                                            value={formData.zoom_link} 
+                                            onChange={e => setFormData({...formData, zoom_link: e.target.value})} 
+                                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue outline-none transition-all" 
+                                        />
+                                    </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
-                                        Custom Confirmation Instructions / Note
+                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                        Confirmation Message / Note
                                     </label>
                                     <textarea 
-                                        placeholder="e.g. Please join the WhatsApp group for materials. Venue entry passes will be sent 24 hours prior." 
+                                        placeholder="e.g. Please join the WhatsApp group for materials. Venue passes / meeting links will be provided here." 
                                         value={formData.confirmation_message} 
                                         onChange={e => setFormData({...formData, confirmation_message: e.target.value})} 
-                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:border-purple-500 outline-none transition-all h-20 resize-none custom-scrollbar" 
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-accent-blue outline-none transition-all h-20 resize-none custom-scrollbar" 
                                     />
                                 </div>
                             </div>

@@ -4,6 +4,40 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Filter, MapPin, ExternalLink, ArrowLeft, Globe, Building2, Zap, X } from 'lucide-react';
 
+function MultiSelectDropdown({ label, options, selected, onChange }: { label: string, options: string[], selected: string[], onChange: (val: string[]) => void }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <div className="relative group flex-1">
+            <label className="absolute left-4 -top-2 px-2 bg-white dark:bg-[#0A0A0B] text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">{label}</label>
+            <div onClick={() => setOpen(!open)} className="w-full bg-white/5 border border-functional-border rounded-2xl py-4 px-4 text-sm text-text-primary focus:outline-none focus:border-accent-blue/50 transition-all cursor-pointer flex justify-between items-center select-none">
+                <span className="truncate">{selected.length === 0 ? `All ${label}s` : selected.join(', ')}</span>
+                <Search size={16} className="rotate-90 text-text-tertiary shrink-0" />
+            </div>
+            {open && (
+                <>
+                    <div className="fixed inset-0 z-30" onClick={() => setOpen(false)}></div>
+                    <div className="absolute top-full mt-2 left-0 w-full bg-white dark:bg-[#111113] border border-functional-border rounded-xl shadow-xl z-40 max-h-60 overflow-y-auto p-2 custom-scrollbar">
+                        {options.map(opt => (
+                            <label key={opt} className="flex items-center gap-3 p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg cursor-pointer text-sm text-text-primary transition-colors">
+                                <input 
+                                    type="checkbox" 
+                                    checked={selected.includes(opt)} 
+                                    onChange={(e) => {
+                                        if (e.target.checked) onChange([...selected, opt]);
+                                        else onChange(selected.filter(x => x !== opt));
+                                    }} 
+                                    className="rounded border-functional-border text-accent-blue focus:ring-accent-blue bg-transparent w-4 h-4" 
+                                />
+                                {opt}
+                            </label>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
 function IncubatorLogo({ name, logo_url, website }: { name: string, logo_url?: string, website?: string }) {
     if (logo_url) {
         return (
@@ -77,7 +111,7 @@ function IncubatorModal({ item, onClose }: { item: any, onClose: () => void }) {
                     {item.description && (
                         <div className="mb-8">
                             <h3 className="text-lg font-bold text-text-primary mb-3">About</h3>
-                            <p className="text-text-secondary leading-relaxed">{item.description}</p>
+                            <div className="text-text-secondary leading-relaxed space-y-4" dangerouslySetInnerHTML={{ __html: item.description.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&') }} />
                         </div>
                     )}
 
@@ -183,8 +217,8 @@ function IncubatorCard({ item, onClick }: { item: any, onClick: () => void }) {
 
 export default function IncubatorsPage() {
     const [search, setSearch] = useState('');
-    const [selectedLocation, setSelectedLocation] = useState('All Locations');
-    const [selectedType, setSelectedType] = useState('All Types');
+    const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [incubatorsData, setIncubatorsData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -195,7 +229,9 @@ export default function IncubatorsPage() {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tools/incubators`);
                 if (res.ok) {
                     const data = await res.json();
-                    setIncubatorsData(Array.isArray(data) ? data : []);
+                    let arr = Array.isArray(data) ? data : [];
+                    arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                    setIncubatorsData(arr);
                 }
             } catch (error) {
                 console.error("Failed to fetch incubators", error);
@@ -206,11 +242,10 @@ export default function IncubatorsPage() {
     }, []);
 
     const locations = useMemo(() => {
-        const locs = Array.from(new Set(incubatorsData.map(item => item.state))).filter(Boolean).sort();
-        return ['All Locations', ...locs];
+        return Array.from(new Set(incubatorsData.map(item => item.state))).filter(Boolean).sort() as string[];
     }, [incubatorsData]);
 
-    const types = ['All Types', 'Incubator', 'Accelerator'];
+    const types = ['Incubator', 'Accelerator'];
 
     const filteredData = useMemo(() => {
         return incubatorsData.filter(item => {
@@ -219,16 +254,15 @@ export default function IncubatorsPage() {
                 (item.industries && item.industries.toLowerCase().includes(search.toLowerCase())) ||
                 (item.sectors && item.sectors.toLowerCase().includes(search.toLowerCase()));
 
-            const matchesLocation = selectedLocation === 'All Locations' || item.state === selectedLocation;
+            const matchesLocation = selectedLocations.length === 0 || selectedLocations.includes(item.state);
 
             const isAccelerator = item.name?.toLowerCase().includes('accelerator');
-            const matchesType = selectedType === 'All Types' ||
-                (selectedType === 'Accelerator' && isAccelerator) ||
-                (selectedType === 'Incubator' && !isAccelerator);
+            const itemType = isAccelerator ? 'Accelerator' : 'Incubator';
+            const matchesType = selectedTypes.length === 0 || selectedTypes.includes(itemType);
 
             return matchesSearch && matchesLocation && matchesType;
         });
-    }, [search, selectedLocation, selectedType, incubatorsData]);
+    }, [search, selectedLocations, selectedTypes, incubatorsData]);
 
     return (
         <div className="pt-32 pb-20 min-h-screen bg-bg-main relative">
@@ -256,38 +290,24 @@ export default function IncubatorsPage() {
 
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Location Select */}
-                        <div className="relative group">
-                            <label className="absolute left-4 -top-2 px-2 bg-[#0A0A0B] text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">State</label>
-                            <select
-                                value={selectedLocation}
-                                onChange={(e) => setSelectedLocation(e.target.value)}
-                                className="w-full bg-white/5 border border-functional-border rounded-2xl py-4 px-4 text-sm text-text-primary focus:outline-none focus:border-accent-blue/50 transition-all appearance-none cursor-pointer"
-                            >
-                                {locations.map((loc: any) => <option key={loc} value={loc} className="bg-bg-surface">{loc}</option>)}
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-tertiary">
-                                <Search size={16} className="rotate-90" />
-                            </div>
-                        </div>
+                        <MultiSelectDropdown 
+                            label="State" 
+                            options={locations} 
+                            selected={selectedLocations} 
+                            onChange={setSelectedLocations} 
+                        />
 
                         {/* Type Select */}
-                        <div className="relative group">
-                            <label className="absolute left-4 -top-2 px-2 bg-[#0A0A0B] text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">Structure</label>
-                            <select
-                                value={selectedType}
-                                onChange={(e) => setSelectedType(e.target.value)}
-                                className="w-full bg-white/5 border border-functional-border rounded-2xl py-4 px-4 text-sm text-text-primary focus:outline-none focus:border-accent-blue/50 transition-all appearance-none cursor-pointer"
-                            >
-                                {types.map(t => <option key={t} value={t} className="bg-bg-surface">{t}</option>)}
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-tertiary">
-                                <Search size={16} className="rotate-90" />
-                            </div>
-                        </div>
+                        <MultiSelectDropdown 
+                            label="Structure" 
+                            options={types} 
+                            selected={selectedTypes} 
+                            onChange={setSelectedTypes} 
+                        />
 
                         {/* Search Input */}
                         <div className="relative group">
-                            <label className="absolute left-4 -top-2 px-2 bg-[#0A0A0B] text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">Search</label>
+                            <label className="absolute left-4 -top-2 px-2 bg-white dark:bg-[#0A0A0B] text-[10px] font-bold text-text-tertiary uppercase tracking-wider z-20 transition-colors group-focus-within:text-accent-blue">Search</label>
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent-blue transition-colors">
                                 <Search size={18} />
                             </div>
@@ -307,7 +327,7 @@ export default function IncubatorsPage() {
                         Results Found: <span className="text-text-primary ml-2">{filteredData.length}</span>
                     </p>
                     <div className="flex gap-2">
-                        <button onClick={() => { setSearch(''); setSelectedLocation('All Locations'); setSelectedType('All Types'); }} className="text-[10px] font-bold text-accent-blue hover:text-text-primary transition-colors uppercase tracking-widest border border-accent-blue/20 px-3 py-1 rounded-full">Reset Filters</button>
+                        <button onClick={() => { setSearch(''); setSelectedLocations([]); setSelectedTypes([]); }} className="text-[10px] font-bold text-accent-blue hover:text-text-primary transition-colors uppercase tracking-widest border border-accent-blue/20 px-3 py-1 rounded-full">Reset Filters</button>
                     </div>
                 </div>
 

@@ -22,7 +22,7 @@ export default function AdminCertifications() {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL;
+    const API = "";
 
     const fetchLogos = () => {
         fetch(`${API}/api/admin/certification-logos`, { headers: { "Authorization": `Bearer ${token()}` } })

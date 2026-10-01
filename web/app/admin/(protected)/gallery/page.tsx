@@ -189,7 +189,7 @@ export default function AdminGallery() {
     };
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const API = "";
 
     const fetchItems = () => {
         fetch(`${API}/api/gallery`, { headers: { "Authorization": `Bearer ${token()}` } })

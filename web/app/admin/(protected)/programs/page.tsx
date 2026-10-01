@@ -12,7 +12,7 @@ export default function AdminPrograms() {
     });
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL;
+    const API = "";
 
     const fetchPrograms = () => {
         fetch(`${API}/api/admin/programs`, { headers: { "Authorization": `Bearer ${token()}` } })

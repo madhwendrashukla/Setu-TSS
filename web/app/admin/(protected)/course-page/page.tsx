@@ -40,7 +40,7 @@ const BUILTIN_NOTE: Record<string, string> = {
 };
 
 export default function CoursePageBuilder() {
-    const API = process.env.NEXT_PUBLIC_API_URL;
+    const API = "";
     const token = () => (typeof window === "undefined" ? "" : localStorage.getItem("adminToken"));
 
     const [items, setItems] = useState<Item[]>([]);

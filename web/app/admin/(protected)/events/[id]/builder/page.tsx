@@ -1401,7 +1401,7 @@ const EmailTemplateEditor = ({
         setTestStatus(null);
         try {
             const token = localStorage.getItem("adminToken");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/payments/test-email`, {
+            const res = await fetch(`/api/payments/test-email`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1795,8 +1795,8 @@ export default function EventBuilderPage() {
                 const headers = { "Authorization": `Bearer ${token}` };
                 
                 const [sourcesRes, couponsRes] = await Promise.all([
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/lead-sources`, { headers }),
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/coupons/admin`, { headers })
+                    fetch(`/api/admin/lead-sources`, { headers }),
+                    fetch(`/api/coupons/admin`, { headers })
                 ]);
                 
                 if (sourcesRes.ok) {
@@ -1820,7 +1820,7 @@ export default function EventBuilderPage() {
         const fetchEvent = async () => {
             try {
                 const token = localStorage.getItem("adminToken");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?all=true`, {
+                const res = await fetch(`/api/events?all=true`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -1832,7 +1832,7 @@ export default function EventBuilderPage() {
                     // price at checkout — fetch it so the Pricing tab can warn
                     // when the display prices disagree with the real charge.
                     if (found.lms_course_slug) {
-                        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/courses/${found.lms_course_slug}`)
+                        fetch(`/api/courses/${found.lms_course_slug}`)
                             .then(r => (r.ok ? r.json() : null))
                             .then(c => { if (c && typeof c.price === 'number') setLmsCoursePrice(c.price); })
                             .catch(() => {});
@@ -1905,7 +1905,7 @@ export default function EventBuilderPage() {
         const fd = new FormData();
         fd.append('file', file);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/upload`, {
+            const res = await fetch(`/api/admin/upload`, {
                 method: "POST",
                 headers: { "Authorization": `Bearer ${token}` },
                 body: fd
@@ -1952,7 +1952,7 @@ export default function EventBuilderPage() {
             const fd = new FormData();
             fd.append('page_blocks', JSON.stringify(pageData));
             
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${id}`, {
+            const res = await fetch(`/api/admin/events/${id}`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${token}` },
                 body: fd
@@ -1982,7 +1982,7 @@ export default function EventBuilderPage() {
         let cancelled = false;
         Promise.all(slugs.map(async (slug) => {
             try {
-                const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/courses/${slug}`);
+                const r = await fetch(`/api/courses/${slug}`);
                 if (!r.ok) return null;
                 const c = await r.json();
                 return typeof c?.price === 'number' ? ([slug, c.price] as const) : null;

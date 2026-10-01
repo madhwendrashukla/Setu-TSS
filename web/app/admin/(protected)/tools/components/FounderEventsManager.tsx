@@ -13,7 +13,7 @@ export default function FounderEventsManager() {
     const fetchData = () => {
         setIsLoading(true);
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tools/founder-events`, {
+        fetch(`/api/tools/founder-events`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -35,8 +35,8 @@ export default function FounderEventsManager() {
         e.preventDefault();
         const token = localStorage.getItem("adminToken");
         const url = editingItem 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/tools/founder-events/${editingItem.id}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/tools/founder-events`;
+            ? `/api/tools/founder-events/${editingItem.id}`
+            : `/api/tools/founder-events`;
         const method = editingItem ? "PUT" : "POST";
 
         try {
@@ -63,7 +63,7 @@ export default function FounderEventsManager() {
         if (!confirm("Are you sure you want to delete this?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tools/founder-events/${id}`, {
+            const res = await fetch(`/api/tools/founder-events/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });

@@ -13,7 +13,7 @@ export default function PitchDecksManager() {
     const fetchData = () => {
         setIsLoading(true);
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tools/pitch-decks`, {
+        fetch(`/api/tools/pitch-decks`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -35,8 +35,8 @@ export default function PitchDecksManager() {
         e.preventDefault();
         const token = localStorage.getItem("adminToken");
         const url = editingItem 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/tools/pitch-decks/${editingItem.id}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/tools/pitch-decks`;
+            ? `/api/tools/pitch-decks/${editingItem.id}`
+            : `/api/tools/pitch-decks`;
         const method = editingItem ? "PUT" : "POST";
 
         try {
@@ -63,7 +63,7 @@ export default function PitchDecksManager() {
         if (!confirm("Are you sure you want to delete this?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tools/pitch-decks/${id}`, {
+            const res = await fetch(`/api/tools/pitch-decks/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });

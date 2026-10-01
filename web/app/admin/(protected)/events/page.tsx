@@ -105,7 +105,7 @@ export default function AdminEvents() {
 
     const fetchEvents = () => {
         const token = localStorage.getItem("adminToken");
-        const API = process.env.NEXT_PUBLIC_API_URL || "";
+        const API = "";
         fetch(`${API}/api/events?all=true`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
@@ -150,7 +150,7 @@ export default function AdminEvents() {
 
         if (file) data.append("banner", file);
 
-        const API = process.env.NEXT_PUBLIC_API_URL || "";
+        const API = "";
         const url = editingEvent 
             ? `${API}/api/admin/events/${editingEvent.id}`
             : `${API}/api/admin/events`;
@@ -180,7 +180,7 @@ export default function AdminEvents() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this event?")) return;
         const token = localStorage.getItem("adminToken");
-        const API = process.env.NEXT_PUBLIC_API_URL || "";
+        const API = "";
         try {
             const res = await fetch(`${API}/api/admin/events/${id}`, {
                 method: "DELETE",
@@ -196,7 +196,7 @@ export default function AdminEvents() {
     // by the backend, so hiding here also hides there — the two cannot diverge.
     const toggleVisibility = async (event: any) => {
         const token = localStorage.getItem("adminToken");
-        const API = process.env.NEXT_PUBLIC_API_URL || "";
+        const API = "";
         try {
             const fd = new FormData();
             fd.append('is_active', String(event.is_active === false));
@@ -214,7 +214,7 @@ export default function AdminEvents() {
 
     const togglePin = async (event: any) => {
         const token = localStorage.getItem("adminToken");
-        const API = process.env.NEXT_PUBLIC_API_URL || "";
+        const API = "";
         try {
             const fd = new FormData();
             fd.append('is_pinned', String(!event.is_pinned));
@@ -232,7 +232,7 @@ export default function AdminEvents() {
 
     const toggleStatus = async (event: any) => {
         const token = localStorage.getItem("adminToken");
-        const API = process.env.NEXT_PUBLIC_API_URL || "";
+        const API = "";
         try {
             const fd = new FormData();
             fd.append('is_past', String(!event.is_past));
@@ -268,7 +268,7 @@ export default function AdminEvents() {
                 }));
 
                 const token = localStorage.getItem("adminToken");
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/reorder`, {
+                fetch(`/api/admin/events/reorder`, {
                     method: 'PUT',
                     headers: { 
                         'Content-Type': 'application/json',

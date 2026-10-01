@@ -109,7 +109,7 @@ export default function AdminFounderManifesto() {
     const [viewMode, setViewMode] = useState<"split" | "editor" | "preview">("split");
 
     const token = () => (typeof window !== "undefined" ? localStorage.getItem("adminToken") : "");
-    const API = process.env.NEXT_PUBLIC_API_URL || "";
+    const API = "";
 
     const fetchData = async () => {
         setIsLoading(true);

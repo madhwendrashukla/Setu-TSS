@@ -6,7 +6,7 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard-stats`, {
+        fetch(`/api/admin/dashboard-stats`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())

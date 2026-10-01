@@ -242,7 +242,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             }
 
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/verify`, {
+                const res = await fetch(`/api/admin/verify`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 if (res.ok) {

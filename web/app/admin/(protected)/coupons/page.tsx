@@ -16,7 +16,7 @@ export default function AdminCoupons() {
 
     const fetchCoupons = () => {
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/coupons/admin`, {
+        fetch(`/api/coupons/admin`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -45,8 +45,8 @@ export default function AdminCoupons() {
         };
 
         const url = editingCoupon 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/coupons/admin/${editingCoupon.id}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/coupons/admin`;
+            ? `/api/coupons/admin/${editingCoupon.id}`
+            : `/api/coupons/admin`;
             
         const method = editingCoupon ? "PUT" : "POST";
 
@@ -79,7 +79,7 @@ export default function AdminCoupons() {
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this coupon?")) return;
         const token = localStorage.getItem("adminToken");
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/coupons/admin/${id}`, {
+        await fetch(`/api/coupons/admin/${id}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });

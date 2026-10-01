@@ -52,10 +52,10 @@ export default function AdminRegistrations() {
 
             try {
                 const [regRes, eventsRes] = await Promise.all([
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/registrations`, {
+                    fetch(`/api/admin/registrations`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     }),
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/events?all=true`, {
+                    fetch(`/api/events?all=true`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     })
                 ]);
@@ -164,7 +164,7 @@ export default function AdminRegistrations() {
         }
         const token = localStorage.getItem('adminToken');
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/registrations/${id}`, {
+            const res = await fetch(`/api/admin/registrations/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

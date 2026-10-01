@@ -32,7 +32,7 @@ export default function AdminSettings() {
     const [resettingPw, setResettingPw] = useState(false);
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL;
+    const API = "";
 
     useEffect(() => {
         fetch(`${API}/api/admin/site_settings`, { headers: { "Authorization": `Bearer ${token()}` } })

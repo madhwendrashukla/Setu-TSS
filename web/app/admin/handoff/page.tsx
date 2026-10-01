@@ -24,7 +24,7 @@ function HandoffInner() {
 
         (async () => {
             try {
-                const API = process.env.NEXT_PUBLIC_API_URL || "";
+                const API = "";
                 const res = await fetch(`${API}/api/admin/handoff-exchange`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

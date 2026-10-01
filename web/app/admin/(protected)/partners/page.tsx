@@ -22,7 +22,7 @@ export default function AdminPartners() {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL;
+    const API = "";
 
     const fetchPartners = () => {
         fetch(`${API}/api/admin/community_partners`, { headers: { "Authorization": `Bearer ${token()}` } })

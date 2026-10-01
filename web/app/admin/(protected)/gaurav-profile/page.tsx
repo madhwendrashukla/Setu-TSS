@@ -104,7 +104,7 @@ export default function AdminGauravProfile() {
     const [linkForm, setLinkForm] = useState<Omit<ProfileLink, "id">>(emptyLink());
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL;
+    const API = "";
 
     // ── Fetch ───────────────────────────────────────────────────────────────
 

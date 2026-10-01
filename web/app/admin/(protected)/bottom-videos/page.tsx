@@ -115,7 +115,7 @@ export default function AdminBottomVideos() {
     const [fetchSuccessMessage, setFetchSuccessMessage] = useState<string | null>(null);
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL;
+    const API = "";
 
     const fetchItems = () => {
         fetch(`${API}/api/admin/bottom_videos`, { headers: { "Authorization": `Bearer ${token()}` } })

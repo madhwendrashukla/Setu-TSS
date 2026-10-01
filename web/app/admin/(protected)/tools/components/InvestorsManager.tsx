@@ -18,7 +18,7 @@ export default function InvestorsManager() {
     const fetchData = () => {
         setIsLoading(true);
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tools/investors`, {
+        fetch(`/api/tools/investors`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -40,8 +40,8 @@ export default function InvestorsManager() {
         e.preventDefault();
         const token = localStorage.getItem("adminToken");
         const url = editingItem 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/tools/investors/${editingItem.id}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/tools/investors`;
+            ? `/api/tools/investors/${editingItem.id}`
+            : `/api/tools/investors`;
         const method = editingItem ? "PUT" : "POST";
 
         const payload = new FormData();
@@ -77,7 +77,7 @@ export default function InvestorsManager() {
         if (!confirm("Are you sure you want to delete this?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tools/investors/${id}`, {
+            const res = await fetch(`/api/tools/investors/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });

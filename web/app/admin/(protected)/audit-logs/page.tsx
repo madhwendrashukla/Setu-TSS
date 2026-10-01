@@ -57,7 +57,7 @@ export default function AuditLogsPage() {
                 search: search.trim(),
             });
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/login-logs?${params.toString()}`, {
+            const res = await fetch(`/api/admin/login-logs?${params.toString()}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -92,7 +92,7 @@ export default function AuditLogsPage() {
         setDeletingId(id);
         try {
             const token = localStorage.getItem("adminToken");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/login-logs/${id}`, {
+            const res = await fetch(`/api/admin/login-logs/${id}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -112,7 +112,7 @@ export default function AuditLogsPage() {
         setIsClearing(true);
         try {
             const token = localStorage.getItem("adminToken");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/login-logs`, {
+            const res = await fetch(`/api/admin/login-logs`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });

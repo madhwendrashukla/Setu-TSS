@@ -121,7 +121,7 @@ export default function AdminContactPageManager() {
     });
 
     const token = () => localStorage.getItem("adminToken");
-    const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const API = "";
 
     const fetchData = async () => {
         setIsLoading(true);

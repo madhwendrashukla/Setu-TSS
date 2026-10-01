@@ -28,7 +28,7 @@ export default function AdminsPage() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [isResetting, setIsResetting] = useState(false);
 
-    const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const API = "";
 
     const fetchAdmins = async () => {
         try {

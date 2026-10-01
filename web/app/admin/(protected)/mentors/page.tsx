@@ -25,7 +25,7 @@ export default function AdminMentors() {
 
     const fetchMentors = () => {
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors`, {
+        fetch(`/api/admin/mentors`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -35,7 +35,7 @@ export default function AdminMentors() {
 
     const fetchSettings = () => {
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/site_settings`, {
+        fetch(`/api/admin/site_settings`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
         .then(res => res.json())
@@ -68,7 +68,7 @@ export default function AdminMentors() {
         setFullSettings(newSettings);
         
         const token = localStorage.getItem("adminToken");
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/site_settings`, {
+        await fetch(`/api/admin/site_settings`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify(newSettings)
@@ -88,7 +88,7 @@ export default function AdminMentors() {
         setMentors(updatedItems);
 
         const token = localStorage.getItem("adminToken");
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors/reorder`, {
+        await fetch(`/api/admin/mentors/reorder`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -107,7 +107,7 @@ export default function AdminMentors() {
         
         setMentors(mentors.map(m => m.id === id ? { ...m, is_active: !currentStatus } : m));
 
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors/${id}`, {
+        await fetch(`/api/admin/mentors/${id}`, {
             method: "PUT",
             headers: { "Authorization": `Bearer ${token}` },
             body: formData
@@ -126,8 +126,8 @@ export default function AdminMentors() {
         if (file) data.append("photo", file);
 
         const url = editingMentor 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors/${editingMentor.id}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors`;
+            ? `/api/admin/mentors/${editingMentor.id}`
+            : `/api/admin/mentors`;
         const method = editingMentor ? "PUT" : "POST";
 
         try {
@@ -152,7 +152,7 @@ export default function AdminMentors() {
         if (!confirm("Are you sure you want to delete this mentor?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/mentors/${id}`, {
+            const res = await fetch(`/api/admin/mentors/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });

@@ -12,7 +12,7 @@ export default function AdminTestimonials() {
 
     const fetchTestimonials = () => {
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/testimonials`, {
+        fetch(`/api/testimonials`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -48,8 +48,8 @@ export default function AdminTestimonials() {
         }
 
         const url = editingTestimonial 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/testimonials/${editingTestimonial.id}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/testimonials`;
+            ? `/api/admin/testimonials/${editingTestimonial.id}`
+            : `/api/admin/testimonials`;
         const method = editingTestimonial ? "PUT" : "POST";
 
         try {
@@ -77,7 +77,7 @@ export default function AdminTestimonials() {
         if (!confirm("Are you sure?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/testimonials/${id}`, {
+            const res = await fetch(`/api/admin/testimonials/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -114,7 +114,7 @@ export default function AdminTestimonials() {
             const otherType = prev.filter(t => t.type !== activeTab);
             return [...otherType, ...reordered];
         });
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/testimonials/reorder`, {
+        await fetch(`/api/admin/testimonials/reorder`, {
             method: "PUT",
             headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
             body: JSON.stringify({ items: reordered.map((t, i) => ({ id: t.id, display_order: i })) })

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API = "";
 
 const SAMPLE_RECIPIENTS = `[
   { "email": "founder@startup.com", "name": "Rahul Sharma" },

@@ -17,7 +17,7 @@ export default function GrantsManager() {
     const fetchData = () => {
         setIsLoading(true);
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tools/grants`, {
+        fetch(`/api/tools/grants`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -47,8 +47,8 @@ export default function GrantsManager() {
         e.preventDefault();
         const token = localStorage.getItem("adminToken");
         const url = editingItem 
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/tools/grants/${editingItem.id}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/tools/grants`;
+            ? `/api/tools/grants/${editingItem.id}`
+            : `/api/tools/grants`;
         const method = editingItem ? "PUT" : "POST";
 
         try {
@@ -75,7 +75,7 @@ export default function GrantsManager() {
         if (!confirm("Are you sure you want to delete this?")) return;
         const token = localStorage.getItem("adminToken");
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tools/grants/${id}`, {
+            const res = await fetch(`/api/tools/grants/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });

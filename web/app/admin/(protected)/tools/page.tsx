@@ -12,7 +12,7 @@ export default function AdminToolsPage() {
 
     const fetchSettings = () => {
         const token = localStorage.getItem("adminToken");
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/site_settings`, {
+        fetch(`/api/admin/site_settings`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
         .then(res => res.json())
@@ -37,7 +37,7 @@ export default function AdminToolsPage() {
         setFullSettings(newSettings);
         
         const token = localStorage.getItem("adminToken");
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/site_settings`, {
+        await fetch(`/api/admin/site_settings`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify(newSettings)

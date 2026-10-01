@@ -23,7 +23,7 @@ export default function AdminLogin() {
         router.push("/admin/dashboard");
     };
 
-    const API = process.env.NEXT_PUBLIC_API_URL || "";
+    const API = "";
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();

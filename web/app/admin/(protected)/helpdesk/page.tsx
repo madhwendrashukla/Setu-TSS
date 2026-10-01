@@ -17,7 +17,7 @@ export default function HelpdeskAdminPage() {
   const fetchTickets = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/helpdesk`, {
+      const res = await fetch(`/api/admin/helpdesk`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -38,7 +38,7 @@ export default function HelpdeskAdminPage() {
   const downloadAttachment = async (ticketId: string, url: string) => {
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/helpdesk/${ticketId}/attachment`, {
+      const res = await fetch(`/api/admin/helpdesk/${ticketId}/attachment`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       
@@ -74,7 +74,7 @@ export default function HelpdeskAdminPage() {
   const updateStatus = async (id: string, status: string) => {
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/helpdesk/${id}`, {
+      const res = await fetch(`/api/admin/helpdesk/${id}`, {
         method: 'PUT',
         headers: { 
           "Authorization": `Bearer ${token}`,
@@ -94,7 +94,7 @@ export default function HelpdeskAdminPage() {
     if (!confirm("Are you sure you want to delete this ticket?")) return;
     try {
       const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/helpdesk/${id}`, {
+      const res = await fetch(`/api/admin/helpdesk/${id}`, {
         method: 'DELETE',
         headers: { "Authorization": `Bearer ${token}` }
       });

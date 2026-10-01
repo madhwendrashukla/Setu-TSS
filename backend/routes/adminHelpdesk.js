@@ -41,6 +41,17 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// Delete all tickets
+router.delete('/', async (req, res) => {
+  try {
+    const result = await prisma.helpdeskTicket.deleteMany({});
+    res.json({ success: true, count: result.count, message: 'All tickets deleted successfully' });
+  } catch (error) {
+    console.error("Failed to delete all tickets:", error);
+    res.status(500).json({ error: 'Failed to delete all tickets' });
+  }
+});
+
 // Delete a ticket
 router.delete('/:id', async (req, res) => {
   try {

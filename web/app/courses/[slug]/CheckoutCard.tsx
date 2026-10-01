@@ -16,7 +16,7 @@ declare global {
     }
 }
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = '';
 
 // price prop is in RUPEES (LMS convention); the create-order response's
 // `amount` is in PAISE (Razorpay convention).

@@ -43,6 +43,8 @@ const TONES: Record<string, string> = {
     amber: 'bg-amber-50 border-amber-200 text-amber-700',
 };
 
+import { getApiBaseUrl } from '@/lib/api';
+
 // Everything on this page below the title is admin-built (CMS -> Course Page).
 // An empty result renders a bare page rather than resurrecting the old
 // hardcoded content: deleting a default is a supported action, so silently
@@ -52,7 +54,7 @@ const NO_ITEMS: PageItems = { pill: [], section: [], included: [] };
 async function getPageItems(slug: string): Promise<PageItems> {
     try {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/course-page-items/${encodeURIComponent(slug)}`,
+            `${getApiBaseUrl()}/api/course-page-items/${encodeURIComponent(slug)}`,
             { cache: 'no-store' }
         );
         if (!res.ok) return NO_ITEMS;
@@ -66,7 +68,7 @@ async function getPageItems(slug: string): Promise<PageItems> {
 async function getCourse(slug: string): Promise<Course | null> {
     try {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/courses/${encodeURIComponent(slug)}`,
+            `${getApiBaseUrl()}/api/courses/${encodeURIComponent(slug)}`,
             { cache: 'no-store' }
         );
         if (!res.ok) return null;

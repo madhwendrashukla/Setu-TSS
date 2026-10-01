@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { getApiBaseUrl } from '@/lib/api';
 
 export const metadata: Metadata = {
     title: 'Programs & Workshops | Setu - TheStartupSchool',
@@ -21,7 +22,7 @@ type Course = {
 
 async function getCourses(): Promise<Course[]> {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses`, { cache: 'no-store' });
+        const res = await fetch(`${getApiBaseUrl()}/api/courses`, { cache: 'no-store' });
         if (!res.ok) return [];
         return await res.json();
     } catch {
@@ -44,8 +45,8 @@ function formatDate(dateInput: string | Date | null | undefined): string {
 
 async function getEvents() {
     try {
-        const upcomingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?upcoming=true`, { cache: 'no-store' });
-        const pastRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?past=true`, { cache: 'no-store' });
+        const upcomingRes = await fetch(`${getApiBaseUrl()}/api/events?upcoming=true`, { cache: 'no-store' });
+        const pastRes = await fetch(`${getApiBaseUrl()}/api/events?past=true`, { cache: 'no-store' });
         
         let upcoming = upcomingRes.ok ? await upcomingRes.json() : [];
         let past = pastRes.ok ? await pastRes.json() : [];

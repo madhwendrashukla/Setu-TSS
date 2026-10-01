@@ -21,7 +21,7 @@ export function PromoBar() {
     useEffect(() => {
         const fetchPromo = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/promo-bar`, { cache: 'no-store' });
+                const res = await fetch('/api/promo-bar', { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
                     setPromo(data);

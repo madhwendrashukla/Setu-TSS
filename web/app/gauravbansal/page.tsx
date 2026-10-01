@@ -165,27 +165,16 @@ const DEFAULT_PROFILE: GauravProfileData = {
     footer_tagline: 'AN ALTERNATE B-SCHOOL FOR ALL ASPIRING FOUNDERS',
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+import { getApiBaseUrl } from '@/lib/api';
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 async function fetchProfile(): Promise<GauravProfileData> {
     try {
-        if (API) {
-            const res = await fetch(`${API}/api/gaurav-profile`, { cache: 'no-store' });
-            if (res.ok) {
-                const data = await res.json();
-                return data;
-            }
-        }
-    } catch {
-        // Fallback to production if local backend is not reachable
-    }
-
-    try {
-        const prodRes = await fetch('https://setustartupschool.com/api/gaurav-profile', { cache: 'no-store' });
-        if (prodRes.ok) {
-            return await prodRes.json();
+        const res = await fetch(`${getApiBaseUrl()}/api/gaurav-profile`, { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            return data;
         }
     } catch {
         // Fallback to default

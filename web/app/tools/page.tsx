@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { getApiBaseUrl } from '@/lib/api';
 
 export const metadata: Metadata = {
     title: 'Startup Tools Ecosystem | Setu - TheStartupSchool',
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 async function getHomepageData() {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`, { cache: 'no-store' });
+        const res = await fetch(`${getApiBaseUrl()}/api/homepage`, { cache: 'no-store' });
         if (!res.ok) return null;
         return res.json();
     } catch (error) {

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import * as LucideIcons from 'lucide-react';
 
 const WHATSAPP_LINK = 'https://chat.whatsapp.com/BJ5RIXujFJG7ceB06nVqa4';
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API = '';
 
 function IdleNotifications({ widgets, dismissed, onDismiss, renderIcon }: { widgets: any[], dismissed: Set<string>, onDismiss: (id: string) => void, renderIcon: (name: string) => React.ReactNode }) {
     const visibleWidgets = widgets.filter(w => !dismissed.has(w.id));

@@ -1,5 +1,6 @@
 import { Mentors } from "@/components/sections/Mentors";
 import { MentorCTA } from "@/components/sections/MentorCTA";
+import { getApiBaseUrl } from "@/lib/api";
 
 export const metadata = {
     title: 'Learn from Masters. | Setu - TheStartupSchool',
@@ -8,7 +9,7 @@ export const metadata = {
 
 async function getMentors() {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mentors`, { cache: 'no-store' });
+        const res = await fetch(`${getApiBaseUrl()}/api/mentors`, { cache: 'no-store' });
         if (!res.ok) return [];
         return await res.json();
     } catch (e) {

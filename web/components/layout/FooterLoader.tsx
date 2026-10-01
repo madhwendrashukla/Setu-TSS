@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import FooterGate from './FooterGate';
+import { getApiBaseUrl } from '@/lib/api';
 
 // 🔴 THE GATE HAS TO BE HERE, ON THE SERVER, NOT IN FooterGate.
 //
@@ -26,7 +27,7 @@ const NO_FOOTER_PREFIX = ['/admin'];
 
 async function getSiteSettings() {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`, { next: { revalidate: 60 } });
+        const res = await fetch(`${getApiBaseUrl()}/api/homepage`, { next: { revalidate: 60 } });
         if (!res.ok) return null;
         const data = await res.json();
         return data.siteSettings;

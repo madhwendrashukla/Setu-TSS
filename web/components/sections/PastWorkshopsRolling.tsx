@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatEventWhen } from '@/lib/event-date';
+import { getApiBaseUrl } from '@/lib/api';
 
 async function getPastEvents() {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events/past-rolling`, { cache: 'no-store' });
+        const res = await fetch(`${getApiBaseUrl()}/api/events/past-rolling`, { cache: 'no-store' });
         if (!res.ok) return [];
         return res.json();
     } catch (e) {

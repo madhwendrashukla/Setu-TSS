@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getApiBaseUrl } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
 async function getEvent(slug: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events/slug/${slug}`, {
+    const res = await fetch(`${getApiBaseUrl()}/api/events/slug/${slug}`, {
       cache: 'no-store',
     });
     if (!res.ok) return null;

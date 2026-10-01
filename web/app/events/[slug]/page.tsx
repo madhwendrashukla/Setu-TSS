@@ -6,6 +6,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import Image from 'next/image';
 import { PageData } from '@/types/cms';
 import { DynamicSections } from '@/components/sections/dynamic/DynamicSections';
+import { getApiBaseUrl } from '@/lib/api';
 
 // Legacy components for backwards compatibility with array blocks format
 const DynamicHero = dynamic(() => import("@/components/sections/dynamic/DynamicHero").then(mod => mod.DynamicHero), { ssr: true });
@@ -25,7 +26,7 @@ async function getEventBySlug(slug: string, previewToken?: string) {
         // A valid signed preview token (from the LMS publish sync) lets admins
         // render a HIDDEN event at full fidelity before "Go live".
         const preview = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/events/slug/${slug}${preview}`, { cache: 'no-store' });
+        const res = await fetch(`${getApiBaseUrl()}/api/events/slug/${slug}${preview}`, { cache: 'no-store' });
         if (!res.ok) return null;
         return res.json();
     } catch (e) {

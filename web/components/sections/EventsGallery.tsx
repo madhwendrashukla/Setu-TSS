@@ -21,7 +21,7 @@ export function EventsGallery({ headings = {} }: { headings?: any }) {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`, { cache: 'no-store' });
+                const res = await fetch('/api/events', { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
                     setEvents(data || []);

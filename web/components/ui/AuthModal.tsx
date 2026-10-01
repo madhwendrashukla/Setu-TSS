@@ -25,7 +25,7 @@ export function AuthModal() {
             : { name, email, password };
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const apiUrl = '';
             const res = await fetch(`${apiUrl}${url}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

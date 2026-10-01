@@ -27,7 +27,7 @@ interface OtpVerifyModalProps {
   ticketTier?: string;
 }
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API = '';
 
 export function OtpVerifyModal({ isOpen, onClose, onVerified, prefillEmail, eventId, ticketTier }: OtpVerifyModalProps) {
   const [step, setStep] = useState<'form' | 'otp'>('form');

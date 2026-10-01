@@ -42,7 +42,7 @@ function IncubatorLogo({ name, logo_url, website }: { name: string, logo_url?: s
     if (logo_url) {
         return (
             <img
-                src={logo_url.includes('api.startupindia.gov.in') ? `${process.env.NEXT_PUBLIC_API_URL || ''}/api/tools/incubators/proxy-image?url=${encodeURIComponent(logo_url)}` : logo_url}
+                src={logo_url.includes('api.startupindia.gov.in') ? `/api/tools/incubators/proxy-image?url=${encodeURIComponent(logo_url)}` : logo_url}
                 alt={name}
                 className="w-full h-full object-contain p-2.5 rounded-2xl bg-white"
                 loading="lazy"
@@ -226,7 +226,7 @@ export default function IncubatorsPage() {
     useEffect(() => {
         const fetchIncubators = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tools/incubators`);
+                const res = await fetch('/api/tools/incubators');
                 if (res.ok) {
                     const data = await res.json();
                     let arr = Array.isArray(data) ? data : [];

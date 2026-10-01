@@ -21,22 +21,16 @@ const StudentsFrom = dynamic(() => import("@/components/sections/StudentsFrom").
 const Certifications = dynamic(() => import("@/components/sections/Certifications").then(mod => mod.Certifications), { ssr: true });
 const Contact = dynamic(() => import("@/components/sections/Contact").then(mod => mod.Contact), { ssr: true });
 const BottomVideoGallery = dynamic(() => import("@/components/sections/BottomVideoGallery").then(mod => mod.BottomVideoGallery), { ssr: true });
+import { getApiBaseUrl } from "@/lib/api";
+
 // Fetch data from Express Backend with fallback
 async function getHomepageData() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
+  const apiUrl = getApiBaseUrl();
   try {
     const res = await fetch(`${apiUrl}/api/homepage`, { cache: 'no-store' });
     if (res.ok) return await res.json();
-    
-    // Fallback to production if local backend returns an error (e.g., DB firewall)
-    const prodRes = await fetch('https://setustartupschool.com/api/homepage', { cache: 'no-store' });
-    if (prodRes.ok) return await prodRes.json();
     return null;
   } catch (error) {
-    try {
-      const prodRes = await fetch('https://setustartupschool.com/api/homepage', { cache: 'no-store' });
-      if (prodRes.ok) return await prodRes.json();
-    } catch (e) {}
     console.error("Backend not running or reachable", error);
     return null;
   }

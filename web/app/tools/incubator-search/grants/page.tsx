@@ -107,7 +107,7 @@ export default function GrantsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/tools/grants')
+        fetch('/api/tools/grants')
             .then(res => res.json())
             .then(data => {
                 setAllData(data);

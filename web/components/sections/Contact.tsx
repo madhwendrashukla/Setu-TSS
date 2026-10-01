@@ -16,7 +16,7 @@ export function Contact() {
     const [sourceOptions, setSourceOptions] = useState<{id: string, label: string}[]>([]);
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/lead-sources`)
+        fetch('/api/lead-sources')
             .then(res => res.json())
             .then(data => setSourceOptions(data))
             .catch(console.error);
@@ -40,7 +40,7 @@ export function Contact() {
         setStatus('loading');
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/leads`, {
+            const response = await fetch('/api/leads', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

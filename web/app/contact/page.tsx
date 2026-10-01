@@ -124,7 +124,7 @@ const DEFAULT_CONTENT: ContactPageData = {
 
 export default function ContactPage() {
     const [pageContent, setPageContent] = useState<ContactPageData>(DEFAULT_CONTENT);
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_URL = '';
 
     useEffect(() => {
         fetch(`${API_URL}/api/contact-page`)

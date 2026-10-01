@@ -37,6 +37,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ui-avatars.com",
       },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+      },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
       // 🔴 The old Lightsail bucket (bucket-rfbkoj, on Madhwendra's PERSONAL AWS
       // account) was listed here and in the CSP as a migration rollback. This
       // note used to say "remove at Phase 8 decommission, once the old server is
@@ -103,7 +111,7 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
       "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
       // *.ufs.sh / utfs.io = UploadThing CDN (LMS course thumbnails + event banners)
-      "img-src 'self' data: blob: https://foundersschool.in https://*.foundersschool.in https://setustartupschool.com https://*.setustartupschool.com https://images.unsplash.com https://img.youtube.com https://*.ytimg.com https://ui-avatars.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.in https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://*.doubleclick.net https://*.googleusercontent.com https://*.startupindia.gov.in https://*.counter.dev https://cdn.counter.dev https://t.counter.dev",
+      "img-src 'self' data: blob: https://foundersschool.in https://*.foundersschool.in https://setustartupschool.com https://*.setustartupschool.com https://images.unsplash.com https://img.youtube.com https://*.ytimg.com https://ui-avatars.com https://setu-tss-uploads.s3.ap-south-1.amazonaws.com https://*.amazonaws.com https://*.ufs.sh https://utfs.io https://*.razorpay.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.in https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://*.doubleclick.net https://*.googleusercontent.com https://*.startupindia.gov.in https://*.counter.dev https://cdn.counter.dev https://t.counter.dev https://via.placeholder.com https://placehold.co",
       // Razorpay checkout modal is an iframe on api.razorpay.com → frame-src must allow *.razorpay.com
       "frame-src 'self' https://www.youtube.com https://player.vimeo.com https://*.razorpay.com",
       "connect-src 'self' https://foundersschool.in https://*.foundersschool.in https://setustartupschool.com https://*.setustartupschool.com http://localhost:5000 http://127.0.0.1:5000 https://*.razorpay.com https://lumberjack.razorpay.com https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://stats.g.doubleclick.net https://ad.doubleclick.net https://t.counter.dev",

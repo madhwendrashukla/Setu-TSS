@@ -22,9 +22,9 @@ flowchart TD
 |---|---|---|
 | **1. SSL Common Name Mismatch** | `net::ERR_CERT_COMMON_NAME_INVALID foundersschool.in` | Client bundles contained hardcoded `foundersschool.in` URLs. The SSL certificate on the server only validated `setustartupschool.com`, causing the browser to reject cross-origin requests to the old domain. |
 | **2. Next.js Build-Time Env Inlining** | Client making requests to old domain even after updating `.env` | Next.js statically bakes `NEXT_PUBLIC_*` variables into the JavaScript bundle at `npm run build` time. Modifying `.env` without rebuilding left old URLs baked in `.next/static/chunks/`. |
-| **3. Content Security Policy (CSP) Image Blocking** | `Loading the image violates Content Security Policy directive...` | YouTube thumbnails (`*.ytimg.com`), user avatars (`*.googleusercontent.com`), and partner logos (`api.startupindia.gov.in`) were missing from `img-src` in `middleware.ts` and `next.config.ts`. |
+| **3. Content Security Policy (CSP) Image Blocking** | `Loading the image violates Content Security Policy directive...` | YouTube thumbnails (`*.ytimg.com`), user avatars (`*.googleusercontent.com`), partner logos (`api.startupindia.gov.in`), AWS S3 (`*.amazonaws.com`), and analytics tracking pixels (`*.counter.dev`, `*.doubleclick.net`) were missing from `img-src` in `middleware.ts` and `next.config.ts`. |
 | **4. 502 Bad Gateway on `/api/*`** | `GET /api/promo-bar 502 (Bad Gateway)` | The Express backend crashed on startup with `ReferenceError: PORT is not defined` at `server.js:1855`. Nginx could not establish a connection to `127.0.0.1:5000`. |
-| **5. 500 Internal Server Error** | `GET /api/events 500 (Internal Server Error)` | Occurs when Prisma database client fails to query PostgreSQL due to missing database connection parameters or schema desync. |
+| **5. 500 Internal Server Error** | `GET /api/events 500 (Internal Server Error)` | Occurred because `const prisma = new PrismaClient();` was omitted in `server.js` during CORS refactoring, throwing `ReferenceError: prisma is not defined` on all direct Prisma endpoint calls (`/api/promo-bar`, `/api/events`, `/api/events/pinned`, `/api/lead-sources`, `/api/homepage`). |
 
 ---
 
@@ -63,19 +63,27 @@ export function getApiBaseUrl(): string {
 ```
 All Server Components ([`page.tsx`](file:///web/app/page.tsx), [`events/page.tsx`](file:///web/app/events/page.tsx), [`mentors/page.tsx`](file:///web/app/mentors/page.tsx), [`FooterLoader.tsx`](file:///web/components/layout/FooterLoader.tsx)) use `getApiBaseUrl()` to fetch data on the server without going through public DNS.
 
-### C. Backend Server Startup Fix
-In [`backend/server.js`](file:///backend/server.js#L16):
+### C. Backend Server Startup & Prisma Initialization Fix
+In [`backend/server.js`](file:///backend/server.js):
 ```javascript
+const express = require('express');
+const cors = require('cors');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const path = require('path');
+require('dotenv').config();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.disable('x-powered-by');
 ```
-Resolved `ReferenceError: PORT is not defined` which was causing PM2 `tss-backend` to crash on startup.
+- Resolved `ReferenceError: PORT is not defined` which was causing PM2 `tss-backend` to crash on startup.
+- Restored `const prisma = new PrismaClient();` which was missing and causing all endpoint queries to fail with 500 errors.
 
 ### D. CORS & Security Policy Update
 - **CORS ([`backend/server.js`](file:///backend/server.js#L40-L66))**: Dynamically validates and allows requests from `setustartupschool.com`, `www.setustartupschool.com`, and localhost.
 - **CSP ([`web/middleware.ts`](file:///web/middleware.ts) & [`web/next.config.ts`](file:///web/next.config.ts))**:
-  - `img-src`: Added `https://setustartupschool.com`, `https://*.setustartupschool.com`, `https://*.ytimg.com`, `https://*.googleusercontent.com`, `https://api.startupindia.gov.in`.
+  - `img-src`: Added `https://setustartupschool.com`, `https://*.setustartupschool.com`, `https://*.ytimg.com`, `https://*.googleusercontent.com`, `https://api.startupindia.gov.in`, `https://*.amazonaws.com`, `https://*.counter.dev`, `https://cdn.counter.dev`, `https://t.counter.dev`, `https://*.doubleclick.net`.
   - `connect-src`: Added `https://setustartupschool.com`, `https://*.setustartupschool.com`.
 
 ---

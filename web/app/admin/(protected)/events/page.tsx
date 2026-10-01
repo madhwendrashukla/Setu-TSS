@@ -591,11 +591,67 @@ export default function AdminEvents() {
 
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Banner Image</label>
+                                
+                                {/* 1. Existing Banner Preview (when editing an event that already has a banner) */}
+                                {editingEvent && editingEvent.banner_url && !file && (
+                                    <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col gap-2">
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className="font-bold text-gray-700 flex items-center gap-1.5">
+                                                <i className="fas fa-check-circle text-emerald-500"></i> Current Banner
+                                            </span>
+                                            <a 
+                                                href={editingEvent.banner_url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                className="text-accent-blue hover:underline font-semibold flex items-center gap-1"
+                                            >
+                                                <i className="fas fa-external-link-alt text-[10px]"></i> View Full Size
+                                            </a>
+                                        </div>
+                                        <div className="relative w-full h-44 rounded-xl overflow-hidden border border-gray-200 bg-gray-900/5">
+                                            <img 
+                                                src={editingEvent.banner_url} 
+                                                alt={editingEvent.title || "Event Banner"} 
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 2. Newly Uploaded & Cropped Image Preview */}
+                                {file && (
+                                    <div className="mb-3 p-3 bg-purple-50/60 border border-purple-200 rounded-2xl flex flex-col gap-2">
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className="font-bold text-purple-800 flex items-center gap-1.5">
+                                                <i className="fas fa-sparkles text-purple-600"></i> New Banner Selected
+                                            </span>
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setFile(null)} 
+                                                className="text-red-500 hover:text-red-700 font-bold hover:underline cursor-pointer"
+                                            >
+                                                Remove {editingEvent?.banner_url ? "(Keep Old)" : ""}
+                                            </button>
+                                        </div>
+                                        <div className="relative w-full h-44 rounded-xl overflow-hidden border border-purple-200 bg-gray-900/5">
+                                            <img 
+                                                src={URL.createObjectURL(file)} 
+                                                alt="New Banner Preview" 
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 3. Upload / Change Banner Box */}
                                 <div className="relative w-full">
                                     <input type="file" accept="image/*" onChange={onFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                                    <div className="w-full bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-6 text-center flex flex-col items-center justify-center gap-2 group hover:border-accent-blue/50 transition-colors">
-                                        <i className="fas fa-image text-2xl text-gray-300 group-hover:text-accent-blue transition-colors"></i>
-                                        <span className="text-gray-500 text-sm">{file ? file.name : (editingEvent && editingEvent.banner_url ? "Click to upload and crop a new banner" : "Upload event banner or poster (Supports 16:9, 1:1 Square, 4:5 Poster)")}</span>
+                                    <div className="w-full bg-gray-50 border border-gray-200 border-dashed rounded-xl px-4 py-5 text-center flex flex-col items-center justify-center gap-1.5 group hover:border-accent-blue/50 hover:bg-gray-100/50 transition-colors cursor-pointer">
+                                        <i className="fas fa-cloud-upload-alt text-2xl text-gray-400 group-hover:text-accent-blue transition-colors"></i>
+                                        <span className="text-gray-700 font-semibold text-xs">
+                                            {file ? "Click to crop/replace selected banner" : (editingEvent && editingEvent.banner_url ? "Click to upload a new banner (replaces current)" : "Upload event banner or poster")}
+                                        </span>
+                                        <span className="text-gray-400 text-[11px]">Supports 16:9, 1:1 Square, 4:5 Poster (JPEG, PNG, WebP)</span>
                                     </div>
                                 </div>
                             </div>

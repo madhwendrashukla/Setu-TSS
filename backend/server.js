@@ -601,15 +601,6 @@ app.get('/api/homepage', async (req, res) => {
     res.json({ heroSlides, homepageContent, programs, galleryItems, testimonials: filteredTestimonials, partners, siteSettings, mentors, mentoredStartups, bottomVideos, studentsFrom, certifications });
   } catch (error) { 
     console.error('Database connection error in /api/homepage:', error.message);
-    try {
-      const prodRes = await fetch('https://foundersschool.in/api/homepage');
-      if (prodRes.ok) {
-        const prodData = await prodRes.json();
-        return res.json(prodData);
-      }
-    } catch (fallbackErr) {
-      console.error('Production fallback failed:', fallbackErr.message);
-    }
     res.status(500).json({ error: 'Failed to fetch homepage data' }); 
   }
 });

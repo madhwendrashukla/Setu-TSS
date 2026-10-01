@@ -98,8 +98,8 @@ const DEFAULT_PROFILE: GauravProfileData = {
     org: 'Setu - TheStartupSchool',
     title: 'Founder & Chief Mentor',
     phone: '+919289121121',
-    email: 'Gauravbansal@foundersschool.in',
-    website: 'https://foundersschool.in',
+    email: 'gaurav@setustartupschool.com',
+    website: 'https://setustartupschool.com',
     address: 'Mumbai, Maharashtra, India',
     vcard_filename: 'Gaurav_Bansal',
     ecosystem_links: [

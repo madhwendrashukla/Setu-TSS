@@ -221,25 +221,27 @@ router.post('/record-failure', async (req, res) => {
  * time, so it is a last resort and is logged when used.
  */
 function getPriceFromEvent(event, workshopId, workshopTitle, cardId) {
-  if (!event || !event.page_blocks) return { price: null, matchedBy: null };
+  if (!event || !event.page_blocks) return { price: null, title: null, matchedBy: null };
   
   let pageData;
   try {
     pageData = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
   } catch (err) {
     console.error('Error parsing page_blocks:', err);
-    return { price: null, matchedBy: null };
+    return { price: null, title: null, matchedBy: null };
   }
 
   let serverBasePrice = null;
-
+  let serverTitle = null;
   let matchedBy = null;
+
   const findPrice = (items) => {
     if (!items || !Array.isArray(items)) return null;
     // Strongest identifier first: an explicit card id from the checkout.
     for (const item of items) {
       if (cardId && item.id === cardId && item.pricing && item.pricing.actual_price != null) {
         matchedBy = 'cardId';
+        serverTitle = item.title || item.name || null;
         return Number(item.pricing.actual_price);
       }
     }
@@ -248,6 +250,7 @@ function getPriceFromEvent(event, workshopId, workshopTitle, cardId) {
       const byTitle = workshopTitle && item.title === workshopTitle;
       if ((byLegacyId || byTitle) && item.pricing && item.pricing.actual_price != null) {
         matchedBy = byLegacyId ? 'legacyId' : 'title';
+        serverTitle = item.title || item.name || null;
         return Number(item.pricing.actual_price);
       }
     }
@@ -259,26 +262,26 @@ function getPriceFromEvent(event, workshopId, workshopTitle, cardId) {
     for (const block of pageData) {
       if (block.type === 'pricing' && block.data && block.data.pricing_options) {
         serverBasePrice = findPrice(block.data.pricing_options);
-        if (serverBasePrice != null) return { price: serverBasePrice, matchedBy };
+        if (serverBasePrice != null) return { price: serverBasePrice, title: serverTitle, matchedBy };
       }
       if (block.type === 'workshops' && block.data && block.data.items) {
         serverBasePrice = findPrice(block.data.items);
-        if (serverBasePrice != null) return { price: serverBasePrice, matchedBy };
+        if (serverBasePrice != null) return { price: serverBasePrice, title: serverTitle, matchedBy };
       }
     }
   } else if (pageData && typeof pageData === 'object') {
     // Unified JSON format
     if (pageData.pricing_options) {
       serverBasePrice = findPrice(pageData.pricing_options);
-      if (serverBasePrice != null) return { price: serverBasePrice, matchedBy };
+      if (serverBasePrice != null) return { price: serverBasePrice, title: serverTitle, matchedBy };
     }
     if (pageData.workshops) {
       serverBasePrice = findPrice(pageData.workshops);
-      if (serverBasePrice != null) return { price: serverBasePrice, matchedBy };
+      if (serverBasePrice != null) return { price: serverBasePrice, title: serverTitle, matchedBy };
     }
   }
   
-  return { price: serverBasePrice, matchedBy };
+  return { price: serverBasePrice, title: serverTitle, matchedBy };
 }
 
 // Create Order Route — accepts guest token OR regular JWT
@@ -290,7 +293,6 @@ router.post('/create-order', flexAuth, async (req, res) => {
     const { eventId, ticketTier, workshopId, couponCode, workshopTitle, pricingCardId } = req.body;
 
     const actualEventId = eventId || workshopId;
-    const actualTicketTier = ticketTier || workshopTitle;
 
     // --- SECURE PRICING CHECK ---
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(actualEventId);
@@ -307,16 +309,11 @@ router.post('/create-order', flexAuth, async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    const { price: serverBasePrice, matchedBy } = getPriceFromEvent(
+    const { price: serverBasePrice, title: serverTicketTier, matchedBy } = getPriceFromEvent(
       event, workshopId, workshopTitle, pricingCardId
     );
 
-    // FAIL CLOSED. Previously an unresolvable price fell through to the
-    // client-supplied amount, and because the lookup keys on values the client
-    // sends (workshopId / workshopTitle), an attacker could force the miss on
-    // purpose and then name their own price. The guard only ever caught honest
-    // browsers. There is no fallback now: if we cannot price it, we do not
-    // sell it.
+    // FAIL CLOSED. Refuse order if price cannot be verified server-side.
     if (serverBasePrice === null) {
       console.warn(
         `[pricing] refused: no server price for event=${actualEventId} card=${pricingCardId || '-'} title=${workshopTitle || '-'}`
@@ -326,20 +323,14 @@ router.post('/create-order', flexAuth, async (req, res) => {
       });
     }
     if (matchedBy === 'title' || matchedBy === 'legacyId') {
-      // Works, but breaks the moment an admin renames the card. The checkout
-      // should be sending pricingCardId.
       console.warn(`[pricing] matched by ${matchedBy} for event=${actualEventId}; client should send pricingCardId`);
     }
 
+    // RELATIONAL SECURITY: Bind ticketTier strictly to the verified server card title
+    // to prevent tier swapping / parameter tampering (paying low price for high tier).
+    const actualTicketTier = serverTicketTier || ticketTier || event.title || 'Standard Pass';
+
     // Coupon is applied SERVER-SIDE too, so the discount cannot be inflated.
-    //
-    // This used to check only `is_active`, which meant an EXPIRED or fully
-    // redeemed coupon still discounted an event order — end_date, max_uses and
-    // max_uses_per_user were never consulted. validateCouponForCourse is the
-    // same validator the course checkout uses, so both flows now enforce the
-    // identical rules. courseSlug is omitted deliberately: that argument only
-    // drives the per-course allowlist, and the event's own allowlist is
-    // checked below against the event we have already loaded.
     let expectedFinalPrice = serverBasePrice;
     if (couponCode) {
       const buyerEmail = (req.guestUser && req.guestUser.email) || req.body.email || null;
@@ -350,7 +341,6 @@ router.post('/create-order', flexAuth, async (req, res) => {
       const coupon = result.coupon;
 
       // Honour the builder's per-event allowlist (page_blocks.applicable_coupons):
-      // a non-empty array is a whitelist for this event.
       try {
         const pd = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
         const allowed = pd && pd.applicable_coupons;
@@ -370,10 +360,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
       expectedFinalPrice = Math.max(0, serverBasePrice - discount);
     }
 
-    // From here on this is the ONLY amount used — for Razorpay and for the
-    // stored registration. Nothing the client sent influences it.
     const chargeableRupees = expectedFinalPrice;
-    // ----------------------------
 
     const options = {
       amount: Math.round(chargeableRupees * 100), // paise
@@ -383,10 +370,10 @@ router.post('/create-order', flexAuth, async (req, res) => {
 
     const order = await razorpay.orders.create(options);
 
-    // For guest users: store registration with guest email; for auth users: use userId
+    // Duplicate Check & Registration Records
     const eventIdVariants = [event.id, actualEventId].filter(Boolean);
     if (req.userId) {
-      // Check duplicate
+      // 1. Auth user: check duplicate COMPLETED registrations
       const existingReg = await prisma.eventRegistration.findFirst({
         where: { user_id: req.userId, event_id: { in: eventIdVariants }, status: 'COMPLETED' }
       });
@@ -422,7 +409,22 @@ router.post('/create-order', flexAuth, async (req, res) => {
         });
       }
     } else if (req.guestUser) {
-      // Guest OTP-verified user — check for existing PENDING lead first
+      // 2. Guest user (OTP flow): check duplicate COMPLETED registrations to prevent inventory denial & multiple bookings
+      const completedGuestReg = await prisma.eventRegistration.findFirst({
+        where: {
+          event_id: { in: eventIdVariants },
+          status: 'COMPLETED',
+          OR: [
+            ...(req.guestUser.email ? [{ guest_email: req.guestUser.email }] : []),
+            ...(req.guestUser.phone ? [{ guest_phone: req.guestUser.phone }] : [])
+          ]
+        }
+      });
+      if (completedGuestReg) {
+        return res.status(400).json({ error: 'You have already registered for this event with this email or phone number.' });
+      }
+
+      // Find existing PENDING lead to reuse or create new
       const pendingLead = await prisma.eventRegistration.findFirst({
         where: { 
           event_id: { in: eventIdVariants }, 
@@ -731,7 +733,8 @@ router.post('/register-free', flexAuth, async (req, res) => {
           event_id: event.id,
           status: 'COMPLETED',
           OR: [
-            ...(email ? [{ guest_email: email }] : [])
+            ...(email ? [{ guest_email: email }] : []),
+            ...(guestPhone ? [{ guest_phone: guestPhone }] : [])
           ]
         };
 
@@ -740,12 +743,16 @@ router.post('/register-free', flexAuth, async (req, res) => {
       return res.json({ success: true, alreadyRegistered: true, registrationId: existing.id });
     }
 
+    // Bind ticket tier to verified free card
+    const freeCard = allCards.find(c => (c.pricing?.actual_price ?? 0) === 0);
+    const actualFreeTicketTier = freeCard?.title || ticketTier || 'Free Pass';
+
     // --- CREATE REGISTRATION (directly COMPLETED, amount 0) ---
     const registration = await prisma.eventRegistration.create({
       data: {
         user_id: userId || null,
         event_id: event.id,
-        ticket_tier: ticketTier || 'Free Pass',
+        ticket_tier: actualFreeTicketTier,
         status: 'COMPLETED',
         amount: 0,
         guest_name:  guestName  || null,

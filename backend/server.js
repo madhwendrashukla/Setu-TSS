@@ -13,6 +13,7 @@ const qrcode = require('qrcode');
 const { logAdminLogin } = require('./utils/auditLogger');
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 app.disable('x-powered-by'); // Production hygiene: remove Express signature
 
 // 🔴 EVERY RATE LIMITER IN THIS APP WAS GLOBAL, NOT PER-IP, UNTIL THIS LINE.

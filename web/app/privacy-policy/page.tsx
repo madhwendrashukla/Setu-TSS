@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
                 <div className="glass-card rounded-[2rem] p-8 md:p-12 space-y-10 text-text-primary border border-functional-border bg-white/5 backdrop-blur-xl leading-relaxed font-normal">
                     <section>
                         <p className="text-text-primary">
-                            This Privacy Policy describes how Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD) ("Setu - TheStartupSchool", "we", "us", or "our") collects, uses, and discloses your information when you use our website located at <a href="https://www.foundersschool.in/" className="text-accent-blue hover:underline">https://www.foundersschool.in/</a> and <a href="https://thestartupschool.org.in" className="text-accent-blue hover:underline">setu-tss.org.in</a> (hereinafter referred as the "Website").
+                            This Privacy Policy describes how Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD) ("Setu - TheStartupSchool", "we", "us", or "our") collects, uses, and discloses your information when you use our website located at <a href="https://www.setustartupschool.com/" className="text-accent-blue hover:underline">https://www.setustartupschool.com/</a> and <a href="https://thestartupschool.org.in" className="text-accent-blue hover:underline">setu-tss.org.in</a> (hereinafter referred as the "Website").
                         </p>
                     </section>
 

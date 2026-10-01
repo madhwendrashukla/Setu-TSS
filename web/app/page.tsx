@@ -23,17 +23,18 @@ const Contact = dynamic(() => import("@/components/sections/Contact").then(mod =
 const BottomVideoGallery = dynamic(() => import("@/components/sections/BottomVideoGallery").then(mod => mod.BottomVideoGallery), { ssr: true });
 // Fetch data from Express Backend with fallback
 async function getHomepageData() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage`, { cache: 'no-store' });
+    const res = await fetch(`${apiUrl}/api/homepage`, { cache: 'no-store' });
     if (res.ok) return await res.json();
     
     // Fallback to production if local backend returns an error (e.g., DB firewall)
-    const prodRes = await fetch('https://foundersschool.in/api/homepage', { cache: 'no-store' });
+    const prodRes = await fetch('https://setustartupschool.com/api/homepage', { cache: 'no-store' });
     if (prodRes.ok) return await prodRes.json();
     return null;
   } catch (error) {
     try {
-      const prodRes = await fetch('https://foundersschool.in/api/homepage', { cache: 'no-store' });
+      const prodRes = await fetch('https://setustartupschool.com/api/homepage', { cache: 'no-store' });
       if (prodRes.ok) return await prodRes.json();
     } catch (e) {}
     console.error("Backend not running or reachable", error);

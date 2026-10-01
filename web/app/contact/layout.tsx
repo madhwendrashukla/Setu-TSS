@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Contact Us | Setu Startup School',
         description: 'Get in touch with Setu Startup School. Reach out for founder cohorts, mentorship, incubation programs, workshops, and ecosystem partnerships.',
-        url: 'https://foundersschool.in/contact',
+        url: 'https://setustartupschool.com/contact',
     },
 };
 

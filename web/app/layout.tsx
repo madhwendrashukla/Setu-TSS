@@ -24,7 +24,7 @@ const merriweather = Merriweather({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://foundersschool.in"),
+  metadataBase: new URL("https://setustartupschool.com"),
   title: "Setu Startup School",
   description: "An alternate B-School for all Aspiring Founders. Bridging the 4 deadly gaps of Learning, Access, Mentoring, and Community.",
   keywords: ["Startup School India", "Entrepreneurship Program India", "Founder Community", "Startup Mentorship", "B-School for Founders", "Startup Incubator India", "Learn Fundraising", "Angel Investors India", "Startup Education", "Setu Startup School", "Aspiring Founders", "Startup Cohort India", "Business School Alternative"],
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Setu Startup School",
     description: "An alternate B-School for all Aspiring Founders. Bridging the 4 deadly gaps of Learning, Access, Mentoring, and Community.",
-    url: "https://foundersschool.in",
+    url: "https://setustartupschool.com",
     siteName: "Setu Startup School",
     images: [
       {

@@ -55,6 +55,22 @@ const nextConfig: NextConfig = {
         hostname: "192.168.31.194",
         port: "5000",
       },
+      {
+        protocol: "https",
+        hostname: "setustartupschool.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.setustartupschool.com",
+      },
+      {
+        protocol: "https",
+        hostname: "foundersschool.in",
+      },
+      {
+        protocol: "https",
+        hostname: "*.foundersschool.in",
+      },
     ],
   },
   // Compression

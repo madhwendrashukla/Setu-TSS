@@ -183,7 +183,7 @@ async function fetchProfile(): Promise<GauravProfileData> {
     }
 
     try {
-        const prodRes = await fetch('https://foundersschool.in/api/gaurav-profile', { cache: 'no-store' });
+        const prodRes = await fetch('https://setustartupschool.com/api/gaurav-profile', { cache: 'no-store' });
         if (prodRes.ok) {
             return await prodRes.json();
         }
@@ -224,8 +224,8 @@ export default function GauravBansalPage() {
             `ORG:${profile.org || 'Setu - TheStartupSchool'}\n` +
             `TITLE:${profile.title || 'Founder'}\n` +
             `TEL;TYPE=CELL:${profile.phone || '+919289121121'}\n` +
-            `EMAIL:${profile.email || 'Gauravbansal@foundersschool.in'}\n` +
-            `URL:${profile.website || 'https://foundersschool.in'}\n` +
+            `EMAIL:${profile.email || 'hello@setustartupschool.com'}\n` +
+            `URL:${profile.website || 'https://setustartupschool.com'}\n` +
             `ADR;TYPE=WORK:;;${profile.address || 'Malad West;Mumbai;;;'}\n` +
             'END:VCARD';
 

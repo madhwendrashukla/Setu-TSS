@@ -21,7 +21,7 @@ export default function TermsOfUsePage() {
                 <div className="glass-card rounded-[2rem] p-8 md:p-12 space-y-10 text-text-primary border border-functional-border bg-white/5 backdrop-blur-xl leading-relaxed font-normal">
                     <section>
                         <p className="text-text-primary">
-                            Welcome to RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD (the "Setu - TheStartupSchool"). These Terms of Use ("Terms") govern your use of our website <a href="https://www.foundersschool.in" className="text-accent-violet hover:underline">https://www.foundersschool.in</a> and <a href="https://thestartupschool.org.in" className="text-accent-violet hover:underline">setu-tss.org.in</a> (hereinafter referred as the "Site") and the services provided by Setu - TheStartupSchool ("we," "our," or "us"). By accessing or using the Site, you agree to comply with and be bound by these Terms.
+                            Welcome to RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD (the "Setu - TheStartupSchool"). These Terms of Use ("Terms") govern your use of our website <a href="https://www.setustartupschool.com" className="text-accent-violet hover:underline">https://www.setustartupschool.com</a> and <a href="https://thestartupschool.org.in" className="text-accent-violet hover:underline">setu-tss.org.in</a> (hereinafter referred as the "Site") and the services provided by Setu - TheStartupSchool ("we," "our," or "us"). By accessing or using the Site, you agree to comply with and be bound by these Terms.
                         </p>
                     </section>
 

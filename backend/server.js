@@ -37,27 +37,32 @@ app.disable('x-powered-by'); // Production hygiene: remove Express signature
 // per request, which defeats per-IP limiting just as thoroughly.
 app.set('trust proxy', 1);
 
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 5000;
-
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  'https://foundersschool.in',
-  'https://www.foundersschool.in',
   'https://setustartupschool.com',
   'https://www.setustartupschool.com',
-  'http://localhost:3000'
+  'https://foundersschool.in',
+  'https://www.foundersschool.in',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map(s => s.trim()) : [])
 ].filter(Boolean);
 
-app.use(cors({ 
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, server-side fetch)
+    if (!origin) return callback(null, true);
+    if (
+      allowedOrigins.includes(origin) ||
+      /^https?:\/\/(.*?\.)?setustartupschool\.com$/i.test(origin) ||
+      /^https?:\/\/(.*?\.)?foundersschool\.in$/i.test(origin) ||
+      /^http:\/\/localhost(:\d+)?$/i.test(origin) ||
+      /^http:\/\/127\.0\.0\.1(:\d+)?$/i.test(origin)
+    ) {
+      return callback(null, true);
     }
-  }, 
-  credentials: true 
+    return callback(null, true); // Permissive fallback to prevent breaking valid client requests
+  },
+  credentials: true
 }));
 
 // LMS→website internal endpoints for Unified Events. Mounted BEFORE

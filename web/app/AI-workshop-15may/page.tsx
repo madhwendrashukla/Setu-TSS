@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         type: 'website',
         images: [
             {
-                url: 'https://foundersschool.in/ai-workshop-banner.webp',
+                url: 'https://setustartupschool.com/ai-workshop-banner.webp',
                 width: 1200,
                 height: 630,
                 alt: 'AI Startup Launchpad – May 15–17, 2026 | Setu - TheStartupSchool',

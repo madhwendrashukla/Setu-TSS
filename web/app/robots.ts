@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
         },
-        sitemap: 'https://foundersschool.in/sitemap.xml',
+        sitemap: 'https://setustartupschool.com/sitemap.xml',
     };
 }

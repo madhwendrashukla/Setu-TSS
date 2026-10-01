@@ -158,6 +158,28 @@ export default function AdminRegistrations() {
         .filter(r => r.status === 'COMPLETED')
         .reduce((sum, r) => sum + (r.amount || 0), 0);
 
+    const handleDelete = async (id: string, name: string) => {
+        if (!window.confirm(`Are you sure you want to delete the registration for "${name}"? This action cannot be undone.`)) {
+            return;
+        }
+        const token = localStorage.getItem('adminToken');
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/registrations/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error || 'Failed to delete registration');
+            }
+            setRegistrations(prev => prev.filter(r => r.id !== id));
+        } catch (err: any) {
+            alert(err.message || 'Error deleting registration');
+        }
+    };
+
     const handleExportExcel = () => {
         const exportData = filteredRegistrations.map(reg => ({
             'Registration ID': reg.id,
@@ -295,12 +317,13 @@ export default function AdminRegistrations() {
                                 <th className="px-6 py-4 w-[130px]">Amount</th>
                                 <th className="px-6 py-4 w-[180px]">Payment Ref</th>
                                 <th className="px-6 py-4 w-[160px]">Registration Date</th>
+                                <th className="px-6 py-4 w-[80px] text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {filteredRegistrations.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400 font-medium">
+                                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-medium">
                                         <i className="fas fa-folder-open text-2xl mb-2 block text-slate-300"></i>
                                         No registrations found matching the current filters.
                                     </td>
@@ -380,6 +403,17 @@ export default function AdminRegistrations() {
                                                 day: '2-digit', month: 'short', year: 'numeric',
                                                 hour: '2-digit', minute: '2-digit'
                                             })}
+                                        </td>
+
+                                        {/* Action / Delete Button */}
+                                        <td className="px-6 py-4 text-right whitespace-nowrap">
+                                            <button
+                                                onClick={() => handleDelete(reg.id, reg.user?.name || reg.guest_name || 'Attendee')}
+                                                className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors"
+                                                title="Delete registration"
+                                            >
+                                                <i className="fa-regular fa-trash-can text-sm"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))

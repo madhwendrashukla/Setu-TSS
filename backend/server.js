@@ -1394,6 +1394,18 @@ app.get('/api/admin/registrations', authMiddleware, async (req, res) => {
   }
 });
 
+// DELETE REGISTRATION
+app.delete('/api/admin/registrations/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.eventRegistration.delete({ where: { id } });
+    res.json({ success: true, message: 'Registration deleted successfully' });
+  } catch (error) {
+    console.error('Failed to delete registration:', error);
+    res.status(500).json({ error: 'Failed to delete registration' });
+  }
+});
+
 // SITE SETTINGS
 app.put('/api/admin/site_settings', async (req, res) => {
   try {

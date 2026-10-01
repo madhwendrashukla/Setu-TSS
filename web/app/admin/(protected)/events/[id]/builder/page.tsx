@@ -1106,8 +1106,8 @@ const initialPageData = {
         whatsapp: { headline: "Got Questions?", description: "Chat with our team directly.", button_text: "Message Us", link: "919876543210" }, 
         lead_gen: { headline: "Request a Callback", subtext: "Drop your details and we will call you back.", admin_email: "admin@example.com", submit_text: "Request Callback" } 
     },
-    applicable_coupons: ["EARLYBIRD", "SUMMER20"],
-    coupon: { code: "EARLYBIRD", discount_percent: 20, active: true },
+    applicable_coupons: [],
+    coupon: { code: "", discount_percent: 0, active: false },
     email_template: {
         enabled: false,
         subject: "Registration Confirmed: {{event_title}}",

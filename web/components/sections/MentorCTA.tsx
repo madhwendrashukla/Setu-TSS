@@ -6,6 +6,7 @@ import { X, Send } from 'lucide-react';
 export function MentorCTA() {
     const [isOpen, setIsOpen] = useState(false);
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [errorMessage, setErrorMessage] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -17,6 +18,7 @@ export function MentorCTA() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus('loading');
+        setErrorMessage('');
         
         try {
             const res = await fetch('/api/leads', {
@@ -37,9 +39,12 @@ export function MentorCTA() {
                     setFormData({ name: '', email: '', phone: '', linkedin: '', description: '' });
                 }, 3000);
             } else {
+                const data = await res.json().catch(() => ({}));
+                setErrorMessage(data.error || 'Something went wrong. Please try again.');
                 setStatus('error');
             }
         } catch (error) {
+            setErrorMessage('Network error. Please try again.');
             setStatus('error');
         }
     };
@@ -112,7 +117,7 @@ export function MentorCTA() {
                                     <label className="block text-[10px] font-bold text-text-secondary uppercase tracking-wider mb-2">Phone Number</label>
                                     <input 
                                         type="tel" 
-                                        maxLength={15}
+                                        maxLength={20}
                                         value={formData.phone}
                                         onChange={e => setFormData({...formData, phone: e.target.value})}
                                         className="w-full bg-bg-main border border-functional-border rounded-xl px-4 py-3 text-text-primary focus:outline-none focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] transition-all placeholder-slate-500"
@@ -145,7 +150,7 @@ export function MentorCTA() {
                                 </div>
                                 
                                 {status === 'error' && (
-                                    <p className="text-red-500 text-sm font-medium">Something went wrong. Please try again.</p>
+                                    <p className="text-red-500 text-sm font-medium">{errorMessage || 'Something went wrong. Please try again.'}</p>
                                 )}
                                 
                                 <button 

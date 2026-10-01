@@ -680,8 +680,9 @@ app.post('/api/leads', async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       return res.status(400).json({ error: 'Invalid email address' });
     }
-    // Phone must be digits only (if supplied)
-    if (cleanPhone && !/^\d{7,15}$/.test(cleanPhone)) {
+    // Phone validation: allow optional leading '+' and 7-15 digits (ignoring spaces, hyphens, and brackets)
+    const normalizedPhone = cleanPhone ? cleanPhone.replace(/[\s\-()]/g, '') : null;
+    if (normalizedPhone && !/^\+?\d{7,15}$/.test(normalizedPhone)) {
       return res.status(400).json({ error: 'Invalid phone number' });
     }
 

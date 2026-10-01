@@ -34,7 +34,17 @@ function renderRegistrationEmail({ templateConfig = {}, registration = {}, event
 
   // Format variables
   const eventDate = formatEventDate(event.start_date, event.start_time);
-  const eventVenue = event.venue || event.city || (event.mode === 'online' ? 'Online via Zoom' : 'Online / Venue TBA');
+  const isOnline = !event.venue || event.venue.toLowerCase().includes('online') || event.city?.toLowerCase() === 'online' || event.mode === 'online';
+  let eventVenue = event.venue;
+  if (!eventVenue) {
+    if (event.city && event.city.toLowerCase() !== 'online') {
+      eventVenue = `${event.city} (In-Person)`;
+    } else if (isOnline) {
+      eventVenue = 'Live Online';
+    } else {
+      eventVenue = 'In-Person (Venue TBA)';
+    }
+  }
   const amountStr = (!registration.amount || registration.amount === 0) ? 'Free' : `₹${registration.amount}`;
   const paymentRef = registration.razorpay_payment_id || (registration.id ? `reg_${registration.id.slice(-8)}` : 'Confirmed');
   const guestName = registration.guest_name || registration.user?.name || 'Founder';
@@ -60,8 +70,8 @@ function renderRegistrationEmail({ templateConfig = {}, registration = {}, event
     full_name: guestName,
     email: guestEmail,
     phone: guestPhone,
-    event_title: event.title || 'Startup Workshop',
-    title: event.title || 'Startup Workshop',
+    event_title: event.title || 'Event Registration',
+    title: event.title || 'Event Registration',
     event_date: eventDate || 'Date to be announced',
     date: eventDate || 'Date to be announced',
     event_venue: eventVenue,

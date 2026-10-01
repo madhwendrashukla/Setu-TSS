@@ -384,10 +384,11 @@ router.post('/create-order', flexAuth, async (req, res) => {
     const order = await razorpay.orders.create(options);
 
     // For guest users: store registration with guest email; for auth users: use userId
+    const eventIdVariants = [event.id, actualEventId].filter(Boolean);
     if (req.userId) {
       // Check duplicate
       const existingReg = await prisma.eventRegistration.findFirst({
-        where: { user_id: req.userId, event_id: actualEventId, status: 'COMPLETED' }
+        where: { user_id: req.userId, event_id: { in: eventIdVariants }, status: 'COMPLETED' }
       });
       if (existingReg) {
         return res.status(400).json({ error: 'You have already registered for this event.' });
@@ -395,13 +396,14 @@ router.post('/create-order', flexAuth, async (req, res) => {
 
       // Find an existing PENDING lead to update, or create a new one
       const pendingLead = await prisma.eventRegistration.findFirst({
-        where: { user_id: req.userId, event_id: actualEventId, status: 'PENDING' }
+        where: { user_id: req.userId, event_id: { in: eventIdVariants }, status: 'PENDING' }
       });
 
       if (pendingLead) {
         await prisma.eventRegistration.update({
           where: { id: pendingLead.id },
           data: {
+            event_id: event.id,
             ticket_tier: actualTicketTier,
             razorpay_order_id: order.id,
             amount: Math.round(chargeableRupees)
@@ -411,7 +413,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
         await prisma.eventRegistration.create({
           data: {
             user_id: req.userId,
-            event_id: actualEventId,
+            event_id: event.id,
             ticket_tier: actualTicketTier,
             razorpay_order_id: order.id,
             status: 'PENDING',
@@ -423,7 +425,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
       // Guest OTP-verified user — check for existing PENDING lead first
       const pendingLead = await prisma.eventRegistration.findFirst({
         where: { 
-          event_id: actualEventId, 
+          event_id: { in: eventIdVariants }, 
           status: 'PENDING',
           OR: [
             ...(req.guestUser.email ? [{ guest_email: req.guestUser.email }] : []),
@@ -436,6 +438,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
         await prisma.eventRegistration.update({
           where: { id: pendingLead.id },
           data: {
+            event_id: event.id,
             ticket_tier: actualTicketTier,
             razorpay_order_id: order.id,
             amount: Math.round(chargeableRupees),
@@ -448,7 +451,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
         await prisma.eventRegistration.create({
           data: {
             user_id: null,
-            event_id: actualEventId,
+            event_id: event.id,
             ticket_tier: actualTicketTier,
             razorpay_order_id: order.id,
             status: 'PENDING',
@@ -496,7 +499,15 @@ router.post('/test-email', authMiddleware, async (req, res) => {
 
     let event = {};
     if (eventId) {
-      event = (await prisma.event.findUnique({ where: { id: eventId } })) || {};
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId);
+      event = (await prisma.event.findFirst({
+        where: {
+          OR: [
+            { slug: eventId },
+            ...(isUuid ? [{ id: eventId }] : [])
+          ]
+        }
+      })) || {};
     }
 
     const mockRegistration = {
@@ -605,7 +616,15 @@ router.post('/verify-payment', async (req, res) => {
           let event = null;
           if (reg.event_id) {
             try {
-              event = await prisma.event.findUnique({ where: { id: reg.event_id } });
+              const isEventUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reg.event_id);
+              event = await prisma.event.findFirst({
+                where: {
+                  OR: [
+                    { slug: reg.event_id },
+                    ...(isEventUuid ? [{ id: reg.event_id }] : [])
+                  ]
+                }
+              });
             } catch (_) {}
           }
 

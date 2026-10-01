@@ -63,7 +63,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
         
         setIsProcessing(true);
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const apiUrl = '';
             const userEmail = overrideEmail !== undefined ? overrideEmail : (guestUser?.email || '');
             const res = await fetch(`${apiUrl}/api/coupons/validate`, {
                 method: 'POST',
@@ -101,7 +101,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
         setIsProcessing(true);
         setError(null);
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const apiUrl = '';
             const res = await fetch(`${apiUrl}/api/payments/register-free`, {
                 method: 'POST',
                 headers: {
@@ -146,7 +146,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
         setError(null);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const apiUrl = '';
 
             const res = await fetch(`${apiUrl}/api/payments/create-order`, {
                 method: 'POST',

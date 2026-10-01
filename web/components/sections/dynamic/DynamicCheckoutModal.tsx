@@ -178,7 +178,7 @@ export function DynamicCheckoutModal({ isOpen, onClose, workshop, eventSlug, cou
             const { orderId, amount, currency } = data;
 
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+                key: data.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
                 amount: amount,
                 currency: currency,
                 name: 'Setu Startup School',

@@ -469,7 +469,8 @@ router.post('/create-order', flexAuth, async (req, res) => {
     res.json({
       orderId: order.id,
       amount: options.amount,
-      currency: options.currency
+      currency: options.currency,
+      keyId: process.env.RAZORPAY_KEY_ID
     });
   } catch (error) {
     console.error('Error creating Razorpay order:', error);

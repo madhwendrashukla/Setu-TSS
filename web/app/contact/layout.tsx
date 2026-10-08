@@ -1,11 +1,14 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Contact Us | Connect with Setu Startup School',
-    description: 'Get in touch with Setu Startup School. Reach out for founder cohorts, mentorship, incubation programs, workshops, and ecosystem partnerships.',
+    title: 'Get In Touch - Setu Startup School',
+    description: 'Contact us for admissions, founder support, program and cohort inquiries, incubation guidance, and partnerships to help grow your startup.',
+    alternates: {
+        canonical: '/contact',
+    },
     openGraph: {
-        title: 'Contact Us | Setu Startup School',
-        description: 'Get in touch with Setu Startup School. Reach out for founder cohorts, mentorship, incubation programs, workshops, and ecosystem partnerships.',
+        title: 'Get In Touch - Setu Startup School',
+        description: 'Contact us for admissions, founder support, program and cohort inquiries, incubation guidance, and partnerships to help grow your startup.',
         url: 'https://setustartupschool.com/contact',
     },
 };

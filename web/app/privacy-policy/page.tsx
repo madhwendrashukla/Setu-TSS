@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Privacy Policy | Setu - TheStartupSchool',
-    description: 'Privacy Policy for Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD)',
+    title: 'Privacy Policy - Setu Startup School',
+    description: 'Privacy Policy for Setu Startup School (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD)',
+    alternates: {
+        canonical: '/privacy-policy',
+    },
 };
 
 export default function PrivacyPolicyPage() {

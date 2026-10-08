@@ -1,8 +1,12 @@
 import { Programs as ProgramsSection } from "@/components/sections/Programs";
+import type { Metadata } from 'next';
 
-export const metadata = {
-    title: 'Programs | Setu - TheStartupSchool',
-    description: 'Explore our immersive cohorts and workshops designed for founders.',
+export const metadata: Metadata = {
+    title: 'Startup Programs for Aspiring Founders',
+    description: 'Join practical startup programs at Setu Startup School to validate your idea, turn it into reality, and build with confidence through guided execution.',
+    alternates: {
+        canonical: '/programs',
+    },
 };
 
 export default function ProgramsPage() {

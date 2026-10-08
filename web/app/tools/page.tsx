@@ -3,8 +3,11 @@ import Link from 'next/link';
 import { getApiBaseUrl } from '@/lib/api';
 
 export const metadata: Metadata = {
-    title: 'Startup Tools Ecosystem | Setu - TheStartupSchool',
-    description: 'Explore the definitive list of tools and resources for the startup ecosystem.',
+    title: 'Startup Tools & Resources for Founders | Setu Startup School',
+    description: 'Discover startup tools and resources including founder events, pitch deck examples, incubators and accelerators to help aspiring founders build and grow.',
+    alternates: {
+        canonical: '/tools',
+    },
 };
 
 async function getHomepageData() {

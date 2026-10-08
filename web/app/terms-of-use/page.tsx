@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Terms of Use | Setu - TheStartupSchool',
-    description: 'Terms of Use for Setu - TheStartupSchool (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD)',
+    title: 'Terms of Use - Setu Startup School',
+    description: 'Terms of Use for Setu Startup School (RAMSETU ALTERNATE EDUCATION SOLUTIONS PVT LTD)',
+    alternates: {
+        canonical: '/terms-of-use',
+    },
 };
 
 export default function TermsOfUsePage() {

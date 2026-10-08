@@ -1,8 +1,12 @@
 import Image from 'next/image';
+import type { Metadata } from 'next';
 
-export const metadata = {
-    title: 'About Us | Setu - TheStartupSchool',
-    description: 'Learn about our mission to empower the next generation of founders.',
+export const metadata: Metadata = {
+    title: 'About Setu Startup School - Our Mission & Vision',
+    description: 'Learn about our mission to empower the next generation of founders through mentorship, community, innovation, and practical support to build successful companies.',
+    alternates: {
+        canonical: '/about',
+    },
 };
 
 export default function AboutPage() {

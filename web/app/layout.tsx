@@ -25,8 +25,11 @@ const merriweather = Merriweather({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://setustartupschool.com"),
-  title: "Setu Startup School",
-  description: "An alternate B-School for all Aspiring Founders. Bridging the 4 deadly gaps of Learning, Access, Mentoring, and Community.",
+  alternates: {
+    canonical: "./",
+  },
+  title: "Setu Startup School in India for Aspiring Founders",
+  description: "Turn your startup idea into a real business with expert mentorship, hands-on learning, startup workshops, fundraising guidance, and founder networking.",
   keywords: ["Startup School India", "Entrepreneurship Program India", "Founder Community", "Startup Mentorship", "B-School for Founders", "Startup Incubator India", "Learn Fundraising", "Angel Investors India", "Startup Education", "Setu Startup School", "Aspiring Founders", "Startup Cohort India", "Business School Alternative"],
   authors: [{ name: "Gaurav Bansal" }],
   robots: {
@@ -34,8 +37,8 @@ export const metadata: Metadata = {
     follow: true,
   },
   openGraph: {
-    title: "Setu Startup School",
-    description: "An alternate B-School for all Aspiring Founders. Bridging the 4 deadly gaps of Learning, Access, Mentoring, and Community.",
+    title: "Setu Startup School in India for Aspiring Founders",
+    description: "Turn your startup idea into a real business with expert mentorship, hands-on learning, startup workshops, fundraising guidance, and founder networking.",
     url: "https://setustartupschool.com",
     siteName: "Setu Startup School",
     images: [

@@ -4,8 +4,11 @@ import Link from 'next/link';
 import { getApiBaseUrl } from '@/lib/api';
 
 export const metadata: Metadata = {
-    title: 'Programs & Workshops | Setu - TheStartupSchool',
-    description: 'Upcoming and past events, workshops, and startup testimonials at Setu - TheStartupSchool.',
+    title: 'Startup Events and Workshops for Founders',
+    description: 'Explore startup workshops, founder events, B2B events, and networking opportunities by Setu Startup School. Learn, connect and grow your startup.',
+    alternates: {
+        canonical: '/events',
+    },
 };
 
 type Course = {

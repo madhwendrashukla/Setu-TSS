@@ -59,8 +59,14 @@ export const metadata: Metadata = {
     creator: "@TheStartupSchool",
   },
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   verification: {
     google: "OhWDLA9MOYXN364Zlna9Qve4XwFMHHl1yUoiY28u-Pk",

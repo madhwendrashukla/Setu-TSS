@@ -674,30 +674,29 @@ router.post('/verify-payment', async (req, res) => {
           } catch (_) {}
         }
 
-          let templateConfig = {};
-          if (event && event.page_blocks) {
-            try {
-              const pb = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
-              if (pb && pb.email_template) {
-                templateConfig = pb.email_template;
-              }
-            } catch (_) {}
-          }
-
-          const rendered = renderRegistrationEmail({
-            templateConfig,
-            registration: {
-              ...reg,
-              guest_name: recipientName,
-              guest_email: recipientEmail,
-              razorpay_payment_id: razorpay_payment_id
-            },
-            event: event || {}
-          });
-
-          sendMail(recipientEmail, rendered.subject, rendered.html, rendered.text)
-            .catch(err => console.error('[verify-payment] confirmation email failed (non-fatal):', err.message));
+        let templateConfig = {};
+        if (event && event.page_blocks) {
+          try {
+            const pb = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+            if (pb && pb.email_template) {
+              templateConfig = pb.email_template;
+            }
+          } catch (_) {}
         }
+
+        const rendered = renderRegistrationEmail({
+          templateConfig,
+          registration: {
+            ...reg,
+            guest_name: recipientName,
+            guest_email: recipientEmail,
+            razorpay_payment_id: razorpay_payment_id
+          },
+          event: event || {}
+        });
+
+        sendMail(recipientEmail, rendered.subject, rendered.html, rendered.text)
+          .catch(err => console.error('[verify-payment] confirmation email failed (non-fatal):', err.message));
       }
 
       res.json({ success: true, message: 'Payment verified successfully' });

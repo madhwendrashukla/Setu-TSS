@@ -384,6 +384,16 @@ async function fulfillOrder(order, razorpayPaymentId) {
 
   await dispatchEnrollment(updated);
 
+  // Clean up incomplete checkout lead for this buyer
+  if (updated.buyer_email) {
+    await prisma.lead.deleteMany({
+      where: {
+        email: updated.buyer_email,
+        source: 'Course checkout (incomplete)'
+      }
+    }).catch(() => {});
+  }
+
   // Count the coupon use only once the money actually moved. Fire-and-forget:
   // a failure here must never block enrollment (reconcile from CourseOrder).
   if (updated.coupon_code) {
@@ -438,6 +448,14 @@ router.post('/enroll-free', async (req, res) => {
         utm_campaign: utmCampaign || null,
       },
     });
+
+    // Clean up incomplete checkout lead for this buyer
+    await prisma.lead.deleteMany({
+      where: {
+        email: email.trim().toLowerCase(),
+        source: 'Course checkout (incomplete)'
+      }
+    }).catch(() => {});
 
     // Same bundle-aware dispatch as paid orders; duplicates come back as 409
     // from the LMS and count as delivered (no double enrollment). A free bundle

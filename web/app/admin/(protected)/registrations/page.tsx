@@ -72,13 +72,6 @@ export default function AdminRegistrations() {
                     loadedEvents = Array.isArray(eventsData) ? eventsData : [];
                     setEvents(loadedEvents);
                 }
-
-                // Default selection to the latest event to prevent overwhelming data float
-                if (sortedRegs.length > 0) {
-                    setFilterEventId(sortedRegs[0].event_id);
-                } else if (loadedEvents.length > 0) {
-                    setFilterEventId(loadedEvents[0].id || loadedEvents[0].slug);
-                }
             } catch (err: any) {
                 setError(err.message);
             } finally {
@@ -88,6 +81,21 @@ export default function AdminRegistrations() {
 
         fetchRegistrations();
     }, [router]);
+
+    // Helper to check if two event IDs reference the same event (UUID or slug)
+    const isSameEvent = (regEventId?: string | null, targetId?: string | null): boolean => {
+        if (!regEventId || !targetId) return false;
+        if (regEventId === targetId) return true;
+        const matchingEvent = events.find(e => e.id === targetId || e.slug === targetId);
+        if (matchingEvent) {
+            return regEventId === matchingEvent.id || regEventId === matchingEvent.slug;
+        }
+        const matchingRegEvent = events.find(e => e.id === regEventId || e.slug === regEventId);
+        if (matchingRegEvent) {
+            return targetId === matchingRegEvent.id || targetId === matchingRegEvent.slug;
+        }
+        return false;
+    };
 
     // Helper to resolve raw UUID / slug into real Event Name
     const getEventTitle = (eventId: string): string => {
@@ -105,8 +113,13 @@ export default function AdminRegistrations() {
         return eventId;
     };
 
-    // Get unique options for filters
-    const uniqueEventIds = Array.from(new Set(registrations.map(r => r.event_id))).filter(Boolean);
+    // Get unique options for filters (deduplicated by actual event)
+    const uniqueEventIds: string[] = [];
+    registrations.forEach(r => {
+        if (r.event_id && !uniqueEventIds.some(id => isSameEvent(r.event_id, id))) {
+            uniqueEventIds.push(r.event_id);
+        }
+    });
     
     // Dynamically get tiers for the selected event directly from the events table
     let uniqueTiers: string[] = [];
@@ -133,7 +146,7 @@ export default function AdminRegistrations() {
     }
     // Fallback if no event selected or no tiers found in event definition
     if (uniqueTiers.length === 0) {
-        const regsForTiers = filterEventId ? registrations.filter(r => r.event_id === filterEventId) : registrations;
+        const regsForTiers = filterEventId ? registrations.filter(r => isSameEvent(r.event_id, filterEventId)) : registrations;
         uniqueTiers = Array.from(new Set(regsForTiers.map(r => r.ticket_tier))).filter(Boolean) as string[];
     }
 
@@ -141,7 +154,7 @@ export default function AdminRegistrations() {
 
     // Filter registrations
     const filteredRegistrations = registrations.filter(r => {
-        const matchEvent = filterEventId ? r.event_id === filterEventId : true;
+        const matchEvent = filterEventId ? isSameEvent(r.event_id, filterEventId) : true;
         const matchTier = filterTier ? r.ticket_tier === filterTier : true;
         const matchStatus = filterStatus ? r.status === filterStatus : true;
         const matchSearch = searchQuery ? (
@@ -258,7 +271,7 @@ export default function AdminRegistrations() {
                     />
                 </div>
 
-                {/* Event Selector (Defaulted to Latest Event) */}
+                {/* Event Selector */}
                 <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
                     <i className="fas fa-calendar-alt text-purple-600 text-xs"></i>
                     <select 
@@ -272,7 +285,7 @@ export default function AdminRegistrations() {
                         <option value="">All Events ({registrations.length})</option>
                         {uniqueEventIds.map(id => (
                             <option key={id} value={id}>
-                                {getEventTitle(id)} ({registrations.filter(r => r.event_id === id).length})
+                                {getEventTitle(id)} ({registrations.filter(r => isSameEvent(r.event_id, id)).length})
                             </option>
                         ))}
                     </select>

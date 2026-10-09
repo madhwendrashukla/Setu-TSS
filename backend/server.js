@@ -1355,6 +1355,67 @@ app.get('/api/admin/lead-sources', authMiddleware, async (req, res) => {
 app.get('/api/admin/leads', async (req, res) => {
   try {
     const { source, status, search } = req.query;
+
+    // Auto-reconciliation: clean up orphaned checkout leads for attendees who completed registration or paid course orders
+    try {
+      const completedRegs = await prisma.eventRegistration.findMany({
+        where: { status: 'COMPLETED' },
+        select: { event_id: true, guest_email: true, guest_phone: true, user: { select: { email: true } } }
+      });
+
+      if (completedRegs.length > 0) {
+        const allEvents = await prisma.event.findMany({ select: { id: true, slug: true } });
+        const eventMap = new Map();
+        allEvents.forEach(e => {
+          const variants = [e.id, e.slug].filter(Boolean);
+          eventMap.set(e.id, variants);
+          if (e.slug) eventMap.set(e.slug, variants);
+        });
+
+        for (const reg of completedRegs) {
+          const emails = Array.from(new Set([reg.guest_email, reg.user?.email].filter(Boolean)));
+          const phones = Array.from(new Set([reg.guest_phone].filter(Boolean)));
+          const variants = eventMap.get(reg.event_id) || [reg.event_id];
+          const leadSources = Array.from(new Set(variants.flatMap(v => [
+            `checkout_${v}`,
+            `checkout_${v.toLowerCase()}`,
+            `free_registration_${v}`,
+            `free_registration_${v.toLowerCase()}`
+          ])));
+
+          if ((emails.length > 0 || phones.length > 0) && leadSources.length > 0) {
+            await prisma.lead.deleteMany({
+              where: {
+                OR: [
+                  ...(emails.map(e => ({ email: e }))),
+                  ...(phones.map(p => ({ phone: p })))
+                ],
+                source: { in: leadSources }
+              }
+            });
+          }
+        }
+      }
+
+      // Also clean up completed course orders
+      const paidCourseOrders = await prisma.courseOrder.findMany({
+        where: { status: 'paid' },
+        select: { buyer_email: true, buyer_phone: true }
+      });
+      for (const order of paidCourseOrders) {
+        if (order.buyer_email) {
+          await prisma.lead.deleteMany({
+            where: {
+              email: order.buyer_email,
+              source: 'Course checkout (incomplete)'
+            }
+          });
+        }
+      }
+    } catch (cleanupErr) {
+      console.error('Lead cleanup reconciliation error:', cleanupErr.message);
+    }
+
     const whereClause = {};
     if (source) whereClause.source = source;
     if (status) whereClause.status = status;

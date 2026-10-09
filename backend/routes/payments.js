@@ -50,6 +50,17 @@ router.post('/capture-lead', async (req, res) => {
     const { name, email, phone, eventId, ticketTier, pendingLeadId } = req.body;
     if ((!email && !phone) || !eventId) return res.status(400).json({ error: 'Missing required fields' });
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId);
+    const event = await prisma.event.findFirst({
+      where: {
+        OR: [
+          { slug: eventId },
+          ...(isUuid ? [{ id: eventId }] : [])
+        ]
+      }
+    });
+    const eventIdVariants = Array.from(new Set([eventId, event?.id, event?.slug].filter(Boolean)));
+
     let existing = null;
     if (pendingLeadId) {
       existing = await prisma.eventRegistration.findUnique({ where: { id: pendingLeadId } });
@@ -59,7 +70,7 @@ router.post('/capture-lead', async (req, res) => {
       // Check if an exact pending lead exists for this event and email/phone
       existing = await prisma.eventRegistration.findFirst({
         where: {
-          event_id: eventId,
+          event_id: { in: eventIdVariants },
           status: 'PENDING',
           OR: [
             ...(email ? [{ guest_email: email }] : []),
@@ -74,6 +85,7 @@ router.post('/capture-lead', async (req, res) => {
       await prisma.eventRegistration.update({
         where: { id: existing.id },
         data: {
+          event_id: event ? event.id : existing.event_id,
           guest_name: name || existing.guest_name,
           guest_email: email || existing.guest_email,
           guest_phone: phone || existing.guest_phone,
@@ -82,7 +94,7 @@ router.post('/capture-lead', async (req, res) => {
       });
 
       // CRM Sync
-      const leadSource = `checkout_${eventId}`;
+      const leadSource = `checkout_${event?.slug || eventId}`;
       const leadStatus = phone ? 'pending' : 'new';
       if (email) {
         const crmLead = await prisma.lead.findFirst({ where: { email: email, source: leadSource } });
@@ -108,7 +120,7 @@ router.post('/capture-lead', async (req, res) => {
     // Check if they already have a completed order, don't capture as pending lead
     const completed = await prisma.eventRegistration.findFirst({
       where: { 
-        event_id: eventId, 
+        event_id: { in: eventIdVariants }, 
         status: 'COMPLETED',
         OR: [
           ...(email ? [{ guest_email: email }] : []),
@@ -121,7 +133,7 @@ router.post('/capture-lead', async (req, res) => {
     // Create new pending lead
     const newLead = await prisma.eventRegistration.create({
       data: {
-        event_id: eventId,
+        event_id: event ? event.id : eventId,
         ticket_tier: ticketTier,
         status: 'PENDING',
         guest_name: name || null,
@@ -132,7 +144,7 @@ router.post('/capture-lead', async (req, res) => {
     });
 
     // CRM Sync
-    const leadSource = `checkout_${eventId}`;
+    const leadSource = `checkout_${event?.slug || eventId}`;
     const leadStatus = phone ? 'pending' : 'new';
     if (email) {
       const crmLead = await prisma.lead.findFirst({ where: { email: email, source: leadSource } });
@@ -570,13 +582,60 @@ router.post('/verify-payment', async (req, res) => {
       const reg = await prisma.eventRegistration.findFirst({
         where: { razorpay_order_id: razorpay_order_id }
       });
-      if (reg && reg.guest_email) {
-        await prisma.lead.deleteMany({
-          where: { 
-            email: reg.guest_email, 
-            source: { in: [`checkout_${reg.event_id}`, `checkout_${reg.event_id?.toLowerCase()}`] }
-          }
-        }).catch(() => {});
+
+      let event = null;
+      if (reg && reg.event_id) {
+        try {
+          const isEventUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reg.event_id);
+          event = await prisma.event.findFirst({
+            where: {
+              OR: [
+                { slug: reg.event_id },
+                ...(isEventUuid ? [{ id: reg.event_id }] : [])
+              ]
+            }
+          });
+        } catch (_) {}
+      }
+
+      if (reg) {
+        const eventSources = Array.from(new Set([
+          `checkout_${reg.event_id}`,
+          `checkout_${reg.event_id?.toLowerCase()}`,
+          event ? `checkout_${event.id}` : null,
+          event ? `checkout_${event.slug}` : null,
+          event ? `checkout_${event.slug?.toLowerCase()}` : null,
+          `free_registration_${reg.event_id}`,
+          event ? `free_registration_${event.id}` : null,
+          event ? `free_registration_${event.slug}` : null,
+        ].filter(Boolean)));
+
+        let recipientEmail = reg.guest_email || req.body.email;
+        let recipientPhone = reg.guest_phone || req.body.phone;
+
+        if (!recipientEmail && reg.user_id) {
+          try {
+            const u = await prisma.user.findUnique({ where: { id: reg.user_id } });
+            if (u) {
+              recipientEmail = u.email;
+            }
+          } catch (_) {}
+        }
+
+        const contactEmails = [recipientEmail, reg.guest_email, req.body.email].filter(Boolean);
+        const contactPhones = [recipientPhone, reg.guest_phone, req.body.phone].filter(Boolean);
+
+        if (contactEmails.length > 0 || contactPhones.length > 0) {
+          await prisma.lead.deleteMany({
+            where: {
+              OR: [
+                ...(contactEmails.map(email => ({ email }))),
+                ...(contactPhones.map(phone => ({ phone })))
+              ],
+              source: { in: eventSources }
+            }
+          }).catch(() => {});
+        }
       }
       
       // Log coupon usage if a valid coupon was used
@@ -614,22 +673,6 @@ router.post('/verify-payment', async (req, res) => {
             }
           } catch (_) {}
         }
-
-        if (recipientEmail) {
-          let event = null;
-          if (reg.event_id) {
-            try {
-              const isEventUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reg.event_id);
-              event = await prisma.event.findFirst({
-                where: {
-                  OR: [
-                    { slug: reg.event_id },
-                    ...(isEventUuid ? [{ id: reg.event_id }] : [])
-                  ]
-                }
-              });
-            } catch (_) {}
-          }
 
           let templateConfig = {};
           if (event && event.page_blocks) {
@@ -727,11 +770,13 @@ router.post('/register-free', flexAuth, async (req, res) => {
       return res.status(400).json({ error: 'This is a paid event — please use the checkout.' });
     }
 
-    // --- DUPLICATE CHECK (idempotent) ---
+    const eventIdVariants = Array.from(new Set([event.id, event.slug, eventId].filter(Boolean)));
+
+    // --- DUPLICATE CHECK ---
     const where = userId
-      ? { user_id: userId, event_id: event.id, status: 'COMPLETED' }
+      ? { user_id: userId, event_id: { in: eventIdVariants }, status: 'COMPLETED' }
       : {
-          event_id: event.id,
+          event_id: { in: eventIdVariants },
           status: 'COMPLETED',
           OR: [
             ...(email ? [{ guest_email: email }] : []),
@@ -741,26 +786,55 @@ router.post('/register-free', flexAuth, async (req, res) => {
 
     const existing = await prisma.eventRegistration.findFirst({ where });
     if (existing) {
-      return res.json({ success: true, alreadyRegistered: true, registrationId: existing.id });
+      return res.status(400).json({ error: 'You have already registered for this event with this email or phone number.' });
     }
 
     // Bind ticket tier to verified free card
     const freeCard = allCards.find(c => (c.pricing?.actual_price ?? 0) === 0);
     const actualFreeTicketTier = freeCard?.title || ticketTier || 'Free Pass';
 
-    // --- CREATE REGISTRATION (directly COMPLETED, amount 0) ---
-    const registration = await prisma.eventRegistration.create({
-      data: {
-        user_id: userId || null,
-        event_id: event.id,
-        ticket_tier: actualFreeTicketTier,
-        status: 'COMPLETED',
-        amount: 0,
-        guest_name:  guestName  || null,
-        guest_email: email      || null,
-        guest_phone: guestPhone || null,
-      }
-    });
+    // --- CHECK FOR EXISTING PENDING LEAD TO PROMOTE, OR CREATE NEW ---
+    const pendingWhere = userId
+      ? { user_id: userId, event_id: { in: eventIdVariants }, status: 'PENDING' }
+      : {
+          event_id: { in: eventIdVariants },
+          status: 'PENDING',
+          OR: [
+            ...(email ? [{ guest_email: email }] : []),
+            ...(guestPhone ? [{ guest_phone: guestPhone }] : [])
+          ]
+        };
+
+    const pendingLead = await prisma.eventRegistration.findFirst({ where: pendingWhere });
+    let registration;
+
+    if (pendingLead) {
+      registration = await prisma.eventRegistration.update({
+        where: { id: pendingLead.id },
+        data: {
+          event_id: event.id,
+          ticket_tier: actualFreeTicketTier,
+          status: 'COMPLETED',
+          amount: 0,
+          guest_name:  guestName  || pendingLead.guest_name,
+          guest_email: email      || pendingLead.guest_email,
+          guest_phone: guestPhone || pendingLead.guest_phone,
+        }
+      });
+    } else {
+      registration = await prisma.eventRegistration.create({
+        data: {
+          user_id: userId || null,
+          event_id: event.id,
+          ticket_tier: actualFreeTicketTier,
+          status: 'COMPLETED',
+          amount: 0,
+          guest_name:  guestName  || null,
+          guest_email: email      || null,
+          guest_phone: guestPhone || null,
+        }
+      });
+    }
 
     // --- CRM: Clean up checkout leads since attendee is confirmed in Registrations ---
     if (email) {

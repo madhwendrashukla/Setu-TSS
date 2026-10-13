@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Merriweather } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import FooterLoader from "@/components/layout/FooterLoader";
@@ -11,14 +11,6 @@ import Script from "next/script";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap",
-  preload: false,
-});
-
-const merriweather = Merriweather({
-  weight: ["300", "400", "700"],
-  subsets: ["latin"],
-  variable: "--font-merriweather",
   display: "swap",
   preload: false,
 });
@@ -101,9 +93,13 @@ export default function RootLayout({
           referrerPolicy="no-referrer"
           suppressHydrationWarning
         />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap"
+        />
       </head>
       <body
-        className={`${inter.variable} ${merriweather.variable} antialiased bg-bg-main text-text-primary selection:bg-accent-blue selection:text-white overflow-x-hidden`}
+        className={`${inter.variable} antialiased bg-bg-main text-text-primary selection:bg-accent-blue selection:text-white overflow-x-hidden`}
       >
         {/* Google Tag Manager (noscript) */}
         <noscript>

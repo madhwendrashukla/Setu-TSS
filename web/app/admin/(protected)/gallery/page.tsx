@@ -716,10 +716,17 @@ export default function AdminGallery() {
                 body: JSON.stringify({ items: updates })
             });
             if (!res.ok) {
-                console.error("Server reorder returned non-200 status:", res.status);
+                const errData = await res.json().catch(() => ({}));
+                console.error("Server reorder returned non-200 status:", res.status, errData);
+                showFeedback('error', `Failed to save new order to database (${errData.error || res.statusText}).`);
+                fetchItems();
+            } else {
+                fetchItems();
             }
         } catch (error) {
             console.error("Failed to sync reorder with server:", error);
+            showFeedback('error', 'Network error: could not save order.');
+            fetchItems();
         }
     };
 

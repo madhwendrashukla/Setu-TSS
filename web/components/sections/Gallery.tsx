@@ -62,7 +62,8 @@ export function Gallery({ data = [], headings = {} }: { data?: any[], headings?:
         }
     };
 
-    const validData = data && data.length > 0 ? data : GALLERY_PHOTOS.map((url, i) => ({ media_url: url, display_order: i }));
+    const rawData = data && data.length > 0 ? data : GALLERY_PHOTOS.map((url, i) => ({ media_url: url, display_order: i }));
+    const validData = [...rawData].sort((a, b) => (Number(a.display_order) ?? 0) - (Number(b.display_order) ?? 0));
     const TOTAL_SLOTS = 30;
     
     // Map items exactly to their assigned slot indices based on display_order

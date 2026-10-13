@@ -915,6 +915,25 @@ app.delete('/api/admin/gallery/:id', async (req, res) => {
   } catch (error) { res.status(500).json({ error: 'Failed to delete gallery item' }); }
 });
 
+app.put('/api/admin/gallery/reorder', async (req, res) => {
+  const { items } = req.body;
+  if (!Array.isArray(items)) return res.status(400).json({ error: 'Invalid items array' });
+  try {
+    await prisma.$transaction(
+      items.map(item => 
+        prisma.galleryItem.update({
+          where: { id: item.id },
+          data: { display_order: parseInt(item.display_order, 10) }
+        })
+      )
+    );
+    res.json({ success: true });
+  } catch (error) { 
+    console.error("Failed to reorder gallery items:", error);
+    res.status(500).json({ error: 'Failed to reorder gallery items' }); 
+  }
+});
+
 app.put('/api/admin/gallery/:id', upload.single('media'), compressImage, async (req, res) => {
   try {
     const { caption, media_url, type } = req.body;
@@ -936,25 +955,6 @@ app.put('/api/admin/gallery/:id', upload.single('media'), compressImage, async (
   } catch (error) { 
     console.error(error);
     res.status(500).json({ error: 'Failed to update gallery item' }); 
-  }
-});
-
-app.put('/api/admin/gallery/reorder', async (req, res) => {
-  const { items } = req.body;
-  if (!Array.isArray(items)) return res.status(400).json({ error: 'Invalid items array' });
-  try {
-    await prisma.$transaction(
-      items.map(item => 
-        prisma.galleryItem.update({
-          where: { id: item.id },
-          data: { display_order: item.display_order }
-        })
-      )
-    );
-    res.json({ success: true });
-  } catch (error) { 
-    console.error("Failed to reorder gallery items:", error);
-    res.status(500).json({ error: 'Failed to reorder gallery items' }); 
   }
 });
 

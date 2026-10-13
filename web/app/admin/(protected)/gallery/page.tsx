@@ -1,10 +1,23 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { ImageCropperModal } from "@/components/admin/ImageCropperModal";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import {
+    DndContext,
+    DragOverlay,
+    pointerWithin,
+    rectIntersection,
+    closestCenter,
+    PointerSensor,
+    KeyboardSensor,
+    useSensor,
+    useSensors,
+    DragStartEvent,
+    DragEndEvent,
+    useDroppable,
+    useDraggable,
+    CollisionDetection,
+} from '@dnd-kit/core';
 
 function readFile(file: File): Promise<string> {
     return new Promise((resolve) => {
@@ -41,134 +54,407 @@ function getVideoData(url: string) {
     return { embedUrl: url, thumbnailUrl: url };
 }
 
-function getGridClassesFromItem(item: any | null) {
-    let size = '1x1';
-    if (item && item.caption) {
-        const sizeMatch = item.caption.match(/^SIZE:([^|]+)\|/);
-        if (sizeMatch) size = sizeMatch[1];
-    }
-    if (size === '1x2') return "col-span-1 row-span-2";
-    if (size === '2x1') return "col-span-2 row-span-1";
-    if (size === '2x2') return "col-span-2 row-span-2";
-    return "col-span-1 row-span-1";
+function getSizeFromItem(item: any | null): string {
+    if (!item?.caption) return '1x1';
+    const sizeMatch = item.caption.match(/^SIZE:([^|]+)\|/);
+    return sizeMatch ? sizeMatch[1] : '1x1';
 }
 
-function SortableGallerySlot({ 
-    slotIndex, 
-    item, 
-    isLocked,
-    onDoubleClick, 
-    onDelete 
-}: { 
-    slotIndex: number; 
-    item: any | null; 
+function getCleanCaption(item: any | null): string {
+    if (!item?.caption) return '';
+    return item.caption.replace(/^SIZE:[^|]+\|/, '');
+}
+
+function getSizeLabel(size: string): string {
+    if (size === '1x2') return 'Tall (1×2)';
+    if (size === '2x1') return 'Wide (2×1)';
+    if (size === '2x2') return 'Large (2×2)';
+    return 'Square (1×1)';
+}
+
+function getGridStyleFromSize(size: string): React.CSSProperties {
+    if (size === '1x2') return { gridColumn: 'span 1', gridRow: 'span 2' };
+    if (size === '2x1') return { gridColumn: 'span 2', gridRow: 'span 1' };
+    if (size === '2x2') return { gridColumn: 'span 2', gridRow: 'span 2' };
+    return { gridColumn: 'span 1', gridRow: 'span 1' };
+}
+
+// Resilient Collision Detection: pointerWithin -> rectIntersection -> closestCenter
+const customCollisionDetection: CollisionDetection = (args) => {
+    const pointerCollisions = pointerWithin(args);
+    if (pointerCollisions.length > 0) {
+        return pointerCollisions;
+    }
+    const rectCollisions = rectIntersection(args);
+    if (rectCollisions.length > 0) {
+        return rectCollisions;
+    }
+    return closestCenter(args);
+};
+
+interface GalleryBlockSlotProps {
+    slotIndex: number;
+    item: any | null;
     isLocked: boolean;
+    dragActiveItem: any | null;
+    dragActiveSize: string | null;
     onDoubleClick: (slotIndex: number, item: any | null) => void;
     onDelete: (id: string) => void;
-}) {
-    const id = item ? item.id : `empty-slot-${slotIndex}`;
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
-        id,
-        disabled: isLocked && !item
+}
+
+function GalleryBlockSlot({
+    slotIndex,
+    item,
+    isLocked,
+    dragActiveItem,
+    dragActiveSize,
+    onDoubleClick,
+    onDelete,
+}: GalleryBlockSlotProps) {
+    const isDragInProgress = dragActiveItem !== null;
+    const itemSize = item ? getSizeFromItem(item) : '1x1';
+    const effectiveSize = item ? itemSize : '1x1';
+    const gridStyle = getGridStyleFromSize(effectiveSize);
+
+    const isCurrentActiveDrag = isDragInProgress && dragActiveItem?.id === item?.id;
+
+    // Droppable ID on the outer slot container
+    const dropId = item
+        ? `droppable-slot-${slotIndex}-item-${item.id}`
+        : `droppable-slot-${slotIndex}-empty`;
+
+    const {
+        setNodeRef: setDropRef,
+        isOver,
+    } = useDroppable({
+        id: dropId,
+        disabled: isLocked && !item,
+        data: {
+            slotIndex,
+            itemId: item?.id || null,
+            size: effectiveSize,
+        },
     });
-    
-    const style = { 
-        transform: isDragging ? CSS.Transform.toString(transform) : undefined, 
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 10 : 1,
-    };
 
-    const gridClass = getGridClassesFromItem(item);
+    // Draggable ID on the inner card
+    const dragId = item ? `draggable-item-${item.id}` : `draggable-empty-${slotIndex}`;
+    const {
+        attributes,
+        listeners,
+        setNodeRef: setDragRef,
+        isDragging,
+    } = useDraggable({
+        id: dragId,
+        disabled: !item || isLocked,
+        data: {
+            slotIndex,
+            itemId: item?.id || null,
+            size: itemSize,
+        },
+    });
 
+    const canReceiveDrop = isDragInProgress && !isCurrentActiveDrag && (
+        item ? (dragActiveSize === itemSize) : (dragActiveSize === '1x1')
+    );
+
+    // If Empty Slot
     if (!item) {
+        const isTargetMatch = isDragInProgress && canReceiveDrop;
+        const isInvalidTarget = isDragInProgress && !canReceiveDrop;
+
         return (
-            <div 
-                ref={setNodeRef} 
-                style={style} 
-                {...(isLocked ? {} : attributes)} 
-                {...(isLocked ? {} : listeners)}
+            <div
+                ref={setDropRef}
+                style={gridStyle}
+                onDoubleClick={() => {
+                    if (!isLocked) onDoubleClick(slotIndex, null);
+                }}
                 onClick={() => {
                     if (isLocked) alert("Please fill the previous slots first!");
                 }}
-                onDoubleClick={() => {
-                    if (!isLocked) onDoubleClick(slotIndex, null);
-                }} 
-                className={`relative group bg-gray-50 border-2 border-dashed ${isLocked ? 'border-gray-200 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100 hover:border-gray-400'} rounded-2xl flex flex-col items-center justify-center w-full h-full transition-all ${gridClass}`}
+                className={`relative group rounded-2xl flex flex-col items-center justify-center w-full h-full transition-all duration-200 select-none overflow-hidden
+                    ${isLocked
+                        ? 'bg-gray-50/80 border-2 border-dashed border-gray-200 cursor-not-allowed opacity-40'
+                        : 'bg-white border-2 border-dashed border-slate-300 cursor-pointer hover:bg-purple-50/50 hover:border-purple-300 shadow-2xs'
+                    }
+                    ${isTargetMatch && isOver
+                        ? '!border-emerald-500 !bg-emerald-50/90 ring-4 ring-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.4)] scale-[1.02] z-20'
+                        : ''
+                    }
+                    ${isTargetMatch && !isOver
+                        ? '!border-emerald-400 !bg-emerald-50/30 ring-2 ring-emerald-400/40 border-dashed animate-pulse'
+                        : ''
+                    }
+                    ${isInvalidTarget
+                        ? 'opacity-30 border-dashed border-slate-200 bg-slate-100 cursor-not-allowed'
+                        : ''
+                    }
+                `}
             >
-                <i className={`fa-solid ${isLocked ? 'fa-lock text-gray-300' : 'fa-plus text-gray-400 group-hover:scale-110'} text-2xl mb-2 transition-transform`}></i>
-                <span className={`text-xs font-semibold ${isLocked ? 'text-gray-300' : 'text-gray-400'} uppercase tracking-wider`}>Slot {slotIndex + 1}</span>
+                {isTargetMatch && isOver ? (
+                    <div className="flex flex-col items-center gap-1.5 text-emerald-700 animate-bounce pointer-events-none">
+                        <i className="fa-solid fa-arrow-down text-2xl"></i>
+                        <span className="text-xs font-black uppercase tracking-wider">Drop Here</span>
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Slot #{slotIndex + 1}</span>
+                    </div>
+                ) : isTargetMatch && !isOver ? (
+                    <div className="flex flex-col items-center gap-1 text-emerald-600 pointer-events-none">
+                        <i className="fa-solid fa-arrows-to-dot text-lg"></i>
+                        <span className="text-[11px] font-bold">1x1 Empty Slot</span>
+                        <span className="text-[10px] text-emerald-500 font-medium">#{slotIndex + 1}</span>
+                    </div>
+                ) : isInvalidTarget ? (
+                    <div className="flex flex-col items-center gap-1 text-slate-400 pointer-events-none">
+                        <i className="fa-solid fa-ban text-sm text-rose-400"></i>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400">1x1 Only</span>
+                    </div>
+                ) : (
+                    <>
+                        <i className={`fa-solid ${isLocked ? 'fa-lock text-slate-300' : 'fa-plus text-slate-400 group-hover:scale-110 group-hover:text-purple-600'} text-2xl mb-2 transition-all`}></i>
+                        <span className={`text-xs font-bold ${isLocked ? 'text-slate-300' : 'text-slate-500'} uppercase tracking-wider`}>Slot {slotIndex + 1}</span>
+                        <span className="text-[10px] text-slate-400 mt-0.5 font-medium">Square (1×1)</span>
+                    </>
+                )}
             </div>
         );
     }
 
+    // Filled Slot
     const isVideo = item.type === 'video' || (item.media_url && (item.media_url.includes('youtube.com') || item.media_url.includes('youtu.be') || item.media_url.includes('drive.google.com')));
-    let displayUrl = item.media_url;
+    let displayUrl = item.media_url || '';
     if (isVideo && item.media_url) {
         displayUrl = getVideoData(item.media_url).thumbnailUrl;
     }
+    const displayCaption = getCleanCaption(item);
 
-    let displayCaption = item.caption || '';
-    displayCaption = displayCaption.replace(/^SIZE:[^|]+\|/, '');
+    const isMatchAndHovered = canReceiveDrop && isOver;
+    const isMatchAndNotHovered = canReceiveDrop && !isOver;
+    const isDifferentSizeAndDragging = isDragInProgress && !isCurrentActiveDrag && !canReceiveDrop;
 
     return (
-        <div 
-            ref={setNodeRef} 
-            style={style} 
-            onDoubleClick={() => onDoubleClick(slotIndex, item)} 
-            className={`relative group bg-[#1e293b] border border-gray-700/50 rounded-2xl overflow-hidden shadow-sm flex flex-col w-full h-full ${gridClass}`}
+        // The outer div is the DROPPABLE slot container (fixed grid cell)
+        <div
+            ref={setDropRef}
+            style={gridStyle}
+            className={`relative rounded-2xl w-full h-full transition-all duration-200 select-none
+                ${isMatchAndHovered 
+                    ? '!ring-4 !ring-emerald-400 !border-emerald-400 shadow-[0_0_30px_rgba(52,211,153,0.7)] scale-[1.02] z-30' 
+                    : ''}
+                ${isMatchAndNotHovered 
+                    ? '!ring-2 !ring-emerald-400/80 !border-emerald-400/80 shadow-[0_0_15px_rgba(52,211,153,0.25)]' 
+                    : ''}
+                ${isDifferentSizeAndDragging 
+                    ? 'opacity-35 grayscale-[70%]' 
+                    : ''}
+            `}
         >
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-grow relative overflow-hidden bg-gray-900">
-                <Image src={displayUrl} alt={displayCaption} fill className="object-cover pointer-events-none" unoptimized />
-                {isVideo && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-                        <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow">
-                            <i className="fa-solid fa-play text-purple-600 ml-1 text-sm"></i>
+            {/* The inner card is the DRAGGABLE media card */}
+            <div
+                ref={setDragRef}
+                onDoubleClick={() => onDoubleClick(slotIndex, item)}
+                className={`relative group bg-[#1e293b] border border-gray-700/60 rounded-2xl overflow-hidden shadow-sm flex flex-col w-full h-full
+                    ${isDragging ? 'opacity-25 scale-95 ring-2 ring-purple-400' : 'opacity-100'}
+                `}
+            >
+                {/* Draggable Media Container */}
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className="flex-grow relative overflow-hidden bg-gray-900 cursor-grab active:cursor-grabbing"
+                >
+                    <Image
+                        src={displayUrl}
+                        alt={displayCaption}
+                        fill
+                        className="object-cover pointer-events-none transition-transform duration-300 group-hover:scale-105"
+                        unoptimized
+                    />
+
+                    {/* Video Play Overlay */}
+                    {isVideo && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/25 pointer-events-none">
+                            <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-md">
+                                <i className="fa-solid fa-play text-purple-600 ml-1 text-sm"></i>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Top Badge: Size & Slot Number */}
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5 z-10 pointer-events-none">
+                        <span className="text-[10px] font-black uppercase tracking-wider bg-black/75 backdrop-blur-md text-white px-2 py-0.5 rounded-md shadow-sm border border-white/10">
+                            #{slotIndex + 1}
+                        </span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm border
+                            ${itemSize === '1x1' ? 'bg-slate-800/90 text-slate-200 border-slate-600/50' : ''}
+                            ${itemSize === '2x1' ? 'bg-blue-900/90 text-blue-200 border-blue-500/50' : ''}
+                            ${itemSize === '1x2' ? 'bg-amber-900/90 text-amber-200 border-amber-500/50' : ''}
+                            ${itemSize === '2x2' ? 'bg-purple-900/90 text-purple-200 border-purple-500/50' : ''}
+                        `}>
+                            {getSizeLabel(itemSize)}
+                        </span>
+                    </div>
+
+                    {/* SWAP HIGHLIGHT OVERLAY: When hovering over valid same-size block */}
+                    {isMatchAndHovered && (
+                        <div className="absolute inset-0 bg-emerald-600/40 backdrop-blur-[2px] flex flex-col items-center justify-center pointer-events-none z-20 animate-in fade-in zoom-in-95 duration-150">
+                            <div className="bg-emerald-500 text-white rounded-2xl px-5 py-2.5 flex items-center gap-2.5 shadow-2xl font-black text-sm border border-emerald-300">
+                                <i className="fa-solid fa-arrows-rotate text-lg animate-spin" style={{ animationDuration: '3s' }}></i>
+                                <span>SWAP WITH THIS BLOCK</span>
+                            </div>
+                            <span className="mt-2 text-xs font-bold text-white bg-black/60 px-3 py-1 rounded-full backdrop-blur-sm shadow">
+                                Both are {getSizeLabel(itemSize)}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* READY FOR SWAP BADGE: Same-size block, not hovered yet */}
+                    {isMatchAndNotHovered && (
+                        <div className="absolute inset-0 bg-emerald-950/20 pointer-events-none z-10 flex items-start justify-end p-2">
+                            <span className="bg-emerald-500/95 text-white text-[10px] font-black px-2 py-1 rounded-lg flex items-center gap-1 shadow-md border border-emerald-300/40 animate-pulse">
+                                <i className="fa-solid fa-check"></i> Can Swap
+                            </span>
+                        </div>
+                    )}
+
+                    {/* SIZE MISMATCH OVERLAY: Different size block */}
+                    {isDifferentSizeAndDragging && (
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex flex-col items-center justify-center pointer-events-none z-20">
+                            <div className="bg-rose-950/90 text-rose-300 border border-rose-700/60 rounded-xl px-3 py-1.5 flex items-center gap-2 text-xs font-bold shadow-lg">
+                                <i className="fa-solid fa-ban text-rose-400"></i>
+                                <span>Size mismatch ({itemSize})</span>
+                            </div>
+                            <span className="text-[10px] text-gray-300 mt-1 font-medium">
+                                Needs {getSizeLabel(dragActiveSize || '')}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Bottom Caption & Controls Bar */}
+                <div className="p-2 border-t border-gray-800 flex justify-between items-center bg-gray-900/95 h-10 shrink-0">
+                    <p className="text-xs text-gray-300 font-medium truncate flex-1 mr-2" title={displayCaption || item.type}>
+                        {displayCaption || (item.type === 'video' ? 'Video' : 'Image')}
+                    </p>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[9px] text-purple-300 font-mono font-bold bg-purple-950/80 border border-purple-700/50 px-1.5 py-0.5 rounded">
+                            {itemSize}
+                        </span>
+                        <div
+                            {...attributes}
+                            {...listeners}
+                            title="Drag to swap"
+                            className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-purple-400 px-1.5 py-1 rounded hover:bg-gray-800 transition-colors"
+                        >
+                            <i className="fas fa-grip-vertical text-xs"></i>
                         </div>
                     </div>
-                )}
+                </div>
+
+                {/* Delete Button */}
+                <button
+                    type="button"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(item.id);
+                    }}
+                    title="Delete this block"
+                    className="absolute top-2 right-2 bg-rose-600/90 hover:bg-rose-600 text-white text-xs w-7 h-7 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-30 shadow-md flex items-center justify-center cursor-pointer hover:scale-110"
+                >
+                    <i className="fa-regular fa-trash-can text-xs"></i>
+                </button>
             </div>
-            <div className="p-2 border-t border-gray-800 flex justify-between items-center bg-gray-900/90 h-9 shrink-0">
-                <p className="text-xs text-gray-300 font-medium truncate" title={displayCaption || item.type}>
-                    <span className="text-gray-500 mr-1">#{slotIndex + 1}</span> {displayCaption || (item.type === 'video' ? 'Video' : 'Image')}
-                </p>
-                <i className="fas fa-grip-vertical text-gray-500 cursor-grab px-1" {...attributes} {...listeners}></i>
+        </div>
+    );
+}
+
+// Floating Drag Overlay Card
+function DragOverlayCard({ item }: { item: any }) {
+    if (!item) return null;
+    const size = getSizeFromItem(item);
+    const isVideo = item?.type === 'video' || (item?.media_url && (item.media_url.includes('youtube.com') || item.media_url.includes('youtu.be') || item.media_url.includes('drive.google.com')));
+    let displayUrl = item?.media_url || '';
+    if (isVideo && item?.media_url) {
+        displayUrl = getVideoData(item.media_url).thumbnailUrl;
+    }
+    const displayCaption = getCleanCaption(item);
+
+    const w = 320 * (size === '2x1' || size === '2x2' ? 2 : 1) + (size === '2x1' || size === '2x2' ? 24 : 0);
+    const h = 320 * (size === '1x2' || size === '2x2' ? 2 : 1) + (size === '1x2' || size === '2x2' ? 24 : 0);
+
+    return (
+        <div
+            className="rounded-2xl overflow-hidden shadow-2xl border-2 border-purple-400 ring-4 ring-purple-500/40 bg-[#1e293b] flex flex-col pointer-events-none scale-105"
+            style={{ width: `${w}px`, height: `${h}px` }}
+        >
+            <div className="flex-grow relative overflow-hidden bg-gray-900 pointer-events-none">
+                <Image
+                    src={displayUrl}
+                    alt={displayCaption}
+                    fill
+                    className="object-cover pointer-events-none"
+                    unoptimized
+                />
+                <div className="absolute inset-0 bg-purple-600/20 pointer-events-none"></div>
+
+                <div className="absolute top-3 left-3 bg-purple-600 text-white px-2.5 py-1 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-xl border border-purple-300/40 pointer-events-none">
+                    <i className="fa-solid fa-arrows-rotate text-[11px]"></i>
+                    <span>Swapping {getSizeLabel(size)}</span>
+                </div>
             </div>
-            <button onPointerDown={(e) => { e.stopPropagation(); onDelete(item.id); }}
-                className="absolute top-2 right-2 bg-rose-600 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition z-10 shadow-sm cursor-pointer hover:bg-rose-700 font-bold">
-                <i className="fa-regular fa-trash-can"></i>
-            </button>
+
+            <div className="p-2 border-t border-gray-800 flex justify-between items-center bg-gray-900/95 h-10 shrink-0 pointer-events-none">
+                <p className="text-xs text-gray-200 font-medium truncate flex-1 mr-2">{displayCaption || 'Gallery Item'}</p>
+                <div className="flex items-center gap-1.5 text-purple-400 font-bold text-xs">
+                    <span className="font-mono bg-purple-950 px-1.5 py-0.5 rounded border border-purple-800">{size}</span>
+                    <i className="fas fa-grip-vertical"></i>
+                </div>
+            </div>
         </div>
     );
 }
 
 export default function AdminGallery() {
-    const TOTAL_SLOTS = 30; // 30 fixed blocks
+    const TOTAL_SLOTS = 30;
     const [items, setItems] = useState<any[]>([]);
     
     // UI State
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditOptionsModalOpen, setIsEditOptionsModalOpen] = useState(false);
-    
     const [editingSlotIndex, setEditingSlotIndex] = useState<number | null>(null);
     const [editingItem, setEditingItem] = useState<any | null>(null);
     const [uploading, setUploading] = useState(false);
     
-    // Form State (Add/Edit)
-    const [formData, setFormData] = useState({ type: "image", caption: "", media_url: "", size: "1x1" });
+    // Form & Crop
+    const [formData, setFormData] = useState({
+        type: "image",
+        caption: "",
+        media_url: "",
+        size: "1x1",
+    });
     const [file, setFile] = useState<File | null>(null);
-    
-    // Cropper State
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [currentCropAspect, setCurrentCropAspect] = useState<number>(1);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    // DnD State
+    const [dragActiveItem, setDragActiveItem] = useState<any | null>(null);
+    const [dragActiveSize, setDragActiveSize] = useState<string | null>(null);
+    const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+
+    const showFeedback = useCallback((type: 'success' | 'error' | 'info', message: string, duration = 4000) => {
+        setFeedback({ type, message });
+        setTimeout(() => {
+            setFeedback(prev => prev?.message === message ? null : prev);
+        }, duration);
+    }, []);
+
     const scroll = (direction: 'left' | 'right', amount = 660) => {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollBy({
                 left: direction === 'left' ? -amount : amount,
-                behavior: 'smooth',
+                behavior: 'smooth'
             });
         }
     };
@@ -177,7 +463,7 @@ export default function AdminGallery() {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollTo({
                 left: edge === 'start' ? 0 : scrollContainerRef.current.scrollWidth,
-                behavior: 'smooth',
+                behavior: 'smooth'
             });
         }
     };
@@ -188,20 +474,29 @@ export default function AdminGallery() {
         }
     };
 
-    const token = () => localStorage.getItem("adminToken");
+    const token = () => localStorage.getItem("adminToken") || "";
     const API = "";
 
-    const fetchItems = () => {
-        fetch(`${API}/api/gallery`, { headers: { "Authorization": `Bearer ${token()}` } })
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) setItems(data);
-                else setItems([]);
-            }).catch(console.error);
-    };
+    const fetchItems = useCallback(() => {
+        fetch(`${API}/api/gallery`, {
+            headers: { "Authorization": `Bearer ${token()}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (Array.isArray(data)) {
+                setItems(data);
+            } else {
+                setItems([]);
+            }
+        })
+        .catch(console.error);
+    }, []);
 
-    useEffect(() => { fetchItems(); }, []);
+    useEffect(() => {
+        fetchItems();
+    }, [fetchItems]);
 
+    // Slots mapping: Each index 0..29 is mapped to item with display_order === i
     const slots = Array.from({ length: TOTAL_SLOTS }).map((_, i) => {
         return items.find(item => item.display_order === i) || null;
     });
@@ -214,6 +509,7 @@ export default function AdminGallery() {
         
         let size = "1x1";
         let caption = "";
+
         if (item) {
             caption = item.caption || "";
             const sizeMatch = caption.match(/^SIZE:([^|]+)\|/);
@@ -222,20 +518,29 @@ export default function AdminGallery() {
                 caption = caption.replace(/^SIZE:[^|]+\|/, '');
             }
         }
-        
-        // Calculate aspect ratio based on selected size
+
         if (size === '1x2') setCurrentCropAspect(320 / 664);
         else if (size === '2x1') setCurrentCropAspect(664 / 320);
-        else setCurrentCropAspect(1); // 1x1 or 2x2 are square
+        else setCurrentCropAspect(1);
 
         if (item) {
             setEditingItem(item);
-            setFormData({ type: item.type, caption, media_url: item.media_url || "", size });
+            setFormData({
+                type: item.type,
+                caption: caption,
+                media_url: item.media_url || "",
+                size: size,
+            });
             setIsEditOptionsModalOpen(true);
         } else {
-            if (slotIndex > maxAllowedSlot) return; 
+            if (slotIndex > maxAllowedSlot) return;
             setEditingItem(null);
-            setFormData({ type: "image", caption: "", media_url: "", size: "1x1" });
+            setFormData({
+                type: "image",
+                caption: "",
+                media_url: "",
+                size: "1x1",
+            });
             setFile(null);
             setIsAddModalOpen(true);
         }
@@ -244,9 +549,8 @@ export default function AdminGallery() {
     const handleSaveSlot = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         setUploading(true);
-        
+
         const finalCaption = `SIZE:${formData.size}|${formData.caption}`;
-        
         const data = new FormData();
         data.append('type', formData.type);
         data.append('caption', finalCaption);
@@ -264,25 +568,31 @@ export default function AdminGallery() {
                 ? `${API}/api/admin/gallery/${editingItem.id}`
                 : `${API}/api/admin/gallery`;
             const method = editingItem ? "PUT" : "POST";
-
-            const res = await fetch(url, { method, headers: { "Authorization": `Bearer ${token()}` }, body: data });
-            const result = await res.json();
             
-            if (!res.ok) { 
-                alert(result.error || 'Operation failed'); 
-                return; 
+            const res = await fetch(url, {
+                method,
+                headers: { "Authorization": `Bearer ${token()}` },
+                body: data
+            });
+
+            const result = await res.json();
+            if (!res.ok) {
+                alert(result.error || 'Operation failed');
+                return;
             }
-            setIsAddModalOpen(false); 
+
+            setIsAddModalOpen(false);
             setIsEditOptionsModalOpen(false);
-            setFile(null); 
+            setFile(null);
             setEditingItem(null);
             setEditingSlotIndex(null);
             fetchItems();
+            showFeedback('success', `Saved Slot #${(editingSlotIndex ?? 0) + 1} successfully!`);
         } catch (error) {
             console.error(error);
             alert("An error occurred");
-        } finally { 
-            setUploading(false); 
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -298,14 +608,22 @@ export default function AdminGallery() {
 
     const handleDelete = async (id: string) => {
         if (!confirm("Remove this gallery item?")) return;
-        await fetch(`${API}/api/admin/gallery/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token()}` } });
+        await fetch(`${API}/api/admin/gallery/${id}`, { 
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token()}` }
+        });
         fetchItems();
+        showFeedback('info', 'Gallery item deleted.');
     };
 
     const handleAutoFixGaps = async () => {
         if (!confirm("This will automatically shift all images to fill empty gaps. Are you sure?")) return;
         const filledItems = slots.filter(s => s);
-        const updates = filledItems.map((item, i) => ({ id: item.id, display_order: i }));
+        const updates = filledItems.map((item, i) => ({
+            id: item.id,
+            display_order: i
+        }));
+
         try {
             await fetch(`${API}/api/admin/gallery/reorder`, {
                 method: 'PUT',
@@ -313,89 +631,177 @@ export default function AdminGallery() {
                 body: JSON.stringify({ items: updates })
             });
             fetchItems();
+            showFeedback('success', 'Gaps filled successfully!');
         } catch (error) {
             console.error("Auto-fix failed", error);
+            showFeedback('error', 'Auto-fix failed.');
         }
     };
 
+    // Sensor setup: distance constraint allows click/dblclick without accidental drag start
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(KeyboardSensor)
     );
+
+    const handleDragStart = (event: DragStartEvent) => {
+        const { active } = event;
+        const activeIdStr = String(active.id);
+        const itemId = activeIdStr.replace('draggable-item-', '');
+        const dragged = items.find(it => it.id === itemId);
+        if (!dragged) return;
+
+        setDragActiveItem(dragged);
+        setDragActiveSize(getSizeFromItem(dragged));
+    };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-        if (!over || active.id === over.id) return;
 
-        const getSlotIndex = (id: string) => {
-            if (String(id).startsWith('empty-slot-')) return parseInt(String(id).replace('empty-slot-', ''));
-            return slots.findIndex(s => s && s.id === id);
-        };
+        // Clear drag active state
+        setDragActiveItem(null);
+        setDragActiveSize(null);
 
-        const activeIndex = getSlotIndex(String(active.id));
-        const overIndex = getSlotIndex(String(over.id));
-
-        if (activeIndex === -1 || overIndex === -1) return;
-        
-        if (overIndex > maxAllowedSlot && !slots[overIndex]) {
-            alert("You cannot skip slots! Drag to the next available empty slot.");
+        if (!over) {
+            console.log("No drop target detected");
             return;
         }
 
-        const activeItem = slots[activeIndex];
-        const overItem = slots[overIndex];
-        if (!activeItem) return;
-
-        const newItems = [...items];
-        const activeItemInState = newItems.find(i => i.id === activeItem.id);
-        if (!activeItemInState) return;
-
-        const updates: {id: string, display_order: number}[] = [];
-
-        if (overItem) {
-            const overItemInState = newItems.find(i => i.id === overItem.id);
-            if (overItemInState) {
-                activeItemInState.display_order = overIndex;
-                overItemInState.display_order = activeIndex;
-                updates.push({ id: activeItem.id, display_order: overIndex });
-                updates.push({ id: overItem.id, display_order: activeIndex });
-            }
-        } else {
-            activeItemInState.display_order = overIndex;
-            updates.push({ id: activeItem.id, display_order: overIndex });
+        // 1. Identify source item directly from active.id and items array
+        const activeIdStr = String(active.id);
+        const sourceItemId = activeIdStr.replace('draggable-item-', '');
+        const sourceItem = items.find(it => it.id === sourceItemId);
+        if (!sourceItem) {
+            console.warn("Source item not found:", sourceItemId);
+            return;
         }
 
-        setItems(newItems);
+        // 2. Identify target slot and target item from over.id
+        const overIdStr = String(over.id);
+        const slotMatch = overIdStr.match(/^droppable-slot-(\d+)(?:-item-(.+))?$/);
+        if (!slotMatch) {
+            console.warn("Unrecognized droppable ID:", overIdStr);
+            return;
+        }
+
+        const targetSlotIndex = parseInt(slotMatch[1], 10);
+        const targetItemId = slotMatch[2] || null;
+
+        // Self-drop: dropped onto the exact same item
+        if (targetItemId && targetItemId === sourceItem.id) {
+            return;
+        }
+
+        // Target item lookup
+        const targetItem = targetItemId ? items.find(it => it.id === targetItemId) : null;
+
+        // Sizes
+        const sourceSize = getSizeFromItem(sourceItem);
+        const targetSize = targetItem ? getSizeFromItem(targetItem) : '1x1';
+        const sourceOrder = sourceItem.display_order;
+        const targetOrder = targetItem ? targetItem.display_order : targetSlotIndex;
+
+        // Same position
+        if (sourceOrder === targetOrder) {
+            return;
+        }
+
+        // STRICT SIZE CHECK: Source size MUST match target size
+        if (sourceSize !== targetSize) {
+            showFeedback(
+                'error',
+                `❌ Swap Rejected: ${getSizeLabel(sourceSize)} block can ONLY be swapped with another ${getSizeLabel(sourceSize)} block!`
+            );
+            return;
+        }
+
+        // CASE A: Dropping onto an Empty Slot (Only 1x1 allowed)
+        if (!targetItem) {
+            if (sourceSize !== '1x1') {
+                showFeedback('error', `❌ Cannot move ${getSizeLabel(sourceSize)} block into empty slot.`);
+                return;
+            }
+
+            const previousItems = [...items];
+            const updatedItems = items.map(it => {
+                if (it.id === sourceItem.id) {
+                    return { ...it, display_order: targetSlotIndex };
+                }
+                return it;
+            });
+            setItems(updatedItems);
+
+            const updates = [{ id: sourceItem.id, display_order: targetSlotIndex }];
+
+            try {
+                const res = await fetch(`${API}/api/admin/gallery/reorder`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
+                    body: JSON.stringify({ items: updates })
+                });
+                if (!res.ok) throw new Error("Reorder failed on server");
+                showFeedback('success', `✅ Moved block from Slot #${sourceOrder + 1} to Slot #${targetSlotIndex + 1}!`);
+                fetchItems();
+            } catch (err) {
+                console.error("Reorder failed", err);
+                setItems(previousItems);
+                showFeedback('error', 'Failed to save move on server. Reverted.');
+            }
+            return;
+        }
+
+        // CASE B: Swapping two filled blocks of IDENTICAL SIZE!
+        const previousItems = [...items];
+        const updatedItems = items.map(it => {
+            if (it.id === sourceItem.id) {
+                return { ...it, display_order: targetOrder };
+            }
+            if (it.id === targetItem.id) {
+                return { ...it, display_order: sourceOrder };
+            }
+            return it;
+        });
+        setItems(updatedItems);
+
+        const updates = [
+            { id: sourceItem.id, display_order: targetOrder },
+            { id: targetItem.id, display_order: sourceOrder },
+        ];
 
         try {
-            await fetch(`${API}/api/admin/gallery/reorder`, {
+            const res = await fetch(`${API}/api/admin/gallery/reorder`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
                 body: JSON.stringify({ items: updates })
             });
-            fetchItems(); 
-        } catch (error) {
-            console.error("Reorder failed", error);
+            if (!res.ok) throw new Error("Reorder failed on server");
+            showFeedback(
+                'success',
+                `✨ Successfully swapped Slot #${sourceOrder + 1} and Slot #${targetOrder + 1} (${getSizeLabel(sourceSize)})!`
+            );
             fetchItems();
+        } catch (err) {
+            console.error("Reorder failed", err);
+            setItems(previousItems);
+            showFeedback('error', 'Failed to save swap on server. Reverted.');
         }
     };
-
-    const sortableIds = slots.map((item, i) => item ? item.id : `empty-slot-${i}`);
 
     return (
         <div className="pb-20">
             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
             
+            {/* Header Card */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm mb-6">
                 <div>
                     <div className="flex items-center gap-2.5">
-                        <div className="h-10 w-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-700 font-bold">
+                        <div className="h-10 w-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-700 font-bold shadow-2xs">
                             <i className="fa-solid fa-images text-lg"></i>
                         </div>
                         <div>
                             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Gallery Editor</h1>
                             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                                Drag & drop and set the exact length and breadth (width x height spans) of your blocks!
+                                Drag and drop blocks of the <span className="font-bold text-purple-600">same size</span> to swap their positions directly!
                             </p>
                         </div>
                     </div>
@@ -405,7 +811,7 @@ export default function AdminGallery() {
                         {firstEmptyIndex !== -1 && slots.filter(s => s).length > firstEmptyIndex && (
                             <button 
                                 onClick={handleAutoFixGaps}
-                                className="px-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl text-xs flex items-center gap-2 transition-colors"
+                                className="px-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-xl text-xs flex items-center gap-2 transition-colors cursor-pointer"
                             >
                                 <i className="fa-solid fa-wand-magic-sparkles"></i> Fix Gaps
                             </button>
@@ -418,147 +824,206 @@ export default function AdminGallery() {
                 </div>
             </div>
 
-            {/* Dense Column Grid & Horizontal Scroll System */}
-            <div className="w-full bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-inner relative group">
-                
-                {/* Top Horizontal Toolbar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-200/80">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5">
-                            <i className="fa-solid fa-arrows-left-right text-purple-600"></i>
-                            Horizontal Canvas (30 Slots)
+            {/* Strict Rule & Feedback Toast Bar */}
+            <div className="mb-4">
+                {feedback ? (
+                    <div className={`p-4 rounded-2xl flex items-center justify-between shadow-sm border transition-all animate-in fade-in slide-in-from-top-2 duration-200
+                        ${feedback.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : ''}
+                        ${feedback.type === 'error' ? 'bg-rose-50 text-rose-800 border-rose-300' : ''}
+                        ${feedback.type === 'info' ? 'bg-blue-50 text-blue-800 border-blue-300' : ''}
+                    `}>
+                        <div className="flex items-center gap-2.5 text-sm font-bold">
+                            <i className={`text-base ${
+                                feedback.type === 'success' ? 'fa-solid fa-circle-check text-emerald-600' :
+                                feedback.type === 'error' ? 'fa-solid fa-triangle-exclamation text-rose-600' :
+                                'fa-solid fa-circle-info text-blue-600'
+                            }`}></i>
+                            <span>{feedback.message}</span>
+                        </div>
+                        <button 
+                            onClick={() => setFeedback(null)}
+                            className="text-xs font-bold px-2 py-1 rounded hover:bg-black/5 opacity-70 hover:opacity-100 cursor-pointer"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                ) : (
+                    <div className="px-4 py-2.5 rounded-xl bg-purple-50/70 border border-purple-200/70 text-purple-900 text-xs font-semibold flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-arrows-rotate text-purple-600"></i>
+                            <span>
+                                <strong>Strict Swap Mode Active:</strong> Only blocks with identical sizes (1×1 ↔ 1×1, 2×1 ↔ 2×1, 1×2 ↔ 1×2, 2×2 ↔ 2×2) can be swapped.
+                            </span>
+                        </div>
+                        <span className="text-[11px] text-purple-600 font-bold hidden md:inline">
+                            Valid swap targets highlight green during drag
                         </span>
-                        <span className="text-[11px] text-slate-400 hidden sm:inline">
-                            Scroll with mouse wheel, buttons, or scrollbar
-                        </span>
                     </div>
-
-                    {/* Navigation Buttons */}
-                    <div className="flex items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => scrollToEdge('start')}
-                            title="Jump to Start (Slot 1)"
-                            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
-                        >
-                            <i className="fa-solid fa-angles-left text-slate-400"></i>
-                            <span className="hidden sm:inline">Start</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => scroll('left', 660)}
-                            title="Scroll Left"
-                            className="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
-                        >
-                            <i className="fa-solid fa-chevron-left"></i>
-                            <span>Left</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => scroll('right', 660)}
-                            title="Scroll Right"
-                            className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
-                        >
-                            <span>Right</span>
-                            <i className="fa-solid fa-chevron-right"></i>
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => scrollToEdge('end')}
-                            title="Jump to End (Slot 30)"
-                            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
-                        >
-                            <span className="hidden sm:inline">End</span>
-                            <i className="fa-solid fa-angles-right text-slate-400"></i>
-                        </button>
-                    </div>
-                </div>
-
-                {/* Floating Left/Right Arrow Overlays */}
-                <button
-                    type="button"
-                    onClick={() => scroll('left', 660)}
-                    aria-label="Scroll left"
-                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 hover:bg-purple-600 text-slate-700 hover:text-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105 cursor-pointer"
-                >
-                    <i className="fa-solid fa-chevron-left text-sm"></i>
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => scroll('right', 660)}
-                    aria-label="Scroll right"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 hover:bg-purple-600 text-slate-700 hover:text-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105 cursor-pointer"
-                >
-                    <i className="fa-solid fa-chevron-right text-sm"></i>
-                </button>
-
-                {/* Main Scrollable Canvas */}
-                <div
-                    ref={scrollContainerRef}
-                    onWheel={handleWheel}
-                    className="overflow-x-auto pb-6 pt-2 admin-gallery-scroll"
-                    style={{ scrollBehavior: 'smooth' }}
-                >
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                        <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
-                            <div className="grid gap-6 min-w-max pb-2 px-2" style={{ gridTemplateRows: 'repeat(2, 320px)', gridAutoColumns: '320px', gridAutoFlow: 'column dense' }}>
-                                {slots.map((item, i) => (
-                                    <SortableGallerySlot 
-                                        key={item ? item.id : `empty-slot-${i}`}
-                                        slotIndex={i} 
-                                        item={item} 
-                                        isLocked={i > maxAllowedSlot}
-                                        onDoubleClick={handleDoubleClick}
-                                        onDelete={handleDelete}
-                                    />
-                                ))}
-                            </div>
-                        </SortableContext>
-                    </DndContext>
-                </div>
-
-                {/* Bottom Quick Jump Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-200/80 text-xs text-slate-500">
-                    <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-slate-600">Quick Jump:</span>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-                            }}
-                            className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
-                        >
-                            Slots 1–10
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 1600, behavior: 'smooth' });
-                            }}
-                            className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
-                        >
-                            Slots 11–20
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 3200, behavior: 'smooth' });
-                            }}
-                            className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
-                        >
-                            Slots 21–30
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-slate-400">Drag scrollbar or use buttons to navigate all 30 slots</span>
-                    </div>
-                </div>
+                )}
             </div>
+
+            {/* Dense Column Grid & Horizontal Scroll System */}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={customCollisionDetection}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="w-full bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-inner relative group">
+                    
+                    {/* Top Horizontal Toolbar */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-200/80">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5">
+                                <i className="fa-solid fa-arrows-left-right text-purple-600"></i>
+                                Horizontal Canvas (30 Slots)
+                            </span>
+                            <span className="text-[11px] text-slate-400 hidden sm:inline">
+                                Scroll with mouse wheel, buttons, or scrollbar
+                            </span>
+                        </div>
+
+                        {/* Navigation Buttons */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => scrollToEdge('start')}
+                                title="Jump to Start (Slot 1)"
+                                className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                            >
+                                <i className="fa-solid fa-angles-left text-slate-400"></i>
+                                <span className="hidden sm:inline">Start</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => scroll('left', 660)}
+                                title="Scroll Left"
+                                className="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                            >
+                                <i className="fa-solid fa-chevron-left"></i>
+                                <span>Left</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => scroll('right', 660)}
+                                title="Scroll Right"
+                                className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                            >
+                                <span>Right</span>
+                                <i className="fa-solid fa-chevron-right"></i>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => scrollToEdge('end')}
+                                title="Jump to End (Slot 30)"
+                                className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                            >
+                                <span className="hidden sm:inline">End</span>
+                                <i className="fa-solid fa-angles-right text-slate-400"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Floating Left/Right Arrow Overlays */}
+                    <button
+                        type="button"
+                        onClick={() => scroll('left', 660)}
+                        aria-label="Scroll left"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 hover:bg-purple-600 text-slate-700 hover:text-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105 cursor-pointer"
+                    >
+                        <i className="fa-solid fa-chevron-left text-sm"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => scroll('right', 660)}
+                        aria-label="Scroll right"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/95 hover:bg-purple-600 text-slate-700 hover:text-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105 cursor-pointer"
+                    >
+                        <i className="fa-solid fa-chevron-right text-sm"></i>
+                    </button>
+
+                    {/* Main Scrollable Canvas */}
+                    <div
+                        ref={scrollContainerRef}
+                        onWheel={handleWheel}
+                        className="overflow-x-auto pb-6 pt-2 admin-gallery-scroll"
+                        style={{ scrollBehavior: 'smooth' }}
+                    >
+                        <div
+                            className="grid gap-6 min-w-max pb-2 px-2"
+                            style={{
+                                gridTemplateRows: 'repeat(2, 320px)',
+                                gridAutoColumns: '320px',
+                                gridAutoFlow: 'column dense',
+                            }}
+                        >
+                            {slots.map((item, i) => (
+                                <GalleryBlockSlot
+                                    key={item ? `item-${item.id}` : `empty-slot-${i}`}
+                                    slotIndex={i}
+                                    item={item}
+                                    isLocked={i > maxAllowedSlot}
+                                    dragActiveItem={dragActiveItem}
+                                    dragActiveSize={dragActiveSize}
+                                    onDoubleClick={handleDoubleClick}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Bottom Quick Jump Bar */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-200/80 text-xs text-slate-500">
+                        <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-slate-600">Quick Jump:</span>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                                }}
+                                className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
+                            >
+                                Slots 1–10
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 1600, behavior: 'smooth' });
+                                }}
+                                className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
+                            >
+                                Slots 11–20
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (scrollContainerRef.current) scrollContainerRef.current.scrollTo({ left: 3200, behavior: 'smooth' });
+                                }}
+                                className="px-2.5 py-1 bg-white hover:bg-purple-50 hover:text-purple-700 border border-slate-200 rounded-lg font-semibold transition-colors cursor-pointer"
+                            >
+                                Slots 21–30
+                            </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-slate-400">
+                                Drag blocks to swap • Double click any block to edit / replace
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Drag Overlay Preview */}
+                <DragOverlay dropAnimation={null}>
+                    {dragActiveItem ? (
+                        <DragOverlayCard item={dragActiveItem} />
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
 
             <style dangerouslySetInnerHTML={{__html: `
                 .admin-gallery-scroll {
@@ -591,7 +1056,7 @@ export default function AdminGallery() {
                             <h2 className="text-2xl font-black text-slate-900">
                                 Add Media to Slot {editingSlotIndex! + 1}
                             </h2>
-                            <button onClick={() => { setIsAddModalOpen(false); setFile(null); }} className="text-slate-400 hover:text-slate-700">
+                            <button onClick={() => { setIsAddModalOpen(false); setFile(null); }} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                                 <i className="fa-solid fa-xmark text-xl"></i>
                             </button>
                         </div>
@@ -633,7 +1098,7 @@ export default function AdminGallery() {
                                     <button 
                                         type="button"
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 bg-slate-50 hover:bg-gray-100 hover:border-gray-400 text-sm font-bold text-gray-600 transition-all flex justify-between items-center"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 bg-slate-50 hover:bg-gray-100 hover:border-gray-400 text-sm font-bold text-gray-600 transition-all flex justify-between items-center cursor-pointer"
                                     >
                                         <span>{file ? file.name : "Select and crop image..."}</span>
                                         <i className="fa-solid fa-cloud-arrow-up"></i>
@@ -661,8 +1126,8 @@ export default function AdminGallery() {
                             </div>
                             
                             <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
-                                <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 font-bold hover:bg-slate-50">Cancel</button>
-                                <button type="submit" disabled={uploading || (formData.type === 'image' && !file)} className="px-6 py-2.5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 disabled:opacity-50">
+                                <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 font-bold hover:bg-slate-50 cursor-pointer">Cancel</button>
+                                <button type="submit" disabled={uploading || (formData.type === 'image' && !file)} className="px-6 py-2.5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 disabled:opacity-50 cursor-pointer">
                                     {uploading ? 'Saving...' : 'Save to Slot'}
                                 </button>
                             </div>
@@ -677,7 +1142,7 @@ export default function AdminGallery() {
                     <div className="bg-white border border-gray-200 rounded-3xl w-full max-w-sm p-8 shadow-2xl">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-black text-slate-900">Edit Slot {editingSlotIndex! + 1}</h2>
-                            <button onClick={() => setIsEditOptionsModalOpen(false)} className="text-slate-400 hover:text-slate-700">
+                            <button onClick={() => setIsEditOptionsModalOpen(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                                 <i className="fa-solid fa-xmark text-lg"></i>
                             </button>
                         </div>
@@ -703,20 +1168,20 @@ export default function AdminGallery() {
                             </div>
 
                             {editingItem.type === 'image' && (
-                                <button onClick={() => setImageSrc(editingItem.media_url)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold transition-colors">
+                                <button onClick={() => setImageSrc(editingItem.media_url)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold transition-colors cursor-pointer">
                                     <i className="fa-solid fa-crop-simple w-5"></i> Rotate / Re-Crop Image
                                 </button>
                             )}
-                            <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold transition-colors">
+                            <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold transition-colors cursor-pointer">
                                 <i className="fa-solid fa-upload w-5"></i> Replace Media
                             </button>
-                            <button onClick={() => handleSaveSlot()} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition-colors">
+                            <button onClick={() => handleSaveSlot()} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition-colors cursor-pointer">
                                 <i className="fa-solid fa-floppy-disk w-5"></i> Save Size Changes
                             </button>
                         </div>
                         
                         <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">
-                            <button onClick={() => setIsEditOptionsModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 font-bold hover:bg-slate-50 w-full text-center">Cancel</button>
+                            <button onClick={() => setIsEditOptionsModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-gray-200 font-bold hover:bg-slate-50 w-full text-center cursor-pointer">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -740,8 +1205,12 @@ export default function AdminGallery() {
                                 const res = await fetch(`${API}/api/admin/gallery/${editingItem.id}`, { 
                                     method: "PUT", headers: { "Authorization": `Bearer ${token()}` }, body: data 
                                 });
-                                if (res.ok) fetchItems();
-                                else alert('Failed to update image.');
+                                if (res.ok) {
+                                    fetchItems();
+                                    showFeedback('success', 'Image re-cropped and updated successfully!');
+                                } else {
+                                    alert('Failed to update image.');
+                                }
                             } catch(e) { console.error(e); }
                             setUploading(false);
                             setEditingItem(null);

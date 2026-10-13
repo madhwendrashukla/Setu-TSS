@@ -92,75 +92,58 @@ const customCollisionDetection: CollisionDetection = (args) => {
     return closestCenter(args);
 };
 
-interface GalleryBlockSlotProps {
+interface GallerySlotProps {
     slotIndex: number;
     item: any | null;
     isLocked: boolean;
-    dragActiveItem: any | null;
+    dragActiveId: string | null;
     dragActiveSize: string | null;
     onDoubleClick: (slotIndex: number, item: any | null) => void;
     onDelete: (id: string) => void;
 }
 
-function GalleryBlockSlot({
+function GallerySlot({
     slotIndex,
     item,
     isLocked,
-    dragActiveItem,
+    dragActiveId,
     dragActiveSize,
     onDoubleClick,
     onDelete,
-}: GalleryBlockSlotProps) {
-    const isDragInProgress = dragActiveItem !== null;
-    const itemSize = item ? getSizeFromItem(item) : '1x1';
-    const effectiveSize = item ? itemSize : '1x1';
-    const gridStyle = getGridStyleFromSize(effectiveSize);
+}: GallerySlotProps) {
+    const id = item ? item.id : `empty-slot-${slotIndex}`;
+    const size = item ? getSizeFromItem(item) : '1x1';
+    const gridStyle = getGridStyleFromSize(size);
 
-    const isCurrentActiveDrag = isDragInProgress && dragActiveItem?.id === item?.id;
+    const isCurrentActive = dragActiveId === id;
+    const isDragInProgress = dragActiveId !== null;
 
-    // Droppable ID on the outer slot container
-    const dropId = item
-        ? `droppable-slot-${slotIndex}-item-${item.id}`
-        : `droppable-slot-${slotIndex}-empty`;
-
-    const {
-        setNodeRef: setDropRef,
-        isOver,
-    } = useDroppable({
-        id: dropId,
+    // Outer container is Droppable
+    const { setNodeRef: setDropRef, isOver } = useDroppable({
+        id,
         disabled: isLocked && !item,
-        data: {
-            slotIndex,
-            itemId: item?.id || null,
-            size: effectiveSize,
-        },
     });
 
-    // Draggable ID on the inner card
-    const dragId = item ? `draggable-item-${item.id}` : `draggable-empty-${slotIndex}`;
+    // Inner card is Draggable
     const {
         attributes,
         listeners,
         setNodeRef: setDragRef,
         isDragging,
     } = useDraggable({
-        id: dragId,
+        id,
         disabled: !item || isLocked,
-        data: {
-            slotIndex,
-            itemId: item?.id || null,
-            size: itemSize,
-        },
     });
 
-    const canReceiveDrop = isDragInProgress && !isCurrentActiveDrag && (
-        item ? (dragActiveSize === itemSize) : (dragActiveSize === '1x1')
+    // Can receive drop only if same size!
+    const canReceiveDrop = isDragInProgress && !isCurrentActive && (
+        item ? (dragActiveSize === size) : (dragActiveSize === '1x1')
     );
 
-    // If Empty Slot
+    // Empty Slot
     if (!item) {
         const isTargetMatch = isDragInProgress && canReceiveDrop;
-        const isInvalidTarget = isDragInProgress && !canReceiveDrop;
+        const isInvalidTarget = isDragInProgress && !canReceiveDrop && !isCurrentActive;
 
         return (
             <div
@@ -229,10 +212,9 @@ function GalleryBlockSlot({
 
     const isMatchAndHovered = canReceiveDrop && isOver;
     const isMatchAndNotHovered = canReceiveDrop && !isOver;
-    const isDifferentSizeAndDragging = isDragInProgress && !isCurrentActiveDrag && !canReceiveDrop;
+    const isDifferentSizeAndDragging = isDragInProgress && !isCurrentActive && !canReceiveDrop;
 
     return (
-        // The outer div is the DROPPABLE slot container (fixed grid cell)
         <div
             ref={setDropRef}
             style={gridStyle}
@@ -248,12 +230,11 @@ function GalleryBlockSlot({
                     : ''}
             `}
         >
-            {/* The inner card is the DRAGGABLE media card */}
             <div
                 ref={setDragRef}
                 onDoubleClick={() => onDoubleClick(slotIndex, item)}
                 className={`relative group bg-[#1e293b] border border-gray-700/60 rounded-2xl overflow-hidden shadow-sm flex flex-col w-full h-full
-                    ${isDragging ? 'opacity-25 scale-95 ring-2 ring-purple-400' : 'opacity-100'}
+                    ${isDragging ? 'opacity-20 scale-95 ring-2 ring-purple-400' : 'opacity-100'}
                 `}
             >
                 {/* Draggable Media Container */}
@@ -285,12 +266,12 @@ function GalleryBlockSlot({
                             #{slotIndex + 1}
                         </span>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm border
-                            ${itemSize === '1x1' ? 'bg-slate-800/90 text-slate-200 border-slate-600/50' : ''}
-                            ${itemSize === '2x1' ? 'bg-blue-900/90 text-blue-200 border-blue-500/50' : ''}
-                            ${itemSize === '1x2' ? 'bg-amber-900/90 text-amber-200 border-amber-500/50' : ''}
-                            ${itemSize === '2x2' ? 'bg-purple-900/90 text-purple-200 border-purple-500/50' : ''}
+                            ${size === '1x1' ? 'bg-slate-800/90 text-slate-200 border-slate-600/50' : ''}
+                            ${size === '2x1' ? 'bg-blue-900/90 text-blue-200 border-blue-500/50' : ''}
+                            ${size === '1x2' ? 'bg-amber-900/90 text-amber-200 border-amber-500/50' : ''}
+                            ${size === '2x2' ? 'bg-purple-900/90 text-purple-200 border-purple-500/50' : ''}
                         `}>
-                            {getSizeLabel(itemSize)}
+                            {getSizeLabel(size)}
                         </span>
                     </div>
 
@@ -302,7 +283,7 @@ function GalleryBlockSlot({
                                 <span>SWAP WITH THIS BLOCK</span>
                             </div>
                             <span className="mt-2 text-xs font-bold text-white bg-black/60 px-3 py-1 rounded-full backdrop-blur-sm shadow">
-                                Both are {getSizeLabel(itemSize)}
+                                Both are {getSizeLabel(size)}
                             </span>
                         </div>
                     )}
@@ -321,7 +302,7 @@ function GalleryBlockSlot({
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex flex-col items-center justify-center pointer-events-none z-20">
                             <div className="bg-rose-950/90 text-rose-300 border border-rose-700/60 rounded-xl px-3 py-1.5 flex items-center gap-2 text-xs font-bold shadow-lg">
                                 <i className="fa-solid fa-ban text-rose-400"></i>
-                                <span>Size mismatch ({itemSize})</span>
+                                <span>Size mismatch ({size})</span>
                             </div>
                             <span className="text-[10px] text-gray-300 mt-1 font-medium">
                                 Needs {getSizeLabel(dragActiveSize || '')}
@@ -337,7 +318,7 @@ function GalleryBlockSlot({
                     </p>
                     <div className="flex items-center gap-1.5 shrink-0">
                         <span className="text-[9px] text-purple-300 font-mono font-bold bg-purple-950/80 border border-purple-700/50 px-1.5 py-0.5 rounded">
-                            {itemSize}
+                            {size}
                         </span>
                         <div
                             {...attributes}
@@ -439,6 +420,7 @@ export default function AdminGallery() {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // DnD State
+    const [dragActiveId, setDragActiveId] = useState<string | null>(null);
     const [dragActiveItem, setDragActiveItem] = useState<any | null>(null);
     const [dragActiveSize, setDragActiveSize] = useState<string | null>(null);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
@@ -646,144 +628,98 @@ export default function AdminGallery() {
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
-        const activeIdStr = String(active.id);
-        const itemId = activeIdStr.replace('draggable-item-', '');
-        const dragged = items.find(it => it.id === itemId);
-        if (!dragged) return;
+        const id = String(active.id);
+        const item = items.find(i => i.id === id);
+        if (!item) return;
 
-        setDragActiveItem(dragged);
-        setDragActiveSize(getSizeFromItem(dragged));
+        setDragActiveId(id);
+        setDragActiveSize(getSizeFromItem(item));
+        setDragActiveItem(item);
+    };
+
+    const getSlotIndex = (id: string) => {
+        if (id.startsWith('empty-slot-')) return parseInt(id.replace('empty-slot-', ''), 10);
+        return slots.findIndex(s => s && s.id === id);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
 
-        // Clear drag active state
-        setDragActiveItem(null);
+        // Clear active drag states
+        setDragActiveId(null);
         setDragActiveSize(null);
+        setDragActiveItem(null);
 
-        if (!over) {
-            console.log("No drop target detected");
-            return;
-        }
+        if (!over || active.id === over.id) return;
 
-        // 1. Identify source item directly from active.id and items array
-        const activeIdStr = String(active.id);
-        const sourceItemId = activeIdStr.replace('draggable-item-', '');
-        const sourceItem = items.find(it => it.id === sourceItemId);
-        if (!sourceItem) {
-            console.warn("Source item not found:", sourceItemId);
-            return;
-        }
+        const activeIndex = getSlotIndex(String(active.id));
+        const overIndex = getSlotIndex(String(over.id));
 
-        // 2. Identify target slot and target item from over.id
-        const overIdStr = String(over.id);
-        const slotMatch = overIdStr.match(/^droppable-slot-(\d+)(?:-item-(.+))?$/);
-        if (!slotMatch) {
-            console.warn("Unrecognized droppable ID:", overIdStr);
-            return;
-        }
+        if (activeIndex === -1 || overIndex === -1) return;
+        if (activeIndex === overIndex) return;
 
-        const targetSlotIndex = parseInt(slotMatch[1], 10);
-        const targetItemId = slotMatch[2] || null;
+        const activeItem = slots[activeIndex];
+        const overItem = slots[overIndex];
+        if (!activeItem) return;
 
-        // Self-drop: dropped onto the exact same item
-        if (targetItemId && targetItemId === sourceItem.id) {
-            return;
-        }
+        const activeSize = getSizeFromItem(activeItem);
+        const overSize = overItem ? getSizeFromItem(overItem) : '1x1';
 
-        // Target item lookup
-        const targetItem = targetItemId ? items.find(it => it.id === targetItemId) : null;
-
-        // Sizes
-        const sourceSize = getSizeFromItem(sourceItem);
-        const targetSize = targetItem ? getSizeFromItem(targetItem) : '1x1';
-        const sourceOrder = sourceItem.display_order;
-        const targetOrder = targetItem ? targetItem.display_order : targetSlotIndex;
-
-        // Same position
-        if (sourceOrder === targetOrder) {
-            return;
-        }
-
-        // STRICT SIZE CHECK: Source size MUST match target size
-        if (sourceSize !== targetSize) {
+        // STRICT SIZE CHECK
+        if (activeSize !== overSize) {
             showFeedback(
                 'error',
-                `❌ Swap Rejected: ${getSizeLabel(sourceSize)} block can ONLY be swapped with another ${getSizeLabel(sourceSize)} block!`
+                `❌ Swap Rejected: ${getSizeLabel(activeSize)} block can ONLY be swapped with another ${getSizeLabel(activeSize)} block!`
             );
             return;
         }
 
-        // CASE A: Dropping onto an Empty Slot (Only 1x1 allowed)
-        if (!targetItem) {
-            if (sourceSize !== '1x1') {
-                showFeedback('error', `❌ Cannot move ${getSizeLabel(sourceSize)} block into empty slot.`);
+        // Apply optimistic swap to state
+        const newItems = items.map(it => ({ ...it }));
+        const activeInState = newItems.find(i => i.id === activeItem.id);
+        if (!activeInState) return;
+
+        const updates: { id: string; display_order: number }[] = [];
+
+        if (overItem) {
+            const overInState = newItems.find(i => i.id === overItem.id);
+            if (overInState) {
+                activeInState.display_order = overIndex;
+                overInState.display_order = activeIndex;
+                updates.push({ id: activeItem.id, display_order: overIndex });
+                updates.push({ id: overItem.id, display_order: activeIndex });
+            }
+        } else {
+            // Drop onto empty slot (only 1x1 allowed)
+            if (activeSize !== '1x1') {
+                showFeedback('error', `❌ Cannot move ${getSizeLabel(activeSize)} block into empty slot.`);
                 return;
             }
-
-            const previousItems = [...items];
-            const updatedItems = items.map(it => {
-                if (it.id === sourceItem.id) {
-                    return { ...it, display_order: targetSlotIndex };
-                }
-                return it;
-            });
-            setItems(updatedItems);
-
-            const updates = [{ id: sourceItem.id, display_order: targetSlotIndex }];
-
-            try {
-                const res = await fetch(`${API}/api/admin/gallery/reorder`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
-                    body: JSON.stringify({ items: updates })
-                });
-                if (!res.ok) throw new Error("Reorder failed on server");
-                showFeedback('success', `✅ Moved block from Slot #${sourceOrder + 1} to Slot #${targetSlotIndex + 1}!`);
-                fetchItems();
-            } catch (err) {
-                console.error("Reorder failed", err);
-                setItems(previousItems);
-                showFeedback('error', 'Failed to save move on server. Reverted.');
-            }
-            return;
+            activeInState.display_order = overIndex;
+            updates.push({ id: activeItem.id, display_order: overIndex });
         }
 
-        // CASE B: Swapping two filled blocks of IDENTICAL SIZE!
-        const previousItems = [...items];
-        const updatedItems = items.map(it => {
-            if (it.id === sourceItem.id) {
-                return { ...it, display_order: targetOrder };
-            }
-            if (it.id === targetItem.id) {
-                return { ...it, display_order: sourceOrder };
-            }
-            return it;
-        });
-        setItems(updatedItems);
+        // INSTANT UI UPDATE
+        setItems(newItems);
+        showFeedback(
+            'success',
+            overItem 
+                ? `✨ Successfully swapped Slot #${activeIndex + 1} and Slot #${overIndex + 1} (${getSizeLabel(activeSize)})!`
+                : `✅ Moved block from Slot #${activeIndex + 1} to Slot #${overIndex + 1}!`
+        );
 
-        const updates = [
-            { id: sourceItem.id, display_order: targetOrder },
-            { id: targetItem.id, display_order: sourceOrder },
-        ];
-
+        // Sync with backend API
         try {
             const res = await fetch(`${API}/api/admin/gallery/reorder`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` },
                 body: JSON.stringify({ items: updates })
             });
-            if (!res.ok) throw new Error("Reorder failed on server");
-            showFeedback(
-                'success',
-                `✨ Successfully swapped Slot #${sourceOrder + 1} and Slot #${targetOrder + 1} (${getSizeLabel(sourceSize)})!`
-            );
-            fetchItems();
-        } catch (err) {
-            console.error("Reorder failed", err);
-            setItems(previousItems);
-            showFeedback('error', 'Failed to save swap on server. Reverted.');
+            if (!res.ok) {
+                console.error("Server reorder returned non-200 status:", res.status);
+            }
+        } catch (error) {
+            console.error("Failed to sync reorder with server:", error);
         }
     };
 
@@ -962,12 +898,12 @@ export default function AdminGallery() {
                             }}
                         >
                             {slots.map((item, i) => (
-                                <GalleryBlockSlot
-                                    key={item ? `item-${item.id}` : `empty-slot-${i}`}
+                                <GallerySlot
+                                    key={item ? item.id : `empty-slot-${i}`}
                                     slotIndex={i}
                                     item={item}
                                     isLocked={i > maxAllowedSlot}
-                                    dragActiveItem={dragActiveItem}
+                                    dragActiveId={dragActiveId}
                                     dragActiveSize={dragActiveSize}
                                     onDoubleClick={handleDoubleClick}
                                     onDelete={handleDelete}

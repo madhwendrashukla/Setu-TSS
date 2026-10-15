@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Open — root cause narrowed to 4 paths, server evidence pending |
+| **Status** | Root cause confirmed for all 3: the browser never sent `verify-payment`. Scope (systematic vs per-device) pending |
 | **Detected** | 2026-10-15 |
 | **Event** | Chai & Conversation – Bhubaneswar (2 Oct / 3 Oct sessions) |
 | **Impact** | 3 buyers paid ₹1.00 (Razorpay: Captured, settled 5 Oct, `setl_Tk9FbJeYRyN6lB`) but do not appear as registrations |
@@ -12,7 +12,7 @@
 | # | Payment (IST) | Payment ID | Order ID | Method |
 |---|---|---|---|---|
 | 1 | Thu 1 Oct 21:17 | `pay_TihNSET8MDHNMT` | `order_TihNMI67eOU0HF` | UPI `@oksbi`, bank account |
-| 2 | Fri 2 Oct 11:05 | `pay_TivUelVcQNihOH` | `order_TivURqcYkTE9b4` | UPI `@ybl`, bank account |
+| 2 | Fri 2 Oct 11:05 | `pay_TivUeIVcQNihOH` | `order_TivURqcYkTE9b4` | UPI `@ybl`, bank account |
 | 3 | Fri 2 Oct 11:16 | `pay_Tivfprffc01dcD` | `order_TivfiqPJjg8Oyn` | UPI `@ybl`, credit card |
 
 All three payments carry the description `Enrollment for Chai & Conversation- Bhubaneswar`, which is the string `DynamicCheckoutModal` builds. So all three came through the standard event checkout.
@@ -73,13 +73,44 @@ The payment code was the same on 1–2 Oct as it is today. The 9 Oct commits (`e
 
 ## Findings
 
-_Fill in after running the checks above._
+`diagnoseEventPayment.js` run on prod, 2026-10-15. Event row: `cccaf75e-2683-4594-b5d1-89f856bd4374` (lead source `checkout_bhubaneswar-2oct`).
 
-| # | DB row status | verify-payment in nginx log | Orders per buyer | Verdict |
-|---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
+| # | Device | Lead / row created | create-order (nginx) | Payment created | Row last updated | Attempts | DB row | verify-payment in nginx | Verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | Android, Chrome | 21:16:10 | 21:17:10 → 200 | 21:17:16 | 21:17:10 | 1 | PENDING, no payment ID | **none** | **A** |
+| 2 | Android, Chrome | 11:04:51 | 11:05:36 → 200 | 11:05:47 | 11:05:36 | 1 | PENDING, no payment ID | **none** | **A** |
+| 3 | iPhone, Safari | 11:15:37 | 11:16:16 → 200 | 11:16:22 | 11:16:16 | 1 | PENDING, no payment ID | **none** | **A** |
+
+(Payment #2's real ID is `pay_TivUeIVcQNihOH`; the screenshot was misread.)
+
+Nginx shows the full sequence for each buyer: `capture-lead` (OTP step) → `create-order` 200 →
+**no `verify-payment` request at all**. That was checked in each payment's 10-minute window; any later
+call would have left the row COMPLETED or FAILED, and it is neither.
+
+What this establishes for #1 and #3:
+- **B is ruled out.** Each order had exactly one attempt, and the row still holds the paid order ID.
+- **C is ruled out.** The row is not `FAILED`, so no signature check ever failed.
+- **The row was never touched after create-order.** `updated_at` equals the order creation time. Nothing
+  wrote to it after the buyer paid, so `verify-payment` either never arrived or failed before its first DB write.
+- The checkout lead (`checkout_bhubaneswar-2oct`, `pending`) still exists. It would have been deleted
+  by a successful verification.
+
+- **A′ is ruled out.** The backend answered `create-order` with 200 seconds before each payment. The
+  `ReferenceError: PORT is not defined` crash loop in the PM2 log ran 1 Oct 12:57–13:16 UTC
+  (18:27–18:46 IST), hours before payment #1. No `Error verifying payment` was logged.
+
+**Root cause (confirmed for all 3):** the buyer's browser never sent `POST /api/payments/verify-payment`
+after a successful UPI payment. Because that browser call is the only path to `COMPLETED`, and there is no
+server-side webhook, the rows stayed PENDING and the Registrations tab (COMPLETED only) hid them.
+
+**Still open: systematic or per-device?** All 3 of 3 failed, on different phones and browsers. To check whether `verify-payment`
+*ever* reaches the server, and to measure the full impact:
+- `sudo zgrep -c "verify-payment" /var/log/nginx/access.log*`
+- `node scripts/findPaidPendingRegistrations.js cccaf75e-2683-4594-b5d1-89f856bd4374`. This lists every
+  PENDING row whose Razorpay order is paid. Run it with no argument to cover all events.
+
+If `verify-payment` never appears, the checkout handler is broken for everyone (a code defect), not just
+lost on mobile app switches.
 
 ## Remediation
 

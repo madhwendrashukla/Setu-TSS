@@ -344,6 +344,7 @@ router.post('/create-order', flexAuth, async (req, res) => {
 
     // Coupon is applied SERVER-SIDE too, so the discount cannot be inflated.
     let expectedFinalPrice = serverBasePrice;
+    let appliedCouponCode = null;
     if (couponCode) {
       const buyerEmail = (req.guestUser && req.guestUser.email) || req.body.email || null;
       const result = await validateCouponForCourse({ code: couponCode, email: buyerEmail });
@@ -370,20 +371,16 @@ router.post('/create-order', flexAuth, async (req, res) => {
         discount = coupon.discount_value;
       }
       expectedFinalPrice = Math.max(0, serverBasePrice - discount);
+      appliedCouponCode = coupon.code;
     }
 
     const chargeableRupees = expectedFinalPrice;
 
-    const options = {
-      amount: Math.round(chargeableRupees * 100), // paise
-      currency: 'INR',
-      receipt: `rcpt_${Date.now()}`,
-    };
-
-    const order = await razorpay.orders.create(options);
-
-    // Duplicate Check & Registration Records
+    // Duplicate check and the PENDING row come BEFORE the Razorpay order is
+    // created, so a refused attempt ("already registered") never leaves an
+    // orphan order behind in Razorpay (incident 2026-10-02).
     const eventIdVariants = [event.id, actualEventId].filter(Boolean);
+    let registration;
     if (req.userId) {
       // 1. Auth user: check duplicate COMPLETED registrations
       const existingReg = await prisma.eventRegistration.findFirst({
@@ -399,22 +396,20 @@ router.post('/create-order', flexAuth, async (req, res) => {
       });
 
       if (pendingLead) {
-        await prisma.eventRegistration.update({
+        registration = await prisma.eventRegistration.update({
           where: { id: pendingLead.id },
           data: {
             event_id: event.id,
             ticket_tier: actualTicketTier,
-            razorpay_order_id: order.id,
             amount: Math.round(chargeableRupees)
           }
         });
       } else {
-        await prisma.eventRegistration.create({
+        registration = await prisma.eventRegistration.create({
           data: {
             user_id: req.userId,
             event_id: event.id,
             ticket_tier: actualTicketTier,
-            razorpay_order_id: order.id,
             status: 'PENDING',
             amount: Math.round(chargeableRupees),
           }
@@ -449,12 +444,11 @@ router.post('/create-order', flexAuth, async (req, res) => {
       });
 
       if (pendingLead) {
-        await prisma.eventRegistration.update({
+        registration = await prisma.eventRegistration.update({
           where: { id: pendingLead.id },
           data: {
             event_id: event.id,
             ticket_tier: actualTicketTier,
-            razorpay_order_id: order.id,
             amount: Math.round(chargeableRupees),
             guest_name: req.guestUser.name || pendingLead.guest_name,
             guest_email: req.guestUser.email || pendingLead.guest_email,
@@ -462,12 +456,11 @@ router.post('/create-order', flexAuth, async (req, res) => {
           }
         });
       } else {
-        await prisma.eventRegistration.create({
+        registration = await prisma.eventRegistration.create({
           data: {
             user_id: null,
             event_id: event.id,
             ticket_tier: actualTicketTier,
-            razorpay_order_id: order.id,
             status: 'PENDING',
             amount: Math.round(chargeableRupees),
             guest_name: req.guestUser.name || null,
@@ -476,7 +469,31 @@ router.post('/create-order', flexAuth, async (req, res) => {
           }
         });
       }
+    } else {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
+
+    // The order carries the registration id in its notes, so the Razorpay
+    // webhook (and verify-payment) can find the row even if a later checkout
+    // attempt by the same buyer has replaced razorpay_order_id on it.
+    const options = {
+      amount: Math.round(chargeableRupees * 100), // paise
+      currency: 'INR',
+      receipt: `rcpt_${Date.now()}`,
+      notes: {
+        kind: 'event_registration',
+        registration_id: registration.id,
+        event_id: event.id,
+        ...(appliedCouponCode ? { coupon_code: appliedCouponCode } : {}),
+      },
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    await prisma.eventRegistration.update({
+      where: { id: registration.id },
+      data: { razorpay_order_id: order.id },
+    });
 
     res.json({
       orderId: order.id,
@@ -557,9 +574,160 @@ router.post('/test-email', authMiddleware, async (req, res) => {
   }
 });
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Notes set on the order by create-order ({} if the order can't be fetched). */
+async function fetchOrderNotes(orderId) {
+  try {
+    const order = await razorpay.orders.fetch(orderId);
+    return order.notes || {};
+  } catch (err) {
+    console.error(`[payments] could not fetch order ${orderId} from Razorpay:`, err.error?.description || err.message);
+    return {};
+  }
+}
+
+/**
+ * The registration a Razorpay order belongs to: by order id first, then by the
+ * registration_id create-order put in the order notes (covers a buyer whose
+ * row was re-pointed to a newer order by a second checkout attempt).
+ */
+async function findRegistrationForOrder(orderId, notes = {}) {
+  const byOrder = await prisma.eventRegistration.findFirst({ where: { razorpay_order_id: orderId } });
+  if (byOrder) return byOrder;
+  if (notes.registration_id && UUID_RE.test(notes.registration_id)) {
+    return prisma.eventRegistration.findUnique({ where: { id: notes.registration_id } });
+  }
+  return null;
+}
+
+/**
+ * Marks a paid registration COMPLETED and runs the follow-ups: lead cleanup,
+ * coupon usage, confirmation email. Shared by the browser's verify-payment call
+ * and the Razorpay webhook (routes/razorpayWebhook.js), because the browser
+ * call alone is not reliable — on mobile UPI the tab can be lost while the
+ * buyer is in their UPI app (incident 2026-10-02).
+ *
+ * Idempotent: the status flip is one conditional UPDATE, so when both paths
+ * fire for the same payment exactly one of them gets { completed: true } and
+ * runs the follow-ups; the other gets { completed: false }.
+ */
+async function completeEventRegistration(reg, { orderId, paymentId, couponCode = null, contactEmail = null, contactPhone = null, sendEmail = true }) {
+  const claimed = await prisma.eventRegistration.updateMany({
+    where: { id: reg.id, status: { not: 'COMPLETED' } },
+    data: {
+      status: 'COMPLETED',
+      razorpay_payment_id: paymentId,
+      ...(orderId ? { razorpay_order_id: orderId } : {}),
+    },
+  });
+  if (claimed.count === 0) return { completed: false };
+
+  let event = null;
+  if (reg.event_id) {
+    try {
+      event = await prisma.event.findFirst({
+        where: {
+          OR: [
+            { slug: reg.event_id },
+            ...(UUID_RE.test(reg.event_id) ? [{ id: reg.event_id }] : [])
+          ]
+        }
+      });
+    } catch (_) {}
+  }
+
+  let recipientEmail = reg.guest_email || contactEmail;
+  let recipientName = reg.guest_name;
+  if (!recipientEmail && reg.user_id) {
+    try {
+      const u = await prisma.user.findUnique({ where: { id: reg.user_id } });
+      if (u) {
+        recipientEmail = u.email;
+        recipientName = recipientName || u.name;
+      }
+    } catch (_) {}
+  }
+
+  // Remove from Leads since the buyer is now a confirmed attendee in Registrations
+  const eventSources = Array.from(new Set([
+    `checkout_${reg.event_id}`,
+    `checkout_${reg.event_id?.toLowerCase()}`,
+    event ? `checkout_${event.id}` : null,
+    event ? `checkout_${event.slug}` : null,
+    event ? `checkout_${event.slug?.toLowerCase()}` : null,
+    `free_registration_${reg.event_id}`,
+    event ? `free_registration_${event.id}` : null,
+    event ? `free_registration_${event.slug}` : null,
+  ].filter(Boolean)));
+  const contactEmails = Array.from(new Set([recipientEmail, reg.guest_email, contactEmail].filter(Boolean)));
+  const contactPhones = Array.from(new Set([reg.guest_phone, contactPhone].filter(Boolean)));
+  if (contactEmails.length > 0 || contactPhones.length > 0) {
+    await prisma.lead.deleteMany({
+      where: {
+        OR: [
+          ...(contactEmails.map(email => ({ email }))),
+          ...(contactPhones.map(phone => ({ phone })))
+        ],
+        source: { in: eventSources }
+      }
+    }).catch(() => {});
+  }
+
+  // Log coupon usage only once the money has actually moved
+  if (couponCode) {
+    try {
+      const coupon = await prisma.coupon.findUnique({ where: { code: couponCode.toUpperCase() } });
+      if (coupon) {
+        await prisma.couponUsage.create({
+          data: { coupon_id: coupon.id, user_email: recipientEmail || null }
+        });
+        await prisma.coupon.update({
+          where: { id: coupon.id },
+          data: { current_uses: { increment: 1 } }
+        });
+      }
+    } catch (err) {
+      console.error('Failed to log coupon usage:', err);
+    }
+  }
+
+  // --- SEND PAID CONFIRMATION EMAIL (custom template aware) ---
+  if (sendEmail && recipientEmail) {
+    let templateConfig = {};
+    if (event && event.page_blocks) {
+      try {
+        const pb = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+        if (pb && pb.email_template) {
+          templateConfig = pb.email_template;
+        }
+      } catch (_) {}
+    }
+
+    const rendered = renderRegistrationEmail({
+      templateConfig,
+      registration: {
+        ...reg,
+        guest_name: recipientName,
+        guest_email: recipientEmail,
+        razorpay_payment_id: paymentId
+      },
+      event: event || {}
+    });
+
+    sendMail(recipientEmail, rendered.subject, rendered.html, rendered.text)
+      .catch(err => console.error('[payments] confirmation email failed (non-fatal):', err.message));
+  }
+
+  return { completed: true };
+}
+
 router.post('/verify-payment', async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ success: false, error: 'Missing payment verification fields' });
+    }
 
     const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSignature = crypto
@@ -567,146 +735,43 @@ router.post('/verify-payment', async (req, res) => {
       .update(body.toString())
       .digest('hex');
 
-    const isAuthentic = safeEqualHex(expectedSignature, razorpay_signature);
-
-    if (isAuthentic) {
+    if (!safeEqualHex(expectedSignature, razorpay_signature)) {
+      // Only a still-PENDING row may be marked FAILED: this endpoint is
+      // unauthenticated, so a junk request must never demote a paid registration.
       await prisma.eventRegistration.updateMany({
-        where: { razorpay_order_id: razorpay_order_id },
-        data: {
-          razorpay_payment_id: razorpay_payment_id,
-          status: 'COMPLETED'
-        }
-      });
-
-      // Remove from Leads table since user is now a confirmed attendee in Registrations
-      const reg = await prisma.eventRegistration.findFirst({
-        where: { razorpay_order_id: razorpay_order_id }
-      });
-
-      let event = null;
-      if (reg && reg.event_id) {
-        try {
-          const isEventUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reg.event_id);
-          event = await prisma.event.findFirst({
-            where: {
-              OR: [
-                { slug: reg.event_id },
-                ...(isEventUuid ? [{ id: reg.event_id }] : [])
-              ]
-            }
-          });
-        } catch (_) {}
-      }
-
-      if (reg) {
-        const eventSources = Array.from(new Set([
-          `checkout_${reg.event_id}`,
-          `checkout_${reg.event_id?.toLowerCase()}`,
-          event ? `checkout_${event.id}` : null,
-          event ? `checkout_${event.slug}` : null,
-          event ? `checkout_${event.slug?.toLowerCase()}` : null,
-          `free_registration_${reg.event_id}`,
-          event ? `free_registration_${event.id}` : null,
-          event ? `free_registration_${event.slug}` : null,
-        ].filter(Boolean)));
-
-        let recipientEmail = reg.guest_email || req.body.email;
-        let recipientPhone = reg.guest_phone || req.body.phone;
-
-        if (!recipientEmail && reg.user_id) {
-          try {
-            const u = await prisma.user.findUnique({ where: { id: reg.user_id } });
-            if (u) {
-              recipientEmail = u.email;
-            }
-          } catch (_) {}
-        }
-
-        const contactEmails = [recipientEmail, reg.guest_email, req.body.email].filter(Boolean);
-        const contactPhones = [recipientPhone, reg.guest_phone, req.body.phone].filter(Boolean);
-
-        if (contactEmails.length > 0 || contactPhones.length > 0) {
-          await prisma.lead.deleteMany({
-            where: {
-              OR: [
-                ...(contactEmails.map(email => ({ email }))),
-                ...(contactPhones.map(phone => ({ phone })))
-              ],
-              source: { in: eventSources }
-            }
-          }).catch(() => {});
-        }
-      }
-      
-      // Log coupon usage if a valid coupon was used
-      if (req.body.couponCode) {
-        try {
-          const coupon = await prisma.coupon.findUnique({ where: { code: req.body.couponCode.toUpperCase() } });
-          if (coupon) {
-            await prisma.couponUsage.create({
-              data: {
-                coupon_id: coupon.id,
-                user_email: req.body.email || (reg && reg.guest_email) || null
-              }
-            });
-            await prisma.coupon.update({
-              where: { id: coupon.id },
-              data: { current_uses: { increment: 1 } }
-            });
-          }
-        } catch (err) {
-          console.error("Failed to log coupon usage:", err);
-        }
-      }
-
-      // --- SEND PAID CONFIRMATION EMAIL (custom template aware) ---
-      if (reg) {
-        let recipientEmail = reg.guest_email || req.body.email;
-        let recipientName = reg.guest_name;
-
-        if (!recipientEmail && reg.user_id) {
-          try {
-            const u = await prisma.user.findUnique({ where: { id: reg.user_id } });
-            if (u) {
-              recipientEmail = u.email;
-              recipientName = recipientName || u.name;
-            }
-          } catch (_) {}
-        }
-
-        let templateConfig = {};
-        if (event && event.page_blocks) {
-          try {
-            const pb = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
-            if (pb && pb.email_template) {
-              templateConfig = pb.email_template;
-            }
-          } catch (_) {}
-        }
-
-        const rendered = renderRegistrationEmail({
-          templateConfig,
-          registration: {
-            ...reg,
-            guest_name: recipientName,
-            guest_email: recipientEmail,
-            razorpay_payment_id: razorpay_payment_id
-          },
-          event: event || {}
-        });
-
-        sendMail(recipientEmail, rendered.subject, rendered.html, rendered.text)
-          .catch(err => console.error('[verify-payment] confirmation email failed (non-fatal):', err.message));
-      }
-
-      res.json({ success: true, message: 'Payment verified successfully' });
-    } else {
-      await prisma.eventRegistration.updateMany({
-        where: { razorpay_order_id: razorpay_order_id },
+        where: { razorpay_order_id: razorpay_order_id, status: 'PENDING' },
         data: { status: 'FAILED' }
       });
-      res.status(400).json({ success: false, error: 'Invalid signature' });
+      return res.status(400).json({ success: false, error: 'Invalid signature' });
     }
+
+    const notes = await fetchOrderNotes(razorpay_order_id);
+    const reg = await findRegistrationForOrder(razorpay_order_id, notes);
+    if (!reg) {
+      // Money moved but there is no row to attach it to. Never report success
+      // here — this is exactly the silent loss the 2026-10-02 incident was.
+      console.error(
+        `[verify-payment] NO REGISTRATION for paid order ${razorpay_order_id} / ${razorpay_payment_id} — reconcile manually`
+      );
+      return res.status(404).json({
+        success: false,
+        error: `Payment received, but we could not find your registration. Please contact support with payment ID ${razorpay_payment_id}.`
+      });
+    }
+
+    // Orders created by this version carry the applied coupon in their notes;
+    // older orders (no registration_id note) fall back to what the client sent.
+    const couponCode = notes.registration_id ? (notes.coupon_code || null) : (req.body.couponCode || null);
+
+    const { completed } = await completeEventRegistration(reg, {
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      couponCode,
+      contactEmail: req.body.email || null,
+      contactPhone: req.body.phone || null,
+    });
+
+    res.json({ success: true, alreadyProcessed: !completed, message: 'Payment verified successfully' });
   } catch (error) {
     console.error('Error verifying payment:', error);
     res.status(500).json({ error: 'Error verifying payment' });
@@ -877,3 +942,7 @@ router.post('/register-free', flexAuth, async (req, res) => {
 });
 
 module.exports = router;
+// Shared with the Razorpay webhook (routes/razorpayWebhook.js) and scripts/reconcileEventPayments.js
+module.exports.completeEventRegistration = completeEventRegistration;
+module.exports.findRegistrationForOrder = findRegistrationForOrder;
+module.exports.fetchOrderNotes = fetchOrderNotes;

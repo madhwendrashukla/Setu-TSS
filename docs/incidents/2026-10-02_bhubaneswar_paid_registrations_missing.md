@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Root cause confirmed: the browser never sent `verify-payment`. Scope: these 3 buyers only. Recovery pending |
+| **Status** | Data recovered 2026-10-15 (3 rows restored, Razorpay and DB reconcile 15 = 15). Root cause confirmed: the browser never sent `verify-payment`. Preventive fix: Razorpay webhook (needs dashboard and env setup) |
 | **Detected** | 2026-10-15 |
 | **Event** | Chai & Conversation – Bhubaneswar (2 Oct / 3 Oct sessions) |
 | **Impact** | 3 buyers paid ₹1.00 (Razorpay: Captured, settled 5 Oct, `setl_Tk9FbJeYRyN6lB`) but do not appear as registrations |
@@ -54,6 +54,10 @@ The payment code was the same on 1–2 Oct as it is today. The 9 Oct commits (`e
 | **D** | Row absent | Would mean it was deleted, or written to a different database. |
 
 ## Evidence to collect (decides between A / A′ / B / C / D)
+
+> The one-off investigation scripts named below (`diagnoseEventPayment.js`, `findPaidPendingRegistrations.js`,
+> `auditEventOrders.js`, `completePaidPendingRegistrations.js`) were removed once the incident closed. They remain in git history
+> (added in `f9ebd88`, `6119f6f`, `37548b8`, `636bb7e`). The ongoing check is `backend/scripts/reconcileEventPayments.js`.
 
 1. **Diagnostic script on prod (read-only):**
    `cd ~/Setu-TSS/backend && node scripts/diagnoseEventPayment.js pay_TihNSET8MDHNMT pay_TivUelVcQNihOH pay_Tivfprffc01dcD`
@@ -118,6 +122,45 @@ server-side webhook, the rows stayed PENDING and the Registrations tab (COMPLETE
 | Created (0 attempts) | 8 | Checkout opened or abandoned, no money taken. 5 of them were created within 15 s (1 Oct 23:12:31–23:12:46), which looks like repeated clicks on Pay. |
 | Attempted | 1 | `order_Tj8MrMCjcR2Zeo` (2 Oct 23:41): payment tried and failed, no money taken. |
 
+**Order-by-order audit** (`scripts/auditEventOrders.js 2026-10-01 2026-10-07`, run 2026-10-15):
+
+| Razorpay / DB | Count | Detail |
+|---|---|---|
+| paid / COMPLETED | 12 | 3 of these are internal test payments by the team (1 Oct 19:59, 2 Oct 21:48, 7 Oct 11:13) |
+| paid / PENDING | 3 | The 3 buyers in this incident |
+| attempted / no row | 1 | `order_Tj8MrMCjcR2Zeo`: UPI `payment_timed_out` (customer didn't approve in time). The **same buyer retried and paid** at 3 Oct 02:17 (`order_TjB2C2v2GzExeT`, COMPLETED). The retry overwrote the order ID on their row, which is why this order has no row. No action needed. |
+| created / PENDING | 1 | `order_Time9T0ovnecLb` (2 Oct 02:26): buyer opened the Razorpay checkout and **never paid**. A genuine abandoned checkout to follow up. |
+| created / no row | 7 | 1 is a team test on 7 Oct (retried and paid 2 min later). The other 6 fall on 1 Oct 23:10–23:12, between two COMPLETED payments at 23:09 and the 23:13:57 paid order (`order_TijMiJzA2cZHac`), which carries the same name as one of them under a second email address. |
+
+**No double charges.** The two buyers with two paid orders each paid once for `bhubaneswar-2oct` and
+once for `bhubaneswar-3oct`, which are separate events. Paid registrations per event, once the 3 PENDING rows are restored:
+
+| Event | Customers | Team tests | Total paid |
+|---|---|---|---|
+| `bhubaneswar-2oct` | 5 COMPLETED + **3 restored** = 8 | 2 (one made on 7 Oct, after the event) | 10 |
+| `bhubaneswar-3oct` | 4 | 1 | 5 |
+
+All 3 affected buyers registered for the **2 Oct** event.
+
+**Secondary defect: orphan orders.** `create-order` calls `razorpay.orders.create()` *before*
+the "already registered" check (`payments.js` ~L383 vs ~L387–437). A buyer who is already COMPLETED
+(matched by email **or phone**) and clicks Pay again gets a 400 error, but a Razorpay order has
+already been made, with no DB row. Each re-click of Pay after an error creates another one.
+**Confirmed by nginx:** all 7 "created / no row" orders match a `create-order` that returned **400 with an
+87-byte body**. That is exactly the length of `{"error":"You have already registered for this event with this email or phone number."}`.
+- 1 Oct (UTC 17:40:21, then 17:42:31, :43, :44, :45, :46), one Windows desktop visitor: the first try came right after their first
+  seat was paid (23:09). They re-verified with a second email (`capture-lead` 17:42:08) and were still blocked, presumably
+  because the phone matched. They then got through and paid for a second seat at 23:13:57.
+- 7 Oct 05:41:49: a team test blocked the same way, then paid 2 min later.
+
+The same log corroborates the healthy path. A `verify-payment` 200 at 1 Oct 17:40:06 UTC matches the COMPLETED
+row updated at 23:10:06 IST.
+
+No money is involved, but each blocked click leaves an orphan Razorpay order.
+
+**Decision (2026-10-15): keep the email-OR-phone duplicate rule.** One registration per email and per phone, per event.
+Booking another seat requires different details; that is intended. Only the orphan-order side effect gets fixed.
+
 The 3 failures are not clustered: buyers at 21:08 and 22:54 on 1 Oct, and at 21:48–02:17 on 2–3 Oct, completed normally.
 
 **Why these 3 browsers didn't call back.** This can't be observed from the server. All 3 paid through a UPI app on a phone. The
@@ -127,11 +170,20 @@ registration becomes COMPLETED. Razorpay explicitly recommends a server-to-serve
 
 ## Remediation
 
-- [ ] Restore the 3 registrations to `COMPLETED` with their payment IDs:
-      `node scripts/completePaidPendingRegistrations.js` (dry run), then add `--apply` to write.
-- [ ] Add a Razorpay `payment.captured` / `order.paid` webhook for event registrations, so the outcome no longer depends on the buyer's browser.
-- [ ] `verify-payment`: return an error and log loudly when `updateMany` matches 0 rows, instead of returning `success: true`.
-- [ ] `create-order`: stop overwriting the order ID on an existing PENDING row (append, or keep one row per order).
-- [ ] Admin Registrations: show "PENDING with order ID" rows so paid-but-unverified buyers are visible.
-- [ ] Daily reconciliation: compare captured Razorpay payments with COMPLETED registrations and alert on any gap.
+- [x] Restored the 3 registrations to `COMPLETED` with their payment IDs (2026-10-15, `completePaidPendingRegistrations.js --apply`).
+      Rows `597ee974…`, `194d7f12…`, `1e1e243e…`; their 3 checkout leads were removed. Afterwards `findPaidPendingRegistrations.js` reports
+      **15 COMPLETED paid = 15 paid Razorpay orders, 0 paid-but-PENDING**. The 5 remaining PENDING rows with an order ID are
+      4 old test-key orders and 1 genuinely unpaid checkout (`order_Time9T0ovnecLb`).
+- [x] Razorpay webhook `POST /api/razorpay/webhook` (`order.paid`, `payment.captured`) for event registrations **and course
+      orders**. The browser no longer decides whether a payment is recorded. Needs the dashboard setup and the `RAZORPAY_WEBHOOK_SECRET` env var (see DEPLOY.md).
+- [x] One idempotent completion step (`completeEventRegistration`, and course `fulfillOrder`). verify-payment and the webhook
+      can both arrive; only the first sends the email or counts the coupon.
+- [x] `verify-payment`: returns 404 and logs `NO REGISTRATION for paid order` instead of a silent `success: true`.
+- [x] `verify-payment`: a bad signature can only mark a **PENDING** row FAILED. Previously any unauthenticated junk request
+      could demote a COMPLETED registration to FAILED.
+- [x] Order-ID overwrite: every new order carries `registration_id` in its Razorpay notes. A payment on an older order of the
+      same buyer is still matched to their row.
+- [x] `create-order`: duplicate check and PENDING row now happen **before** `razorpay.orders.create()`, so there are no more orphan orders.
+- [x] Coupon usage is counted from the server-set order notes, no longer from the client request body.
+- [x] Reconciliation safety net: `scripts/reconcileEventPayments.js` (dry run by default).
 - [ ] Deploy discipline: avoid deploying with `pm2 restart all` while registrations are open.

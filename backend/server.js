@@ -67,6 +67,11 @@ app.use(cors({
   credentials: true
 }));
 
+// Razorpay → website payment webhook (event registrations + course orders).
+// Mounted BEFORE express.json(): the signature covers the exact raw body.
+const razorpayWebhook = require('./routes/razorpayWebhook');
+app.use('/api/razorpay/webhook', razorpayWebhook);
+
 // LMS→website internal endpoints for Unified Events. Mounted BEFORE
 // express.json() because their HMAC signatures cover the exact raw body.
 const lmsEventsSync = require('./routes/lmsEvents');

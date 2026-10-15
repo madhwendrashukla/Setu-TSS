@@ -369,18 +369,21 @@ async function dispatchEnrollment(order, extra = {}) {
   })();
 }
 
-// Marks the order paid and fires enrollment (bundle-aware). Factored out so an
-// inbound Razorpay payment.captured webhook can reuse it later; both paths stay
-// idempotent via the status check.
+// Marks the order paid and fires enrollment (bundle-aware). Shared by the
+// browser's /verify call and the Razorpay webhook (routes/razorpayWebhook.js).
+// The paid flip is one conditional UPDATE, so when both arrive for the same
+// payment only the first enrolls; returns false for the second.
 async function fulfillOrder(order, razorpayPaymentId) {
-  const updated = await prisma.courseOrder.update({
-    where: { id: order.id },
+  const claimed = await prisma.courseOrder.updateMany({
+    where: { id: order.id, status: { not: 'paid' } },
     data: {
       status: 'paid',
       razorpay_payment_id: razorpayPaymentId,
       webhook_status: 'pending',
     },
   });
+  if (claimed.count === 0) return false;
+  const updated = await prisma.courseOrder.findUnique({ where: { id: order.id } });
 
   await dispatchEnrollment(updated);
 
@@ -401,6 +404,7 @@ async function fulfillOrder(order, razorpayPaymentId) {
       console.error('Coupon usage recording error:', err)
     );
   }
+  return true;
 }
 
 // POST /api/course-payments/enroll-free
@@ -507,8 +511,9 @@ router.post('/verify', async (req, res) => {
       crypto.timingSafeEqual(expectedBuf, receivedBuf);
 
     if (!valid) {
-      await prisma.courseOrder.update({
-        where: { id: order.id },
+      // Conditional: the webhook may have marked it paid since the read above.
+      await prisma.courseOrder.updateMany({
+        where: { id: order.id, status: { not: 'paid' } },
         data: { status: 'failed' },
       });
       return res.status(400).json({ error: 'Payment signature verification failed' });
@@ -523,3 +528,5 @@ router.post('/verify', async (req, res) => {
 });
 
 module.exports = router;
+// Shared with the Razorpay webhook (routes/razorpayWebhook.js)
+module.exports.fulfillOrder = fulfillOrder;

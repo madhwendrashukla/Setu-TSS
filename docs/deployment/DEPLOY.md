@@ -80,12 +80,25 @@ Bare `KEY=value`. Beyond the standard `DATABASE_URL`/`JWT_SECRET`/`AWS_*`/`SMTP_
 | `LMS_WEBHOOK_URL` | `http://127.0.0.1:3001/lms/api/webhooks/enrollment` (loopback, incl. `/lms`) |
 | `LMS_WEBHOOK_SECRET` | shared HMAC secret (= LMS `WEBHOOK_SECRET`) |
 | `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | Razorpay (test keys currently; live at cutover) |
+| `RAZORPAY_WEBHOOK_SECRET` | secret of the Razorpay dashboard webhook (below); missing ⇒ webhook answers 503 |
 | `GUEST_TOKEN_SECRET` | Madhwendra's guest-checkout flexAuth |
 
 ## Two payment systems (do not re-collide)
 
 - `/api/payments` → **Madhwendra's** event-registration payments (`routes/payments.js`, `EventRegistration`). Leave untouched.
 - `/api/course-payments` → **our** LMS course orders (`routes/coursePayments.js`, `CourseOrder`) — server-side pricing, fires the signed enrollment webhook to the LMS.
+- `/api/razorpay/webhook` → Razorpay → website, server to server, for **both** systems (`routes/razorpayWebhook.js`). It completes a captured payment even when the buyer's browser never calls back (incident `docs/incidents/2026-10-02_*`).
+
+### Razorpay webhook setup (once per Razorpay account/mode)
+
+1. `openssl rand -hex 32`, then put the value in `backend/.env` as `RAZORPAY_WEBHOOK_SECRET`.
+2. Razorpay Dashboard → **Settings → Webhooks → Add New Webhook** (in the same mode, Live or Test, as the keys in `.env`):
+   URL `https://setustartupschool.com/api/razorpay/webhook`, Secret = the same value, Active events **`order.paid`** and **`payment.captured`**.
+3. New env var ⇒ `pm2 delete tss-backend && pm2 start server.js --name tss-backend && pm2 save` (not `restart`).
+4. Check: `pm2 logs tss-backend | grep razorpay-webhook` shows one line per payment, e.g. `order.paid order_… pay_…: registration completed`.
+   An unsigned probe must be refused: `curl -s -X POST https://setustartupschool.com/api/razorpay/webhook -d '{}'` → `{"error":"Invalid signature"}`.
+
+Safety net if the webhook was down: `node scripts/reconcileEventPayments.js` (dry run) → `--apply`.
 
 ## Post-deploy smoke test
 

@@ -123,6 +123,21 @@ export default function AdminEvents() {
 
     useEffect(() => {
         fetchEvents();
+        // The builder opens as a full page load, so coming back with the
+        // browser's Back button restores THIS page from the bfcache with the
+        // events as they were before the builder saved. The status pill and the
+        // edit modal would then write those stale values back (is_past,
+        // page_blocks.registrations_open). Refetch whenever the page is shown
+        // or focused again.
+        const refresh = () => { if (document.visibilityState === 'visible') fetchEvents(); };
+        window.addEventListener('pageshow', refresh);
+        window.addEventListener('focus', refresh);
+        document.addEventListener('visibilitychange', refresh);
+        return () => {
+            window.removeEventListener('pageshow', refresh);
+            window.removeEventListener('focus', refresh);
+            document.removeEventListener('visibilitychange', refresh);
+        };
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -130,11 +145,23 @@ export default function AdminEvents() {
         const token = localStorage.getItem("adminToken");
         const data = new FormData();
         
-        // Pack custom links into page_blocks
-        let blocks: any = {};
-        if (editingEvent?.page_blocks) {
+        // Pack custom links into page_blocks. Merge into the LATEST page_blocks,
+        // not the copy loaded with the list: the builder may have saved since
+        // (e.g. Registrations Open), and writing the old copy back undoes it.
+        let source: any = editingEvent?.page_blocks;
+        if (editingEvent) {
             try {
-                blocks = typeof editingEvent.page_blocks === 'string' ? JSON.parse(editingEvent.page_blocks) : editingEvent.page_blocks;
+                const fresh = await fetch(`/api/events?all=true`, { headers: { "Authorization": `Bearer ${token}` } }).then(r => r.json());
+                const latest = Array.isArray(fresh) ? fresh.find((ev: any) => ev.id === editingEvent.id) : null;
+                if (latest && Object.prototype.hasOwnProperty.call(latest, 'page_blocks')) source = latest.page_blocks;
+            } catch (e) {
+                console.error('Could not reload latest page_blocks; using the loaded copy', e);
+            }
+        }
+        let blocks: any = {};
+        if (source) {
+            try {
+                blocks = typeof source === 'string' ? JSON.parse(source) : source;
             } catch(e) {}
         }
         blocks.whatsapp_link = formData.whatsapp_link || "";

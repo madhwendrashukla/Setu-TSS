@@ -296,6 +296,20 @@ function getPriceFromEvent(event, workshopId, workshopTitle, cardId) {
   return { price: serverBasePrice, title: serverTitle, matchedBy };
 }
 
+/**
+ * Same rule the event page uses for its navbar and CTAs: an event whose builder
+ * has "Registrations Open" unticked takes no registrations. The page hides the
+ * buttons; this stops a stale tab or a direct API call.
+ */
+function registrationsClosed(event) {
+  try {
+    const pd = typeof event.page_blocks === 'string' ? JSON.parse(event.page_blocks) : event.page_blocks;
+    return !!(pd && !Array.isArray(pd) && pd.registrations_open === false);
+  } catch (_) {
+    return false;
+  }
+}
+
 // Create Order Route — accepts guest token OR regular JWT
 router.post('/create-order', flexAuth, async (req, res) => {
   try {
@@ -319,6 +333,9 @@ router.post('/create-order', flexAuth, async (req, res) => {
 
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
+    }
+    if (registrationsClosed(event)) {
+      return res.status(400).json({ error: 'Registrations for this event are closed.' });
     }
 
     const { price: serverBasePrice, title: serverTicketTier, matchedBy } = getPriceFromEvent(
@@ -812,6 +829,9 @@ router.post('/register-free', flexAuth, async (req, res) => {
     });
 
     if (!event) return res.status(404).json({ error: 'Event not found' });
+    if (registrationsClosed(event)) {
+      return res.status(400).json({ error: 'Registrations for this event are closed.' });
+    }
 
     // Re-read ALL pricing cards and check if at least one free card exists.
     let pageData;

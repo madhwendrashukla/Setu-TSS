@@ -76,6 +76,13 @@ export default async function DynamicEventPage({ params, searchParams }: { param
     // If it's the old array format, we can't render it with the new unified layout, but we'll try to handle gracefully if needed.
     const isArrayFormat = Array.isArray(pageData);
 
+    // ONE rule for "can people register": the builder's "Registrations Open"
+    // checkbox, used by the navbar AND every CTA below. The navbar used to also
+    // check is_past while the pricing/workshop buttons did not, so a Past event
+    // showed "Closed" in the navbar while the page still sold tickets. The
+    // server enforces the same rule in create-order / register-free.
+    const registrationOpen = pageData.registrations_open !== false;
+
     return (
         <div className="antialiased relative pb-16 bg-white text-slate-900 overflow-x-hidden">
             {/* Grid Background */}
@@ -106,7 +113,7 @@ export default async function DynamicEventPage({ params, searchParams }: { param
                             </Link>
                         </div>
                         <div className="flex-shrink-0 ml-3 sm:ml-4">
-                            {!event.is_past && pageData.registrations_open !== false ? (
+                            {registrationOpen ? (
                                 <a 
                                     href={
                                         event.lms_course_slug 

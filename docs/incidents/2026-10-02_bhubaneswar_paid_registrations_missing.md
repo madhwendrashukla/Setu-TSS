@@ -110,6 +110,16 @@ server-side webhook, the rows stayed PENDING and the Registrations tab (COMPLETE
 - 4 other PENDING rows reference orders Razorpay does not know (`order_ThscyUzhOI5oza`, `order_ThtG8kXUmBvHN8`,
   `order_TiEp9092QZYg3S`, `order_TiX3xKayTkKBcA`). These are orders made under the earlier test key, with no money involved.
 
+**Razorpay orders export (1–7 Oct, all ₹1): 24 orders.**
+
+| Razorpay state | Count | Meaning |
+|---|---|---|
+| Paid | 15 | = 12 COMPLETED registrations + these 3 PENDING. Every paid order is accounted for. |
+| Created (0 attempts) | 8 | Checkout opened or abandoned, no money taken. 5 of them were created within 15 s (1 Oct 23:12:31–23:12:46), which looks like repeated clicks on Pay. |
+| Attempted | 1 | `order_Tj8MrMCjcR2Zeo` (2 Oct 23:41): payment tried and failed, no money taken. |
+
+The 3 failures are not clustered: buyers at 21:08 and 22:54 on 1 Oct, and at 21:48–02:17 on 2–3 Oct, completed normally.
+
 **Why these 3 browsers didn't call back.** This can't be observed from the server. All 3 paid through a UPI app on a phone. The
 known failure mode is that the browser tab gets reloaded, killed or closed during the switch to the UPI app and back, so Razorpay's
 in-page `handler` never runs. The design flaw is that this in-page callback is the *only* way a

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Data recovered 2026-10-15 (3 rows restored, Razorpay and DB reconcile 15 = 15). Root cause confirmed: the browser never sent `verify-payment`. Preventive fix: Razorpay webhook (needs dashboard and env setup) |
+| **Status** | Data recovered 2026-10-15 (3 rows restored, Razorpay and DB reconcile 15 = 15). Root cause confirmed: the browser never sent `verify-payment`. **Closed:** Razorpay webhook live and verified in production on 2026-10-15 (₹1 test `order_ToEdtVQ7ZdNwAy`: `payment.captured` completed the registration, then `order.paid` was a no-op) |
 | **Detected** | 2026-10-15 |
 | **Event** | Chai & Conversation – Bhubaneswar (2 Oct / 3 Oct sessions) |
 | **Impact** | 3 buyers paid ₹1.00 (Razorpay: Captured, settled 5 Oct, `setl_Tk9FbJeYRyN6lB`) but do not appear as registrations |

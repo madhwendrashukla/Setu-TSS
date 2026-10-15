@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Root cause confirmed for all 3: the browser never sent `verify-payment`. Scope (systematic vs per-device) pending |
+| **Status** | Root cause confirmed: the browser never sent `verify-payment`. Scope: these 3 buyers only. Recovery pending |
 | **Detected** | 2026-10-15 |
 | **Event** | Chai & Conversation – Bhubaneswar (2 Oct / 3 Oct sessions) |
 | **Impact** | 3 buyers paid ₹1.00 (Razorpay: Captured, settled 5 Oct, `setl_Tk9FbJeYRyN6lB`) but do not appear as registrations |
@@ -103,18 +103,22 @@ What this establishes for #1 and #3:
 after a successful UPI payment. Because that browser call is the only path to `COMPLETED`, and there is no
 server-side webhook, the rows stayed PENDING and the Registrations tab (COMPLETED only) hid them.
 
-**Still open: systematic or per-device?** All 3 of 3 failed, on different phones and browsers. To check whether `verify-payment`
-*ever* reaches the server, and to measure the full impact:
-- `sudo zgrep -c "verify-payment" /var/log/nginx/access.log*`
-- `node scripts/findPaidPendingRegistrations.js cccaf75e-2683-4594-b5d1-89f856bd4374`. This lists every
-  PENDING row whose Razorpay order is paid. Run it with no argument to cover all events.
+**Scope: per-buyer, not systematic (checked 2026-10-15).**
+- `verify-payment` *does* reach the server for other buyers: 16 requests across the retained nginx logs
+  (`access.log.14.gz`: 10, `.13.gz`: 5, `.8.gz`: 1), and 12 paid registrations are COMPLETED.
+- `findPaidPendingRegistrations.js` over **all events** finds exactly these 3 paid-but-PENDING rows. No other buyer is affected.
+- 4 other PENDING rows reference orders Razorpay does not know (`order_ThscyUzhOI5oza`, `order_ThtG8kXUmBvHN8`,
+  `order_TiEp9092QZYg3S`, `order_TiX3xKayTkKBcA`). These are orders made under the earlier test key, with no money involved.
 
-If `verify-payment` never appears, the checkout handler is broken for everyone (a code defect), not just
-lost on mobile app switches.
+**Why these 3 browsers didn't call back.** This can't be observed from the server. All 3 paid through a UPI app on a phone. The
+known failure mode is that the browser tab gets reloaded, killed or closed during the switch to the UPI app and back, so Razorpay's
+in-page `handler` never runs. The design flaw is that this in-page callback is the *only* way a
+registration becomes COMPLETED. Razorpay explicitly recommends a server-to-server webhook for this reason.
 
 ## Remediation
 
-- [ ] Restore the 3 registrations to `COMPLETED` with their payment IDs (prod write, needs approval).
+- [ ] Restore the 3 registrations to `COMPLETED` with their payment IDs:
+      `node scripts/completePaidPendingRegistrations.js` (dry run), then add `--apply` to write.
 - [ ] Add a Razorpay `payment.captured` / `order.paid` webhook for event registrations, so the outcome no longer depends on the buyer's browser.
 - [ ] `verify-payment`: return an error and log loudly when `updateMany` matches 0 rows, instead of returning `success: true`.
 - [ ] `create-order`: stop overwriting the order ID on an existing PENDING row (append, or keep one row per order).
